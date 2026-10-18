@@ -1,0 +1,5 @@
+{
+  "name": "moving-geovalley", "version": "0.2.0", "private": true, "type": "module",
+  "scripts": {"dev": "node scripts/serve.mjs", "preview": "node scripts/serve.mjs --dist", "build": "node scripts/build.mjs", "test": "node --test scripts/model.test.mjs scripts/adventure.test.mjs", "check": "node scripts/check.mjs"},
+  "engines": {"node": ">=20"}
+}

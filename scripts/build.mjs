@@ -1,0 +1,10 @@
+import {cp,mkdir,writeFile,readFile} from 'node:fs/promises';
+import path from 'node:path';
+await mkdir('dist',{recursive:true});
+for(const p of ['index.html','src'])await cp(p,path.join('dist',p),{recursive:true});
+await cp('public/assets','dist/assets',{recursive:true});
+const core=['/','/index.html','/src/style.css','/src/main.js','/src/model.js','/src/ui.js','/src/learning-model.js','/src/explore-ui.js','/src/visuals.js','/assets/map.webp','/assets/river-hero.webp','/assets/fonts/jua-korean-400.woff2','/assets/fonts/jua-latin-400.woff2'];
+const name='geovalley-v3-'+Date.now();
+await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(name)},CORE=${JSON.stringify(core)};self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>/^geovalley-v[23]-/.test(k)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin)return;e.respondWith(caches.open(CACHE).then(async c=>{const hit=await c.match(e.request);if(hit)return hit;const r=await fetch(e.request);if(r.ok)e.waitUntil(c.put(e.request,r.clone()));return r;}));});`);
+let html=await readFile('dist/index.html','utf8');html=html.replace('</body>','<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));</script></body>');await writeFile('dist/index.html',html);
+console.log('Build ready: dist. Only the shell is precached; activities are cached when visited.');

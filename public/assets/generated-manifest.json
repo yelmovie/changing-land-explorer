@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-18",
+  "method": "OpenAI image generation",
+  "originals": "image/generated-20261018/",
+  "files": [
+    "map-adventure",
+    "tool-water",
+    "tool-lens",
+    "tool-camera",
+    "tool-box",
+    "tool-compass",
+    "tool-flag",
+    "hero-lens",
+    "hero-brush",
+    "hero-cheer",
+    "hero-protect"
+  ],
+  "notes": "Map based on project map; poses preserve River identity. Props and characters retain alpha. Educational diagrams are illustrative, not photographs."
+}

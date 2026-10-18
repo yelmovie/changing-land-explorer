@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+<title id="title">강 실험 비교 화면 설계</title>
+<desc id="desc">같은 지형에서 적은 물과 많은 물을 흘린 결과를 좌우로 비교한다. 하나의 시간 막대로 두 실험을 함께 되감고, 예상핀과 실제 퇴적 위치를 비교하여 증거를 수첩에 남긴다. 최종 게임 아트가 아닌 배치 개념도이다.</desc>
+<defs>
+ <linearGradient id="soil" x2="0" y2="1"><stop stop-color="#d9c297"/><stop offset="1" stop-color="#b89562"/></linearGradient>
+ <pattern id="grain" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="6" cy="7" r="1.3" fill="#9d7d4e" opacity=".4"/><circle cx="19" cy="18" r="1.1" fill="#9d7d4e" opacity=".4"/></pattern>
+ <marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0L6 3.5L0 7" fill="none" stroke="#326e76" stroke-width="1.5"/></marker>
+ <style>text{font-family:'Malgun Gothic','Noto Sans KR',sans-serif;fill:#243e36}.body{font-size:18px}.small{font-size:15px}.bold{font-weight:700}.muted{fill:#61766a}.white{fill:#fffaf0}.button{fill:#fffaf0;stroke:#c5cbb8;stroke-width:1.5}</style>
+</defs>
+<rect width="1280" height="720" fill="#e8ecdf"/>
+<!-- 64px global navigation -->
+<rect width="1280" height="64" fill="#fffaf0"/>
+<g><rect class="button" x="24" y="8" width="48" height="48" rx="14"/><path d="M36 31L48 20L60 31M39 29V44H45V35H51V44H57V29" fill="none" stroke="#246b58" stroke-width="2.5"/>
+<rect class="button" x="80" y="8" width="48" height="48" rx="14"/><path d="M111 32H96M102 25L95 32L102 39" fill="none" stroke="#246b58" stroke-width="2.5"/></g>
+<text x="640" y="39" font-size="24" class="bold" text-anchor="middle">물길 관측소 · 강의 비밀</text>
+<rect class="button" x="1088" y="8" width="48" height="48" rx="14"/><text x="1112" y="38" class="small bold" text-anchor="middle">가방</text>
+<rect class="button" x="1148" y="8" width="48" height="48" rx="14"/><text x="1172" y="38" class="small bold" text-anchor="middle">소리</text>
+<rect class="button" x="1208" y="8" width="48" height="48" rx="14"/><text x="1232" y="38" class="small bold" text-anchor="middle">설정</text>
+<!-- 56px objective -->
+<text x="24" y="98" font-size="22" class="bold">같은 순간으로 되돌려, 흙이 이동한 흔적을 비교해 봐.</text>
+<text x="1256" y="98" class="body muted" text-anchor="end">활동 A · 두 실험 비교</text>
+<!-- 448px stage, 8px gaps -->
+<rect x="24" y="128" width="1232" height="448" rx="24" fill="#f8f5e9" stroke="#c9cebb"/>
+<text x="48" y="158" class="small muted">설계 와이어프레임 · 자연물은 최종 아트에서 입체감과 재질을 보강</text>
+<rect x="1096" y="136" width="144" height="48" rx="14" fill="#246b58"/><text x="1168" y="166" class="body bold white" text-anchor="middle">내 증거 2 / 3</text>
+<!-- left trial -->
+<rect x="48" y="184" width="584" height="288" rx="18" fill="#ede3c9"/>
+<rect x="64" y="198" width="124" height="36" rx="12" fill="#fffaf0"/><text x="126" y="222" class="body bold" text-anchor="middle">실험 1 · 적게</text>
+<text x="594" y="220" class="small muted" text-anchor="end">같은 흙 · 같은 지형</text>
+<path d="M72 267Q175 241 270 287T430 350L591 384L591 449L72 449Z" fill="url(#soil)"/>
+<path d="M72 267Q175 241 270 287T430 350L591 384L591 449L72 449Z" fill="url(#grain)"/>
+<path d="M91 276Q180 278 244 307T390 351T542 400" fill="none" stroke="#987347" stroke-width="27"/>
+<path d="M91 276Q180 278 244 307T390 351T542 400" fill="none" stroke="#75bbc3" stroke-width="17"/>
+<ellipse cx="541" cy="402" rx="29" ry="14" fill="#e3c16f"/>
+<g fill="#9c7945"><circle cx="209" cy="297" r="3"/><circle cx="254" cy="314" r="3"/><circle cx="366" cy="349" r="3"/><circle cx="462" cy="374" r="3"/></g>
+<path d="M96 259Q190 258 254 291" stroke="#f1b737" stroke-width="3" stroke-dasharray="6 5" fill="none"/>
+<circle cx="476" cy="407" r="19" fill="#fff5d3" stroke="#c79222" stroke-width="2" stroke-dasharray="4 3"/><text x="476" y="413" class="body bold" text-anchor="middle">?</text>
+<text x="417" y="443" class="small">내가 예상한 곳</text>
+<!-- right trial: identical geometry and scale, translated 600px -->
+<g transform="translate(600 0)">
+<rect x="48" y="184" width="584" height="288" rx="18" fill="#ede3c9"/>
+<rect x="64" y="198" width="124" height="36" rx="12" fill="#fffaf0"/><text x="126" y="222" class="body bold" text-anchor="middle">실험 2 · 많이</text>
+<text x="610" y="220" class="small muted" text-anchor="end">물의 양만 바꿨어</text>
+<path d="M72 267Q175 241 270 287T430 350L591 384L591 449L72 449Z" fill="url(#soil)"/>
+<path d="M72 267Q175 241 270 287T430 350L591 384L591 449L72 449Z" fill="url(#grain)"/>
+<path d="M91 276Q180 278 244 307T390 351T542 400" fill="none" stroke="#987347" stroke-width="43"/>
+<path d="M91 276Q180 278 244 307T390 351T542 400" fill="none" stroke="#75bbc3" stroke-width="25"/>
+<ellipse cx="541" cy="402" rx="48" ry="23" fill="#e3c16f"/>
+<g fill="#9c7945"><circle cx="145" cy="286" r="3"/><circle cx="190" cy="297" r="3"/><circle cx="238" cy="314" r="3"/><circle cx="298" cy="336" r="3"/><circle cx="350" cy="349" r="3"/><circle cx="401" cy="358" r="3"/><circle cx="446" cy="374" r="3"/><circle cx="491" cy="388" r="3"/></g>
+<path d="M96 259Q190 258 254 291" stroke="#f1b737" stroke-width="3" stroke-dasharray="6 5" fill="none"/>
+<circle cx="476" cy="407" r="19" fill="#fff5d3" stroke="#c79222" stroke-width="2" stroke-dasharray="4 3"/><text x="476" y="413" class="body bold" text-anchor="middle">?</text>
+<ellipse cx="541" cy="402" rx="54" ry="28" fill="none" stroke="#246b58" stroke-width="3"/>
+<path d="M518 372L496 350" stroke="#246b58" stroke-width="2"/><rect x="394" y="322" width="176" height="34" rx="10" fill="#fffaf0"/><text x="482" y="345" class="small bold" text-anchor="middle">실제로 쌓인 곳 표시</text>
+</g>
+<!-- synchronized replay directly below subjects -->
+<text x="48" y="502" class="small muted">두 실험의 같은 시점 · 관찰용 모형 시간</text>
+<text x="1232" y="502" class="small muted" text-anchor="end">점선: 실험 전 / 실선: 지금</text>
+<rect class="button" x="48" y="516" width="104" height="48" rx="14"/><text x="100" y="546" class="body bold" text-anchor="middle">재생</text>
+<text x="176" y="546" class="small">처음</text>
+<path d="M226 540H1136" stroke="#cbd4c6" stroke-width="10" stroke-linecap="round"/><path d="M226 540H772" stroke="#36857c" stroke-width="10" stroke-linecap="round"/>
+<circle cx="772" cy="540" r="28" fill="#246b58" stroke="#fffaf0" stroke-width="4"/><path d="M766 530V550M778 530V550" stroke="#fffaf0" stroke-width="3"/>
+<text x="1160" y="546" class="small">마지막</text>
+<!-- 72px toolbar -->
+<rect x="24" y="584" width="1232" height="72" rx="18" fill="#fffaf0"/>
+<rect class="button" x="40" y="596" width="144" height="48" rx="14"/><text x="112" y="626" class="body" text-anchor="middle">예상 겹치기</text>
+<rect x="196" y="596" width="144" height="48" rx="14" fill="#d9eee6" stroke="#246b58" stroke-width="2"/><text x="268" y="626" class="body bold" text-anchor="middle">증거 표시</text>
+<rect class="button" x="352" y="596" width="144" height="48" rx="14"/><text x="424" y="626" class="body" text-anchor="middle">다시 실험</text>
+<text x="535" y="626" class="small muted">표시한 위치와 현재 시점을 함께 기록해.</text>
+<rect x="1032" y="596" width="208" height="48" rx="14" fill="#246b58"/><text x="1136" y="626" class="body bold white" text-anchor="middle">이 장면 기록</text>
+<!-- 56px feedback, character cannot overlap controls -->
+<rect x="24" y="664" width="1232" height="56" rx="16" fill="#dfe8d6"/>
+<circle cx="55" cy="692" r="22" fill="#b89a70"/><text x="55" y="698" class="small bold white" text-anchor="middle">리버</text>
+<text x="92" y="698" class="body">예상핀과 쌓인 곳이 다르네. 시간을 되돌려 흙이 어디에서 왔는지 찾아볼까?</text>
+</svg>
+

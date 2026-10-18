@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.work/
+image/
+assets/raw-png/
+files/*.zip
+references/original-archives/
+references/source-images/
+references/sample-pages/
+references/previews/
+.env
+.env.*
+!.env.example
+*.log
+Thumbs.db
+.DS_Store
