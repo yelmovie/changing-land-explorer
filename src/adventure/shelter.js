@@ -7,13 +7,13 @@ export function shelterPoint(part){return {x:SHELTER.x+part.x*SHELTER.scale,y:SH
 export function inShelter(x,y,part){const p=shelterPoint(part);return Math.abs(x-p.x)<=part.w*SHELTER.scale/2&&Math.abs(y-p.y)<=part.h*SHELTER.scale/2;}
 export function createShelter(scene,api,hero,p){
  const rig=scene.add.container(SHELTER.x,SHELTER.y).setScale(SHELTER.scale);hero.setDepth(10);
- const floor=api.panel(0,-4,520,344,0xf4e6c9,1);rig.add(floor);
- const frame=scene.add.graphics();rig.add(frame);
- frame.fillStyle(0x9b744c).fillRoundedRect(-165,-90,30,225,6).fillRoundedRect(105,-90,30,225,6);
- frame.fillStyle(0xdab47b).fillRoundedRect(-190,-111,380,29,7);
- frame.lineStyle(4,0x88613b).strokeRoundedRect(-190,-111,380,29,7);
- const outline=scene.add.rectangle(0,50,320,190,0xffda78,.025).setStrokeStyle(3,0xc69943,.8);rig.add(outline);
- rig.add(api.text('튼튼한 책상 · 몸을 낮춰 보호',0,-146,22));
+ rig.add(scene.add.ellipse(0,142,380,44,0x3b2a1a,.22));
+ if(scene.textures.exists('art/ui/school-desk'))rig.add(api.image('art/ui/school-desk',0,14,312,250));
+ else{const frame=scene.add.graphics();rig.add(frame);
+  frame.fillStyle(0x9b744c).fillRoundedRect(-165,-90,30,225,6).fillRoundedRect(105,-90,30,225,6);
+  frame.fillStyle(0xdab47b).fillRoundedRect(-190,-111,380,29,7).lineStyle(4,0x88613b).strokeRoundedRect(-190,-111,380,29,7);}
+ const outline=scene.add.graphics().lineStyle(3,0xffd86b,.75).strokeRoundedRect(-160,-45,320,190,16);rig.add(outline);
+ rig.add(api.card('튼튼한 책상 · 몸을 낮춰 보호',0,-160,330,56,21));
  let pillow=null;
  function crouch(){
   if(hero.parentContainer!==rig)rig.add(hero);

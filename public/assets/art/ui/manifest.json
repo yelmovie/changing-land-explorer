@@ -1,0 +1,194 @@
+{
+  "date": "2026-10-25",
+  "generator": "Higgsfield gpt_image_2_5 (high, 1k)",
+  "styleReference": [
+    "tool-box.webp",
+    "classroom.webp"
+  ],
+  "assets": [
+    {
+      "key": "art/ui/parchment-panel",
+      "file": "assets/art/ui/parchment-panel.webp",
+      "width": 900,
+      "height": 575,
+      "bytes": 108652,
+      "original": "image/generated-20261025-design/parchment-panel.png"
+    },
+    {
+      "key": "art/ui/paper-card",
+      "file": "assets/art/ui/paper-card.webp",
+      "width": 640,
+      "height": 239,
+      "bytes": 33454,
+      "original": "image/generated-20261025-design/paper-card.png"
+    },
+    {
+      "key": "art/ui/specimen-tray",
+      "file": "assets/art/ui/specimen-tray.webp",
+      "width": 440,
+      "height": 292,
+      "bytes": 39944,
+      "original": "image/generated-20261025-design/specimen-tray.png"
+    },
+    {
+      "key": "art/ui/notice-board",
+      "file": "assets/art/ui/notice-board.webp",
+      "width": 760,
+      "height": 566,
+      "bytes": 111832,
+      "original": "image/generated-20261025-design/notice-board.png"
+    },
+    {
+      "key": "art/ui/indoor-wall",
+      "file": "assets/art/ui/indoor-wall.webp",
+      "width": 1280,
+      "height": 716,
+      "bytes": 43122,
+      "original": "image/generated-20261025-design/indoor-wall.png"
+    },
+    {
+      "key": "art/ui/window-frame",
+      "file": "assets/art/ui/window-frame.webp",
+      "width": 900,
+      "height": 469,
+      "bytes": 45560,
+      "original": "image/generated-20261025-design/window-frame.png"
+    },
+    {
+      "key": "art/ui/glass-pane",
+      "file": "assets/art/ui/glass-pane.webp",
+      "width": 257,
+      "height": 470,
+      "bytes": 13668,
+      "original": "image/generated-20261025-design/glass-pane.png"
+    },
+    {
+      "key": "art/ui/dust-mask",
+      "file": "assets/art/ui/dust-mask.webp",
+      "width": 360,
+      "height": 209,
+      "bytes": 30402,
+      "original": "image/generated-20261025-design/dust-mask.png"
+    },
+    {
+      "key": "art/ui/warning-sign",
+      "file": "assets/art/ui/warning-sign.webp",
+      "width": 160,
+      "height": 144,
+      "bytes": 8756,
+      "original": "image/generated-20261025-design/warning-sign.png"
+    },
+    {
+      "key": "art/ui/certificate-frame",
+      "file": "assets/art/ui/certificate-frame.webp",
+      "width": 1149,
+      "height": 855,
+      "bytes": 205024,
+      "original": "image/generated-20261025-design/certificate-frame.png"
+    },
+    {
+      "key": "art/ui/school-floor",
+      "file": "assets/art/ui/school-floor.webp",
+      "width": 1280,
+      "height": 716,
+      "bytes": 28686,
+      "original": "image/generated-20261025-design/school-floor.png"
+    },
+    {
+      "key": "art/ui/flowerbed",
+      "file": "assets/art/ui/flowerbed.webp",
+      "width": 460,
+      "height": 104,
+      "bytes": 26370,
+      "original": "image/generated-20261025-design/flowerbed.png"
+    },
+    {
+      "key": "art/ui/broken-glass",
+      "file": "assets/art/ui/broken-glass.webp",
+      "width": 238,
+      "height": 200,
+      "bytes": 30926,
+      "original": "image/generated-20261025-design/broken-glass.png"
+    },
+    {
+      "key": "art/ui/fallen-shelf",
+      "file": "assets/art/ui/fallen-shelf.webp",
+      "width": 204,
+      "height": 200,
+      "bytes": 15094,
+      "original": "image/generated-20261025-design/fallen-shelf.png"
+    },
+    {
+      "key": "art/ui/exit-mat",
+      "file": "assets/art/ui/exit-mat.webp",
+      "width": 300,
+      "height": 127,
+      "bytes": 18240,
+      "original": "image/generated-20261025-design/exit-mat.png"
+    },
+    {
+      "key": "art/ui/playground",
+      "file": "assets/art/ui/playground.webp",
+      "width": 219,
+      "height": 220,
+      "bytes": 21396,
+      "original": "image/generated-20261025-design/playground.png"
+    },
+    {
+      "key": "art/ui/town-ground",
+      "file": "assets/art/ui/town-ground.webp",
+      "width": 1280,
+      "height": 716,
+      "bytes": 76950,
+      "original": "image/generated-20261025-design/town-ground.png"
+    },
+    {
+      "key": "art/ui/house-roof",
+      "file": "assets/art/ui/house-roof.webp",
+      "width": 409,
+      "height": 340,
+      "bytes": 42112,
+      "original": "image/generated-20261025-design/house-roof.png"
+    },
+    {
+      "key": "art/ui/brick-wall",
+      "file": "assets/art/ui/brick-wall.webp",
+      "width": 57,
+      "height": 380,
+      "bytes": 10768,
+      "original": "image/generated-20261025-design/brick-wall.png"
+    },
+    {
+      "key": "art/ui/utility-pole",
+      "file": "assets/art/ui/utility-pole.webp",
+      "width": 131,
+      "height": 200,
+      "bytes": 10866,
+      "original": "image/generated-20261025-design/utility-pole.png"
+    },
+    {
+      "key": "art/ui/time-knob",
+      "file": "assets/art/ui/time-knob.webp",
+      "width": 197,
+      "height": 200,
+      "bytes": 18400,
+      "original": "image/generated-20261025-design/time-knob.png"
+    },
+    {
+      "key": "art/ui/school-desk",
+      "file": "assets/art/ui/school-desk.webp",
+      "width": 520,
+      "height": 416,
+      "bytes": 36554,
+      "original": "image/generated-20261025-design/school-desk.png"
+    },
+    {
+      "key": "art/ui/dust-crust",
+      "file": "assets/art/ui/dust-crust.webp",
+      "width": 380,
+      "height": 373,
+      "bytes": 63768,
+      "original": "image/generated-20261025-design/dust-crust.png"
+    }
+  ]
+}

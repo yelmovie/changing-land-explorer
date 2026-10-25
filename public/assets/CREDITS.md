@@ -85,3 +85,18 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 ## 스테이지 전용 배경 재생성 — 2026-10-24
 
 초기 지도 map-adventure.webp를 그림체·팔레트 기준으로 OpenAI 내장 이미지 도구에서 배경 10장을 개별 생성했어요. 물길 관측소/강 협곡, 현무암 화산 연구실/분화구, 결정 동굴/채석장 표본 공방, 해안 마을/주민 광장, 섬 학교 교실/대피 정원이에요. 배포용 WebP와 원본·규격 기록은 public/assets/art/stage-backgrounds.json, 원본 PNG는 assets/raw-png/stage-backgrounds-20261024/에 있어요. 모두 학습용 재현이며 UI·조작·판정은 코드로 처리해요. 기존 배경은 덮어쓰지 않고 보존했어요.
+
+## 디자인 고도화 소품 — 2026-10-25
+
+서비스: Higgsfield `gpt_image_2_5`(quality high, 1k) · Basic 요금제 크레딧 사용. 기준 그림으로 프로젝트 기존 `tool-box.webp`, `classroom.webp`를 함께 넣어 그림체를 맞췄어요. 원본 PNG는 `image/generated-20261025-design/`, 배포용 WebP·크기·원본 경로는 `public/assets/art/ui/manifest.json`에 있어요. 가공 스크립트: `scripts/prepare-design-art.mjs`.
+
+- 패널·카드: `parchment-panel`, `paper-card`(9-slice로 늘려 써요), `certificate-frame`.
+- 암석 공방: `dust-crust`(긁어내는 먼지 덮개), `specimen-tray`. 사용하지 않는 초안 `dust-clump`도 같은 폴더에 보관.
+- 시간 관측소: `notice-board`, `indoor-wall`, `window-frame`, `glass-pane`, `dust-mask`, `time-knob`.
+- 안전 훈련소: `warning-sign`, `school-desk`, `school-floor`, `flowerbed`, `broken-glass`, `fallen-shelf`, `exit-mat`, `playground`, `town-ground`, `house-roof`, `brick-wall`, `utility-pole`.
+
+모두 학습용 재현 그림이에요. 위험물·대피 지도는 실제 학교 배치가 아니에요.
+
+### 3D 변환용 기본 그림 — 2026-10-25
+
+`image/3d-base/`(배포 제외). 06 화산 단면·07 기록탑·13 리버 A자세는 같은 Higgsfield 모델로 새로 만들었고, 나머지는 위 게임 그림을 흰 배경 PNG로 내보낸 거예요. Meshy 변환 계획과 프롬프트는 `docs/3D-ASSETS.md`.

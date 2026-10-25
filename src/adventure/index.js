@@ -11,12 +11,17 @@ import {destroyGame} from '../phaser-lifecycle.js';
 import {backgroundForAsset,STAGE_BACKGROUNDS} from '../stage-art.js';
 
 const SETUP={river,volcano,rocks,city,safety};
+const UI=name=>'art/ui/'+name;
 const ASSETS={
   river:['river-lab','river-field','art/river-sand-model'],volcano:['volcano-lab','volcano-field','volcano-eruption','art/volcano-mountain','art/volcano-tray','art/volcano-syringe'],
-  rocks:['rocks-lab','art/rocks-quarry-atelier-v2','rock-0','rock-1','rock-2','rock-3','art/geologist-brush'],
-  city:['city-before','city-eruption','city-calm','art/city-message-square-v2'],safety:['classroom','school','art/safety-cushion','art/hero-hold-leg-v1']
+  rocks:['rocks-lab','art/rocks-quarry-atelier-v2','rock-0','rock-1','rock-2','rock-3','art/geologist-brush',UI('dust-crust'),UI('specimen-tray')],
+  city:['city-before','city-eruption','city-calm','art/city-message-square-v2',...['notice-board','indoor-wall','window-frame','glass-pane','dust-mask','time-knob'].map(UI)],
+  safety:['classroom','school','art/safety-cushion','art/hero-hold-leg-v1',...['warning-sign','school-desk','school-floor','flowerbed','broken-glass','fallen-shelf','exit-mat','playground','town-ground','house-roof','brick-wall','utility-pole'].map(UI)]
 };
-const COMMON=['river-hero','river-pose-0','river-pose-1','river-pose-2','river-pose-3','hero-lens','hero-brush','hero-cheer','hero-protect','tool-water',...Object.values(TOOL_ASSETS)];
+const COMMON=['river-hero','river-pose-0','river-pose-1','river-pose-2','river-pose-3','hero-lens','hero-brush','hero-cheer','hero-protect','tool-water',UI('parchment-panel'),UI('paper-card'),...Object.values(TOOL_ASSETS)];
+// Cream panels become the illustrated field-notebook paper; coloured panels stay flat on purpose.
+const PAPER_COLORS=new Set([0xfff8e8,0xfff7df,0xfff5d9,0xfff8e5,0xf8f0d8,0xfff4d8,0xfff7e2,0xfff8e6]);
+const SLICES={'parchment-panel':[52,52,52,52],'paper-card':[36,36,32,40],'glass-pane':[16,16,16,16]};
 const TOOLS={
   volcano:{id:'lens',stage:'river',name:'물길 렌즈',label:'크게 보기'},
   rocks:{id:'camera',stage:'volcano',name:'비교 카메라',label:'두 돌 비교'},
@@ -34,6 +39,8 @@ export function mount(ctx) {
   let sceneCleanups=[], assistActions=[];
   let hintIndex=0,initialHint='';
   ctx.root.innerHTML='<div class="phaser-stage" id="phaser-stage"></div><div class="stage-loader" role="status">리버가 탐험 도구를 꺼내고 있어…</div><div class="quest-meter" id="quest-meter" aria-live="polite"></div><div class="discovery-pop" id="discovery-pop" role="status" hidden></div>';
+  // The task counter sits beside River's guidance so it never covers the scene.
+  $('.river-narrator>div')?.prepend($('#quest-meter',ctx.root));
   const next=$('#next');
   function updateStepNav(){
     const phase=chapter.phase, names=PHASES[ctx.s.id][ctx.step];
@@ -134,7 +141,7 @@ export function mount(ctx) {
       scene.input.on('pointerupoutside',()=>{pressed=null;clearSelection();});
       scene.input.on('gameout',()=>{pressed=null;});
       const api={
-        stage:ctx.s.id,step:ctx.step,phase,data:ctx.data,work,state:ctx.state,
+        stage:ctx.s.id,step:ctx.step,phase,data:ctx.data,work,state:ctx.state,admin:ctx.admin,
         save:ctx.save,
         task(title,hint){ctx.instruction(title);ctx.say(hint);initialHint=hint;},
         say(text,success=false){ctx.say(text);if(success)ctx.chime();},
@@ -171,10 +178,28 @@ export function mount(ctx) {
           if(size>=18)size=Math.max(size,Math.min(29,19/Math.max(.5,scale)));
           return scene.add.text(x,y,String(text),{fontFamily:'GeoDisplay, Malgun Gothic, sans-serif',fontSize:size+'px',color,align:'center',padding:{x:3,y:3},...(wrapWidth?{wordWrap:{width:wrapWidth,useAdvancedWrap:true}}:{})}).setOrigin(.5);
         },
-        panel(x,y,w,h,color=0xfff7df,alpha=.94){return scene.add.rectangle(x,y,w,h,color,alpha).setStrokeStyle(2,0xcdbb8c,.6);},
+        // Nine-slice art keeps brass corners crisp at any size; tiny boxes scale the whole slice down.
+        paper(name,x,y,w,h){
+          const key=UI(name),[l,r,t,b]=SLICES[name];
+          if(!scene.textures.exists(key))return scene.add.rectangle(x,y,w,h,0xfff7df,.96).setStrokeStyle(2,0xcdbb8c,.6);
+          const s=Math.min(1,w/(l+r+12),h/(t+b+12));
+          return scene.add.nineslice(x,y,key,undefined,w/s,h/s,l,r,t,b).setScale(s);
+        },
+        panel(x,y,w,h,color=0xfff7df,alpha=.94){
+          if(PAPER_COLORS.has(color))return api.paper('parchment-panel',x,y,w,h).setAlpha(Math.max(alpha,.92));
+          return scene.add.rectangle(x,y,w,h,color,alpha).setStrokeStyle(2,0xcdbb8c,.6);
+        },
         target(x,y,w,h,label){
-          const area=scene.add.rectangle(x,y,w,h,0xfff5ce,.4).setStrokeStyle(3,0x987a36,.8);
+          const area=scene.add.graphics();
+          area.fillStyle(0xfff5ce,.42).fillRoundedRect(x-w/2,y-h/2,w,h,14).lineStyle(3,0x987a36,.85).strokeRoundedRect(x-w/2,y-h/2,w,h,14).lineStyle(2,0xffffff,.6).strokeRoundedRect(x-w/2+5,y-h/2+5,w-10,h-10,10);
           api.text(label,x,y,23,'#294239',w-20);return area;
+        },
+        card(label,x,y,w,h,size=22,{icon,color='#294239'}={}){
+          const c=scene.add.container(x,y,[api.paper('paper-card',0,0,w,h)]);
+          const pad=icon?h*.42:0;
+          if(icon&&scene.textures.exists(UI(icon)))c.add(scene.add.image(-w/2+pad+14,-2,UI(icon)).setDisplaySize(h*.62,h*.56));
+          c.add(api.text(label,pad/2+(icon?10:0),-2,size,color,w-28-pad*1.4));
+          return c.setSize(w,h);
         },
         drag(object,{onDrop,onMove,onStart,onTap}={}){
           const home={x:object.x,y:object.y},depth=object.depth;

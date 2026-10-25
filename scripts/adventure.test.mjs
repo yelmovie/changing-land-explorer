@@ -7,8 +7,8 @@ import {SCHOOL_PATH,inspectRoute,SCHOOL_CONFIG} from '../src/learning-model.js';
 function routeActivity(){
  const object=()=>{const target={x:0,y:0};const proxy=new Proxy(target,{get:(t,k)=>k in t?t[k]:(...args)=>proxy});return proxy;};
  const handlers={},assists={},actions={};let finished=false;
- const scene={add:new Proxy({},{get:()=>object}),input:{on:(event,fn)=>handlers[event]=fn,off(){}},time:{now:0}};
- const data={},api={step:1,phase:0,data,work:{},image:object,hero:object,panel:object,text:object,
+ const scene={add:new Proxy({},{get:()=>object}),make:new Proxy({},{get:()=>object}),textures:{exists:()=>false},input:{on:(event,fn)=>handlers[event]=fn,off(){}},time:{now:0}};
+ const data={},api={step:1,phase:0,data,work:{},image:object,hero:object,panel:object,text:object,card:object,paper:object,
   task(){},say(){},save(){},counter(){},spark(){},record(){},listenCleanup(){},setToolHandler(){},
   assist:(label,fn)=>assists[label]=fn,actions:list=>list.forEach(a=>actions[a.id]=a.onClick),finish:()=>finished=true};
  setup(scene,api);return {data,handlers,assists,actions,finished:()=>finished};

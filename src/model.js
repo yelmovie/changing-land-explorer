@@ -1,3 +1,5 @@
+import {FIELD_POINTS,ROCKS,FEATURES,CITY_SITES,RIVER_MARKS} from './learning-model.js';
+import {MODEL_MOUTH} from './observation-scenes.js';
 export const STAGES=[
  {id:'river',name:'강의 비밀',subtitle:'물이 지나가면 땅은 어떻게 달라질까?',place:'물길 관측소',npc:'리버',standard:'4과11-01',color:'#338b9c',reward:'물길 렌즈',tool:'lens',record:'강 변화 기록',change:'강 관측소에 불이 켜졌어!',intro:'강가의 조사 기록이 물에 젖었어. 직접 물을 흘려 보고, 달라진 곳을 찾아 줄래?',benefit:'관찰을 마치면 물길 렌즈를 받아. 다음 장소에서 놓친 단서를 크게 볼 수 있어.',steps:['물을 흘려 보자','달라진 곳을 찾자','강을 따라 조사하자','내 발견을 정리하자']},
  {id:'volcano',name:'깨어나는 화산',subtitle:'모형과 진짜 화산은 무엇이 다를까?',place:'화산 연구소',npc:'마그',standard:'4과11-02',color:'#c86b42',reward:'비교 카메라',tool:'camera',record:'화산 비교 기록',change:'화산 연구소의 관측등이 켜졌어!',intro:'마그가 만든 화산 모형과 실제 화산 자료가 뒤섞였대. 만들고, 관찰하고, 차이를 찾아보자.',benefit:'모형과 실제를 비교하면 비교 카메라를 받아. 암석 두 개를 나란히 살펴볼 수 있어.',steps:['화산 모형을 만들자','천천히 흘려 보자','실제 화산을 관찰하자','같은 점과 다른 점']},
@@ -22,6 +24,20 @@ export function sanitize(value){
  base.final.round=Math.min(3,Math.max(0,Math.floor(Number(base.final.round)||0)));for(const k of ['answers','links','selected'])if(!object(base.final[k]))base.final[k]={};base.final.assembled=base.final.assembled===true;base.final.transferSafety=normalizeActivityData(object(base.final.transferSafety)?base.final.transferSafety:{});base.final.transferRockClaims=Array.isArray(base.final.transferRockClaims)?[...new Set(base.final.transferRockClaims.filter(k=>['light','coarse'].includes(k)))]:[];if(base.final.transferRiverPoint&&(!Number.isFinite(base.final.transferRiverPoint.x)||!Number.isFinite(base.final.transferRiverPoint.y)))delete base.final.transferRiverPoint;return base;
 }
 export function loadProgress(storage){try{const current=storage.getItem(SAVE_KEY);if(current){try{return sanitize(JSON.parse(current));}catch{}}const legacy=storage.getItem(LEGACY_SAVE_KEY);return legacy?sanitize(JSON.parse(legacy)):fresh();}catch{return fresh();}}
+// Compare-then-write: storage another window changed after our last read/write is never overwritten. Not an atomic lock.
+export const saveDecision=(lastRaw,currentRaw,nextRaw)=>currentRaw===nextRaw?'same':currentRaw!==lastRaw?'conflict':'write';
+// Teacher preview copy only: example earlier observations (demo:true) so any later phase can be shown. Never call with the student's record.
+export function seedPreview(state){
+ const data=id=>(state.drafts[id]??={step:0,passed:[],data:{}}).data??={};
+ const add=(stage,activity,phase,item)=>{const ev=data(stage).evidence??={};ev[item.id]??={...item,label:'시연 예시 · '+item.label,stage,activity,phase,demo:true};};
+ data('river').prediction??={x:RIVER_MARKS.deposit.x,y:RIVER_MARKS.deposit.y,demo:true};
+ FIELD_POINTS.forEach(p=>add('river',1,p.side==='upper'?0:1,{id:p.id,kind:'field',label:p.label,asset:'river-field',point:{x:p.x/1000,y:p.y/560},zoom:2.5,claim:p.claim,text:p.text}));
+ const parts=['tray','mountain','water'],volcano=data('volcano');if(!volcano.assembly?.length)volcano.assembly=[...parts];
+ for(const [claim,label,point,text] of [['mouth','물이 나온 입구',{x:MODEL_MOUTH.x/1200,y:MODEL_MOUTH.y/640},'붉은 물이 꼭대기의 구멍으로 나왔어.'],['flow','경사면을 흐른 붉은 물',{x:700/1200,y:398/640},'붉은 물이 모형의 경사면을 따라 흘렀어.']])add('volcano',0,2,{id:'model-'+claim,kind:'model',sceneVersion:1,parts:[...parts],time:1,asset:'volcano-lab',label,point,claim,text});
+ for(const r of ROCKS.slice(0,2))for(const claim of [r.color,r.grain])add('rocks',0,r.id+1,{id:`rock-${r.id}-${claim}`,kind:'rock',sample:r.id,claim,asset:r.asset,label:`${r.name} · ${FEATURES[claim]}`,point:{x:.5,y:.5},zoom:2.35,annotations:[],text:FEATURES[claim]});
+ CITY_SITES.forEach((s,i)=>add('city',0,i,{id:'city-'+s.id,kind:'city',label:s.name+'의 시간 변화',claim:s.claim,pair:true,site:s.id,text:s.now+' '+s.later}));
+ return state;
+}
 export function canEnter(index,state,admin=false){return admin||index===0||state.completed.includes(STAGES[index-1]?.id);}
 export function award(state,id,record){if(!STAGES.some(s=>s.id===id))return state;return {...state,completed:[...new Set([...state.completed,id])],records:{...state.records,[id]:structuredClone(record)}};}
 export const clamp=(v,min=0,max=1)=>Math.max(min,Math.min(max,v));

@@ -7,7 +7,7 @@ export function setup(scene,api){
  const d=api.data,w=api.work;d.evidence??={};d.protect??={under:false,head:false,leg:false,stopped:false,confirmed:false};
  return api.step===0?protect():route();
 
- function chip(label,x,y,width=160){const o=scene.add.container(x,y);o.add(scene.add.rectangle(0,0,width,62,0xffeab4).setStrokeStyle(3,0xb38b46));o.add(api.text(label,0,0,22));o.setSize(width,62);return o;}
+ function chip(label,x,y,width=160,icon){return api.card(label,x,y,width,68,22,{icon});}
  function protect(){
   api.image('classroom',600,320,1200,640);
   const p=d.protect,phase=api.phase;
@@ -16,7 +16,7 @@ export function setup(scene,api){
    api.task('흔들리기 전에, 위험한 곳을 찾아보자','위험 표식을 창문과 책장에 끌어다 놓아 줘.');
    const hazards=[{id:'window',name:'창문',x:150,y:205,w:240,h:240,text:'창문 가까이에서는 유리나 화분이 떨어질 수 있어.'},{id:'shelf',name:'책장',x:438,y:265,w:190,h:210,text:'책장과 책이 넘어질 수 있어. 떨어진 곳에서 몸을 보호해.'}];
    hazards.forEach((h,i)=>{
-    const mark=chip('!  '+h.name+' 위험',400+i*360,578,250);
+    const mark=chip(h.name+' 위험',400+i*360,578,240,'warning-sign');
     function place(){api.record({id:'safety-'+h.id,kind:'safety',asset:'classroom',label:h.name,point:{x:h.x/1200,y:h.y/640},text:h.text});mark.setPosition(h.x,h.y);mark.setAlpha(.9);api.spark(h.x,h.y);api.say(h.text);progress();return true;}
     api.drag(mark,{onDrop:(o,x,y)=>inside(x,y,h.x,h.y,h.w,h.h)?place():false});api.assist(h.name+'에 위험 표식 놓기',place);
     if(d.evidence['safety-'+h.id])mark.setPosition(h.x,h.y);
@@ -24,8 +24,9 @@ export function setup(scene,api){
    function progress(){const n=hazards.filter(h=>d.evidence['safety-'+h.id]).length;api.counter(n,2,'찾은 위험');if(n===2)api.finish('창문과 책장을 피해, 가까운 튼튼한 책상 아래에서 몸을 보호하자.');}
    api.actions([]);progress();return;
   }
+  if(api.admin&&phase===2&&!p.under){p.under=true;p.head=true;}
   const shelter=createShelter(scene,api,hero,p);
-  api.text('가상 행동 연습 · 실제 대피 훈련은 선생님과 함께',600,615,20);
+  api.card('가상 행동 연습 · 실제 대피 훈련은 선생님과 함께',600,606,520,50,19);
   if(phase===1){
    api.task('리버의 몸과 머리를 보호하자','리버를 책상 아래로 옮긴 뒤, 방석을 머리에 가져다 줘.');
    const pillow=scene.add.container(260,540,[api.image('art/safety-cushion',0,0,145,91)]).setSize(150,96);
@@ -59,20 +60,32 @@ export function setup(scene,api){
   const toScreen=p=>({x:ox+p.x*scale,y:oy+p.y*scale});
   const toMap=p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale});
   api.image('school',600,320,1200,640);
-  api.panel(600,330,1030,525,0x607f6e,.97);
+  // Walls stay a dark board; walkable floor and hazards are illustrated, but every
+  // shape keeps the exact rectangles inspectRoute uses.
+  const board=scene.add.graphics().fillStyle(0x3f5f50,.96).fillRoundedRect(85,68,1030,525,22).lineStyle(6,0xd9b46a,1).strokeRoundedRect(85,68,1030,525,22);
+  const floorKey=outside?'art/ui/town-ground':'art/ui/school-floor',areaMask=scene.make.graphics({add:false});
+  config.areas.forEach(r=>areaMask.fillStyle(0xffffff).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,12));
+  if(scene.textures.exists(floorKey))api.image(floorKey,600,330,1030,560).setMask(areaMask.createGeometryMask());
+  else{const plain=scene.add.graphics();config.areas.forEach(r=>plain.fillStyle(0xf2e6c9,1).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,9));}
   const map=scene.add.graphics();
-  config.areas.forEach(r=>{map.fillStyle(0xf2e6c9,1).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,9);});
+  config.areas.forEach(r=>map.lineStyle(3,0xffffff,.5).strokeRoundedRect(ox+r.x,oy+r.y,r.w,r.h,12));
+  const HAZARD_ART={'화단':['flowerbed',1,1],'깨진 유리':['broken-glass',1,1],'넘어진 책장':['fallen-shelf',1,1],'건물':['house-roof',1,1],'담장':['brick-wall',.5,1],'전신주':['utility-pole',1.3,1.1]};
   config.hazards.forEach(r=>{
    // The dashed border is the very same ten-unit safety margin used by inspectRoute.
-   map.lineStyle(3,0xb2754e,.7).strokeRect(ox+r.x-10,oy+r.y-10,r.w+20,r.h+20);
-   map.fillStyle(r.label==='화단'?0x86a56b:0xa98366).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,7);
-   api.text(r.label,ox+r.x+r.w/2,oy+r.y+r.h/2, r.w<100?16:22,'#fff9e9',r.w-5);
+   map.fillStyle(0xc36c44,.16).fillRoundedRect(ox+r.x-10,oy+r.y-10,r.w+20,r.h+20,10);
+   for(let x=ox+r.x-10;x<ox+r.x+r.w+10;x+=16)map.lineStyle(3,0xc36c44,.8).lineBetween(x,oy+r.y-10,Math.min(x+9,ox+r.x+r.w+10),oy+r.y-10).lineBetween(x,oy+r.y+r.h+10,Math.min(x+9,ox+r.x+r.w+10),oy+r.y+r.h+10);
+   for(let y=oy+r.y-10;y<oy+r.y+r.h+10;y+=16)map.lineStyle(3,0xc36c44,.8).lineBetween(ox+r.x-10,y,ox+r.x-10,Math.min(y+9,oy+r.y+r.h+10)).lineBetween(ox+r.x+r.w+10,y,ox+r.x+r.w+10,Math.min(y+9,oy+r.y+r.h+10));
+   const art=HAZARD_ART[r.label],key=art&&'art/ui/'+art[0],cx=ox+r.x+r.w/2,cy=oy+r.y+r.h/2;
+   if(key&&scene.textures.exists(key))api.image(key,cx,cy,r.w*art[1],r.h*art[2]);
+   else map.fillStyle(r.label==='화단'?0x86a56b:0xa98366).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,7);
+   const tag=api.text(r.label,cx,oy+r.y+r.h+28,19,'#fff9e9');tag.setBackgroundColor('#7a3f27').setPadding(8,3);
   });
-  config.gates.forEach(g=>{api.panel(ox+g.x,oy+g.y,110,42,0x6f9e80,1);api.text('출구',ox+g.x,oy+g.y,23,'#ffffff');});
+  config.gates.forEach(g=>{if(scene.textures.exists('art/ui/exit-mat'))api.image('art/ui/exit-mat',ox+g.x,oy+g.y,150,68);else api.panel(ox+g.x,oy+g.y,110,42,0x6f9e80,1);api.text('출구',ox+g.x,oy+g.y+46,19,'#ffffff').setBackgroundColor('#2f7a55').setPadding(8,2);});
   const start=toScreen(config.start),goal=toScreen(config.goal);
-  scene.add.circle(start.x,start.y,29,0xf6c45f).setStrokeStyle(4,0xfffbdf);
-  scene.add.circle(goal.x,goal.y,37,0x84bf85).setStrokeStyle(5,0xfffbdf);api.text(outside?'공터':'운동장',goal.x,goal.y,19);
-  api.text('가상 지도 · 실제로는 선생님의 안내를 따라가요',600,42,22,'#fff9e8');
+  scene.add.circle(start.x,start.y,32,0xf6c45f,.55).setStrokeStyle(4,0xfffbdf);
+  if(scene.textures.exists('art/ui/playground'))api.image('art/ui/playground',goal.x,goal.y,104,104);else scene.add.circle(goal.x,goal.y,37,0x84bf85).setStrokeStyle(5,0xfffbdf);
+  api.text(outside?'공터':'운동장',goal.x,goal.y+64,19,'#ffffff').setBackgroundColor('#2f7a55').setPadding(8,2);
+  api.card('가상 지도 · 실제로는 선생님의 안내를 따라가요',600,40,560,52,20);
   const lines=scene.add.graphics();const hero=api.hero(start.x,start.y,66,'river-pose-2');
   let points=structuredClone(d[key]),draft=[],drawing=false,pointerDrawing=false,moving=false,segment=1,result=null,current={...config.start},runPoints=[],complete=false,tapMode=false,tapStarted=false;
   function finish(summary){complete=true;api.actions([]);api.finish(summary);}

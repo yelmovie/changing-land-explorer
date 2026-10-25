@@ -203,9 +203,7 @@ function compare(scene,api){
   const order=[cells[3],cells[0],cells[2],cells[1]],items=[];
   order.forEach((cell,i)=>{
     const text=cell.row[cell.side];
-    const backing=scene.add.rectangle(0,0,232,95,cell.side==='left'?0xe2f1e7:0xffedcc).setStrokeStyle(2,0x8fa38c);
-    const label=api.text(text,0,0,20,'#294239',210);
-    const card=scene.add.container(235+i*247,545,[backing,label]).setSize(235,100);
+    const card=api.card(text,235+i*247,545,236,104,20,{color:cell.side==='left'?'#2d5a49':'#6b4423'});
     function place(){
       if(!d.evidence[cell.row.source]){api.say('모형 활동에서 네 관찰 기록을 먼저 남겨 줘.');return false;}
       if(!w.links.includes(cell.id))w.links.push(cell.id);

@@ -218,19 +218,20 @@ function connectField(scene,api){
   const d=api.data,w=api.work;w.connected??=[];let finished=false;
   api.task('네가 모은 단서로 강 지도를 완성해 봐','관찰 카드를 상류와 하류에 놓고, 마지막으로 모래가 쌓이는 곳을 연결해 줘.');
   api.panel(600,325,1060,540,0xf8f0d8,.9);
-  api.hero(1120,510,120,'hero-lens');
-  const g=scene.add.graphics();
-  g.lineStyle(45,0x72c5da).beginPath().moveTo(250,190).lineTo(420,255).lineTo(660,300).lineTo(950,365).strokePath();
-  g.fillStyle(0xe3c588).fillEllipse(943,375,130,66);
+  api.hero(1150,560,100,'hero-lens');
+  // A hand-drawn map river: sandy banks, water, a light ripple line, then the sand bar.
+  const g=scene.add.graphics(),bend=[[250,190],[420,255],[660,300],[950,365]];
+  const stroke=(w,c,a=1)=>{g.lineStyle(w,c,a).beginPath().moveTo(...bend[0]);bend.slice(1).forEach(p=>g.lineTo(...p));g.strokePath();};
+  stroke(74,0xcfb57e,.85);stroke(48,0x4fa9c4);stroke(22,0x7fcbe0);stroke(5,0xd9f3fa,.9);
+  g.fillStyle(0xd8b877).fillEllipse(943,378,150,74).fillStyle(0xead29a).fillEllipse(938,372,118,52);
+  for(let i=0;i<14;i++)g.fillStyle(0xb8955a,.8).fillCircle(895+(i*29)%100,360+(i*13)%30,2.5);
   api.text('상류',300,135,30);api.text('하류',910,260,30);
   const zones={upper:{x:330,y:235},lower:{x:870,y:370}};
   const items=[];
   for(const [i,p] of FIELD_POINTS.entries()) {
     const record=d.evidence[p.id];
-    const color=record?0xffffff:0xe3ddce;
-    const rect=scene.add.rectangle(0,0,205,100,color).setStrokeStyle(2,0xb4ad90);
-    const label=api.text(record?.text||p.text,0,0,21,'#294239',180);
-    const card=scene.add.container(260+i*235,515,[rect,label]).setSize(210,105);
+    const card=api.card(record?.text||p.text,190+i*228,515,215,108,21);
+    if(!record)card.setAlpha(.7);
     function place(){
       if(!record){api.say('앞 활동에서 이 장소를 먼저 관찰해 줘.');return false;}
       if(!w.connected.includes(p.id))w.connected.push(p.id);
@@ -242,7 +243,7 @@ function connectField(scene,api){
     items.push({label:p.label+' 관찰 카드',object:card});
     if(w.connected.includes(p.id)){const j=FIELD_POINTS.filter(q=>q.side===p.side).indexOf(p);card.setPosition(zones[p.side].x,zones[p.side].y+j*70).setScale(.8);}
   }
-  const flag=tool(scene,api,'flag',1025,515,'모래가 쌓여요').setScale(.8);
+  const flag=tool(scene,api,'flag',1068,500,'모래가 쌓여요').setScale(.8);
   function deposit(){
     if(w.connected.length<4){api.say('관찰 카드 네 장을 먼저 지도에 놓아 줘.');return false;}
     w.deposition=true;d.fieldLink='deposit';flag.setPosition(982,377);api.counter(w.connected.length+1,5,'지도 연결');api.save();check();return true;
