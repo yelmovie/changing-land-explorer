@@ -14,7 +14,7 @@ const SETUP={river,volcano,rocks,city,safety};
 const ASSETS={
   river:['river-lab','river-field','art/river-sand-model'],volcano:['volcano-lab','volcano-field','volcano-eruption','art/volcano-mountain','art/volcano-tray','art/volcano-syringe'],
   rocks:['rocks-lab','art/rocks-quarry-atelier-v2','rock-0','rock-1','rock-2','rock-3','art/geologist-brush'],
-  city:['city-before','city-eruption','city-calm','art/city-message-square-v2'],safety:['classroom','school','art/safety-cushion']
+  city:['city-before','city-eruption','city-calm','art/city-message-square-v2'],safety:['classroom','school','art/safety-cushion','art/hero-hold-leg-v1']
 };
 const COMMON=['river-hero','river-pose-0','river-pose-1','river-pose-2','river-pose-3','hero-lens','hero-brush','hero-cheer','hero-protect','tool-water',...Object.values(TOOL_ASSETS)];
 const TOOLS={
@@ -67,6 +67,8 @@ export function mount(ctx) {
     const cues=HINTS[ctx.s.id]?.[ctx.step]?.[chapter.phase]||[initialHint];
     ctx.sound('hint',{force:true});
     ctx.modal('리버의 탐구 힌트',`<div class="hint-card"><img src="/assets/hero-lens.webp" alt="힌트를 주는 리버"><div><span class="eyebrow">${escapeHTML(PHASES[ctx.s.id][ctx.step][chapter.phase])}</span><p id="hint-copy">${escapeHTML(cues[hintIndex%cues.length])}</p><span id="hint-progress">힌트 ${hintIndex%cues.length+1} / ${cues.length}</span></div></div><div class="hint-actions"><button class="secondary" id="hint-more">한 걸음 더</button><button class="primary" id="hint-return">직접 해 볼게</button><button class="text-button" id="hint-assist">버튼으로 조작하기</button></div>`,(dialog,close)=>{
+      workHint();
+      function workHint(){const w=chapter.work[chapter.phase]??={};w.answerHint=true;ctx.save();}
       $('#hint-more',dialog).onclick=()=>{hintIndex=(hintIndex+1)%cues.length;$('#hint-copy',dialog).textContent=cues[hintIndex];$('#hint-progress',dialog).textContent=`힌트 ${hintIndex+1} / ${cues.length}`;};
       $('#hint-return',dialog).onclick=close;
       $('#hint-assist',dialog).onclick=()=>{close();helpButton.click();};
@@ -74,8 +76,8 @@ export function mount(ctx) {
   }
   $('#river-hint').onclick=showHint;
   helpButton.onclick=()=>ctx.modal('끌기 대신 버튼으로 조작',
-    '<p>같은 탐구를 큰 버튼으로 조작할 수 있어. 여러 번 눌러도 돼.</p><div class="assist-grid">'+assistActions.map((a,i)=>`<button class="secondary" data-assist="${i}">${escapeHTML(a.label)}</button>`).join('')+'</div><p class="assist-feedback" role="status"></p><button class="primary" id="assist-return">탐구로 돌아가기</button>',(dialog,close)=>{
-      $$('[data-assist]',dialog).forEach(button=>button.onclick=()=>{const action=assistActions[Number(button.dataset.assist)];action?.callback();$('.assist-feedback',dialog).textContent=$('#speech').textContent;});
+    '<p>도구와 대상을 직접 골라 조작해 봐. 조작 도움을 써도 보상은 같아. 정답 힌트를 펼친 연습은 수첩에 따로 표시해.</p><div class="assist-grid">'+assistActions.map((a,i)=>`<button class="secondary" data-assist="${i}">${escapeHTML(a.label)}</button>`).join('')+'</div><p class="assist-feedback" role="status"></p><button class="primary" id="assist-return">탐구로 돌아가기</button>',(dialog,close)=>{
+      $$('[data-assist]',dialog).forEach(button=>button.onclick=()=>{const action=assistActions[Number(button.dataset.assist)];if(action?.closeOnUse)close();const w=chapter.work[chapter.phase]??={};w.operationHelp=true;ctx.save();action?.callback();$('.assist-feedback',dialog).textContent=$('#speech').textContent;});
       $('#assist-return',dialog).onclick=close;
     });
   const tool=TOOLS[ctx.s.id],toolButton=$('#earned-tool');
@@ -117,7 +119,7 @@ export function mount(ctx) {
       const tapRing=scene.add.graphics().setDepth(195);
       const draggables=new Map();
       const clearSelection=()=>{selected=null;tapRing.clear();};
-      const select=object=>{selected=object;tapRing.clear().lineStyle(5,0xffd36b,1).strokeCircle(object.x,object.y,Math.min(110,Math.max(45,object.displayWidth/2+10)));ctx.say('도착할 곳을 눌러 줘. 손가락으로 끌어도 돼.');ctx.sound('pickup');};
+      const select=object=>{scene.tweens.killTweensOf(object);selected=object;tapRing.clear().lineStyle(5,0xffd36b,1).strokeCircle(object.x,object.y,Math.min(110,Math.max(45,object.displayWidth/2+10)));ctx.say('도착할 곳을 눌러 줘. 손가락으로 끌어도 돼.');ctx.sound('pickup');};
       scene.input.on('pointerdown',(p)=>{pressPoint={x:p.x,y:p.y};gestureMoved=false;});
       scene.input.on('pointerup',(p)=>{
         if(document.querySelector('dialog[open]'))return;
@@ -125,7 +127,7 @@ export function mount(ctx) {
         if(!moved&&pressed){select(pressed);}
         else if(!moved&&selected){
           const object=selected,config=draggables.get(object),home={x:object.x,y:object.y};clearSelection();
-          if(config&&object.active){object.setPosition(p.x,p.y);config.onMove?.(object,p.x,p.y);const accepted=config.onDrop?.(object,object.x,object.y)===true;if(!accepted&&object.active)object.setPosition(home.x,home.y);ctx.sound(accepted?'place':'move');}
+          if(config&&object.active){scene.tweens.killTweensOf(object);object.setPosition(p.x,p.y);config.onMove?.(object,p.x,p.y);const accepted=(config.onTap||config.onDrop)?.(object,object.x,object.y)===true;if(!accepted&&object.active)object.setPosition(home.x,home.y);ctx.sound(accepted?'place':'move');}
         }
         pressed=null;
       });
@@ -137,9 +139,10 @@ export function mount(ctx) {
         task(title,hint){ctx.instruction(title);ctx.say(hint);initialHint=hint;},
         say(text,success=false){ctx.say(text);if(success)ctx.chime();},
         counter(done,total,label){$('#quest-meter').innerHTML=`<span>${escapeHTML(label)}</span><strong>${Math.min(done,total)} <small>/ ${total}</small></strong>`;},
-        record(item){capture(ctx,{...item,phase}); next.disabled=!phaseDone;},
+        record(item){capture(ctx,{...item,phase,operationHelp:!!work.operationHelp,answerHint:!!work.answerHint}); next.disabled=!phaseDone;},
         sound:ctx.sound,
         finish(summary,details={}){
+          details={...details,operationHelp:!!work.operationHelp,answerHint:!!work.answerHint};
           const fresh=completePhase(ctx.data,ctx.step,phase,summary,details);
           // Admin may inspect later scenes without writing fictional earlier evidence.
           if(ctx.admin)chapter.phase=phase;
@@ -173,15 +176,17 @@ export function mount(ctx) {
           const area=scene.add.rectangle(x,y,w,h,0xfff5ce,.4).setStrokeStyle(3,0x987a36,.8);
           api.text(label,x,y,23,'#294239',w-20);return area;
         },
-        drag(object,{onDrop,onMove,onStart}={}){
+        drag(object,{onDrop,onMove,onStart,onTap}={}){
           const home={x:object.x,y:object.y},depth=object.depth;
+          let dragging=false;
           if(!object.input)object.setInteractive({useHandCursor:true});
           scene.input.setDraggable(object);
-          draggables.set(object,{onDrop,onMove,onStart});
+          draggables.set(object,{onDrop,onMove,onStart,onTap});
           object.on('pointerdown',()=>{if(!document.querySelector('dialog[open]'))pressed=object;});
-          object.on('dragstart',()=>{if(document.querySelector('dialog[open]'))return;clearSelection();gestureMoved=true;ctx.sound('pickup');object.setDepth(200);onStart?.(object);});
+          object.on('dragstart',()=>{if(document.querySelector('dialog[open]'))return;scene.tweens.killTweensOf(object);dragging=true;clearSelection();gestureMoved=true;ctx.sound('pickup');object.setDepth(200);onStart?.(object);});
           object.on('drag',(_pointer,x,y)=>{object.setPosition(x,y);onMove?.(object,x,y);});
           object.on('dragend',()=>{
+            if(!dragging)return;dragging=false;
             let accepted=false;
             try{accepted=onDrop?.(object,object.x,object.y)===true;}finally{object.setDepth(depth);}
             if(accepted)ctx.sound('place');
@@ -203,7 +208,20 @@ export function mount(ctx) {
           const jump=(label,value)=>{const b=document.createElement('button');b.className='range-jump secondary';b.textContent=label;b.type='button';b.onclick=()=>{input.value=value;onChange(value);ctx.save();};return b;};
           row.append(span,jump('처음',min),input,jump('끝',max));ctx.controls.append(row);return input;
         },
-        assist(label,callback){assistActions.push({label,callback});},
+        assist(label,callback,options={}){assistActions.push({label,callback,...options});},
+        // Students choose both the object and the destination. This runs the
+        // physical drop handler, including its original learning validation.
+        assistPlacement(items,targets){
+          let chosen=null;
+          for(const item of items)api.assist('도구 선택 · '+item.label,()=>{chosen=item;api.say(item.label+' 선택. 놓을 대상을 골라 줘.');});
+          for(const target of targets)api.assist('대상 선택 · '+target.label,()=>{
+            if(!chosen){api.say('먼저 옮길 도구나 카드를 골라 줘.');return;}
+            const object=chosen.object,config=draggables.get(object);if(!config||!object.active)return;
+            const home={x:object.x,y:object.y};object.setPosition(target.x,target.y);config.onMove?.(object,target.x,target.y);
+            const ok=(config.onTap||config.onDrop)?.(object,target.x,target.y)===true;
+            if(!ok&&object.active)object.setPosition(home.x,home.y);
+          });
+        },
         setToolHandler(id,handler){if(tool?.id===id)toolHandler=handler;},
         listenCleanup(fn){sceneCleanups.push(fn);},
         spark(x,y){
@@ -229,6 +247,7 @@ export function mount(ctx) {
   function syncPause(){
     if(!game||!activeScene||closed)return;
     const pause=document.hidden||!!document.querySelector('dialog[open]');
+    if(pause)hooks?.pause?.();
     if(pause&&game.scene.isActive('Activity'))game.scene.pause('Activity');
     else if(!pause&&game.scene.isPaused('Activity'))game.scene.resume('Activity');
   }

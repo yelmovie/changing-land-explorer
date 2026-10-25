@@ -11,7 +11,7 @@ const TITLES=[['두 실험을 비교해','강에서 흔적을 찾아'],['화산 
 STAGES.forEach((s,i)=>s.steps=TITLES[i]);
 export const fresh=()=>({version:3,started:false,completed:[],drafts:{},records:{},sound:true,mapNode:0,final:{round:0,answers:{},links:{}},finished:false});
 const object=v=>v&&typeof v==='object'&&!Array.isArray(v);
-function cleanData(value,depth=0){if(depth>12)return null;if(typeof value==='string')return value.slice(0,1000);if(typeof value==='number')return Number.isFinite(value)?value:0;if(typeof value==='boolean'||value===null)return value;if(Array.isArray(value))return value.slice(0,600).map(v=>cleanData(v,depth+1));if(object(value)){const out={};for(const [k,v]of Object.entries(value).slice(0,100)){if(!['__proto__','constructor','prototype'].includes(k))out[k]=cleanData(v,depth+1);}return out;}return null;}
+function cleanData(value,depth=0){if(depth>12)return null;if(typeof value==='string')return value.slice(0,1000);if(typeof value==='number')return Number.isFinite(value)?value:0;if(typeof value==='boolean'||value===null)return value;if(Array.isArray(value)){const coordinates=value.every(p=>object(p)&&Number.isFinite(p.x)&&Number.isFinite(p.y));return (coordinates?value:value.slice(0,600)).map(v=>cleanData(v,depth+1));}if(object(value)){const out={};for(const [k,v]of Object.entries(value).slice(0,100)){if(!['__proto__','constructor','prototype'].includes(k))out[k]=cleanData(v,depth+1);}return out;}return null;}
 export function sanitize(value){
  const base=fresh();if(!object(value)||![2,3].includes(value.version))return base;
  base.started=value.started===true;base.sound=value.sound!==false;base.mapNode=Number.isInteger(value.mapNode)&&value.mapNode>=0&&value.mapNode<29?value.mapNode:0;

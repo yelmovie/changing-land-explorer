@@ -9,6 +9,10 @@ const TRANSFER_ROUTE={start:{x:120,y:410},goal:{x:880,y:100},areas:[{x:50,y:50,w
 export function renderFinal(mode='assembly'){
  const s=state();if(s.completed.length<5&&!isAdmin()){navigate('map');return()=>{};}
  s.final??={};const f=s.final;f.selected??={};f.round=Math.min(3,Math.max(0,Number(f.round)||0));
+ if(mode==='retry'&&s.finished){
+  f.attempts??=[];f.attempts.push({round:f.round,transferRiverTime:f.transferRiverTime,transferRiverPoint:structuredClone(f.transferRiverPoint),transferRockClaims:structuredClone(f.transferRockClaims||[]),transferRockName:f.transferRockName,transferSafety:structuredClone(f.transferSafety||{})});
+  f.round=0;f.assembled=true;for(const key of ['transferRiverTime','transferRiverPoint','transferRockClaims','transferRockName','transferSafety'])delete f[key];save();navigate('final');return()=>{};
+ }
  const records=id=>Object.values(s.records[id]?.data?.evidence||s.drafts[id]?.data?.evidence||{});
  const chosen=id=>records(id).find(e=>e.id===f.selected[id]);
  const openRecords=id=>modal('내가 남긴 관찰',`<div class="evidence-list">${records(id).map(e=>evidenceCard(e)).join('')||'<p>아직 관찰 장면이 없어. 지도에서 해당 탐험의 기록을 남겨 줘.</p>'}</div>`);

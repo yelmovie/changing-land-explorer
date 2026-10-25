@@ -4,7 +4,7 @@ import {pathToFileURL} from 'node:url';
 const {chromium}=await import(process.env.PLAYWRIGHT_PATH?pathToFileURL(process.env.PLAYWRIGHT_PATH).href:'playwright');
 const base=process.env.CHECK_URL||'http://localhost:5177';
 const out=process.env.CHECK_OUT||'.work/learning-verification';await fs.mkdir(out,{recursive:true});
-const results=[],errors=[],loading=[],sizes=[[1024,768],[1280,720],[1920,1080]].filter(s=>!process.env.CHECK_VIEWPORT||s.join('x')===process.env.CHECK_VIEWPORT);
+const results=[],errors=[],loading=[],sizes=(process.env.CHECK_SIZES?process.env.CHECK_SIZES.split(',').map(s=>s.split('x').map(Number)):[[1024,768],[1280,720],[1920,1080]]).filter(s=>!process.env.CHECK_VIEWPORT||s.join('x')===process.env.CHECK_VIEWPORT);
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const ids=['river','volcano','rocks','city','safety'];
 async function record(page,label,scope='body',{scroll=false,shot=false}={}){
@@ -29,7 +29,7 @@ async function record(page,label,scope='body',{scroll=false,shot=false}={}){
   const heading=root.querySelector('.task-copy'),phases=root.querySelector('.phase-path');
   const activity=root.querySelector('#activity'),canvas=activity?.querySelector('canvas');
   if(canvas){const a=activity.getBoundingClientRect(),b=canvas.getBoundingClientRect();if(b.left<a.left-1||b.top<a.top-1||b.right>a.right+1||b.bottom>a.bottom+1)issues.push('activity canvas clipped');}
-  if(heading&&phases&&heading.getBoundingClientRect().right>phases.getBoundingClientRect().left+1)issues.push('goal overlaps phase navigation');
+  if(heading&&phases){const h=heading.getBoundingClientRect(),p=phases.getBoundingClientRect();if(h.right>p.left+1&&h.left<p.right-1&&h.bottom>p.top+1&&h.top<p.bottom-1)issues.push('goal overlaps phase navigation');}
   return {issues,controls,rect:{x:r.x,y:r.y,w:r.width,h:r.height},dialogScroll:body?body.scrollHeight-body.clientHeight:0};
  },{scroll});
  const pass=!data.issues.length;results.push({label,pass,...data});

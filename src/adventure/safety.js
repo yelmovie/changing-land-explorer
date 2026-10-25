@@ -1,4 +1,6 @@
 import {SCHOOL_CONFIG,OUTSIDE_CONFIG,inspectRoute,routeSignature} from '../learning-model.js';
+import {appendRoutePoint} from '../route-points.js';
+import {SHELTER,shelterPoint,inShelter,createShelter} from './shelter.js';
 
 const inside=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
 export function setup(scene,api){
@@ -9,7 +11,7 @@ export function setup(scene,api){
  function protect(){
   api.image('classroom',600,320,1200,640);
   const p=d.protect,phase=api.phase;
-  const hero=api.hero(phase===0?950:p.under?665:970,phase===0?465:p.under?458:510,phase===0?160:145,scene.textures.exists('hero-protect')&&p.under?'hero-protect':'river-pose-2');
+  const hero=api.hero(950,465,phase===0?160:SHELTER.body.size,'river-pose-2');
   if(phase===0){
    api.task('흔들리기 전에, 위험한 곳을 찾아보자','위험 표식을 창문과 책장에 끌어다 놓아 줘.');
    const hazards=[{id:'window',name:'창문',x:150,y:205,w:240,h:240,text:'창문 가까이에서는 유리나 화분이 떨어질 수 있어.'},{id:'shelf',name:'책장',x:438,y:265,w:190,h:210,text:'책장과 책이 넘어질 수 있어. 떨어진 곳에서 몸을 보호해.'}];
@@ -22,33 +24,33 @@ export function setup(scene,api){
    function progress(){const n=hazards.filter(h=>d.evidence['safety-'+h.id]).length;api.counter(n,2,'찾은 위험');if(n===2)api.finish('창문과 책장을 피해, 가까운 튼튼한 책상 아래에서 몸을 보호하자.');}
    api.actions([]);progress();return;
   }
-  // This outline sits on the sturdy central desk shown in the illustration.
-  const shelter=scene.add.rectangle(690,444,225,205).setStrokeStyle(5,0xffda78).setFillStyle(0xffda78,.03);
-  api.panel(690,316,290,53,0xfff5db,.95);api.text('튼튼한 책상',690,316,25);
+  const shelter=createShelter(scene,api,hero,p);
+  api.text('가상 행동 연습 · 실제 대피 훈련은 선생님과 함께',600,615,20);
   if(phase===1){
    api.task('리버의 몸과 머리를 보호하자','리버를 책상 아래로 옮긴 뒤, 방석을 머리에 가져다 줘.');
    const pillow=scene.add.container(260,540,[api.image('art/safety-cushion',0,0,145,91)]).setSize(150,96);
-   function under(){p.under=true;hero.setPosition(665,458);if(scene.textures.exists('hero-protect'))hero.setTexture('hero-protect');api.record({id:'safety-desk',kind:'safety',label:'튼튼한 책상',asset:'classroom',point:{x:690/1200,y:444/640},text:'튼튼한 책상 아래에서 머리와 몸을 보호해.'});api.save();api.say('좋아. 책상 아래에서 머리도 보호해 줘.');progress();return true;}
-   function head(){if(!p.under){api.say('먼저 책상 아래로 몸을 낮추자.');return false;}p.head=true;pillow.setPosition(665,406).setScale(.65);api.save();api.spark(665,406);progress();return true;}
-   api.drag(hero,{onDrop:(o,x,y)=>inside(x,y,690,455,240,190)?under():false});
-   api.drag(pillow,{onDrop:(o,x,y)=>inside(x,y,665,420,180,140)?head():false});
-   api.assist('리버를 튼튼한 책상 아래로',under);api.assist('방석으로 머리 보호하기',head);
-   if(p.head)pillow.setPosition(665,406).setScale(.65);
+   function under(){p.under=true;shelter.crouch();api.record({id:'safety-desk',kind:'safety',label:'튼튼한 책상',asset:'classroom',point:{x:SHELTER.x/1200,y:(SHELTER.y+50)/640},text:'튼튼한 책상 아래에서 머리와 몸을 보호해.'});api.save();api.say('책상 아래로 몸을 낮췄어. 보이는 머리 위에 방석을 놓아 줘.');progress();return true;}
+   function head(){if(!p.under){api.say('먼저 책상 아래로 몸을 낮추자.');return false;}p.head=true;shelter.protectHead(pillow);api.save();const pos=shelterPoint(SHELTER.head);api.spark(pos.x,pos.y);api.say('머리 위를 방석으로 보호했어.');progress();return true;}
+   if(!p.under)api.drag(hero,{onDrop:(o,x,y)=>inShelter(x,y,SHELTER.under)?under():false});
+   api.drag(pillow,{onDrop:(o,x,y)=>inShelter(x,y,SHELTER.head)?head():false});
+   api.assistPlacement([{label:'리버',object:hero},{label:'방석',object:pillow}],[{label:'책상 아래',...shelterPoint(SHELTER.under)},{label:'머리 위',...shelterPoint(SHELTER.head)},{label:'책상 바깥',x:420,y:470}]);
+   if(p.head)shelter.protectHead(pillow);
    function progress(){api.counter(Number(p.under)+Number(p.head),2,'몸 보호');if(p.under&&p.head)api.finish('머리와 몸을 보호했어. 책상 다리를 잡고 흔들림이 멈출 때까지 기다리자.');}
    api.actions([]);progress();return;
   }
   api.task('책상 다리를 잡고, 멈춘 뒤 확인하자','손 표식을 책상 다리로 옮겨 잡아 줘. 멈추기 전에는 밖으로 나가지 않아.');
   api.panel(320,80,510,80,0xfff4d8,.96);const status=api.text(p.stopped?'흔들림이 멈췄어':'흔들리고 있어 · 몸을 보호해',320,80,26);
-  scene.add.rectangle(665,406,90,45,0xe3b45d).setStrokeStyle(4,0xffe8a8);
-  const leg=scene.add.rectangle(960,458,26,170,0xffe08a,.35).setStrokeStyle(4,0xffdf7c);
-  const hand=chip('손으로 잡기',980,550,190);let elapsed=0;
-  function hold(){if(!p.under||!p.head){api.say('앞 단계에서 책상 아래로 들어가 머리와 몸을 먼저 보호해 줘.');return false;}p.leg=true;hand.setPosition(960,465).setScale(.72);api.save();api.say('책상 다리를 잡았어. 지금은 이 자리에서 몸을 보호하자.');progress();return true;}
-  api.drag(hand,{onDrop:(o,x,y)=>inside(x,y,960,460,100,180)?hold():false});api.assist('책상 다리 잡기',hold);
-  if(p.leg)hand.setPosition(960,465).setScale(.72);
+  if(p.head)shelter.drawHead();
+  const leg=shelterPoint(SHELTER.leg);
+  const hand=chip('손으로 잡기',1030,550,190);let elapsed=0;
+  function hold(){if(!p.under||!p.head){api.say('앞 단계에서 책상 아래로 들어가 머리와 몸을 먼저 보호해 줘.');return false;}if(!shelter.hold()){api.say('보호 자세 그림을 불러오지 못했어. 연결을 확인한 뒤 다시 열어 줘.');return false;}p.leg=true;hand.setVisible(false);api.save();api.say('가까운 책상 다리를 잡았어. 이 자리에서 흔들림이 멈출 때까지 기다리자.');progress();return true;}
+  api.drag(hand,{onDrop:(o,x,y)=>inShelter(x,y,SHELTER.leg)?hold():false});
+  api.assistPlacement([{label:'손으로 잡기',object:hand}],[{label:'가까운 책상 다리',...leg},{label:'책상 바깥',x:420,y:470}]);
+  if(p.leg){hand.setVisible(false);shelter.hold();}
   function confirm(){if(!p.stopped||!p.leg){api.say('아직 흔들리고 있어. 책상 다리를 잡은 채 몸을 보호하자.');return;}p.confirmed=true;api.record({id:'safety-protect',kind:'safety',label:'내 몸 보호 훈련',text:'책상 아래에서 머리와 몸을 보호하고 다리를 잡았어. 흔들림이 멈춘 뒤 선생님의 안내를 따라 이동해.'});api.save();api.finish('흔들림이 멈췄어. 이제 선생님의 안내를 따라 걸어서 이동하자.');progress();}
   function progress(){api.counter(Number(p.leg)+Number(p.stopped)+Number(p.confirmed),3,'보호 → 멈춤 확인');}
   api.actions([{id:'confirm-stop',label:'흔들림 멈춤 확인',primary:true,onClick:confirm}]);progress();if(p.confirmed)api.finish('선생님의 안내를 따라 걸어서 안전한 곳으로 이동하자.');
-  return {update(time,delta){if(p.stopped||!p.leg)return;elapsed+=Math.min(delta,100);shelter.x=690+Math.sin(elapsed/80)*2;leg.x=960+Math.sin(elapsed/80)*2;if(elapsed>=2400){p.stopped=true;shelter.x=690;leg.x=960;status.setText('흔들림이 멈췄어 · 확인해 줘');api.save();api.say('흔들림이 멈췄어. 멈춤을 확인한 뒤 선생님 안내를 따라가자.');progress();}}};
+  return {update(time,delta){if(p.stopped||!p.leg)return;elapsed+=Math.min(delta,100);shelter.shake(Math.sin(elapsed/80)*2);if(elapsed>=2400){p.stopped=true;shelter.shake(0);status.setText('흔들림이 멈췄어 · 확인해 줘');api.save();api.say('흔들림이 멈췄어. 멈춤을 확인한 뒤 선생님 안내를 따라가자.');progress();}}};
  }
 
  function route(){
@@ -84,7 +86,7 @@ export function setup(scene,api){
   }
   function invalidate(){checked=false;d[key+'Done']=false;d[key+'Signature']=null;w.replayed=false;api.save();}
   function store(){if(draft.length<2)return;points=draft.map(p=>({...p}));draft=[];d[key]=structuredClone(points);result=null;current={...config.start};invalidate();draw();api.say('길을 남겼어. 길 확인으로 위험한 곳이 없는지 살펴보자.');}
-  function append(p){const q={x:Math.max(0,Math.min(1000,p.x)),y:Math.max(0,Math.min(500,p.y))},last=draft.at(-1);if(!last||Math.hypot(last.x-q.x,last.y-q.y)>6)draft.push(q);if(draft.length>800)draft=draft.filter((_,i)=>i%2===0);draw();}
+  function append(p){if(!appendRoutePoint(draft,p))api.say('길이 너무 길어졌어. 마지막 지점을 지우고 짧은 구간으로 이어 줘. 앞서 그린 길은 그대로 남아 있어.');draw();}
   function reset(){if(complete)return;moving=false;drawing=false;pointerDrawing=false;tapStarted=false;points=[];draft=[];d[key]=[];current={...config.start};result=null;invalidate();draw();api.say('리버에서부터 다시 이어 줘. 실패해도 보상은 줄어들지 않아.');}
   function check(){
    if(moving)return;result=inspectRoute(points,config);draw();

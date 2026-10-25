@@ -1,7 +1,6 @@
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const near=(x,y,p,r=75)=>Math.hypot(x-p.x,y-p.y)<r;
-const MOUTH={x:560,y:195};
-const FLOW=[MOUTH,{x:595,y:255},{x:642,y:325},{x:700,y:398},{x:755,y:465}];
+import {MODEL_MOUTH as MOUTH,MODEL_FLOW as FLOW,modelScene,paintScene,modelEvidence} from '../observation-scenes.js';
 const OUTPUTS=[
   {id:'lava',label:'용암',x:385,y:395,text:'땅속에서 나온 뜨거운 물질이 땅 위로 흘러.'},
   {id:'gas',label:'화산 기체',x:610,y:80,text:'수증기 같은 기체도 나와. 보이지 않는 기체는 설명 표시로 나타냈어.'},
@@ -18,27 +17,9 @@ function lens(scene,api,x,y,label='돋보기'){
 }
 
 function model(scene,api){
-  const tube=scene.add.graphics();
-  const illustrations={tray:api.image('art/volcano-tray',582,485,545,90),mountain:api.image('art/volcano-mountain',560,326,470,310),water:api.image('art/volcano-syringe',957,343,100,231)};
-  const g=scene.add.graphics();
+  const root=scene.add.container(0,0);let art;
   function draw(parts,amount=0){
-    g.clear();
-    tube.clear();
-    for(const [id,art] of Object.entries(illustrations))art.setVisible(parts.includes(id));
-    if(parts.includes('water')){
-      tube.lineStyle(14,0xbcae98).beginPath().moveTo(955,425).lineTo(850,425).lineTo(560,433).lineTo(560,215).strokePath();
-      tube.lineStyle(7,0xe5d7bd).beginPath().moveTo(955,425).lineTo(850,425).lineTo(560,433).lineTo(560,215).strokePath();
-    }
-    if(amount>0){
-      g.lineStyle(19,0xd85e50,1);
-      const count=amount*(FLOW.length-1);
-      for(let i=0;i<Math.ceil(count);i++){
-        const a=FLOW[i],b=FLOW[i+1],f=Math.min(1,count-i);
-        g.lineBetween(a.x,a.y,a.x+(b.x-a.x)*f,a.y+(b.y-a.y)*f);
-      }
-      g.fillStyle(0xe37161).fillEllipse(MOUTH.x,MOUTH.y,56,17);
-      if(amount>.8)g.fillStyle(0xd85e50).fillEllipse(754,464,(amount-.8)*320,18);
-    }
+    art?.destroy(true);art=paintScene(scene,api,modelScene(parts,amount),{background:false});root.add(art);
   }
   draw([]);return {draw};
 }
@@ -141,13 +122,13 @@ function trace(scene,api){
   }
   function mouth(){
     w.mouth=true;scope.setPosition(MOUTH.x,MOUTH.y).setScale(.7);
-    api.record({id:'model-mouth',kind:'model',asset:'volcano-lab',label:'물이 나온 입구',point:{x:.47,y:.25},time:1,claim:'mouth',text:'붉은 물이 꼭대기의 구멍으로 나왔어.'});
+    api.record({id:'model-mouth',kind:'model',...modelEvidence(d),asset:'volcano-lab',label:'물이 나온 입구',point:{x:MOUTH.x/1200,y:MOUTH.y/640},time:1,claim:'mouth',text:'붉은 물이 꼭대기의 구멍으로 나왔어.'});
     api.say('바로 이 구멍에서 나왔어. 이제 흐른 길을 따라가 보자.',true);guideDraw();api.save();check();return true;
   }
   function advance(x,y){
     if(!w.mouth||w.path>=FLOW.length)return;
     if(near(x,y,FLOW[w.path],47)){w.path++;guideDraw();api.save();if(w.path===FLOW.length){
-      api.record({id:'model-flow',kind:'model',asset:'volcano-lab',label:'경사면을 흐른 붉은 물',point:{x:.55,y:.48},time:1,claim:'flow',text:'붉은 물이 모형의 경사면을 따라 흘렀어.'});check();
+      api.record({id:'model-flow',kind:'model',...modelEvidence(d),asset:'volcano-lab',label:'경사면을 흐른 붉은 물',point:{x:700/1200,y:398/640},time:1,claim:'flow',text:'붉은 물이 모형의 경사면을 따라 흘렀어.'});check();
     }}
   }
   function check(){if(!finished&&w.mouth&&w.path===FLOW.length){finished=true;d.modelTime=1;api.finish('나온 구멍과 흐른 길을 기록했어. 실제 화산과 비교할 단서가 생겼어.');}}
@@ -205,7 +186,7 @@ function compare(scene,api){
     {id:'extra',title:'함께 나오는 것',source:'model-mouth',left:'모형: 붉은 물만 나왔어.',right:'실제: 화산재·화산 기체·암석 조각도 나와.'}
   ];
   api.text('내 모형',380,67,26);api.text('실제 화산',830,67,26);
-  const smallModel=api.image('volcano-lab',380,135,270,110);
+  const smallModel=paintScene(scene,api,modelScene(d.assembly,d.modelTime??1),{x:278,y:80,scale:.17});
   const smallReal=api.image('volcano-eruption',830,135,270,110);
   const cells=[];
   rows.forEach((row,r)=>{
@@ -219,7 +200,7 @@ function compare(scene,api){
     }
   });
   // Alternate cards so placement requires matching the observed feature, not a left-to-right tap sequence.
-  const order=[cells[3],cells[0],cells[2],cells[1]];
+  const order=[cells[3],cells[0],cells[2],cells[1]],items=[];
   order.forEach((cell,i)=>{
     const text=cell.row[cell.side];
     const backing=scene.add.rectangle(0,0,232,95,cell.side==='left'?0xe2f1e7:0xffedcc).setStrokeStyle(2,0x8fa38c);
@@ -232,17 +213,18 @@ function compare(scene,api){
       const both=['left','right'].every(side=>w.links.includes(cell.row.id+'-'+side));
       if(both){
         d.comparisons[cell.row.id]=same?'same':'different';
-        api.record({id:'compare-'+cell.row.id,label:cell.row.title,kind:'comparison',claim:cell.row.id,text:same?'모형과 실제 화산에서 닮은 모습을 관찰했어.':'모형과 실제 화산의 다른 점을 관찰했어.'});
+        api.record({id:'compare-'+cell.row.id,...modelEvidence(d),label:cell.row.title,kind:'comparison',claim:cell.row.id,observations:[cell.row.left,cell.row.right],text:cell.row.left+' '+cell.row.right});
       }
-      api.counter(w.links.length,4,same?'같은 점 연결':'다른 점 연결');api.save();check();return true;
+      api.counter(w.links.length,4,same?'같은 점 연결':'다른 점 연결');api.say(cell.row.title+' 기록을 연결했어. 같은 주제의 모형과 실제 화산 기록을 짝지어 줘.');api.save();check();return true;
     }
     api.drag(card,{onDrop(obj,x,y){
       if(!near(x,y,cell,125)){api.say(cell.side==='left'?'내 모형에서 직접 본 모습을 알맞은 줄에 놓아 줘.':'실제 화산의 설명을 같은 주제의 줄에 놓아 줘.');return false;}
       return place();
     }});
-    api.assist(text+' 연결',place);
+    items.push({label:text,object:card});
     if(w.links.includes(cell.id))card.setPosition(cell.x,cell.y).setScale(1.12);
   });
+  api.assistPlacement(items,cells.map(c=>({label:(c.side==='left'?'내 모형':'실제 화산')+' · '+c.row.title,x:c.x,y:c.y})));
   function check(){if(!finished&&w.links.length===4){finished=true;api.finish(same?'모형과 실제 화산은 구멍으로 물질이 나오고, 경사면을 따라 흐르는 모습이 닮았어.':'붉은 물은 용암이 아니야. 실제 화산에서는 뜨거운 용암과 여러 분출물이 나와.');}}
   api.counter(w.links.length,4,same?'같은 점 연결':'다른 점 연결');
   if(w.links.length===4)api.actions([{id:'compare-saved',label:'연결한 기록 확인',onClick:check,primary:true}]);

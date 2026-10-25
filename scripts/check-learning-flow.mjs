@@ -22,6 +22,16 @@ async function assist(names,{repeat=1,pattern=null}={}){
  for(const name of wanted)for(let i=0;i<repeat;i++)await page.getByRole('button',{name,exact:true}).click();
  await page.locator('#assist-return').click();
 }
+async function place(tool,target){await assist(['도구 선택 · '+tool,'대상 선택 · '+target]);}
+async function pour(){await page.locator('#gesture-help').click();await page.getByRole('button',{name:'가운데 물주기',exact:true}).click();await page.waitForSelector('#next.ready',{timeout:15000});}
+async function riverLinks(){
+ for(const [tool,target]of [['상류의 바위 관찰 카드','상류'],['상류의 물길 관찰 카드','상류'],['하류의 물길 관찰 카드','하류'],['하류의 모래 관찰 카드','하류'],['모래가 쌓여요 깃발','하류 끝 모래']])await place(tool,target);
+ assert.match(await page.locator('#quest-meter').textContent(),/5\s*\/\s*5/);
+}
+async function volcanoLinks(){
+ await page.locator('#gesture-help').click();const labels=await page.locator('[data-assist]').allTextContents();await page.locator('#assist-return').click();
+ for(const label of labels.filter(s=>s.startsWith('도구 선택'))){const text=label.replace('도구 선택 · ',''),side=text.startsWith('모형:')?'내 모형':'실제 화산';const topic=text.includes('구멍으로')?'나오는 곳':text.includes('경사면을 따라')?'흐르는 길':text.includes('차가운')||text.includes('뜨거운')?'흐르는 물질':'함께 나오는 것';await place(text,side+' · '+topic);}
+}
 async function next(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await settle();}
 async function concept(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await page.waitForSelector('.concept-dialog');concepts++;await page.locator('#concept-continue').click();}
 async function doneStage(index){await concept();await page.waitForSelector('#return-map');rewards++;await page.locator('#return-map').click();const s=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));assert.equal(s.completed.length,index+1);console.log('Completed',s.completed.at(-1));}
@@ -83,14 +93,16 @@ try{
  await page.goto(process.env.CHECK_URL||'http://localhost:5177');await page.waitForSelector('#settings');
  if(!resumedStageState){
  await page.waitForSelector('#start');await page.locator('#start').click();await enter(0);
- await assist(['아래쪽에 예상 깃발 놓기','왼쪽 물주기','가운데 물주기','오른쪽 물주기']);await next();
- await assist(['왼쪽 물주기','가운데 물주기','오른쪽 물주기']);await next();
- await assist(['두 실험 처음으로 되감기','두 실험 마지막 모습 보기']);await assist(null,{pattern:/흔적에 놓기$/});await page.locator('#river-reflect-different').click();await concept();await settle();
- await assist();await next();await assist();await next();await assist();await doneStage(0);
+ await place('예상 깃발','가운데 흙');await pour();await next();
+ await pour();await next();
+ await assist(['두 실험 처음으로 되감기','두 실험 마지막 모습 보기']);
+ for(const [tool,target]of [['깎임 · 침식','위쪽 깎인 흙'],['이동 · 운반','가운데 흐르는 길'],['쌓임 · 퇴적','아래쪽 모래']])await place(tool,target);
+ await page.locator('#river-reflect-different').click();await concept();await settle();
+ await assist();await next();await assist();await next();await riverLinks();await doneStage(0);
  await enter(1);await assist();await next();await assist(['손잡이 조금 밀기'],{repeat:5});await page.waitForSelector('#next.ready',{timeout:15000});await next();await assist(['꼭대기 구멍 관찰']);await assist(['흐른 길의 다음 점으로 이동'],{repeat:5});await concept();await settle();
  let outputLabels;await page.locator('#gesture-help').click();outputLabels=await page.locator('[data-assist]').allTextContents();await page.locator('#assist-return').click();
  for(const label of outputLabels){await assist([label]);await page.locator('#volcano-output-pin').click();}
- await next();await assist();await next();await assist();await doneStage(1);
+ await next();await volcanoLinks();await next();await volcanoLinks();await doneStage(1);
  await enter(2);await assist(null,{repeat:16});await next();await rockInspect();await next();await rockInspect();await concept();await settle();
  await assist();await next();await rockInspect();await assist(null,{pattern:/쟁반으로 옮기기$/});await next();await rockInspect();await assist(null,{pattern:/쟁반으로 옮기기$/});await doneStage(2);
  await enter(3);
@@ -100,7 +112,7 @@ try{
   if(p<2)await next();else await concept();
  }
  await settle();await assist(null,{pattern:/붙이기$/});await assist(['실내 창문 닫기','리버의 코와 입에 마스크 씌우기']);await next();await assist();await next();await assist();await doneStage(3);
- await enter(4);await assist();await next();await assist();await next();await assist(['책상 다리 잡기']);await page.waitForTimeout(2700);await page.locator('#confirm-stop').click();await concept();await settle();
+ await enter(4);await assist();await next();await place('리버','책상 아래');await place('방석','머리 위');await next();await place('손으로 잡기','가까운 책상 다리');await page.waitForTimeout(2700);await page.locator('#confirm-stop').click();await concept();await settle();
  await pathRoute();await next();await page.locator('#route-check').click();await page.waitForSelector('#next.ready',{timeout:20000});await next();await pathRoute(true);await doneStage(4);
  }
  const before=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));
@@ -112,6 +124,7 @@ try{
  assert.equal(finished.finished,true);assert.equal(finished.final.round,3);assert.equal(Object.keys(finished.final.selected).length,5);
  await page.reload();await page.waitForSelector('#settings');const resumed=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));
  assert.equal(resumed.finished,true);assert.deepEqual(resumed.final,finished.final);assert.equal(errors.length,0);assert.deepEqual(httpErrors,[]);
+ await fs.writeFile(`${out}/flow-finished-state.json`,JSON.stringify(resumed));
  const discoveries=Object.values(after.drafts).flatMap(d=>Object.values(d.data.adventure.chapters)).reduce((n,c)=>n+Object.keys(c.tasks).length,0);assert.equal(discoveries,30);
  console.log(resumedStageState?'PASS: resumed earned 30-discovery state; three final challenges, ending, certificate and reload persistence.':'PASS: 30 discoveries, 10 concept handoffs, five rewards, three final challenges, ending, certificate and reload persistence.');
  await fs.writeFile(`${out}/flow.json`,JSON.stringify({completed:resumed.completed,errors,httpErrors,discoveries,concepts:resumedStageState?null:concepts,rewards:resumedStageState?null:rewards,resumedStageState,stageEvidenceSource:process.env.CHECK_RESUME_STATE||null,finalRounds:resumed.final.round,finished:resumed.finished,certificate:true,reloaded:true,interaction:'Gesture assistance for stage tasks; pointer input for school/outside/final routes. Assistance chooses valid task targets and does not establish independent learner performance.'},null,2));

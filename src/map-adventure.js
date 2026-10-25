@@ -17,7 +17,7 @@ export function findRoute(from,to){
 }
 
 export function renderMap({welcome=false}={}){
-  const s=state(),all=s.completed.length===5,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const s=state(),all=s.completed.length===5,finished=s.finished===true,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const nextStage=STAGES.find(stage=>!s.completed.includes(stage.id));
   if(welcome){
     shell('움직이는 지오밸리',`<main class="expedition-welcome"><div class="expedition-title"><img src="/assets/title-logo.webp" alt="움직이는 지오밸리"><p>리버와 함께, 땅의 변화를 발견하는 여행</p></div><img class="expedition-river" src="/assets/hero-lens.webp" alt="탐험 동료 리버"><div class="expedition-start"><button class="primary large" id="start">${s.started?'탐험 이어 하기':'리버와 탐험 시작'} ${icon('arrow')}</button></div></main>`,'atlas welcome');
@@ -26,13 +26,13 @@ export function renderMap({welcome=false}={}){
   }
   let game,mapScene,current=POINTS[s.mapNode]?s.mapNode:0,moving=false,queue=[],destination=null,hero,routeArt,pendingTravel=null,closed=false,fallback=false,bootTimer;
   shell('움직이는 지오밸리',`<main class="atlas-page ${welcome?'atlas-welcome':''}">
-    <div class="atlas-strip"><div class="atlas-title"><span class="eyebrow">리버의 발견 여행</span><h1>${all?'다섯 발견을 기록탑에 연결하자':'길을 따라, 지오밸리 탐험'}</h1></div><div class="atlas-stars">${icon('star',22)} <b>${discoveryCount(s)}</b><span>/ 30 발견</span><i></i>${icon('flag',22)} <b>${s.completed.length}</b><span>/ 5 도구</span></div></div>
+    <div class="atlas-strip"><div class="atlas-title"><span class="eyebrow">리버의 발견 여행</span><h1>${finished?'탐험 완료 · 내 발견을 다시 살펴봐':all?'다섯 발견을 기록탑에 연결하자':'길을 따라, 지오밸리 탐험'}</h1></div><div class="atlas-stars">${icon('star',22)} <b>${discoveryCount(s)}</b><span>/ 30 발견</span><i></i>${icon('flag',22)} <b>${s.completed.length}</b><span>/ 5 도구</span></div></div>
     <div class="atlas-world"><div id="atlas-canvas" class="atlas-canvas"></div><img class="atlas-fallback-river" src="/assets/hero-lens.webp" alt="지도 위의 리버" hidden><div class="atlas-destinations">
       ${STAGES.map((st,i)=>{const done=s.completed.includes(st.id),open=canEnter(i,s,isAdmin());return `<button class="atlas-pin ${done?'done':open?'available':'locked'}" data-stage="${i}" style="left:${LABELS[i][0]*100}%;top:${LABELS[i][1]*100}%" aria-label="${i+1}. ${st.place}${done?' 완료':open?' 탐험하기':' 잠김'}"><span class="pin-medallion">${done?icon('check',22):open?i+1:icon('lock',19)}</span><span class="pin-sign">${st.place}<small>${done?'탐험 완료':open?(stageDiscoveries(s,st.id)?`${stageDiscoveries(s,st.id)} / 6 발견`:'탐험하기'):'다음에 만나요'}</small></span></button>`;}).join('')}
       <button id="atlas-core" class="atlas-core ${all?'ready':''}" style="left:50%;top:35%" aria-label="기록탑 ${all?'마지막 도전':'다섯 도구를 모아 연결'}">${icon(all?'star':'lock',22)}<span>기록탑</span><small>${s.completed.length} / 5</small></button>
     </div><div class="atlas-route-help">${icon('flag',18)} 장소를 누르면 리버가 길을 따라가</div><button id="travel-skip" class="secondary travel-skip" hidden>도착하기 ${icon('arrow',18)}</button>
     ${welcome?`<section class="welcome-scroll"><img class="welcome-river" src="/assets/hero-lens.webp" alt="탐험가 수달 리버"><div><span>초등 과학 · 땅의 변화</span><h2>리버와 발견 여행을 떠나자!</h2><p>다섯 곳의 관찰 기록을 모아<br>꺼진 기록탑을 다시 연결해 줘.</p><button class="primary" id="start">${s.started?'탐험 이어 하기':'탐험 시작'} ${icon('arrow')}</button></div></section>`:''}
-    </div><footer class="atlas-footer"><img class="map-river" src="/assets/hero-cheer.webp" alt="리버"><p id="map-speech">${all?'네가 찾은 단서들이 모였어. 가운데 기록탑에서 마지막 문제를 풀어 보자!':`흩어진 관찰 기록을 모아 기록탑을 연결하자. 다음은 ${nextStage?.place||'기록탑'}야.`}</p><div class="reward-rack" aria-label="모은 탐험 도구">${STAGES.map(st=>`<button class="rack-item ${s.completed.includes(st.id)?'earned':''}" data-tool="${st.id}" aria-label="${st.reward} ${s.completed.includes(st.id)?'획득':'미획득'}"><img src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt=""><span>${s.completed.includes(st.id)?'✓':'?'}</span></button>`).join('')}</div>${isAdmin()?'<button class="secondary" id="preview-nav">전체 화면</button>':''}</footer>
+    </div><footer class="atlas-footer"><img class="map-river" src="/assets/hero-cheer.webp" alt="리버"><p id="map-speech">${finished?'30개 발견과 마지막 도전을 마쳤어. 기록을 다시 보거나 새 상황에 다시 도전해 봐.':all?'네가 찾은 단서들이 모였어. 가운데 기록탑에서 마지막 문제를 풀어 보자!':`흩어진 관찰 기록을 모아 기록탑을 연결하자. 다음은 ${nextStage?.place||'기록탑'}야.`}</p>${finished?'<div class="map-complete-actions"><button class="secondary" id="map-records">기록 다시 보기</button><button class="secondary" id="map-retry">새 상황 다시 도전</button></div>':''}<div class="reward-rack" aria-label="모은 탐험 도구">${STAGES.map(st=>`<button class="rack-item ${s.completed.includes(st.id)?'earned':''}" data-tool="${st.id}" aria-label="${st.reward} ${s.completed.includes(st.id)?'획득':'미획득'}"><img src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt=""><span>${s.completed.includes(st.id)?'✓':'?'}</span></button>`).join('')}</div>${isAdmin()?'<button class="secondary" id="preview-nav">전체 화면</button>':''}</footer>
   </main>`,'atlas');
   $('.brand').innerHTML='<img class="brand-logo" src="/assets/title-logo.webp" alt="움직이는 지오밸리">';
   const world=$('.atlas-world'),page=$('.atlas-page');
@@ -70,6 +70,8 @@ export function renderMap({welcome=false}={}){
   }
   $$('[data-stage]').forEach(button=>button.onclick=()=>{const i=Number(button.dataset.stage);if(!canEnter(i,s,isAdmin())){toast(`먼저 ${STAGES[i-1].place}의 발견을 마치자.`);return;}if(welcome){s.started=true;save();$('.welcome-scroll')?.remove();}$('#map-speech').textContent=STAGES[i].intro;go(DOORS[i],i);});
   $('#atlas-core').onclick=()=>{if(!all&&!isAdmin()){toast('다섯 장소에서 도구를 모으면 기록탑을 연결할 수 있어.');return;}go(28,'core');};
+  $('#map-records')?.addEventListener('click',()=>navigate('final','ending'));
+  $('#map-retry')?.addEventListener('click',()=>navigate('final','retry'));
   $('#travel-skip').onclick=()=>{if(!moving)return;current=queue.at(-1)??current;hero.setPosition(POINTS[current].x,POINTS[current].y);queue=[];arrive();};
   $('#start')?.addEventListener('click',()=>{s.started=true;save();navigate('map');});
   $$('[data-tool]').forEach(button=>button.onclick=()=>{const i=STAGES.findIndex(st=>st.id===button.dataset.tool),st=STAGES[i];if(s.completed.includes(st.id))modal(st.reward,`<img class="tool-detail-image" src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt="${st.reward}"><p>${st.benefit}</p><p>${s.records[st.id]?.summary||'이 장소의 관찰 기록을 가방에 모았어.'}</p>`);else toast(`${st.place}에서 ${st.reward}를 얻을 수 있어.`);});

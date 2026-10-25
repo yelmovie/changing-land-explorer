@@ -116,3 +116,8 @@ dialog>.dialog-footer{flex:none;margin:0;padding:16px 24px 20px;background:var(-
 /* A centered media control must retain its anchor while hovered or pressed. */
 .concept-play:hover:enabled,.concept-play:active:enabled{transform:translate(-50%,-50%)}
 @media(prefers-reduced-motion:reduce){.concept-play,.concept-play:hover:enabled,.concept-play:active:enabled{transform:translate(-50%,-50%)!important}}
+@media(orientation:portrait){
+ .adventure-toolbar{width:100%;max-width:100%;min-width:0}
+ .adventure-toolbar .controls{width:100%;max-width:100%;justify-content:flex-start}
+ .adventure-toolbar .action-buttons{max-width:100%;flex-wrap:wrap}
+}

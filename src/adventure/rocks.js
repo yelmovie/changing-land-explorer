@@ -64,7 +64,7 @@ export function setup(scene,api){
     if(![r.color,r.grain].includes(claim)){api.say(['dark','light'].includes(claim)?'돌 전체가 밝은지 어두운지 다시 살펴봐.':'돋보기 안에서 알갱이가 하나하나 구별되는지 살펴봐.');return false;}
     if(!w.proofs.includes(claim))w.proofs.push(claim);
     api.record({id:`rock-${sample}-${claim}`,kind:'rock',sample,claim,asset:r.asset,label:`${r.name} · ${FEATURES[claim]}`,point:{x:(w.lens.x-170)/360,y:(w.lens.y-95)/360},zoom:2.35,annotations:[],text:FEATURES[claim]});
-    token.setAlpha(.35);api.spark(350,360);api.save();check();return false;
+    token.setAlpha(.35);api.spark(350,360);api.say(FEATURES[claim]+' 증거를 기록했어. 색과 알갱이를 모두 남겨 줘.');api.save();check();return false;
    };
    api.drag(token,{onDrop:(o,x,y)=>near(x,y,350,285,440,410)?apply():false});api.assist(FEATURES[claim]+' 기록 붙이기',apply);
   }
