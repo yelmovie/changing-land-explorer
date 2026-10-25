@@ -110,3 +110,12 @@
 /* 낮은 화면: 인증서를 가로로 넓히고, 인쇄·돌아가기 버튼은 바닥에 붙여 항상 보이게 */
 #app.final .certificate-tools{position:sticky;bottom:0;z-index:3;padding:10px 0 4px}
 @media(max-height:700px){#app.final .certificate{width:min(100%,860px);aspect-ratio:auto;padding:58px 96px 70px}#app.final .certificate h1{font-size:28px}}
+/* 암석 3D 돌려 보기 */
+.learning-dialog.rock3d-dialog{width:min(880px,calc(100vw - 40px))}
+.rock3d-stage{position:relative;width:100%;aspect-ratio:4/3;max-height:calc(var(--app-height,100dvh) - 300px);margin:0 auto;border-radius:var(--radius-lg);background:radial-gradient(circle at 50% 40%,#fff8e6 0,#e6d6b0 70%,#cdb98c 100%);box-shadow:inset 0 0 0 2px #c9a660,inset 0 -18px 40px #8c6b3640;overflow:hidden}
+.rock3d-stage canvas{display:block;width:100%;height:100%;cursor:grab}
+.rock3d-stage canvas:active{cursor:grabbing}
+.rock3d-stage canvas:focus-visible{outline:4px solid var(--focus-ring,#267c8b);outline-offset:-4px}
+.rock3d-status{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding:24px;text-align:center;font-size:var(--fs-body)}
+.rock3d-help{text-align:center}
+.rock3d-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}

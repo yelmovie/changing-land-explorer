@@ -124,9 +124,16 @@ Character reference for image-to-3D: the same cute otter explorer character as t
 01~05, 08~12는 이미 게임에 쓰는 그림을 흰 배경 PNG로 뽑은 것이라 새로 만들 필요 없다.
 새로 만들고 싶으면 위 06 프롬프트의 마지막 두 문장(three-quarter view ~ no text)을 꼬리로 붙이면 된다.
 
-## 4. 받은 뒤 할 일 (내가 하는 부분)
+## 4. 미리 준비해 둔 것 (2026-10-25)
+
+- 암석 공방 확대 관찰 단계에 **'돌 돌려 보기'** 버튼. `public/assets/models/`에 위 파일명의 GLB가 있을 때만 나타난다(없으면 지금처럼 2D만).
+- 3D 창: 손가락으로 끌어 돌리기, 두 손가락·버튼으로 크게/작게, '처음 모습', 방향키 돌리기. 동작 줄이기 설정이면 자동 회전 안 함. 닫으면 WebGL 자원을 정리한다. 학습 판정(돋보기 관찰·증거 붙이기)은 바꾸지 않았다.
+- Three.js 0.185.1을 `public/assets/vendor/three/`에 로컬로 넣었다(외부 CDN 없음). 코드: `src/rock3d.js`.
+- 검사: `node scripts/check-models.mjs`(삼각형·텍스처·용량 예산), `node scripts/check-rock3d.mjs`(개발 서버 + Playwright로 열기·돌리기·닫기). 블렌더로 만든 시험용 돌로 6개 항목 통과를 확인했고, 시험 파일은 배포 폴더에서 뺐다(`.work/rock3d-test/`).
+
+## 5. 받은 뒤 할 일 (내가 하는 부분)
 
 1. GLB를 `public/assets/models/`에 위 파일명으로 넣는다. 원본은 D 드라이브 `_scratch`에 둔다.
-2. 블렌더로 삼각형 수 확인 → 예산 넘으면 Decimate, 텍스처 1024 이하로 줄여 다시 GLB.
-3. 암석 화면부터 Three.js 회전 보기 붙이기 → 화산 단면 → 엔딩 탑 순서.
+2. `node scripts/check-models.mjs`로 예산 확인 → 넘으면 블렌더에서 Decimate, 텍스처 1024 이하로 줄여 다시 GLB.
+3. 암석은 넣기만 하면 바로 동작한다. 화산 단면 → 엔딩 탑은 받은 뒤 같은 `src/rock3d.js` 뷰어를 넓혀 붙인다.
 4. `public/assets/CREDITS.md`에 "Meshy image-to-3D, 원본 그림 = 프로젝트 자체 AI 생성" 기록. Meshy 요금제가 상업 이용 가능한 플랜인지 같이 적는다.

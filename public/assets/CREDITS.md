@@ -5,6 +5,7 @@
 | 도구·자료 | 사용 범위 | 확인한 근거 | 판정·남은 확인 |
 |---|---|---|---|
 | Phaser 3.90.0 | 지도·탐험 활동 | `public/assets/vendor/Phaser-LICENSE.md`, MIT | PASS · 원문 동봉 |
+| Three.js r185 (0.185.1) | 암석 3D 돌려 보기(GLB가 있을 때만) | `public/assets/vendor/three/three-LICENSE.txt`, MIT | PASS · 원문 동봉, CDN 없이 로컬 |
 | Jua 웹 글꼴 | 제목·버튼 | `public/assets/fonts/Jua-OFL.txt`, SIL OFL 1.1, Woowahan Brothers Corp. | PASS · 원문 동봉 |
 | Kenney Interface Sounds | 버튼·도구 효과음 8종 | `public/assets/audio/Kenney-CC0.txt`, CC0 1.0 | PASS · 출처와 원본 이름 동봉 |
 | Brian MacIntosh / BMacZero | 물 효과음 | `public/assets/audio/CREDITS.md`, CC0 1.0 | PASS · 출처 동봉 |
@@ -60,6 +61,7 @@
 
 - 개념 영상: 자체 작성 SVG를 프레임으로 렌더하고 FFmpeg로 인코딩한 무음 학습 클립. 도구와 자막: `scripts/concepts/`, `src/concepts.js`, `docs/CONCEPT_MOTION.md`.
 - Phaser 3.90.0: Copyright (c) 2024 Richard Davey, Phaser Studio Inc. · MIT License.
+- Three.js 0.185.1 (`three.module.min.js`, `three.core.min.js`, `GLTFLoader`, `BufferGeometryUtils`, `SkeletonUtils`): Copyright 2010-2026 Three.js Authors · MIT License.
 - Jua: Copyright (c) 2017 Woowahan Brothers Corp., Reserved Font Name Jua. Google Fonts 제공 OFL 글꼴. 한국어·라틴 WOFF2를 동봉했다.
 - 게임 조작 아이콘은 프로젝트의 `src/ui.js`에 작성한 SVG 경로다.
 

@@ -1,4 +1,5 @@
 import {ROCKS,FEATURES,hasRockEvidence} from '../learning-model.js';
+import {hasRockModel,openRock3D} from '../rock3d.js';
 
 const near=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
 const TRAY={basalt:140,granite:1060},TRAY_Y=275;
@@ -95,6 +96,8 @@ export function setup(scene,api){
   function put(type){if(type!==r.type){api.say('이름을 붙이기 전에 붙여 둔 색과 알갱이 증거를 비교해 봐.');return false;}d.rockNames[sample]=type;d.rockProofs[sample]=[r.color,r.grain];w.classified=true;api.save();api.spark(900,430);api.finish('새 돌도 두 가지 관찰 증거로 알아냈어!');return false;}
   api.assist('왼쪽 위 관찰',()=>drawLens(230,165));api.assist('가운데 관찰',()=>drawLens(350,285));api.assist('오른쪽 아래 관찰',()=>drawLens(465,390));
   api.actions([]);drawLens(w.lens.x,w.lens.y,false);
+  // The 3D specimen is an extra way to look, offered only once its GLB is in assets/models.
+  hasRockModel(r.asset).then(ok=>{if(ok&&scene.sys.isActive())api.actions([{id:'rock-3d',label:'돌 돌려 보기',onClick:()=>openRock3D(api.modal,r)}]);});
  }
 
  function sortKnown(){

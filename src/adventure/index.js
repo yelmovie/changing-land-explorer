@@ -142,7 +142,7 @@ export function mount(ctx) {
       scene.input.on('gameout',()=>{pressed=null;});
       const api={
         stage:ctx.s.id,step:ctx.step,phase,data:ctx.data,work,state:ctx.state,admin:ctx.admin,
-        save:ctx.save,
+        save:ctx.save,modal:ctx.modal,
         task(title,hint){ctx.instruction(title);ctx.say(hint);initialHint=hint;},
         say(text,success=false){ctx.say(text);if(success)ctx.chime();},
         counter(done,total,label){$('#quest-meter').innerHTML=`<span>${escapeHTML(label)}</span><strong>${Math.min(done,total)} <small>/ ${total}</small></strong>`;},
