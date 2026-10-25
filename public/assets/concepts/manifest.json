@@ -1,0 +1,72 @@
+[
+  {
+    "key": "river-0",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  },
+  {
+    "key": "river-1",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  },
+  {
+    "key": "volcano-0",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  },
+  {
+    "key": "volcano-1",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  },
+  {
+    "key": "rocks-0",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  },
+  {
+    "key": "rocks-1",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  },
+  {
+    "key": "city-0",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  },
+  {
+    "key": "city-1",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  },
+  {
+    "key": "safety-0",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  },
+  {
+    "key": "safety-1",
+    "seconds": 8,
+    "width": 1280,
+    "height": 720,
+    "muted": true
+  }
+]

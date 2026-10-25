@@ -1,0 +1,96 @@
+{
+  "created": "2026-10-24",
+  "generator": "OpenAI built-in image generation",
+  "assets": [
+    {
+      "name": "expedition-base",
+      "file": "expedition-base.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 480478,
+      "alpha": false,
+      "source": "assets/raw-png/art-20261024/expedition-base.png"
+    },
+    {
+      "name": "discovery-observatory",
+      "file": "discovery-observatory.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 384006,
+      "alpha": false,
+      "source": "assets/raw-png/art-20261024/discovery-observatory.png"
+    },
+    {
+      "name": "river-sand-model",
+      "file": "river-sand-model.webp",
+      "width": 1200,
+      "height": 675,
+      "bytes": 165142,
+      "alpha": true,
+      "source": "assets/raw-png/art-20261024/river-sand-model.png"
+    },
+    {
+      "name": "volcano-mountain",
+      "file": "volcano-mountain.webp",
+      "width": 700,
+      "height": 501,
+      "bytes": 102144,
+      "alpha": true,
+      "source": "assets/raw-png/art-20261024/volcano-mountain.png"
+    },
+    {
+      "name": "volcano-syringe",
+      "file": "volcano-syringe.webp",
+      "width": 512,
+      "height": 1183,
+      "bytes": 72840,
+      "alpha": true,
+      "source": "assets/raw-png/art-20261024/volcano-syringe.png"
+    },
+    {
+      "name": "geologist-brush",
+      "file": "geologist-brush.webp",
+      "width": 700,
+      "height": 197,
+      "bytes": 37844,
+      "alpha": true,
+      "source": "assets/raw-png/art-20261024/geologist-brush.png"
+    },
+    {
+      "name": "safety-cushion",
+      "file": "safety-cushion.webp",
+      "width": 700,
+      "height": 438,
+      "bytes": 115786,
+      "alpha": true,
+      "source": "assets/raw-png/art-20261024/safety-cushion.png"
+    },
+    {
+      "name": "field-workbench",
+      "file": "field-workbench.webp",
+      "width": 1672,
+      "height": 941,
+      "bytes": 230544,
+      "alpha": false,
+      "source": "assets/raw-png/art-20261024/field-workbench.png"
+    },
+    {
+      "name": "expedition-medallion",
+      "file": "expedition-medallion.webp",
+      "width": 700,
+      "height": 767,
+      "bytes": 218568,
+      "alpha": true,
+      "source": "assets/raw-png/art-20261024/expedition-medallion.png"
+    },
+    {
+      "name": "volcano-tray",
+      "file": "volcano-tray.webp",
+      "width": 700,
+      "height": 156,
+      "bytes": 24652,
+      "alpha": true,
+      "source": "assets/raw-png/art-20261024/volcano-tray.png"
+    }
+  ]
+}

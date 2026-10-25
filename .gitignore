@@ -1,6 +1,8 @@
 node_modules/
 dist/
 .work/
+.wrangler/
+graphify-out/
 image/
 assets/raw-png/
 files/*.zip

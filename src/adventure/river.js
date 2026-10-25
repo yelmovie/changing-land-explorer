@@ -9,7 +9,8 @@ function tool(scene,api,type,x,y,label) {
   const key={lens:'tool-lens',can:'tool-water',flag:'tool-flag'}[type];
   if(scene.textures.exists(key)) {
     const picture=api.image(key,0,0,type==='can'?148:112,type==='can'?115:112);
-    return scene.add.container(x,y,[picture,api.text(label,0,80,20)]).setSize(150,170);
+    const caption=api.text(label,0,80,20).setBackgroundColor('#fff8e8').setPadding(8,5);
+    return scene.add.container(x,y,[picture,caption]).setSize(150,170);
   }
   const g=scene.add.graphics();
   if(type==='lens') {
@@ -32,15 +33,17 @@ function tool(scene,api,type,x,y,label) {
 }
 
 function terrain(scene,api,x=150,y=120,w=900,h=400) {
+  const illustrated=scene.textures.exists('art/river-sand-model');
+  if(illustrated)api.image('art/river-sand-model',x+w/2,y+h/2,w,h);
   const g=scene.add.graphics();
   function draw(t,water=1) {
     g.clear();
     const px=v=>x+v*w, py=v=>y+v*h;
-    g.fillStyle(0xc0a16a).beginPath().moveTo(px(.04),py(.22));
+    if(!illustrated){g.fillStyle(0xc0a16a).beginPath().moveTo(px(.04),py(.22));
     g.lineTo(px(.19),py(.25)).lineTo(px(.31),py(.40+t*.018*water));
     g.lineTo(px(.53),py(.57)).lineTo(px(.73),py(.72));
     g.lineTo(px(.94),py(.76)).lineTo(px(.94),py(.91)).lineTo(px(.04),py(.91)).closePath().fillPath();
-    g.lineStyle(9,0x8b744f).lineBetween(px(.04),py(.91),px(.94),py(.91));
+    g.lineStyle(9,0x8b744f).lineBetween(px(.04),py(.91),px(.94),py(.91));}
     if(t>0) {
       g.lineStyle(7+water*4,0x72c8e5,.8);
       const route=[[.19,.25],[.27,.38],[.53,.55],[.82,.72]];
@@ -70,7 +73,7 @@ export function setup(scene,api) {
 
 function experiment(scene,api) {
   const d=api.data,w=api.work;
-  api.image('river-lab',600,320,1200,640).setAlpha(.45);
+  api.image('river-lab',600,320,1200,640);
   api.hero(1120,510,140,'river-pose-1');
   if(api.phase===2) return markResults(scene,api);
   const water=api.phase===0?1:2;
@@ -79,10 +82,10 @@ function experiment(scene,api) {
   w.pour=clamp(w.pour||0); w.sweeps??=[];
   api.task(water===1?'흙이 어디에 쌓일까? 예상하고 물을 흘려 봐':'같은 언덕에 물을 더 많이 흘려 봐',
     water===1?'깃발을 흙 위에 놓고, 물뿌리개를 언덕 위에서 천천히 옮겨 줘.':'이번에는 물이 두 배야. 언덕 위 세 곳에 고르게 물을 흘려 줘.');
-  api.text(water===1?'물 적게 · 첫 실험':'물 많이 · 두 번째 실험',600,62,28);
+  api.text(water===1?'물 적게 · 첫 실험':'물 많이 · 두 번째 실험',600,62,28).setBackgroundColor('#fff8e8').setPadding(10,5);
   const zone=scene.add.graphics().lineStyle(3,0x57958c,.8);
   zone.strokeRoundedRect(250,145,300,94,25);
-  api.text('이곳에서 물뿌리개를 옮겨 줘',400,123,20);
+  api.text('이곳에서 물뿌리개를 옮겨 줘',400,123,20).setBackgroundColor('#fff8e8').setPadding(8,4);
   const can=tool(scene,api,'can',140,515,'물뿌리개');
   let flag;
   if(water===1) {
@@ -118,7 +121,7 @@ function experiment(scene,api) {
   api.assist('오른쪽 물주기',()=>assistPour(2));
   function assistPour(band){
     if(!d.prediction){api.say('예상 깃발을 먼저 놓아 줘.');return;}
-    can.setPosition(300+band*100,195);
+    api.sound?.('water');can.setPosition(300+band*100,195);
     if(!w.sweeps.includes(band))w.sweeps.push(band);
     w.pour=clamp(w.pour+1/3);draw();check();api.save();
   }

@@ -9,7 +9,7 @@ const inBox=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
 
 export function setup(scene,api){
  const d=api.data,w=api.work,index=api.phase,s=CITY_SITES[index];d.evidence??={};d.notices??={};d.citySeen??={};
- api.image('city-calm',600,320,1200,640);
+ api.image(api.step===0?'city-calm':'art/city-message-square-v2',600,320,1200,640);
  api.hero(105,510,160,'river-pose-1');
  if(api.step===0)return observe();return advise();
 
@@ -60,7 +60,7 @@ export function setup(scene,api){
    if(w.wipe>.92)w.seen.before=true;if(w.wipe<.08)w.seen.after=true;
    d.citySeen[s.id]={...w.seen};api.save();progress();
   }
-  function progress(){api.counter(Number(w.seen.before)+Number(w.seen.after)+w.pairs.length,4,'시간 비교와 기록');if(w.pairs.length===2&&w.seen.before&&w.seen.after){api.record({id:'city-'+s.id,kind:'city',label:s.name+'의 시간 변화',claim:s.claim,pair:true,site:s.id,asset:'city-calm',point:{x:SITE_X[index]/1200,y:SITE_Y[index]/640},time:w.wipe,text:s.now+' '+s.later});api.finish(index===1?'피해가 먼저 생겨. 토양이 변하려면 아주 오랜 시간이 필요해.':s.now+' '+s.later);}}
+  function progress(){api.counter(Number(w.seen.before)+Number(w.seen.after)+w.pairs.length,4,'시간 비교와 기록');if(w.pairs.length===2&&w.seen.before&&w.seen.after){if(!d.evidence['city-'+s.id]?.pair)api.record({id:'city-'+s.id,kind:'city',label:s.name+'의 시간 변화',claim:s.claim,pair:true,site:s.id,asset:'city-calm',point:{x:SITE_X[index]/1200,y:SITE_Y[index]/640},time:w.wipe,text:s.now+' '+s.later});api.finish(index===1?'피해가 먼저 생겨. 토양이 변하려면 아주 오랜 시간이 필요해.':s.now+' '+s.later);}}
   api.drag(handle,{onMove:(o,x)=>set(x/1200),onDrop:(o,x)=>{set(x/1200);return true;}});
   api.range('시간 비교 손잡이',Math.round(w.wipe*100),3,97,v=>set(Number(v)/100));
   api.assist('분출 당시 모습 살피기',()=>set(.97));api.assist('이후 모습 살피기',()=>set(.03));
@@ -72,7 +72,7 @@ export function setup(scene,api){
   const existing=new Set(scene.children.list);let ashShown=false;
   api.task(`${s.name} 주민에게 안내판을 만들어 주자`,'내 관찰 그림, 까닭, 할 일을 안내판에 끌어다 붙여 줘.');
   w.board??={};
-  api.panel(820,317,650,560,0xfff5d9,.97);api.text(['비행기를 타도 될까요?','농사가 바로 잘될까요?','온천에 가도 될까요?'][index],820,70,28);
+  api.panel(820,317,650,560,0xfff5d9,.88);api.text(['비행기를 타도 될까요?','농사가 바로 잘될까요?','온천에 가도 될까요?'][index],820,70,28);
   const slots={picture:{x:820,y:175,label:'① 내 관찰 그림'},reason:{x:820,y:325,label:'② 왜 그럴까요?'},action:{x:820,y:465,label:'③ 이렇게 해요'}};
   Object.values(slots).forEach(p=>{api.target(p.x,p.y,565,110,'');api.text(p.label,p.x,p.y-38,20);});
   const placed={};

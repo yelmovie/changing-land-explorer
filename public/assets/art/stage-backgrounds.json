@@ -1,0 +1,87 @@
+{
+  "date": "2026-10-24",
+  "generator": "OpenAI built-in image generation",
+  "styleReference": "map-adventure.webp",
+  "assets": [
+    {
+      "key": "river-observatory-v2",
+      "file": "river-observatory-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 323420,
+      "original": "assets/raw-png/stage-backgrounds-20261024/river-observatory-v2.png"
+    },
+    {
+      "key": "river-canyon-v2",
+      "file": "river-canyon-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 533834,
+      "original": "assets/raw-png/stage-backgrounds-20261024/river-canyon-v2.png"
+    },
+    {
+      "key": "volcano-workshop-v2",
+      "file": "volcano-workshop-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 308184,
+      "original": "assets/raw-png/stage-backgrounds-20261024/volcano-workshop-v2.png"
+    },
+    {
+      "key": "volcano-caldera-v2",
+      "file": "volcano-caldera-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 422686,
+      "original": "assets/raw-png/stage-backgrounds-20261024/volcano-caldera-v2.png"
+    },
+    {
+      "key": "rocks-crystal-cave-v2",
+      "file": "rocks-crystal-cave-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 453238,
+      "original": "assets/raw-png/stage-backgrounds-20261024/rocks-crystal-cave-v2.png"
+    },
+    {
+      "key": "rocks-quarry-atelier-v2",
+      "file": "rocks-quarry-atelier-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 362190,
+      "original": "assets/raw-png/stage-backgrounds-20261024/rocks-quarry-atelier-v2.png"
+    },
+    {
+      "key": "city-harbor-v2",
+      "file": "city-harbor-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 515214,
+      "original": "assets/raw-png/stage-backgrounds-20261024/city-harbor-v2.png"
+    },
+    {
+      "key": "city-message-square-v2",
+      "file": "city-message-square-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 312490,
+      "original": "assets/raw-png/stage-backgrounds-20261024/city-message-square-v2.png"
+    },
+    {
+      "key": "safety-island-classroom-v2",
+      "file": "safety-island-classroom-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 191860,
+      "original": "assets/raw-png/stage-backgrounds-20261024/safety-island-classroom-v2.png"
+    },
+    {
+      "key": "safety-evacuation-garden-v2",
+      "file": "safety-evacuation-garden-v2.webp",
+      "width": 1600,
+      "height": 900,
+      "bytes": 510344,
+      "original": "assets/raw-png/stage-backgrounds-20261024/safety-evacuation-garden-v2.png"
+    }
+  ]
+}

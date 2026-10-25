@@ -3,7 +3,8 @@ import {readFile, stat} from 'node:fs/promises';
 import path from 'node:path';
 const root=path.resolve(process.argv.includes('--dist')?'dist':'.');
 const port=Number(process.env.PORT||5177);
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.woff':'font/woff','.mp3':'audio/mpeg','.wav':'audio/wav'};
+const {version}=JSON.parse(await readFile('package.json','utf8'));
+const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.woff':'font/woff','.mp3':'audio/mpeg','.wav':'audio/wav','.mp4':'video/mp4','.webm':'video/webm','.md':'text/markdown; charset=utf-8'};
 const server=http.createServer(async(req,res)=>{try{
  const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
  const publicAsset=pathname.startsWith('/assets/')&&!process.argv.includes('--dist');
@@ -13,6 +14,7 @@ const server=http.createServer(async(req,res)=>{try{
  const allowed=pathname==='/'||pathname==='/index.html'||pathname.startsWith('/assets/')||pathname.startsWith('/src/')||pathname==='/sw.js';
  if(!allowed){res.writeHead(404).end('Not found');return;}
  const info=await stat(file);if(!info.isFile())throw Error();
- res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'});res.end(await readFile(file));
+ res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream','Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'});
+ const data=await readFile(file);res.end(path.extname(file)==='.html'?data.toString('utf8').replace('<html lang="ko">',`<html lang="ko" data-app-version="${version}">`):data);
  }catch{res.writeHead(404).end('Not found');}});
 server.listen(port,'127.0.0.1',()=>console.log(`GeoValley ready: http://localhost:${port}`));

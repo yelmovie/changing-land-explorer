@@ -1,6 +1,14 @@
 # 움직이는 지오밸리
 
+**게임 실행: https://geovalley.pages.dev** · [배포 방법](docs/DEPLOYMENT.md)
+
 현재 단계: **Phaser 기반 탐험 프로토타입 구현 및 검증**. 지도 이동, 5개 장소 × 활동 2장 × 3단계(총 30개 발견), 관찰 수첩, 도구 보상, 마지막 응용 도전과 인증서를 구현했다. 최신 구현 기준은 [탐험 고도화 기록](docs/ADVENTURE_UPGRADE.md)이다.
+
+2026-10-22: 활동별 8초 개념 영상 10개, 30단계 리버 힌트, CC0 효과음, 큰 팝업과 태블릿 조작을 추가했다. [개념 영상·교실 UI 변경 기록](docs/CONCEPT_MOTION.md)에 제작법과 검증 항목을 정리했다.
+
+2026-10-24: 중단된 작업을 복구해 생성 이미지 10장을 실제 화면과 실험 소품에 적용했다. 시작 화면·지도 크기와 렌더링 실패 대체, 설정·시연 기록 보호, 마지막 물길의 되감기 조건을 보강했다. [이미지 적용 기록](docs/ART-UPGRADE-20261024.md)과 `docs/reviews/RECOVERY-20261024.md`를 참고한다.
+
+같은 날 후속 작업: [스테이지 전용 배경 10장](docs/STAGE-BACKGROUNDS-20261024.md)을 지도 그림체에 맞춰 새로 생성·적용했다. 활동마다 관측소·협곡·분화구·동굴·공방·마을·광장·학교가 구분된다.
 
 ## 실행과 검증
 
@@ -13,6 +21,10 @@ npm test         # 학습·저장·진행 규칙 회귀 검사
 npm run build    # dist/ 정적 빌드
 npm run preview  # 빌드 결과를 같은 주소에서 확인
 ```
+
+선택 검증: `npm run check:layout`(1024×768·1280×720·1920×1080 화면·팝업·재생), `npm run check:flow`(학생 모드 30개 발견→10개 영상→5개 보상→저장 복귀). 실행 중인 개발 서버와 Playwright + Chrome이 필요해. 기존 설치를 재사용할 때는 `PLAYWRIGHT_PATH`를 패키지의 `index.mjs` 절대 경로로 지정하면 돼. 격리된 브라우저에서 검사하고 결과는 `.work/learning-verification/`에 저장해.
+
+영상 재제작은 `npm run concepts:render`를 사용해. FFmpeg·Sharp 제작 도구의 경로는 `FFMPEG_PATH`·`SHARP_PATH`로 지정할 수 있어. 앱 실행에는 제작 도구가 필요 없어.
 
 실행 에셋과 Phaser 3.90.0은 `public/assets/`에 포함한다. 이미지 재가공 스크립트는 제작 당시의 로컬 원본·Sharp 경로를 사용하며 앱 실행과 빌드에는 필요하지 않다. 원본 이미지·ZIP·중간 백업과 `dist/`는 Git에 넣지 않고 기존 로컬 폴더에 보존한다.
 

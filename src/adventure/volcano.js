@@ -18,24 +18,16 @@ function lens(scene,api,x,y,label='돋보기'){
 }
 
 function model(scene,api){
+  const tube=scene.add.graphics();
+  const illustrations={tray:api.image('art/volcano-tray',582,485,545,90),mountain:api.image('art/volcano-mountain',560,326,470,310),water:api.image('art/volcano-syringe',957,343,100,231)};
   const g=scene.add.graphics();
   function draw(parts,amount=0){
     g.clear();
-    if(parts.includes('tray')){
-      g.fillStyle(0x789e99).fillRoundedRect(320,460,525,40,16);
-      g.lineStyle(5,0x4d7268).strokeRoundedRect(320,460,525,40,16);
-    }
-    if(parts.includes('mountain')){
-      g.fillStyle(0xb89a6c).beginPath().moveTo(350,460).lineTo(525,183).lineTo(593,183).lineTo(815,460).closePath().fillPath();
-      g.fillStyle(0x87704e).fillEllipse(MOUTH.x,MOUTH.y,70,25);
-      g.lineStyle(3,0xc8ad81).lineBetween(508,240,405,435).lineBetween(612,252,759,431);
-    }
+    tube.clear();
+    for(const [id,art] of Object.entries(illustrations))art.setVisible(parts.includes(id));
     if(parts.includes('water')){
-      g.lineStyle(14,0xbcae98).beginPath().moveTo(955,425).lineTo(850,425).lineTo(560,433).lineTo(560,215).strokePath();
-      g.fillStyle(0xf6f5e7).fillRoundedRect(925,280,65,170,12);
-      g.lineStyle(4,0x7c9b92).strokeRoundedRect(925,280,65,170,12);
-      g.fillStyle(0xd75f59).fillRect(933,300+amount*110,49,135-amount*110);
-      for(let i=0;i<5;i++)g.lineStyle(2,0x7d9488).lineBetween(925,305+i*23,942,305+i*23);
+      tube.lineStyle(14,0xbcae98).beginPath().moveTo(955,425).lineTo(850,425).lineTo(560,433).lineTo(560,215).strokePath();
+      tube.lineStyle(7,0xe5d7bd).beginPath().moveTo(955,425).lineTo(850,425).lineTo(560,433).lineTo(560,215).strokePath();
     }
     if(amount>0){
       g.lineStyle(19,0xd85e50,1);
@@ -52,28 +44,17 @@ function model(scene,api){
 }
 
 function part(scene,api,id,x,y){
-  const g=scene.add.graphics();
-  if(id==='tray')g.fillStyle(0x789e99).fillRoundedRect(-65,-10,130,30,12);
-  if(id==='mountain'){
-    g.fillStyle(0xb89a6c).fillTriangle(-60,25,0,-47,60,25);
-    g.fillStyle(0x806b4d).fillEllipse(0,-37,24,10);
-  }
-  if(id==='water'){
-    g.fillStyle(0xf9f6e7).fillRoundedRect(-22,-40,44,75,9);
-    g.lineStyle(4,0x75988d).strokeRoundedRect(-22,-40,44,75,9);
-    g.fillStyle(0xd96659).fillRect(-16,-5,32,33);
-    g.lineStyle(6,0x75988d).lineBetween(0,-40,0,-63);
-    g.lineStyle(9,0x75988d).lineBetween(-23,-63,23,-63);
-  }
-  return scene.add.container(x,y,[g,api.text({tray:'쟁반',mountain:'산 모형',water:'붉은 물 주사기'}[id],0,66,22)]).setSize(165,150);
+  const [key,w,h]={tray:['volcano-tray',155,48],mountain:['volcano-mountain',140,100],water:['volcano-syringe',48,112]}[id];
+  const caption=api.text({tray:'쟁반',mountain:'산 모형',water:'붉은 물 주사기'}[id],0,76,22).setBackgroundColor('#fff8e8').setPadding(8,5);
+  return scene.add.container(x,y,[api.image('art/'+key,0,0,w,h),caption]).setSize(165,165);
 }
 
 export function setup(scene,api){
   const d=api.data;d.evidence??={};d.assembly??=[];d.comparisons??={};
   if(api.step===1)return api.phase===0?observeOutputs(scene,api):compare(scene,api);
-  api.image('volcano-lab',600,320,1200,640).setAlpha(.38);
+  api.image('volcano-lab',600,320,1200,640);
   api.hero(1120,525,140,'river-pose-1');
-  api.text('가상 모형 · 붉은 물은 용암이 아니야',600,54,23);
+  api.text('가상 모형 · 붉은 물은 용암이 아니야',600,54,23).setBackgroundColor('#fff8e8').setPadding(10,5);
   if(api.phase===0)return assemble(scene,api);
   if(api.phase===1)return inject(scene,api);
   return trace(scene,api);
@@ -212,8 +193,8 @@ function observeOutputs(scene,api){
 function compare(scene,api){
   const d=api.data,w=api.work;w.links??=[];let finished=false;
   const same=api.phase===1;
-  api.image('volcano-field',600,320,1200,640).setAlpha(.35);
-  api.panel(600,320,1060,560,0xfff8e6,.94);
+  api.image('volcano-field',600,320,1200,640);
+  api.panel(600,320,1060,560,0xfff8e6,.83);
   api.hero(1138,535,110,'hero-cheer');
   api.task(same?'모형과 실제 화산의 같은 모습을 연결해 봐':'모형으로 모두 나타낼 수 없는 점을 찾아 봐',same?'네 모형 기록과 화산 설명을 알맞은 관찰 자리에 끌어 놓아 줘.':'붉은 물과 실제 분출물은 어떻게 다른지, 카드 두 쌍을 완성해 줘.');
   const rows=same?[

@@ -1,6 +1,7 @@
 import {riverArt,pin,cityArt,routeArt,modelArt} from './visuals.js';
-import {safetyRouteConfig,CITY_SITES} from './learning-model.js';
+import {safetyRouteConfig,CITY_SITES,FIELD_POINTS} from './learning-model.js';
 import {$,$$,escapeHTML,icon} from './ui.js';
+import {backgroundForAsset} from './stage-art.js';
 export const A='/assets/';
 export const esc=escapeHTML;
 export const btn=(label,id,cls='secondary')=>`<button class="${cls}" id="${id}">${label}</button>`;
@@ -20,9 +21,11 @@ export function imageEvidence(e){
  else if(e.kind==='route')art=routeArt(e.config||safetyRouteConfig(e.outside),e.outside)+'<polyline points="'+(e.points||[]).map(p=>p.x+','+p.y).join(' ')+'" fill="none" stroke="#28765c" stroke-width="9" stroke-linecap="round"/>';
  else if(e.kind==='city'||e.kind==='notice'){const site=CITY_SITES.find(s=>s.id===e.site)||CITY_SITES[0];const box=[site.x-150,site.y-120,300,240].join(' ');art=[0,1].map((t)=>'<svg x="'+(t*510)+'" y="45" width="490" height="450" viewBox="'+box+'">'+cityArt(t)+'</svg>').join('')+svgText('분출 당시 → 오랜 시간 뒤',500,35,26);}
  else if(e.asset){
-  const z=Math.min(3,Math.max(1,Number(e.zoom)||1)),x=e.point?.x??.5,y=e.point?.y??.5;
+  const field=e.kind==='field'?FIELD_POINTS.find(p=>p.id===e.id):null;
+  const point=field?{x:field.x/1000,y:field.y/560}:e.point;
+  const z=Math.min(3,Math.max(1,Number(e.zoom)||1)),x=point?.x??.5,y=point?.y??.5;
   if(e.kind==='rock'){viewBox='0 60 400 280';art='<image href="'+A+esc(e.asset)+'.webp" x="'+(200-x*400*z)+'" y="'+(200-y*400*z)+'" width="'+(400*z)+'" height="'+(400*z)+'"/>'+(e.annotations?.length?'<polyline points="'+e.annotations.map(p=>p.x*400+','+p.y*400).join(' ')+'" fill="none" stroke="#edaa35" stroke-width="5"/>':'');}
-  else {art='<g transform="translate('+((1-z)*x*1000)+' '+((1-z)*y*500)+') scale('+z+')"><image href="'+A+esc(e.asset)+'.webp" width="1000" height="500" preserveAspectRatio="none"/></g>'+(e.point?pin(e.point,'✓'):'');}
+  else {art='<g transform="translate('+((1-z)*x*1000)+' '+((1-z)*y*500)+') scale('+z+')"><image href="'+A+esc(backgroundForAsset(e.asset))+'.webp" width="1000" height="500" preserveAspectRatio="none"/></g>'+(point?pin(point,'✓'):'');}
  }
  if(art)return '<div class="evidence-image">'+svgFrame(art,e.label,viewBox)+'</div>';
  return '<div class="evidence-symbol">'+icon('book',40)+'</div>';

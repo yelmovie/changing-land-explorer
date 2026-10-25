@@ -44,3 +44,20 @@ test('physical pointer drawing still stores and validates the entire school path
  assert.deepEqual(route.data.schoolRoute,SCHOOL_PATH);
  route.actions['route-check']();assert.equal(route.finished(),true);
 });
+
+test('tap waypoints validate the same safe route as continuous drawing',()=>{
+ const route=routeActivity();route.actions['route-input']();
+ for(const point of SCHOOL_PATH)route.handlers.pointerdown({x:point.x+100,y:point.y+80});
+ assert.deepEqual(route.data.schoolRoute,SCHOOL_PATH);
+ route.actions['route-check']();assert.equal(route.finished(),true);
+});
+
+test('tap waypoints cannot skip through a hazard or start away from River',()=>{
+ const route=routeActivity();route.actions['route-input']();
+ route.handlers.pointerdown({x:700,y:500});
+ assert.deepEqual(route.data.schoolRoute,[]);
+ route.handlers.pointerdown({x:SCHOOL_CONFIG.start.x+100,y:SCHOOL_CONFIG.start.y+80});
+ route.handlers.pointerdown({x:SCHOOL_CONFIG.goal.x+100,y:SCHOOL_CONFIG.goal.y+80});
+ route.actions['route-check']();assert.equal(route.finished(),false);
+ assert.equal(inspectRoute(route.data.schoolRoute,SCHOOL_CONFIG).ok,false);
+});

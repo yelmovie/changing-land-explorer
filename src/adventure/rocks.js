@@ -3,22 +3,29 @@ import {ROCKS,FEATURES,hasRockEvidence} from '../learning-model.js';
 const near=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
 export function setup(scene,api){
  const d=api.data,w=api.work;d.evidence??={};d.rockNames??={};d.rockProofs??={};
- api.image('rocks-lab',600,320,1200,640);api.image('rocks-table',600,430,1200,420).setAlpha(.6);
+ api.image(api.step===0?'rocks-lab':'art/rocks-quarry-atelier-v2',600,320,1200,640);
  api.hero(110,470,165,scene.textures.exists(api.step===0&&api.phase===0?'hero-brush':'hero-lens')?(api.step===0&&api.phase===0?'hero-brush':'hero-lens'):'river-pose-0');
  return api.step===0&&api.phase===0?brush():inspect();
 
  function brush(){
   api.task('붓으로 두 돌의 먼지를 털어 줘','붓을 잡고 돌의 여러 부분을 문질러 봐.');
   w.dust??=[[],[]];const tiles=[],centers=[440,840];
-  centers.forEach((cx,n)=>{api.image('rock-'+n,cx,290,330,330);api.text(ROCKS[n].name,cx,490,25);tiles[n]=[];
+  centers.forEach((cx,n)=>{api.image('rock-'+n,cx,290,330,330);api.text(ROCKS[n].name,cx,490,25).setBackgroundColor('#fff8e8').setPadding(10,5);tiles[n]=[];
    for(let row=0;row<4;row++)for(let col=0;col<4;col++){
     const i=row*4+col;const t=scene.add.ellipse(cx-120+col*80,170+row*80,92,88,0xa98f65,.88);t.setVisible(!w.dust[n].includes(i));tiles[n].push(t);
    }
   });
-  const brush=scene.add.container(610,565);brush.add(scene.add.rectangle(0,0,115,30,0xb17a44).setStrokeStyle(3,0x694b31));brush.add(scene.add.rectangle(65,0,45,55,0xf4df9f).setStrokeStyle(3,0x947346));brush.setSize(180,64);
+  const brush=scene.add.container(610,565,[api.image('art/geologist-brush',0,0,210,60)]).setSize(210,64);
   function progress(){const n=w.dust.reduce((s,a)=>s+a.length,0);api.counter(n,32,'먼지 털기');if(w.dust.every(a=>a.length>=12)){api.finish('두 표본이 드러났어! 이제 색과 알갱이를 확대해 보자.');}}
-  function sweep(x,y){let changed=false;centers.forEach((cx,n)=>tiles[n].forEach((t,i)=>{if(!w.dust[n].includes(i)&&Math.hypot(t.x-x,t.y-y)<72){w.dust[n].push(i);t.setVisible(false);api.spark(t.x,t.y);changed=true;}}));if(changed){api.save();progress();}}
+  function sweep(x,y){let changed=false;centers.forEach((cx,n)=>tiles[n].forEach((t,i)=>{if(!w.dust[n].includes(i)&&Math.hypot(t.x-x,t.y-y)<72){w.dust[n].push(i);t.setVisible(false);api.spark(t.x,t.y);changed=true;}}));if(changed){api.sound?.('brush');api.save();progress();}}
   api.drag(brush,{onMove:(o,x,y)=>sweep(x+65,y),onDrop:()=>false});
+  // Direct rubbing makes the screen itself a tool, while the brush remains usable.
+  let rubbing=false;
+  const touch=p=>{if(!rubbing)return;brush.setPosition(p.x-65,p.y);sweep(p.x,p.y);};
+  const start=p=>{rubbing=centers.some(cx=>Math.abs(p.x-cx)<170&&p.y>110&&p.y<465);touch(p);};
+  const stop=()=>{rubbing=false;};
+  scene.input.on('pointerdown',start);scene.input.on('pointermove',touch);scene.input.on('pointerup',stop);scene.input.on('pointerupoutside',stop);
+  api.listenCleanup(()=>{scene.input.off('pointerdown',start);scene.input.off('pointermove',touch);scene.input.off('pointerup',stop);scene.input.off('pointerupoutside',stop);});
   centers.forEach((cx,n)=>api.assist(ROCKS[n].name+'의 다음 부분 털기',()=>{const i=tiles[n].findIndex((_,i)=>!w.dust[n].includes(i));if(i>=0)sweep(tiles[n][i].x,tiles[n][i].y);}));
   api.actions([]);progress();
  }
@@ -30,11 +37,11 @@ export function setup(scene,api){
   w.scanned??=[];w.proofs??=[];w.lens??={x:350,y:285};
   api.task(classify?`${r.name}의 정체를 알아내자`:`${r.name}를 확대해서 살펴보자`,'돋보기를 움직여 살펴보고, 보이는 특징 두 개를 돌에 붙여 줘.');
   api.panel(350,300,470,445,0xfff8e5,.88);api.panel(850,290,440,425,0xfff8e5,.9);
-  const specimen=api.image(r.asset,350,275,360,360);api.text(r.name,350,85,27);api.text('내가 살핀 부분',850,88,24);
+  const specimen=api.image(r.asset,350,275,360,360);api.text(r.name,350,85,27).setBackgroundColor('#fff8e8').setPadding(10,5);api.text('내가 살핀 부분',850,88,24).setBackgroundColor('#fff8e8').setPadding(10,5);
   const maskShape=scene.add.graphics().fillStyle(0xffffff).fillCircle(850,282,160);maskShape.setVisible(false);
   const detail=api.image(r.asset,850,282,850,850).setMask(maskShape.createGeometryMask());
   scene.add.circle(850,282,163).setStrokeStyle(9,0xc7a66a).setFillStyle(0,0);
-  api.text('색 + 알갱이',850,478,24);
+  api.text('색 + 알갱이',850,478,24).setBackgroundColor('#fff8e8').setPadding(8,4);
   const lens=scene.add.container(w.lens.x,w.lens.y);lens.add(scene.add.circle(0,0,49,0xffffff,.03).setStrokeStyle(7,0xf4c85f));lens.add(scene.add.rectangle(43,51,17,75,0x82613f).setAngle(-38));lens.setSize(150,160);
   let compare=false;
   api.setToolHandler?.('camera',()=>{compare=!compare;detail.setTexture(compare?ROCKS[sample%2?0:1].asset:r.asset);api.say(compare?'반대 특징의 표본을 같은 확대 크기로 꺼냈어. 카메라를 다시 누르면 내 돌로 돌아와.':'내 돌의 확대 관찰로 돌아왔어.');});

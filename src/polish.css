@@ -1,0 +1,118 @@
+/* Recovery finishing layer. Palette follows the illustrated field equipment. */
+:root{
+  --palette-pine:#294f41;--palette-cream:#fff8e8;--palette-brass:#ae8342;--palette-sun:#f3cc76;
+  --surface-paper:var(--palette-cream);--text-main:var(--palette-pine);--border-strong:var(--palette-brass);--action-main:var(--palette-sun);
+  --control-height:52px;--control-radius:14px;--control-edge:0 4px 0 #8c6b36;--focus-ring:#267c8b;
+}
+html,body{min-width:320px;overscroll-behavior:none}
+button,input,select{min-height:48px}
+button{min-width:48px;line-height:1.25;word-break:keep-all}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:4px solid var(--focus-ring);outline-offset:4px}
+.primary,.secondary,.icon-button,.chip,.narrator-help,.earned-tool{transition:background-color .16s,border-color .16s,box-shadow .16s,transform .16s}
+.primary{min-height:var(--control-height);border:2px solid #9f7635;border-radius:var(--control-radius);background:#f3cc76;box-shadow:var(--control-edge);color:#47351d}
+.primary:hover:enabled{background:#ffe1a0;border-color:#865e23;box-shadow:0 5px 0 #8c6b36,0 5px 14px #5e451c25;transform:translateY(-1px)}
+.primary:active:enabled{box-shadow:0 1px 0 #8c6b36;transform:translateY(3px)}
+.primary:disabled{opacity:1;background:#e5e4d6;border-color:#b2b5a2;color:#66705f;box-shadow:0 3px 0 #b4b5a2}
+.secondary,.icon-button{border:2px solid #b49b68;background:#fff9eb;box-shadow:0 3px 0 #90774455;color:#294f41}
+.secondary:hover:enabled,.icon-button:hover:enabled{background:#ffedc3;border-color:#917440;transform:translateY(-1px)}
+.secondary:active:enabled,.icon-button:active:enabled{box-shadow:0 1px 0 #90774455;transform:translateY(2px)}
+.secondary:disabled,.icon-button:disabled{opacity:.55;box-shadow:none}
+.icon-button{width:52px;height:52px;min-width:52px;border-radius:15px}
+p,button,h1,h2,h3{word-break:keep-all;overflow-wrap:break-word}
+.topbar{flex:none}
+.brand-logo{max-width:100%;height:52px}
+
+/* An actual illustrated starting scene, independent from the map renderer. */
+#app.welcome{position:relative;background:#537c58}
+.welcome .topbar{position:absolute;inset:0 0 auto;z-index:10;background:transparent;border:0;box-shadow:none;height:76px;min-height:76px;padding:12px 20px;pointer-events:none}
+.welcome .topbar .nav-group{pointer-events:auto}
+.welcome .brand{display:none}
+.welcome .preview-banner{position:absolute;top:76px;left:0;right:0;z-index:11}
+.expedition-welcome{position:relative;width:100%;height:100%;min-height:0;overflow:hidden;background:#537c58 url('/assets/art/expedition-base.webp') center/cover no-repeat;isolation:isolate}
+.expedition-welcome::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#243a3020 0%,transparent 50%,#163e3566 100%)}
+.expedition-title{position:absolute;left:50%;top:14%;transform:translateX(-50%);width:min(61vw,840px);text-align:center}
+.expedition-title>img{display:block;width:100%;height:auto;max-height:29vh;object-fit:contain;filter:drop-shadow(0 5px 2px #23412d35)}
+.expedition-title>p{display:inline-block;margin:12px 0 0;padding:10px 22px;background:#fff8e8f5;border:2px solid #af8c4b;border-radius:30px;color:#294f41;font:clamp(20px,1.8vw,30px) GeoDisplay,sans-serif;line-height:1.3}
+.expedition-river{position:absolute;left:12%;bottom:3%;height:44%;max-width:30%;object-fit:contain;filter:drop-shadow(0 8px 4px #28443a44);pointer-events:none}
+.expedition-start{position:absolute;left:50%;bottom:10%;transform:translateX(-50%);padding:6px 10px 10px;text-align:center}
+.expedition-start .primary{font-size:clamp(24px,2.2vw,35px);min-height:68px;min-width:300px;padding:13px 28px;border-radius:18px;white-space:nowrap}
+.expedition-start .primary svg{width:28px;height:28px}
+
+/* Keep the original art, paths, doors and labels in one 16:9 coordinate space. */
+.atlas-page{background:#5bafb6 url('/assets/map-adventure.webp') center/cover no-repeat}
+.atlas-page:before{background:#194d5052;backdrop-filter:none}
+.atlas-world{flex:none;min-height:0;min-width:0;max-width:100%;margin:auto;aspect-ratio:16/9;align-self:center;position:relative;background:#5bafb6 url('/assets/map-adventure.webp') center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:0 0 26px #153b3c44}
+.atlas-canvas{background:url('/assets/map-adventure.webp') center/100% 100% no-repeat}
+.atlas-canvas canvas{max-width:100%;max-height:100%}
+.atlas-fallback-river{position:absolute;z-index:2;width:4.2%;height:10.2%;object-fit:contain;transform:translate(-50%,-94%);pointer-events:none}
+.map-fallback .atlas-canvas canvas{display:none}
+.atlas-pin{min-width:48px;min-height:56px}
+.atlas-pin[data-stage="2"]{top:max(38px,9%)!important}
+.pin-sign{line-height:1.2;padding-top:8px;padding-bottom:8px}
+.atlas-pin:hover:enabled .pin-sign{background:#fff4cb;border-color:#755526}
+.atlas-pin:focus-visible{outline-offset:6px;border-radius:15px}
+.atlas-core{min-height:52px}
+.atlas-route-help{font-size:16px;line-height:1.25}
+.atlas-strip{background:#fff9e9f2}
+.atlas-footer{background:#fff9e9f5}
+.atlas-footer p{font-size:clamp(20px,1.45vw,26px)}
+.rack-item{min-width:48px;min-height:52px}
+
+/* Illustrated stages use the same readable controls, with room for the art. */
+.adventure-page{background-color:#c9d7c7;background-image:var(--activity-backdrop);background-position:center;background-size:cover}
+.adventure-heading{background:#fff9e9f5;border-bottom-color:#b9a375}
+.task-copy h1{line-height:1.25;text-wrap:balance}
+.adventure-surface{border:0;background-color:#c9d7c7;background-image:var(--activity-backdrop,url('/assets/art/field-workbench.webp'));background-position:center;background-size:cover;background-repeat:no-repeat;box-shadow:inset 0 0 0 1px #47654d1a}
+.adventure-surface::before{content:'';position:absolute;inset:-14px;background:inherit;filter:blur(10px);opacity:.88;pointer-events:none}
+.adventure-footer{background:#fff9ebf5;padding-bottom:14px}
+.adventure-toolbar{padding-bottom:4px}
+.adventure-toolbar .controls{gap:10px}
+.adventure-toolbar .primary,.adventure-toolbar .secondary{min-height:52px}
+.phase-node{min-width:48px;min-height:48px}
+.phase-node.current>span{background:#f3cc76;border-color:#9f7635}
+.phase-node.done>span{background:#357457;border-color:#357457}
+.narrator-help{min-width:64px;min-height:84px;background:#f7efd7;border:2px solid #b49b68;box-shadow:0 3px 0 #90774433}
+.narrator-help:hover{background:#ffe5ae}
+.river-narrator p{line-height:1.4}
+.quest-meter{border:2px solid #b49b68;background:#fff9ebf5}
+.stage-loader{background-color:#f9f2df;background-image:var(--activity-backdrop);background-position:center;background-size:cover;isolation:isolate}
+.stage-loader::before{content:'';position:absolute;inset:0;background:#fff9e8c9;z-index:-1}
+
+/* Settings keep secondary information behind one clearly labeled dialog. */
+.settings-dialog{width:min(760px,calc(100vw - 32px))!important}
+.settings-dialog .dialog-body{padding-top:8px}
+.settings-dialog .setting-row{gap:20px;font-size:clamp(20px,1.4vw,25px)}
+.settings-dialog .setting-row input{width:54px;min-height:48px;flex:none}
+.settings-actions,.settings-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:10px 0}
+.settings-actions button,.settings-links button{min-height:56px;font-size:20px;text-align:center}
+.settings-note,.settings-status{font-size:20px!important;line-height:1.5;color:#536449}
+.settings-status{padding:12px 16px;background:#e8edda;border:1px solid #bdc9a6;border-radius:12px}
+.dialog-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:18px;margin-top:12px;border-top:1px solid #cfbf99}
+dialog>.dialog-footer{flex:none;margin:0;padding:16px 24px 20px;background:var(--surface-paper)}
+.dialog-footer button{font-size:20px}
+.danger-note{padding:14px;border:1px solid #bd8e72;border-radius:12px;background:#fff0df;color:#7b402e}
+.preview-banner:has(button){height:auto;min-height:38px;padding:4px 16px;display:flex;justify-content:center;align-items:center;gap:16px;font-size:16px}
+.preview-banner button{min-height:48px;font-size:16px;padding:8px 12px;background:#fff7dd;border:1px solid #ead1a3;border-radius:8px;color:#694420}
+
+/* The observatory forms the final scene; records stay on legible paper. */
+#app.final .final-scene{background-image:linear-gradient(#173e3755,#173e3780),url('/assets/art/discovery-observatory.webp');background-size:cover;background-position:center;background-attachment:scroll}
+#app.final .final-panel{border:2px solid #c3aa6d;background:#fff9eaf5;border-radius:22px;box-shadow:0 6px 0 #25423444,0 15px 35px #173a3040}
+#app.final .final-scene>h1{color:#fff8dd;text-shadow:0 2px 3px #173a30}
+#app.final .final-scene>p{color:#fff8dd;text-shadow:0 1px 3px #173a30}
+.saved-evidence{border:2px solid #cfbd92;box-shadow:0 3px 0 #8c77421a}
+.certificate{position:relative;border-color:#a28345;box-shadow:0 9px 24px #163b3240}
+.certificate-medal{position:absolute;right:24px;top:20px;display:block;width:112px;height:112px;object-fit:contain;margin:0;pointer-events:none}
+.certificate:has(.certificate-medal)>h1{padding-left:112px;padding-right:112px}
+.certificate-tools{padding-bottom:8px;flex-wrap:wrap}
+
+@media(min-width:1500px) and (min-height:850px){.icon-button{width:60px;height:60px;min-width:60px}.topbar{height:76px;min-height:76px}.welcome .topbar{height:86px;min-height:86px}.brand-logo{height:62px}.expedition-start .primary{min-height:76px;min-width:350px}.atlas-route-help{font-size:20px}}
+@media(max-width:1100px){.atlas-strip{height:65px;padding:8px 18px}.atlas-title h1{font-size:25px}.atlas-footer{height:92px;padding:8px 16px;gap:10px}.atlas-footer p{font-size:20px}.pin-sign{font-size:20px;min-width:115px}.pin-sign small{font-size:16px}.atlas-core{gap:6px}.atlas-route-help{font-size:16px}.map-river{width:55px}.reward-rack{gap:6px}.expedition-river{left:6%;height:42%}.expedition-title{width:68vw;top:17%}.expedition-start{bottom:10%}.adventure-footer{gap:12px}.adventure-toolbar{max-width:46%}.adventure-toolbar .primary,.adventure-toolbar .secondary{font-size:18px;padding:9px 12px}.task-copy h1{font-size:25px}.settings-actions button,.settings-links button{font-size:19px}}
+@media(max-height:650px) and (min-width:900px){.topbar{height:60px;min-height:60px;padding:4px 16px}.brand-logo{height:48px}.atlas-strip{height:56px;min-height:56px}.atlas-title h1{font-size:24px}.atlas-title .eyebrow{font-size:14px;margin:0}.atlas-footer{height:80px;min-height:80px}.atlas-footer p{font-size:20px}.atlas-stars{font-size:16px}.pin-sign{font-size:19px;min-width:108px}.pin-sign small{font-size:15px}.pin-medallion{width:42px;height:42px;font-size:23px}.atlas-core{font-size:18px;padding:6px 10px}.atlas-route-help{padding:7px 10px;bottom:10px;left:12px}.adventure-heading{min-height:66px;padding:7px 16px}.task-copy h1{font-size:24px}.task-copy .eyebrow{font-size:15px}.adventure-footer{min-height:116px;padding:8px 12px 12px}.river-narrator p{font-size:20px}.river-narrator>div>span{font-size:15px}.adventure-toolbar{max-width:47%;gap:8px}.adventure-toolbar .primary,.adventure-toolbar .secondary{min-height:48px;font-size:17px;padding:8px 10px}.adventure-toolbar #next{font-size:20px;min-width:130px}.narrator-help{height:82px;width:64px}.phase-node{font-size:15px;padding:4px}.phase-node>span{width:32px;height:32px}.expedition-title{top:15%}.expedition-title>img{max-height:30vh}.expedition-title>p{font-size:22px;padding:8px 18px;margin-top:8px}.expedition-start .primary{min-height:60px;font-size:25px}.expedition-river{height:42%;left:10%}.welcome .topbar{height:68px;min-height:68px;padding:8px 16px}.dialog-heading{padding:12px 18px 9px}.dialog-body{padding:12px 18px 18px}.settings-dialog .setting-row{min-height:60px;padding:8px 0}.settings-note,.settings-status{font-size:20px!important}}
+@media(max-width:800px){.expedition-title{top:20%;width:82vw}.expedition-title>p{font-size:20px;max-width:90%;border-radius:18px}.expedition-river{left:1%;height:35%;bottom:4%}.expedition-start{bottom:9%;left:59%}.expedition-start .primary{font-size:22px;min-width:230px;padding:12px 18px}.atlas-footer{height:auto;min-height:100px;flex-wrap:wrap}.atlas-footer p{min-width:200px}.atlas-strip{height:auto;min-height:84px}.reward-rack{margin-left:auto}.atlas-route-help{display:none}.settings-actions,.settings-links{grid-template-columns:1fr}.dialog-footer{flex-wrap:wrap}.dialog-footer button:last-child{margin-left:auto}.preview-banner:has(button){font-size:14px;gap:8px}}
+@media(max-height:650px) and (min-width:900px){#app.final .certificate{padding:14px 20px}#app.final .certificate h1{margin-bottom:5px;font-size:32px}#app.final .certificate p{margin:6px 0;line-height:1.3;font-size:20px}#app.final .certificate input{margin:6px auto;min-height:48px;width:70%}#app.final .certificate .eyebrow{margin-bottom:3px}.certificate-medal{width:100px;height:100px;top:14px;right:20px}#app.final .certificate-tools{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.primary:hover:enabled,.secondary:hover:enabled,.icon-button:hover:enabled{transform:none}}
+@media print{#app.final .final-scene{background:#fff!important}.certificate{box-shadow:none}.preview-banner,.topbar,.certificate-tools{display:none!important}}
+
+/* A centered media control must retain its anchor while hovered or pressed. */
+.concept-play:hover:enabled,.concept-play:active:enabled{transform:translate(-50%,-50%)}
+@media(prefers-reduced-motion:reduce){.concept-play,.concept-play:hover:enabled,.concept-play:active:enabled{transform:translate(-50%,-50%)!important}}

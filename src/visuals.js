@@ -1,14 +1,14 @@
 const A='/assets/';
+import {backgroundForAsset} from './stage-art.js';
 const svgText=(s,x,y,size=22)=>`<text x="${x}" y="${y}" font-size="${size}" fill="#243e36" text-anchor="middle">${s}</text>`;
 import {riverFrame} from './learning-model.js';
 let riverVisualSerial=0;
 export function riverArt(time=0,water=1){
  const uid=++riverVisualSerial;
  const f=riverFrame(time,water),p=f.time,w=f.water,front=Math.max(0,p*1000);
- const terrain='M70 150Q170 110 280 205T540 285Q680 335 930 370L930 465L70 465Z';
  const path='M130 170Q240 170 300 220T525 280T820 360';
  const grains=Array.from({length:26*w},(_,i)=>{const progress=(p*1.2-i*.025);if(progress<0||progress>1)return '';const x=130+690*progress,y=170+190*progress+Math.sin(progress*12)*9;return `<circle cx="${x}" cy="${y}" r="${3+i%2}" fill="#987542"/>`;}).join('');
- return `<defs><linearGradient id="earth-${uid}" x2="0" y2="1"><stop stop-color="#d5bc8a"/><stop offset="1" stop-color="#a98353"/></linearGradient><clipPath id="flow-${uid}"><rect width="${front}" height="500"/></clipPath></defs><rect width="1000" height="500" rx="24" fill="#eef1da"/><path d="${terrain}" fill="url(#earth-${uid})"/><path d="M70 150Q170 110 280 205T540 285Q680 335 930 370" fill="none" stroke="#8c7958" stroke-width="4"/>
+ return `<defs><clipPath id="flow-${uid}"><rect width="${front}" height="500"/></clipPath></defs><image href="/assets/art/field-workbench.webp" width="1000" height="500" preserveAspectRatio="xMidYMid slice"/><image href="/assets/art/river-sand-model.webp" x="40" y="70" width="920" height="395" preserveAspectRatio="none"/>
  ${Array.from({length:75},(_,i)=>`<circle cx="${90+i*53%820}" cy="${370+i*37%80}" r="1.6" fill="#725c3b" opacity=".25"/>`).join('')}
  <path d="${path}" fill="none" stroke="#d7a43e" stroke-width="3" stroke-dasharray="8 7"/>
  <g clip-path="url(#flow-${uid})"><path d="${path}" fill="none" stroke="#9d7545" stroke-width="${p*(14+14*w)}" stroke-linecap="round"/><path d="${path}" fill="none" stroke="#68aeb9" stroke-width="${p*(8+8*w)}" stroke-linecap="round"/></g>${grains}
@@ -17,7 +17,7 @@ export function riverArt(time=0,water=1){
 }
 export function pin(point,label='?',color='#b77f15'){return `<circle cx="${point.x*1000}" cy="${point.y*500}" r="24" fill="#fff8d8" stroke="${color}" stroke-width="3"/><text x="${point.x*1000}" y="${point.y*500+8}" text-anchor="middle" font-size="23" fill="#3d4f36">${label}</text>`;}
 
-export function cityArt(time=0){const later=!!time;return `<rect width="1000" height="500" fill="${later?'#dcecd8':'#e3dcd1'}"/><image href="${A}city-calm.webp" width="1000" height="500" preserveAspectRatio="xMidYMid slice" opacity=".2"/><path d="M340 190L470 35L510 60L550 35L680 190Z" fill="#8d9b79"/><path d="M470 35L510 60L550 35" fill="none" stroke="#647859" stroke-width="10"/>
+export function cityArt(time=0){const later=!!time;return `<rect width="1000" height="500" fill="${later?'#dcecd8':'#e3dcd1'}"/><image href="${A}${backgroundForAsset("city-calm")}.webp" width="1000" height="500" preserveAspectRatio="xMidYMid slice" opacity=".2"/><path d="M340 190L470 35L510 60L550 35L680 190Z" fill="#8d9b79"/><path d="M470 35L510 60L550 35" fill="none" stroke="#647859" stroke-width="10"/>
  ${!later?'<g fill="#807c78" opacity=".7"><ellipse cx="520" cy="30" rx="150" ry="27"/><ellipse cx="600" cy="50" rx="100" ry="22"/><ellipse cx="380" cy="30" rx="90" ry="20"/></g><path d="M510 60L545 95L550 140L600 180" fill="none" stroke="#c86d4f" stroke-width="14"/>':''}
  <path d="M70 425H930M330 250V425M650 250V425" fill="none" stroke="#c3b698" stroke-width="22"/>
  <g><rect x="70" y="245" width="230" height="140" rx="18" fill="#b5c9bf"/><rect x="100" y="260" width="170" height="35" rx="7" fill="#e2dfd2" stroke="#8b9f94" stroke-width="3"/><rect x="110" y="320" width="160" height="24" rx="6" fill="#777d76"/><path d="M125 332H255" stroke="white" stroke-width="3" stroke-dasharray="12 8"/>${later?'<path d="M170 325L190 320L215 325L190 329Z" fill="#faf5df"/>':'<path d="M165 310L200 352M200 310L165 352" stroke="#b85c46" stroke-width="8"/>'}</g>

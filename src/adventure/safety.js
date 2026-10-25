@@ -27,7 +27,7 @@ export function setup(scene,api){
   api.panel(690,316,290,53,0xfff5db,.95);api.text('튼튼한 책상',690,316,25);
   if(phase===1){
    api.task('리버의 몸과 머리를 보호하자','리버를 책상 아래로 옮긴 뒤, 방석을 머리에 가져다 줘.');
-   const pillow=scene.add.container(260,540);pillow.add(scene.add.rectangle(0,0,130,85,0xe3b45d).setStrokeStyle(5,0xffe8a8));pillow.add(api.text('방석',0,0,24));pillow.setSize(140,90);
+   const pillow=scene.add.container(260,540,[api.image('art/safety-cushion',0,0,145,91)]).setSize(150,96);
    function under(){p.under=true;hero.setPosition(665,458);if(scene.textures.exists('hero-protect'))hero.setTexture('hero-protect');api.record({id:'safety-desk',kind:'safety',label:'튼튼한 책상',asset:'classroom',point:{x:690/1200,y:444/640},text:'튼튼한 책상 아래에서 머리와 몸을 보호해.'});api.save();api.say('좋아. 책상 아래에서 머리도 보호해 줘.');progress();return true;}
    function head(){if(!p.under){api.say('먼저 책상 아래로 몸을 낮추자.');return false;}p.head=true;pillow.setPosition(665,406).setScale(.65);api.save();api.spark(665,406);progress();return true;}
    api.drag(hero,{onDrop:(o,x,y)=>inside(x,y,690,455,240,190)?under():false});
@@ -40,15 +40,15 @@ export function setup(scene,api){
   api.task('책상 다리를 잡고, 멈춘 뒤 확인하자','손 표식을 책상 다리로 옮겨 잡아 줘. 멈추기 전에는 밖으로 나가지 않아.');
   api.panel(320,80,510,80,0xfff4d8,.96);const status=api.text(p.stopped?'흔들림이 멈췄어':'흔들리고 있어 · 몸을 보호해',320,80,26);
   scene.add.rectangle(665,406,90,45,0xe3b45d).setStrokeStyle(4,0xffe8a8);
-  const leg=scene.add.rectangle(786,458,26,170,0xffe08a,.35).setStrokeStyle(4,0xffdf7c);
+  const leg=scene.add.rectangle(960,458,26,170,0xffe08a,.35).setStrokeStyle(4,0xffdf7c);
   const hand=chip('손으로 잡기',980,550,190);let elapsed=0;
-  function hold(){if(!p.under||!p.head){api.say('앞 단계에서 책상 아래로 들어가 머리와 몸을 먼저 보호해 줘.');return false;}p.leg=true;hand.setPosition(786,465).setScale(.72);api.save();api.say('책상 다리를 잡았어. 지금은 이 자리에서 몸을 보호하자.');progress();return true;}
-  api.drag(hand,{onDrop:(o,x,y)=>inside(x,y,786,460,100,180)?hold():false});api.assist('책상 다리 잡기',hold);
-  if(p.leg)hand.setPosition(786,465).setScale(.72);
+  function hold(){if(!p.under||!p.head){api.say('앞 단계에서 책상 아래로 들어가 머리와 몸을 먼저 보호해 줘.');return false;}p.leg=true;hand.setPosition(960,465).setScale(.72);api.save();api.say('책상 다리를 잡았어. 지금은 이 자리에서 몸을 보호하자.');progress();return true;}
+  api.drag(hand,{onDrop:(o,x,y)=>inside(x,y,960,460,100,180)?hold():false});api.assist('책상 다리 잡기',hold);
+  if(p.leg)hand.setPosition(960,465).setScale(.72);
   function confirm(){if(!p.stopped||!p.leg){api.say('아직 흔들리고 있어. 책상 다리를 잡은 채 몸을 보호하자.');return;}p.confirmed=true;api.record({id:'safety-protect',kind:'safety',label:'내 몸 보호 훈련',text:'책상 아래에서 머리와 몸을 보호하고 다리를 잡았어. 흔들림이 멈춘 뒤 선생님의 안내를 따라 이동해.'});api.save();api.finish('흔들림이 멈췄어. 이제 선생님의 안내를 따라 걸어서 이동하자.');progress();}
   function progress(){api.counter(Number(p.leg)+Number(p.stopped)+Number(p.confirmed),3,'보호 → 멈춤 확인');}
   api.actions([{id:'confirm-stop',label:'흔들림 멈춤 확인',primary:true,onClick:confirm}]);progress();if(p.confirmed)api.finish('선생님의 안내를 따라 걸어서 안전한 곳으로 이동하자.');
-  return {update(time,delta){if(p.stopped||!p.leg)return;elapsed+=Math.min(delta,100);shelter.x=690+Math.sin(elapsed/80)*2;leg.x=786+Math.sin(elapsed/80)*2;if(elapsed>=2400){p.stopped=true;shelter.x=690;leg.x=786;status.setText('흔들림이 멈췄어 · 확인해 줘');api.save();api.say('흔들림이 멈췄어. 멈춤을 확인한 뒤 선생님 안내를 따라가자.');progress();}}};
+  return {update(time,delta){if(p.stopped||!p.leg)return;elapsed+=Math.min(delta,100);shelter.x=690+Math.sin(elapsed/80)*2;leg.x=960+Math.sin(elapsed/80)*2;if(elapsed>=2400){p.stopped=true;shelter.x=690;leg.x=960;status.setText('흔들림이 멈췄어 · 확인해 줘');api.save();api.say('흔들림이 멈췄어. 멈춤을 확인한 뒤 선생님 안내를 따라가자.');progress();}}};
  }
 
  function route(){
@@ -56,7 +56,7 @@ export function setup(scene,api){
   d[key]??=[];const ox=100,oy=80,scale=1;
   const toScreen=p=>({x:ox+p.x*scale,y:oy+p.y*scale});
   const toMap=p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale});
-  api.image(outside?'school':'classroom',600,320,1200,640).setAlpha(.75);
+  api.image('school',600,320,1200,640);
   api.panel(600,330,1030,525,0x607f6e,.97);
   const map=scene.add.graphics();
   config.areas.forEach(r=>{map.fillStyle(0xf2e6c9,1).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,9);});
@@ -72,7 +72,7 @@ export function setup(scene,api){
   scene.add.circle(goal.x,goal.y,37,0x84bf85).setStrokeStyle(5,0xfffbdf);api.text(outside?'공터':'운동장',goal.x,goal.y,19);
   api.text('가상 지도 · 실제로는 선생님의 안내를 따라가요',600,42,22,'#fff9e8');
   const lines=scene.add.graphics();const hero=api.hero(start.x,start.y,66,'river-pose-2');
-  let points=structuredClone(d[key]),draft=[],drawing=false,pointerDrawing=false,moving=false,segment=1,result=null,current={...config.start},runPoints=[],complete=false;
+  let points=structuredClone(d[key]),draft=[],drawing=false,pointerDrawing=false,moving=false,segment=1,result=null,current={...config.start},runPoints=[],complete=false,tapMode=false,tapStarted=false;
   function finish(summary){complete=true;api.actions([]);api.finish(summary);}
   let checked=d[key+'Done']&&d[key+'Signature']===routeSignature(points)&&inspectRoute(points,config).ok;
   if(!checked)d[key+'Done']=false;
@@ -85,7 +85,7 @@ export function setup(scene,api){
   function invalidate(){checked=false;d[key+'Done']=false;d[key+'Signature']=null;w.replayed=false;api.save();}
   function store(){if(draft.length<2)return;points=draft.map(p=>({...p}));draft=[];d[key]=structuredClone(points);result=null;current={...config.start};invalidate();draw();api.say('길을 남겼어. 길 확인으로 위험한 곳이 없는지 살펴보자.');}
   function append(p){const q={x:Math.max(0,Math.min(1000,p.x)),y:Math.max(0,Math.min(500,p.y))},last=draft.at(-1);if(!last||Math.hypot(last.x-q.x,last.y-q.y)>6)draft.push(q);if(draft.length>800)draft=draft.filter((_,i)=>i%2===0);draw();}
-  function reset(){if(complete)return;moving=false;drawing=false;pointerDrawing=false;points=[];draft=[];d[key]=[];current={...config.start};result=null;invalidate();draw();api.say('리버에서부터 다시 이어 줘. 실패해도 보상은 줄어들지 않아.');}
+  function reset(){if(complete)return;moving=false;drawing=false;pointerDrawing=false;tapStarted=false;points=[];draft=[];d[key]=[];current={...config.start};result=null;invalidate();draw();api.say('리버에서부터 다시 이어 줘. 실패해도 보상은 줄어들지 않아.');}
   function check(){
    if(moving)return;result=inspectRoute(points,config);draw();
    if(!result.ok){api.say(result.message);api.counter(0,1,'안전한 길');return;}
@@ -93,7 +93,15 @@ export function setup(scene,api){
    runPoints=structuredClone(points);segment=1;current={...config.start};moving=true;api.say('리버가 네 길을 따라 걸어가. 출구와 위험한 곳을 함께 살펴봐.');
   }
   api.task(outside?'학교 밖에서도 안전한 곳으로 가자':playback?'그린 길을 따라 출구로 걸어가자':'학교 안에서 안전한 길을 그리자',outside?'리버에서 넓은 공터까지, 건물·담장·전신주를 피해 길을 이어 줘.':playback?'길을 확인하고 리버를 출구와 운동장으로 안내해 줘. 위험하면 길을 다시 고칠 수 있어.':'리버부터 출구를 지나 운동장까지 손가락으로 이어 줘.');
-  function down(p){if(moving||complete)return;const q=toMap(p);if(Math.hypot(q.x-config.start.x,q.y-config.start.y)>45)return;draft=[{...config.start}];drawing=true;pointerDrawing=true;result=null;}
+  function down(p){
+   if(moving||complete)return;const q=toMap(p);
+   if(tapMode){
+    if(!points.length&&!tapStarted&&Math.hypot(q.x-config.start.x,q.y-config.start.y)>45){api.say('먼저 리버가 서 있는 시작점을 눌러 줘.');return;}
+    tapStarted=true;
+    draft=points.length?structuredClone(points):[{...config.start}];drawing=true;result=null;append(q);drawing=false;store();return;
+   }
+   if(Math.hypot(q.x-config.start.x,q.y-config.start.y)>45)return;draft=[{...config.start}];drawing=true;pointerDrawing=true;result=null;
+  }
   function move(p){if(pointerDrawing)append(toMap(p));}
   function up(p){if(!pointerDrawing)return;pointerDrawing=false;append(toMap(p));drawing=false;store();}
   scene.input.on('pointerdown',down);scene.input.on('pointermove',move);scene.input.on('pointerup',up);scene.input.on('pointerupoutside',up);
@@ -102,7 +110,9 @@ export function setup(scene,api){
   // accessible route cannot teleport through a wall or over a hazard.
   for(const [label,dx,dy] of [['← 왼쪽',-20,0],['↑ 위쪽',0,-20],['↓ 아래쪽',0,20],['→ 오른쪽',20,0]])api.assist(label+'으로 한 칸 잇기',()=>{if(moving||complete)return;if(!draft.length)draft=points.length?structuredClone(points):[{...config.start}];drawing=true;const last=draft.at(-1);append({x:last.x+dx,y:last.y+dy});});
   api.assist('그린 길 저장',()=>{drawing=false;store();});api.assist('마지막 지점 지우기',()=>{if(moving)return;if(draft.length>1){draft.pop();drawing=true;draw();}else if(points.length>1){draft=structuredClone(points);draft.pop();drawing=true;draw();}});
-  api.actions([{id:'route-check',label:playback?'리버와 걸어가기':outside?'이 길로 걸어가기':'길 확인',primary:true,onClick:check},{id:'route-reset',label:'길 다시 그리기',onClick:reset}]);
+  const modeLabel=()=>tapMode?'선 그리기로':'점 찍기로';
+  function actions(){api.actions([{id:'route-check',label:playback?'리버와 걸어가기':outside?'이 길로 걸어가기':'길 확인',primary:true,onClick:check},{id:'route-input',label:modeLabel(),onClick(){tapMode=!tapMode;actions();api.say(tapMode?'리버부터 차례로 점을 눌러 길을 이어 줘. 위험한 곳을 피해 모서리마다 점을 찍어 봐.':'리버에서 출발해 손가락으로 길을 그려 줘.');}},{id:'route-reset',label:'다시 그리기',onClick:reset}]);}
+  actions();
   if(playback&&!points.length)api.say('앞 단계의 길이 없어서 여기서 다시 그릴 수 있어. 리버부터 출구를 지나 이어 줘.');
   api.counter(checked?1:0,1,'안전한 길');draw();
   if(checked&&(outside||playback))finish(outside?'다른 장소에서도 위험을 피해 안전한 곳에 도착했어!':'출구를 지나 운동장에 도착했어.');
