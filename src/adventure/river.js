@@ -1,5 +1,6 @@
 import {FIELD_POINTS, RIVER_MARKS} from '../learning-model.js';
 import {riverScene,drawShapes} from '../observation-scenes.js';
+import {hasModel,openModel3D} from '../rock3d.js';
 
 const AREA = {x:150,y:120,w:900,h:400};
 const clamp = (v,a=0,b=1) => Math.max(a,Math.min(b,v));
@@ -117,7 +118,10 @@ function experiment(scene,api) {
     api.finish(water===1?'첫 실험을 기록했어. 같은 언덕에서 물의 양을 바꿔 보자.':'물을 많이 흘리니 흙이 더 많이 깎이고 옮겨졌어.',{water});
   }
   draw();
-  api.actions([{id:'river-pour-start',label:'이 위치에 물 주기',onClick:()=>{if(!inZone(can.x,can.y)){api.say('먼저 물뿌리개와 언덕 위치를 차례로 눌러 줘.');return;}start('button');}},{id:'river-pour-stop',label:'물 주기 멈춤',onClick:()=>{stop();api.say('물을 멈췄어. 다른 위치를 고르거나 이 위치에 물 주기로 이어 갈 수 있어.');}}]);
+  const pourActions=[{id:'river-pour-start',label:'이 위치에 물 주기',onClick:()=>{if(!inZone(can.x,can.y)){api.say('먼저 물뿌리개와 언덕 위치를 차례로 눌러 줘.');return;}start('button');}},{id:'river-pour-stop',label:'물 주기 멈춤',onClick:()=>{stop();api.say('물을 멈췄어. 다른 위치를 고르거나 이 위치에 물 주기로 이어 갈 수 있어.');}}];
+  api.actions(pourActions);
+  // Before the first pour, the 3D hill helps predict: high slopes get worn, low flat ground collects soil.
+  if(water===1)hasModel('river-hill').then(ok=>{if(ok&&scene.sys.isActive()&&!finished)api.actions([...pourActions,{id:'river-3d',label:'흙 언덕 돌려 보기',onClick:()=>openModel3D(api.modal,'river-hill','흙 언덕')}]);});
   if(w.pour>=.999)check();
   return {update(time,delta){
     drops.clear();

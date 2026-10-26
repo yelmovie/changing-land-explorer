@@ -1,5 +1,6 @@
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const near=(x,y,p,r=75)=>Math.hypot(x-p.x,y-p.y)<r;
+import {hasModel,openModel3D} from '../rock3d.js';
 import {MODEL_MOUTH as MOUTH,MODEL_FLOW as FLOW,modelScene,paintScene,modelEvidence} from '../observation-scenes.js';
 const OUTPUTS=[
   {id:'lava',label:'용암',x:385,y:395,text:'땅속에서 나온 뜨거운 물질이 땅 위로 흘러.'},
@@ -226,5 +227,7 @@ function compare(scene,api){
   function check(){if(!finished&&w.links.length===4){finished=true;api.finish(same?'모형과 실제 화산은 구멍으로 물질이 나오고, 경사면을 따라 흐르는 모습이 닮았어.':'붉은 물은 용암이 아니야. 실제 화산에서는 뜨거운 용암과 여러 분출물이 나와.');}}
   api.counter(w.links.length,4,same?'같은 점 연결':'다른 점 연결');
   if(w.links.length===4)api.actions([{id:'compare-saved',label:'연결한 기록 확인',onClick:check,primary:true}]);
+  // Turning the real volcano shows its crater and slopes, the two features matched on this card.
+  else if(same)hasModel('volcano-real').then(ok=>{if(ok&&scene.sys.isActive()&&!finished)api.actions([{id:'volcano-3d',label:'실제 화산 돌려 보기',onClick:()=>openModel3D(api.modal,'volcano-real','실제 화산')}]);});
   return {destroy(){api.save();}};
 }

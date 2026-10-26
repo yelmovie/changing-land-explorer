@@ -102,3 +102,12 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 ### 3D 변환용 기본 그림 — 2026-10-25
 
 `image/3d-base/`(배포 제외). 06 화산 단면·07 기록탑·13 리버 A자세는 같은 Higgsfield 모델로 새로 만들었고, 나머지는 위 게임 그림을 흰 배경 PNG로 내보낸 거예요. Meshy 변환 계획과 프롬프트는 `docs/3D-ASSETS.md`.
+
+### 3D 모델 (Meshy image-to-3D) — 2026-10-26
+
+서비스: Meshy image-to-3D. 원본 그림은 위 `image/3d-base/`의 프로젝트 자체 AI 생성 그림. **Meshy 요금제가 상업 이용 가능한 플랜인지 확인 필요.**
+원본 GLB는 `assets/raw-glb/`(배포·git 제외), 배포용은 `public/assets/models/`. 메시는 그대로 두고 텍스처만 2048→1024로 줄였어요(`scripts/prepare-models.mjs`).
+
+- `rock-basalt-porous`(표본 A), `rock-granite-white`(표본 B): 암석 공방 '돌 돌려 보기'
+- `volcano-exterior`: 화산 연구소 '모형과 실제 화산 같은 점' 화면의 '실제 화산 돌려 보기'
+- `terrain-soil-block`: 흐르는 물 첫 실험의 '흙 언덕 돌려 보기'

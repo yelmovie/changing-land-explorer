@@ -8,3 +8,4 @@
 *.webp binary
 *.png binary
 *.woff2 binary
+*.glb binary

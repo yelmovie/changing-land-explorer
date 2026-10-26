@@ -9,4 +9,6 @@
 
 검증: `npm run check`, `npm test`(44), `npm run build`. 화면 검사 `PLAYWRIGHT_PATH=D:/isamgpt/15worldmap/node_modules/playwright/index.mjs CHECK_SIZES=873x580,1280x800 node scripts/check-learning-ui.mjs`. 빌드본 확인은 `.claude/launch.json`의 geovalley-dist(5178).
 
-다음: 교육·게임성 변경(재도전 목표, 보상 예고)은 사용자 승인 대기. 3D는 사용자가 Meshy로 GLB 제작 중(`docs/3D-ASSETS.md`, 기본 그림 `image/3d-base/`). 실기기 확인·운영 배포는 아직.
+다음: 교육·게임성 변경(재도전 목표, 보상 예고)은 사용자 승인 대기. 실기기 확인·운영 배포는 아직.
+
+3D(2026-10-26): Meshy GLB 4개 적용(현무암·화강암·실제 화산·흙 언덕). 원본은 `assets/raw-glb/`, 배포본은 `public/assets/models/`. 메시는 깎지 말고 `node scripts/prepare-models.mjs`로 텍스처만 줄인다(Decimate하면 찢어짐). 적용 위치·남은 모델은 `docs/3D-ASSETS.md` 6절. Meshy 상업 이용 플랜 확인 필요.

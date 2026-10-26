@@ -5,6 +5,7 @@ dist/
 graphify-out/
 image/
 assets/raw-png/
+assets/raw-glb/
 files/*.zip
 references/original-archives/
 references/source-images/

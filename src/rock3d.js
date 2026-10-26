@@ -1,12 +1,21 @@
 import {$,escapeHTML} from './ui.js';
 
-// Optional turn-around view of a rock specimen. The 2D lens activity stays the
+// Optional turn-around view of a specimen or model. The 2D activity stays the
 // source of truth; this only opens when the matching GLB exists in assets/models.
-const MODELS={'rock-0':'rock-basalt-porous','rock-1':'rock-granite-white','rock-2':'rock-basalt-dense','rock-3':'rock-granite-pink'};
-const modelUrl=asset=>`/assets/models/${MODELS[asset]}.glb`;
+// flat: the model sits on a base Meshy leaves untextured, so the camera never goes underneath.
+const MODELS={
+ 'rock-0':{file:'rock-basalt-porous',noun:'돌'},'rock-1':{file:'rock-granite-white',noun:'돌'},
+ 'rock-2':{file:'rock-basalt-dense',noun:'돌'},'rock-3':{file:'rock-granite-pink',noun:'돌'},
+ 'volcano-real':{file:'volcano-exterior',noun:'화산',flat:true},
+ 'river-hill':{file:'terrain-soil-block',noun:'흙 언덕',flat:true}
+};
+const modelUrl=asset=>`/assets/models/${MODELS[asset].file}.glb`;
 const known=new Map();
 
-export function hasRockModel(asset){
+export const hasRockModel=asset=>hasModel(asset);
+export const openRock3D=(modal,rock)=>openModel3D(modal,rock.asset,rock.name);
+
+export function hasModel(asset){
  if(!MODELS[asset])return Promise.resolve(false);
  if(!known.has(asset)){
   const url=modelUrl(asset);
@@ -15,16 +24,17 @@ export function hasRockModel(asset){
  return known.get(asset);
 }
 
-export function openRock3D(modal,rock){
- modal(`${escapeHTML(rock.name)} 돌려 보기`,`<div class="rock3d-stage" role="img" aria-label="${escapeHTML(rock.name)}를 돌려 볼 수 있는 3D 표본"><p class="rock3d-status" role="status">표본을 꺼내고 있어…</p></div><p class="rock3d-help">손가락으로 끌어 돌을 돌려 봐. 두 손가락이나 버튼으로 크게·작게 볼 수 있어.</p><div class="rock3d-actions"><button class="secondary" data-rock3d="out" aria-label="작게 보기">작게</button><button class="secondary" data-rock3d="reset">처음 모습</button><button class="secondary" data-rock3d="in" aria-label="크게 보기">크게</button></div>`,(dialog)=>{
+export function openModel3D(modal,asset,name){
+ const {noun,flat}=MODELS[asset]; // every noun ends in a final consonant, so '을' fits
+ modal(`${escapeHTML(name)} 돌려 보기`,`<div class="rock3d-stage" role="img" aria-label="손가락으로 돌려 볼 수 있는 3D ${escapeHTML(name)}"><p class="rock3d-status" role="status">${noun==='돌'?'표본':'모형'}을 꺼내고 있어…</p></div><p class="rock3d-help">손가락으로 끌어 ${noun}을 돌려 봐. 두 손가락이나 버튼으로 크게·작게 볼 수 있어.</p><div class="rock3d-actions"><button class="secondary" data-rock3d="out" aria-label="작게 보기">작게</button><button class="secondary" data-rock3d="reset">처음 모습</button><button class="secondary" data-rock3d="in" aria-label="크게 보기">크게</button></div>`,(dialog)=>{
   dialog.classList.add('rock3d-dialog');
   let dispose=()=>{};
   dialog.addEventListener('close',()=>dispose(),{once:true});
-  mountViewer($('.rock3d-stage',dialog),modelUrl(rock.asset),dialog).then(d=>{if(dialog.open)dispose=d;else d();});
+  mountViewer($('.rock3d-stage',dialog),modelUrl(asset),dialog,flat).then(d=>{if(dialog.open)dispose=d;else d();});
  });
 }
 
-async function mountViewer(host,url,dialog){
+async function mountViewer(host,url,dialog,flat){
  const status=$('.rock3d-status',host),fail=msg=>{status.textContent=msg;status.hidden=false;return()=>{};};
  let THREE,GLTFLoader;
  try{THREE=await import('three');({GLTFLoader}=await import('/assets/vendor/three/addons/loaders/GLTFLoader.js'));}
@@ -45,13 +55,13 @@ async function mountViewer(host,url,dialog){
  const model=gltf.scene,box=new THREE.Box3().setFromObject(model),size=box.getSize(new THREE.Vector3());
  model.position.sub(box.getCenter(new THREE.Vector3()));pivot.add(model);pivot.scale.setScalar(2/Math.max(size.x,size.y,size.z,1e-6));
  status.hidden=true;
- const START={yaw:-.5,pitch:.25,dist:5.2},view={...START},spin={yaw:0,pitch:0};
+ const START={yaw:-.5,pitch:flat?.45:.25,dist:5.2},minPitch=flat?.08:-1.3,view={...START},spin={yaw:0,pitch:0};
  let dragging=false,last=null,touched=false,frame=0;
  const pointers=new Map(),pinch={d:0};
  function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
  function render(){
   if(!dragging){view.yaw+=spin.yaw;view.pitch+=spin.pitch;spin.yaw*=.92;spin.pitch*=.92;if(!touched&&!reduced)view.yaw+=.004;}
-  view.pitch=Math.max(-1.3,Math.min(1.3,view.pitch));
+  view.pitch=Math.max(minPitch,Math.min(1.3,view.pitch));
   pivot.rotation.set(view.pitch,view.yaw,0,'XYZ');camera.position.set(0,0,view.dist);camera.lookAt(0,0,0);
   renderer.render(scene,camera);frame=requestAnimationFrame(render);
  }

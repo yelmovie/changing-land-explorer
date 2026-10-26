@@ -4,7 +4,9 @@ import {readFile,readdir} from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 const DIR='public/assets/models';
-const BUDGET={'rock-':6000,'volcano-':8000,'record-tower':15000,'tool-lens':3000,'tool-compass':3000,'tool-flag':3000,'tool-':4000,'river-':12000};
+// Meshy exports ~16k triangles. Keep that mesh as-is (decimating tears it along UV seams),
+// so rocks/volcano/terrain allow 16k; trim size with textures instead (scripts/prepare-models.mjs).
+const BUDGET={'rock-':16000,'volcano-':16000,'terrain-':16000,'record-tower':15000,'tool-lens':3000,'tool-compass':3000,'tool-flag':3000,'tool-':4000,'river-':12000};
 const MAX_TEXTURE=1024,MAX_KB=1500;
 
 export function inspectGlb(buf){
@@ -39,5 +41,5 @@ if(import.meta.url===pathToFileURL(process.argv[1]).href){
   bad+=issues.length?1:0;
   console.log(`${issues.length?'WARN':'PASS'} ${name} · 삼각형 ${r.triangles}/${limit} · 텍스처 ${r.textures.map(t=>t.width?`${t.width}x${t.height}`:t.type||t.uri).join(', ')||'없음'} · ${r.kb}KB${issues.length?' · '+issues.join(', '):''}`);
  }
- if(bad)console.log('예산을 넘은 파일은 블렌더에서 Decimate·텍스처 축소 후 다시 GLB로 내보내.');
+ if(bad)console.log('예산을 넘은 파일은 메시를 깎지 말고 node scripts/prepare-models.mjs <원본.glb> <이름> 으로 텍스처만 줄여 다시 만들어.');
 }

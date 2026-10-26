@@ -137,3 +137,17 @@ Character reference for image-to-3D: the same cute otter explorer character as t
 2. `node scripts/check-models.mjs`로 예산 확인 → 넘으면 블렌더에서 Decimate, 텍스처 1024 이하로 줄여 다시 GLB.
 3. 암석은 넣기만 하면 바로 동작한다. 화산 단면 → 엔딩 탑은 받은 뒤 같은 `src/rock3d.js` 뷰어를 넓혀 붙인다.
 4. `public/assets/CREDITS.md`에 "Meshy image-to-3D, 원본 그림 = 프로젝트 자체 AI 생성" 기록. Meshy 요금제가 상업 이용 가능한 플랜인지 같이 적는다.
+
+## 6. 받은 모델 적용 기록 (2026-10-26)
+
+| 받은 파일(Meshy) | 원본 보관 `assets/raw-glb/` | 배포 `public/assets/models/` | 쓰는 곳 |
+|---|---|---|---|
+| Jeju_Basalt_Rock | `meshy-rock-basalt-porous.glb` (10.0MB) | `rock-basalt-porous.glb` (1.2MB) | 암석 공방 표본 A '돌 돌려 보기' |
+| Granite_Specimen | `meshy-rock-granite-white.glb` (10.8MB) | `rock-granite-white.glb` (1.3MB) | 암석 공방 표본 B '돌 돌려 보기' |
+| Volcano_Exterior | `meshy-volcano-exterior.glb` (6.5MB) | `volcano-exterior.glb` (1.0MB) | 화산 탐험 2단계 '같은 점 연결' 화면 '실제 화산 돌려 보기' |
+| Soil_Terrain_Block | `meshy-terrain-soil-block.glb` (5.0MB) | `terrain-soil-block.glb` (0.7MB) | 흐르는 물 첫 실험(물 적게) '흙 언덕 돌려 보기' |
+
+- Meshy 출력은 삼각형 약 1.6만 개, PBR 텍스처 3장(색·금속/거칠기·노멀) 2048. **메시는 깎지 않는다.** Decimate는 UV 이음매를 따라 메시를 갈라 놓아 모델이 찢어져 보인다. 대신 `node scripts/prepare-models.mjs <원본.glb> <이름>`이 텍스처만 1024로 줄여 다시 끼운다(블렌더는 이미지 축소에만 쓴다). 정점·인덱스 바이트가 원본과 같은지 확인했다.
+- 그래서 `check-models.mjs`의 예산을 rock/volcano/terrain 16,000개로 올렸다. 한 화면에 모델은 하나만 뜨므로 태블릿에 부담이 없다.
+- 화산·흙 언덕은 바닥면 텍스처가 비어 있어서 뷰어가 아래쪽으로 돌아가지 않게 막았다(`src/rock3d.js`의 `flat`). 돌은 밑면까지 볼 수 있다.
+- 아직 없는 모델: `rock-basalt-dense`, `rock-granite-pink`(표본 C·D), 화산 단면, 기록탑, 도구 5개, 리버. 받으면 같은 스크립트로 넣고 `src/rock3d.js`의 `MODELS`에 이름을 맞추면 된다.

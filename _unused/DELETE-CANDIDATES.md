@@ -15,3 +15,12 @@
 `src/safety.js`는 `src/ending.js`가 마지막 전이 경로에 사용하므로 위 구형 활동 후보와 함께 일괄 정리하면 안 된다. `src/visuals.js`·`src/explore-ui.js`도 현재 경로에서 사용한다.
 
 아이콘 생성 프롬프트는 기존 `docs/icon-prompts.md`를 재사용한다. 기능 아이콘이 SVG로 구현되어 있어 새 래스터 생성은 제안하지 않았다.
+
+## 루트 중복 문서 — 2026-10-26
+
+루트를 정리하면서 아래 5개를 `_unused/root-duplicates-20261026/`으로 옮겼다. 삭제하지 않았다.
+
+| 파일 | 같은 내용이 있는 곳 |
+|---|---|
+| `4-1_moving-geovalley_PRD.md`, `4-1_moving-geovalley_TRD.md`, `4-1_moving-geovalley_page_design_prompts.json`, `4-1_움직이는_지오밸리_심화설계_v2.md` | `references/previous-design/`, `files/` (바이트 단위로 같음) |
+| `SCENARIO_DISCUSSION.md` | `docs/SCENARIO_DISCUSSION.md` (링크 경로 한 곳만 다름, README가 가리키는 쪽은 docs/) |
