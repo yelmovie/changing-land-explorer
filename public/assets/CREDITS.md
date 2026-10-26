@@ -105,7 +105,7 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 
 ### 3D 모델 (Meshy image-to-3D) — 2026-10-26
 
-서비스: Meshy image-to-3D. 원본 그림은 위 `image/3d-base/`의 프로젝트 자체 AI 생성 그림. **Meshy 요금제가 상업 이용 가능한 플랜인지 확인 필요.**
+서비스: Meshy image-to-3D. 원본 그림은 위 `image/3d-base/`의 프로젝트 자체 AI 생성 그림. Meshy 요금제: 상업 이용 가능한 플랜(2026-10-26 사용자 확인).
 원본 GLB는 `assets/raw-glb/`(배포·git 제외), 배포용은 `public/assets/models/`. 메시는 그대로 두고 텍스처만 2048→1024로 줄였어요(`scripts/prepare-models.mjs`).
 
 - `rock-basalt-porous`(표본 A), `rock-granite-white`(표본 B): 암석 공방 '돌 돌려 보기'

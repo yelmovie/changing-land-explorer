@@ -11,4 +11,4 @@
 
 다음: 교육·게임성 변경(재도전 목표, 보상 예고)은 사용자 승인 대기. 실기기 확인·운영 배포는 아직.
 
-3D(2026-10-26): Meshy GLB 4개 적용(현무암·화강암·실제 화산·흙 언덕). 원본은 `assets/raw-glb/`, 배포본은 `public/assets/models/`. 메시는 깎지 말고 `node scripts/prepare-models.mjs`로 텍스처만 줄인다(Decimate하면 찢어짐). 적용 위치·남은 모델은 `docs/3D-ASSETS.md` 6절. Meshy 상업 이용 플랜 확인 필요.
+3D(2026-10-26): Meshy GLB 4개 적용(현무암·화강암·실제 화산·흙 언덕). 원본은 `assets/raw-glb/`, 배포본은 `public/assets/models/`. 메시는 깎지 말고 `node scripts/prepare-models.mjs`로 텍스처만 줄인다(Decimate하면 찢어짐). 적용 위치·남은 모델은 `docs/3D-ASSETS.md` 6절. Meshy는 상업 이용 가능한 플랜(사용자 확인).
