@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "geovalley-dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/serve.mjs"],
+      "port": 5177
+    },
+    {
+      "name": "geovalley-dist",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/serve.mjs", "--dist"],
+      "env": {"PORT": "5178"},
+      "port": 5178
+    }
+  ]
+}
