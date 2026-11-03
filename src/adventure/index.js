@@ -394,10 +394,13 @@ export function mount(ctx) {
       }
     }
   }
+  let wasPaused=false;
   function syncPause(){
     if(!game||!activeScene||closed)return;
     const pause=document.hidden||!!document.querySelector('dialog[open]');
-    if(pause){stopAuto();hooks?.pause?.();}
+    // Assist buttons change text inside the open dialog; only the first pause may stop motion they start.
+    if(pause&&!wasPaused){stopAuto();hooks?.pause?.();}
+    wasPaused=pause;
     if(pause&&game.scene.isActive('Activity'))game.scene.pause('Activity');
     else if(!pause&&game.scene.isPaused('Activity'))game.scene.resume('Activity');
   }
