@@ -91,6 +91,83 @@
       "bytes": 24652,
       "alpha": true,
       "source": "assets/raw-png/art-20261024/volcano-tray.png"
+    },
+    {
+      "name": "river-sand-wet-v1",
+      "file": "river-sand-wet-v1.webp",
+      "width": 1200,
+      "height": 675,
+      "source": "assets/raw-png/river-water-20261103/river-sand-wet.png",
+      "bytes": 138688,
+      "alpha": true,
+      "created": "2026-11-03",
+      "generator": "OpenAI built-in image generation"
+    },
+    {
+      "name": "river-sediment-fan-v1",
+      "file": "river-sediment-fan-v1.webp",
+      "width": 512,
+      "height": 73,
+      "source": "assets/raw-png/river-water-20261103/river-sediment-fan.png",
+      "bytes": 20330,
+      "alpha": true,
+      "created": "2026-11-03",
+      "generator": "OpenAI built-in image generation"
+    },
+    {
+      "name": "rock-basalt-study-v1",
+      "file": "rock-basalt-study-v1.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 217712,
+      "alpha": true,
+      "source": "assets/raw-png/stage-polish-20261103/rock-basalt-study-v1.png",
+      "created": "2026-11-03",
+      "prompt": "docs/design/volcano-rock-polish-prompts.md"
+    },
+    {
+      "name": "rock-granite-study-v1",
+      "file": "rock-granite-study-v1.webp",
+      "width": 1200,
+      "height": 800,
+      "bytes": 267706,
+      "alpha": true,
+      "source": "assets/raw-png/stage-polish-20261103/rock-granite-study-v1.png",
+      "created": "2026-11-03",
+      "prompt": "docs/design/volcano-rock-polish-prompts.md"
+    },
+    {
+      "name": "volcano-ash-puff-0-v1",
+      "file": "volcano-ash-puff-0-v1.webp",
+      "width": 256,
+      "height": 256,
+      "bytes": 27582,
+      "alpha": true,
+      "source": "assets/raw-png/stage-polish-20261103/volcano-ash-atlas-v1.png",
+      "created": "2026-11-03",
+      "prompt": "docs/design/volcano-rock-polish-prompts.md"
+    },
+    {
+      "name": "volcano-ash-puff-1-v1",
+      "file": "volcano-ash-puff-1-v1.webp",
+      "width": 256,
+      "height": 256,
+      "bytes": 29132,
+      "alpha": true,
+      "source": "assets/raw-png/stage-polish-20261103/volcano-ash-atlas-v1.png",
+      "created": "2026-11-03",
+      "prompt": "docs/design/volcano-rock-polish-prompts.md"
+    },
+    {
+      "name": "volcano-ash-puff-2-v1",
+      "file": "volcano-ash-puff-2-v1.webp",
+      "width": 256,
+      "height": 256,
+      "bytes": 28614,
+      "alpha": true,
+      "source": "assets/raw-png/stage-polish-20261103/volcano-ash-atlas-v1.png",
+      "created": "2026-11-03",
+      "prompt": "docs/design/volcano-rock-polish-prompts.md"
     }
   ]
 }

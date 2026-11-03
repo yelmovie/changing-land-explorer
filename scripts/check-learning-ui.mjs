@@ -19,7 +19,9 @@ async function record(page,label,scope='body',{scroll=false,shot=false}={}){
   for(const control of root.querySelectorAll(':scope > .dialog-footer button'))if(!inside(control.getBoundingClientRect()))issues.push('dialog footer control outside viewport: '+control.textContent);
   const controls=[...root.querySelectorAll('button,input')].filter(vis).map(e=>{
    const b=e.getBoundingClientRect();
-   if(!scroll&&(!inside(b)))issues.push('control outside viewport: '+(e.textContent||e.getAttribute('aria-label')));
+   // 끌어서 옮기는 지도 안의 장소 버튼은 화면 밖에 있어도 되지만, 지도 그림 안에는 있어야 끌어서 닿는다.
+   const map=e.closest('.atlas-world')?.getBoundingClientRect(),onMap=map&&b.left>=map.left-1&&b.top>=map.top-1&&b.right<=map.right+1&&b.bottom<=map.bottom+1;
+   if(!scroll&&!inside(b)&&!onMap)issues.push('control outside viewport: '+(e.textContent||e.getAttribute('aria-label')));
    if(b.width<47.5||b.height<47.5)issues.push('touch target under 48px: '+(e.textContent||e.getAttribute('aria-label')));
    return {text:(e.textContent||e.getAttribute('aria-label')||'').trim(),w:b.width,h:b.height};
   });

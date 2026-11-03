@@ -60,22 +60,72 @@
 #app.adventure .adventure-side-tools{gap:8px;width:auto}
 #app.adventure .adventure-toolbar .secondary,#app.adventure .adventure-toolbar .primary,#app.adventure .adventure-toolbar .compact-tool{min-height:50px;font-size:var(--fs-label);padding:8px 14px;border-radius:var(--radius-md);box-shadow:0 4px 0 #8c6b3666,0 8px 16px #10231b33}
 #app.adventure .adventure-toolbar #next{font-size:clamp(19px,1.4vw,23px);min-height:56px;min-width:150px}
-#app.adventure .adventure-toolbar #next.ready{animation:next-ready 2.8s ease-in-out infinite}
+#app.adventure .adventure-toolbar #next.ready{animation:next-ready 1.25s ease-out 2}
+/* 교사 시연 전용: 조작 없이 다음 단계로 넘기기 (우측 하단, 학생 화면에는 없음) */
+#app.adventure .teacher-skip{position:absolute;z-index:22;right:var(--hud-pad);bottom:calc(var(--hud-bottom) + 10px);display:flex;align-items:center;gap:8px;min-height:56px;padding:6px 14px 6px 16px;background:#7f4c24;color:#fff7d4;border:2px solid #f3d99a;border-radius:var(--radius-md);box-shadow:0 4px 0 #4f2e14,0 10px 20px #10231b55;font:700 var(--fs-label)/1.1 GeoDisplay,system-ui,sans-serif;cursor:pointer}
+#app.adventure .teacher-skip small{font-size:12px;font-weight:600;padding:3px 7px;border-radius:999px;background:#fff7d42e;color:#ffe6a8;white-space:nowrap}
+#app.adventure .teacher-skip span{white-space:nowrap}
+#app.adventure .teacher-skip:hover{background:#94592b}
+#app.adventure .teacher-skip:active{transform:translateY(2px);box-shadow:0 2px 0 #4f2e14,0 6px 12px #10231b55}
+#app.adventure .teacher-skip:focus-visible{outline:3px solid #ffd36b;outline-offset:3px}
 #app.adventure .compact-tool.is-locked{display:none}
-@keyframes next-ready{0%,100%{transform:none}50%{transform:translateY(-3px)}}
+@keyframes next-ready{0%,100%{outline-color:#fcdfa4}50%{outline-color:#bd821d}}
 
 /* ---------- 지도 ---------- */
-#app.atlas:not(.welcome) .atlas-page{position:relative}
+#app.atlas:not(.welcome) .atlas-page{position:relative;overflow:hidden}
 #app.atlas:not(.welcome) .atlas-strip{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-#app.atlas:not(.welcome) .atlas-route-help{display:none}
+/* 지도 안내: 손 모양 + 한 줄. 한 번 끌어 보면 사라진다. */
+#app.atlas:not(.welcome) .atlas-route-help{position:absolute;z-index:25;top:calc(var(--hud-pad) + 2px);left:50%;bottom:auto;transform:translateX(-50%);display:flex;align-items:center;gap:10px;min-height:var(--hud-icon);padding:6px 18px 6px 12px;background:var(--hud-paper);color:var(--hud-ink);border:2px solid var(--hud-line);border-radius:999px;box-shadow:var(--hud-shadow);font-size:var(--fs-label);font-weight:700;white-space:nowrap;pointer-events:none;transition:opacity .4s,transform .4s}
+#app.atlas:not(.welcome) .atlas-route-help svg{color:#8c6a2a;flex:none;animation:hand-nudge 1.6s ease-in-out infinite}
+#app.atlas:not(.welcome) .map-dragged .atlas-route-help{opacity:0;transform:translate(-50%,-8px)}
+@keyframes hand-nudge{0%,100%{translate:0 0}50%{translate:8px 0}}
+@media(prefers-reduced-motion:reduce){#app.atlas:not(.welcome) .atlas-route-help svg{animation:none}}
+@media(max-width:760px){#app.atlas:not(.welcome) .atlas-route-help{top:auto;bottom:calc(var(--hud-bottom) + 8px)}}
 #app.atlas:not(.welcome) .atlas-title .eyebrow{display:none}
 #app.atlas:not(.welcome) .atlas-title h1{font-size:var(--fs-question);margin:0;white-space:nowrap}
 #app.atlas:not(.welcome) .atlas-stars{display:none}
-#app.atlas:not(.welcome) .atlas-world{flex:1 1 auto;width:auto;height:auto;max-height:100%;max-width:100%;margin:auto;box-shadow:none}
+/* 지도: 화면보다 크게 깔고(JS가 px 크기·위치 지정) 손으로 끌어서 옮긴다. 위·아래 띠 없음. */
+#app.atlas:not(.welcome) .atlas-world{position:absolute;left:0;top:0;flex:none;margin:0;max-width:none;max-height:none;aspect-ratio:auto;align-self:auto;box-shadow:none;transform-origin:0 0;will-change:transform;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+#app.atlas:not(.welcome) .atlas-world.grabbing{cursor:grabbing}
+#app.atlas:not(.welcome) .atlas-world.grabbing .atlas-pin,#app.atlas:not(.welcome) .atlas-world.grabbing .atlas-core{cursor:grabbing}
+#app.atlas:not(.welcome) .atlas-world img{-webkit-user-drag:none}
+#app.atlas:not(.welcome) .atlas-pin,#app.atlas:not(.welcome) .atlas-core{cursor:pointer;transition:opacity .2s}
+#app.atlas:not(.welcome) .under-hud{opacity:.4}
+/* 지도 왼쪽 방향키 패드: 키보드 방향키·WASD와 같은 걸음. 가운데는 리버 보기 / 입구에서 들어가기 */
+#app.atlas:not(.welcome) .map-dpad{--key:56px;position:absolute;z-index:24;left:var(--hud-pad);bottom:calc(var(--atlas-footer-h,96px) + 10px);display:grid;grid-template-columns:repeat(3,var(--key));grid-template-rows:repeat(3,var(--key));gap:4px;padding:6px;background:#fff9eb9e;border:2px solid #a98a5299;border-radius:24px;box-shadow:0 8px 20px #10231b33}
+#app.atlas:not(.welcome) .map-dpad button{display:grid;place-items:center;width:var(--key);height:var(--key);min-width:0;padding:0;border-radius:var(--radius-md);background:var(--hud-paper);color:var(--hud-ink);border:2px solid var(--hud-line);box-shadow:0 4px 0 #8c6b3659;cursor:pointer}
+#app.atlas:not(.welcome) .map-dpad button:active{transform:translateY(2px);box-shadow:0 2px 0 #8c6b3659}
+#app.atlas:not(.welcome) .map-dpad button:focus-visible{outline:3px solid #ffd36b;outline-offset:2px}
+#app.atlas:not(.welcome) .map-dpad [data-dir=up]{grid-area:1/2}#app.atlas:not(.welcome) .map-dpad [data-dir=up] svg{rotate:-90deg}
+#app.atlas:not(.welcome) .map-dpad [data-dir=left]{grid-area:2/1}#app.atlas:not(.welcome) .map-dpad [data-dir=left] svg{rotate:180deg}
+#app.atlas:not(.welcome) .map-dpad [data-dir=right]{grid-area:2/3}
+#app.atlas:not(.welcome) .map-dpad [data-dir=down]{grid-area:3/2}#app.atlas:not(.welcome) .map-dpad [data-dir=down] svg{rotate:90deg}
+#app.atlas:not(.welcome) .map-dpad .dpad-center{grid-area:2/2;background:#e8f0ce;border-color:#55805a;overflow:hidden}
+#app.atlas:not(.welcome) .map-dpad .dpad-center img{width:86%;height:86%;object-fit:contain}
+#app.atlas:not(.welcome) .map-dpad .dpad-center.enter{background:#ffe7a7;border-color:#9a752f;color:#55472c;display:flex;flex-direction:column;gap:0;font-size:11px;font-weight:800;line-height:1;animation:dpad-enter 1.6s ease-in-out infinite}
+@keyframes dpad-enter{0%,100%{box-shadow:0 4px 0 #8c6b3659,0 0 0 0 #ffd36baa}50%{box-shadow:0 4px 0 #8c6b3659,0 0 0 7px #ffd36b00}}
+@media(prefers-reduced-motion:reduce){#app.atlas:not(.welcome) .map-dpad .dpad-center.enter{animation:none}}
+/* 낮은 화면(폰 가로)은 키보드 방향키처럼 ㅗ자 두 줄: 위 [리버·↑], 아래 [← ↓ →] */
+@media(max-height:620px){
+ #app.atlas:not(.welcome) .map-dpad{--key:48px;padding:4px;gap:3px;grid-template-rows:repeat(2,var(--key));bottom:calc(var(--atlas-footer-h,80px) + 6px)}
+ #app.atlas:not(.welcome) .map-dpad .dpad-center{grid-area:1/1}
+ #app.atlas:not(.welcome) .map-dpad [data-dir=left]{grid-area:2/1}
+ #app.atlas:not(.welcome) .map-dpad [data-dir=down]{grid-area:2/2}
+ #app.atlas:not(.welcome) .map-dpad [data-dir=right]{grid-area:2/3}
+}
+/* 다음 목적지: 표지판이 숨 쉬듯 빛나고, 화면 밖이면 가장자리 화살표가 방향을 가리킨다 */
+#app.atlas:not(.welcome) .atlas-pin.next .pin-medallion{animation:next-pin 1.8s ease-in-out infinite}
+@keyframes next-pin{0%,100%{box-shadow:0 0 0 0 #ffd36bcc}60%{box-shadow:0 0 0 12px #ffd36b00}}
+#app.atlas:not(.welcome) .atlas-core.next{animation:next-pin 1.8s ease-in-out infinite}
+#app.atlas .atlas-core:active:enabled{transform:translate(-50%,calc(-50% + 2px))}
+#app.atlas:not(.welcome) .next-guide{position:absolute;z-index:23;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;min-height:48px;padding:6px 14px;background:#ffe7a7;color:#55472c;border:2px solid #9a752f;border-radius:999px;box-shadow:var(--hud-shadow);font:700 var(--fs-label)/1.1 GeoDisplay,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+#app.atlas:not(.welcome) .next-guide[hidden]{display:none}
+#app.atlas:not(.welcome) .next-guide svg{rotate:var(--turn,0rad);flex:none}
+@media(prefers-reduced-motion:reduce){#app.atlas:not(.welcome) .atlas-pin.next .pin-medallion,#app.atlas:not(.welcome) .atlas-core.next{animation:none}}
+#app.atlas:not(.welcome) .travel-skip{position:absolute;z-index:25;right:var(--hud-pad);bottom:calc(var(--hud-bottom) + 8px)}
 #app.atlas:not(.welcome) .atlas-footer{position:absolute;z-index:20;left:var(--hud-pad);right:var(--hud-pad);bottom:var(--hud-pad);height:auto;min-height:0;padding:0;background:none;border:0;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;pointer-events:none}
 #app.atlas:not(.welcome) .atlas-footer>*{pointer-events:auto}
 #app.atlas:not(.welcome) .atlas-footer>p,#app.atlas:not(.welcome) .atlas-footer>div:has(>p){flex:0 1 640px;background:var(--hud-paper);border:2px solid var(--hud-line);border-radius:var(--radius-lg);box-shadow:var(--hud-shadow);padding:10px 18px;font-size:var(--fs-body);line-height:1.35}
-#app.atlas:not(.welcome) .reward-rack{padding:6px;background:var(--hud-paper);border:2px solid var(--hud-line);border-radius:var(--radius-lg);box-shadow:var(--hud-shadow)}
 
 /* ---------- 마지막 화면 ---------- */
 #app.final .final-scene{padding:calc(var(--hud-top) + 4px) 3vw var(--hud-pad)}
@@ -119,3 +169,171 @@
 .rock3d-status{position:absolute;inset:0;display:grid;place-items:center;margin:0;padding:24px;text-align:center;font-size:var(--fs-body)}
 .rock3d-help{text-align:center}
 .rock3d-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+
+/* 2026-10-30 낮은 가로 화면(폰 가로 915×412): 개념 영상 창의 버튼이 창 아래로 밀리지 않게
+   영상은 왼쪽에서 남는 높이만큼, 설명·요약·버튼은 오른쪽 칸에 쌓는다. */
+@media(max-height:620px) and (min-width:900px){
+ dialog .concept-player{grid-template-columns:minmax(0,1.35fr) minmax(250px,1fr);gap:10px;align-items:center}
+ dialog.learning-dialog.concept-dialog .concept-visual{grid-row:1 / span 3;width:100%;max-width:calc((var(--app-height) - 150px)*16/9);max-height:none;justify-self:center}
+ dialog .concept-actions{grid-column:2;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+ dialog .concept-actions button{font-size:18px;min-height:48px;padding:8px 12px}
+ .dialog-body .concept-caption{font-size:21px;min-height:0;word-break:keep-all;text-wrap:balance}
+ .dialog-body .concept-summary{font-size:20px;line-height:1.35;padding:8px 12px}
+}
+
+/* 낮은 가로 화면: 기록탑의 다섯 기록 카드를 한 줄로 놓아 모든 '내 기록 고르기'가 화면 안에 보이게 한다. */
+@media(max-height:620px) and (min-width:760px){
+ #app.final .final-record-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+ #app.final .final-record-grid>*,#app.final .final-record-grid>:nth-child(4):nth-last-child(2){grid-column:auto}
+ #app.final .final-record-grid .saved-evidence{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:4px;text-align:center;padding:8px 6px}
+ #app.final .final-record-grid .evidence-symbol{height:44px}
+ #app.final .final-record-grid h3{font-size:17px;margin:2px 0 6px;word-break:keep-all}
+ #app.final .final-record-grid [data-select-record]{font-size:15px;min-height:48px;padding:6px 8px;white-space:nowrap}
+ #app.final .final-record-grid .evidence-symbol{height:36px}
+ #app.final .final-record-grid .evidence-symbol img{height:36px;width:auto}
+ #app.final .final-record-grid h3{font-size:16px;margin:0 0 4px}
+ #app.final .final-scene>h1{margin-bottom:4px}
+ #app.final .final-scene>p{font-size:20px;line-height:1.3;margin-bottom:6px}
+ #app.final .final-panel{padding:10px}
+ #app.final .final-actions{padding:8px 0 2px;margin-top:4px}
+}
+
+/* The field notebook shows the action's progress without covering the experiment. */
+#app.adventure .river-narrator .quest-meter {
+  background:linear-gradient(to right,#d4e9c5 var(--progress,0%),#fff3d4 var(--progress,0%));
+}
+#app.adventure #river-status {font-weight:700;color:#315b45}
+.assist-grid [aria-pressed="true"] {background:#20584b;color:white;box-shadow:inset 0 0 0 2px #e5c570}
+.assist-grid [aria-pressed="true"]::before {content:'✓ '}
+.assist-intro {font-weight:700}
+
+/* Observation playback shares the upper navigation row and reserves its own space. */
+#app.adventure #observation-auto{width:94px;min-height:var(--hud-icon);padding:0 5px;border:2px solid #32735f;border-radius:var(--radius-md);background:#f5ffef;color:#20523d;font-size:15px;white-space:nowrap;box-shadow:0 4px 0 #315e47}
+#app.adventure #observation-auto[aria-pressed="true"]{background:#235f4a;color:white}
+#app.adventure #observation-auto[hidden]{display:none}
+#app.adventure:has(#observation-auto:not([hidden])) .adventure-heading{right:calc(var(--hud-pad)*2 + var(--hud-icon)*2 + var(--hud-gap)*2 + 94px);max-width:calc(100% - (var(--hud-pad)*4 + var(--hud-icon)*4 + var(--hud-gap)*3 + 94px))}
+@media(max-width:960px){#app.adventure:has(#observation-auto:not([hidden])) .phase-node b{display:none}}
+
+.record-pager{display:flex;align-items:center;justify-content:center;gap:1rem;margin:0 0 .75rem}
+.record-pager span{font-weight:700;color:#34594b}
+.evidence-list>.saved-evidence[hidden]{display:none}
+#app.final .record-tile>div>span{display:block;margin:0 0 4px;line-height:1.25;color:var(--hud-ink)}
+#app.final .record-tile h3{margin:.15em 0}
+#app.adventure .river-narrator{min-height:0}
+@media(min-width:1024px) and (min-height:670px){#app.adventure .river-narrator{align-self:flex-end}}
+
+/* Restored workplaces and their returning residents share the map's coordinate system. */
+.map-resident{position:absolute;transform:translate(-50%,-100%);display:grid;justify-items:center;align-content:end;min-width:56px;min-height:54px;padding:0;border:0;background:none;box-shadow:none;color:#fffae5;pointer-events:auto;cursor:pointer}
+.map-resident img{grid-area:1/1;width:clamp(55px,5vw,82px);height:clamp(65px,9.5vh,100px);object-fit:contain;filter:drop-shadow(0 2px 1px #45331d96);pointer-events:none}
+.map-resident::before{content:"";grid-area:1/1;align-self:end;width:65%;height:11%;margin-bottom:1px;border-radius:50%;background:#543e226e}
+.map-resident .resident-tag{grid-area:2/1;display:inline-flex;gap:3px;align-items:center;justify-content:center;min-width:52px;padding:3px 7px;border:1.5px solid #ffeab5;border-radius:12px;background:#28574c;box-shadow:0 2px 4px #34291288;font:normal clamp(13px,1.05vw,17px)/1.1 GeoDisplay,system-ui,sans-serif;white-space:nowrap}
+.map-resident:is(:hover,:focus-visible) .resident-tag,.map-resident.arrived .resident-tag{color:#3b321e;background:#ffdf89;border-color:#624c2b}
+.map-resident:focus-visible{outline:3px solid #ffde77;outline-offset:3px;border-radius:14px}
+.map-resident:active:enabled{transform:translate(-50%,-100%)}
+@media(prefers-reduced-motion:no-preference){.map-resident.arrived img{animation:villager-greeting .58s ease-out 2}@keyframes villager-greeting{45%{transform:translateY(-5px) rotate(-4deg)}}}
+.restored-landmark{position:absolute;transform:translate(-50%,-70%);width:clamp(22px,2.1vw,38px);height:auto;pointer-events:none;filter:drop-shadow(0 2px 1px #382a1d80)}
+.restored-landmark.lamp{filter:drop-shadow(0 0 5px #ffd351) drop-shadow(0 0 11px #ffbb4d)}
+#app.atlas .resident-directory{position:absolute;z-index:23;top:var(--hud-pad);left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--hud-icon);padding:6px 14px;color:var(--hud-ink);background:var(--hud-paper);border:2px solid var(--hud-line);border-radius:26px;box-shadow:var(--hud-shadow);font:normal clamp(15px,1.4vw,22px)/1.1 GeoDisplay,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+.resident-directory b{padding:3px 7px;background:#e6ebcd;border-radius:12px;font:inherit}
+.resident-dialog{width:min(660px,calc(100vw - 24px))}
+.resident-roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:8px}
+.resident-entry{display:grid;justify-items:center;align-content:end;gap:3px;min-height:86px;padding:8px 5px;border:1px solid #b99b68;border-radius:14px;color:var(--hud-ink);background:#fbf0d6;cursor:pointer}
+.resident-entry img{width:100%;height:75px;object-fit:contain}
+.resident-entry strong{font:normal 21px/1.15 GeoDisplay,system-ui,sans-serif}
+.resident-entry small{font-size:14px}
+.resident-conversation{display:grid;grid-template-columns:minmax(92px,30%) 1fr;align-items:center;gap:clamp(10px,2vw,22px)}
+.resident-portrait{display:grid;place-items:center;align-self:stretch;border-radius:16px;background:radial-gradient(ellipse at 50% 60%,#e7d096 2%,#f3e7c7 53%,transparent 74%)}
+.resident-portrait img{width:100%;height:clamp(120px,28vh,240px);object-fit:contain}
+.resident-place{display:inline-block;color:#536952;font-size:clamp(14px,1.2vw,16px);font-weight:700}
+.resident-dialog .resident-reply{min-height:3.6em;margin:9px 0 14px;color:#303f32;font-size:clamp(19px,1.6vw,23px);line-height:1.48;word-break:keep-all}
+.resident-questions,.resident-exit{display:flex;flex-wrap:wrap;gap:8px}
+.resident-questions .secondary,.resident-exit button{min-height:48px}
+.resident-questions .secondary{padding:6px 12px;font-size:clamp(16px,1.2vw,18px)}
+.resident-questions .secondary[aria-pressed="true"]{background:#e0ebcf;border-color:#66855b}
+.resident-exit{justify-content:flex-end;margin-top:15px}
+@media(max-width:580px){#app.atlas .resident-directory{top:calc(var(--hud-top) + 2px);min-height:48px}.resident-conversation{grid-template-columns:minmax(65px,23%) 1fr}.resident-entry img{height:60px}.resident-dialog .resident-reply{font-size:18px}.resident-roster{grid-template-columns:repeat(3,1fr)}}
+@media(max-height:520px){.resident-portrait img{height:120px}.resident-dialog .resident-reply{min-height:0;margin:4px 0 6px}.resident-exit{margin-top:8px}.resident-entry img{height:58px}}
+
+/* Restored village buildings. The SVG shares the atlas scale and never receives map input. */
+/* The transparent walking canvas sits above the windows and the painted map. */
+#app.atlas .atlas-canvas{background:none}
+.village-lights{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.closed-workplace{fill:#203742;opacity:.46;stroke:#324542;stroke-width:2;stroke-linejoin:round}
+.working-lights,.plaza-festival{opacity:0}
+.workplace.awake .closed-workplace{opacity:0}
+.workplace.awake .working-lights,.plaza-festival.celebrating{opacity:1}
+.relit-counter,.friend-stamps,.stamp-slots{display:flex;align-items:center;gap:7px}
+.relit-counter{color:#725221;font-weight:700;justify-content:center}
+.relit-counter i{display:block;width:12px;height:16px;border:2px solid #988665;border-radius:6px 6px 4px 4px;background:#e7e1d2}
+.relit-counter .lit{background:#ffcd64;border-color:#af742c;box-shadow:0 0 6px #eaa3429e}
+.relit-counter span{margin-right:4px}
+.friend-stamps{justify-content:space-between;flex-wrap:wrap;margin:0 0 12px;padding:8px 13px;background:#f1e6cd;border:1px solid #c6ae7f;border-radius:12px}
+.friend-stamps strong{font:normal 20px GeoDisplay,system-ui,sans-serif;color:#55513c}
+.friend-stamps b{color:#356756;font:inherit}
+.stamp-slot,.entry-stamp{display:inline-grid;place-items:center;border-radius:50%}
+.stamp-slot{width:30px;height:30px;color:#736d5f;border:1.5px dashed #99886a}
+.stamp-slot.inked,.entry-stamp{background:#e1edda;color:#28604c;border:2px double #448164}
+.resident-entry{position:relative}
+.entry-stamp{position:absolute;top:4px;right:4px;width:24px;height:24px}
+.resident-dialog .stamp-hint{color:#535d48;font-size:16px;margin:12px 0 0;line-height:1.4}
+.resident-exit .stamp-press{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-right:auto;background:#e3efda;border:2px solid #578266;border-radius:14px;color:#254f3d;box-shadow:0 3px 0 #47735850;padding:7px 12px;font:normal clamp(16px,1.32vw,20px) GeoDisplay,system-ui,sans-serif;cursor:pointer}
+.resident-exit .stamp-press:disabled{color:#44644f;background:#e4eadb;border:2px dashed #83977e;opacity:1;box-shadow:none;cursor:default}
+@media(prefers-reduced-motion:no-preference){
+ .awake .mill-rotor{animation:village-mill 11s linear infinite}
+ .reopening .working-lights{animation:workplace-wakes 1.35s ease-out both}
+ .reopening .closed-workplace{animation:workplace-opens 1.35s ease-out both}
+ .stamp-press.just-stamped svg{animation:seal-imprint .36s ease-out}
+ .plaza-festival.celebrating{animation:workplace-wakes .65s ease-out}
+}
+@keyframes village-mill{to{transform:rotate(360deg)}}
+@keyframes workplace-wakes{0%,14%{opacity:0}75%{opacity:1}100%{opacity:1}}
+@keyframes workplace-opens{0%,14%{opacity:.46}75%,100%{opacity:0}}
+@keyframes seal-imprint{0%{transform:scale(1.55) rotate(-14deg)}70%{transform:scale(.88)}100%{transform:scale(1)}}
+@media(max-width:650px){.resident-exit{gap:6px}.resident-exit .stamp-press{margin-right:0}}
+@media(max-height:520px){.friend-stamps{margin-bottom:7px;padding:4px 10px}.resident-dialog .stamp-hint{margin-top:7px}}
+
+.paper-ribbon{opacity:0}
+@media(prefers-reduced-motion:no-preference){
+ .celebrating.festival-visit .paper-ribbon{animation:plaza-ribbon 2.1s calc(.35s + var(--delay)) ease-out both}
+}
+@keyframes plaza-ribbon{0%{opacity:0;transform:translateY(10px)}20%{opacity:1}45%{opacity:1;transform:translateY(-12px) rotate(35deg)}100%{opacity:0;transform:translate(7px,12px) rotate(95deg)}}
+
+@media(max-height:600px) and (min-width:600px){
+ dialog.village-reward-dialog .dialog-body{display:grid;grid-template-columns:minmax(130px,30%) 1fr;gap:6px 14px;align-items:center}
+ .village-reward-dialog .reward-reveal{grid-column:1;grid-row:1 / span 5;position:relative;height:clamp(105px,35vh,185px)}
+ .village-reward-dialog .reward-partner{position:absolute;left:0;bottom:0;width:76%;height:100%}
+ .village-reward-dialog .reward-item{position:absolute;right:0;bottom:0;width:42%;height:52%}
+ .village-reward-dialog .dialog-body>:not(.reward-reveal){grid-column:2;margin:0}
+ .village-reward-dialog .relit-counter{justify-content:flex-start}
+ .village-reward-dialog .world-change{padding:7px 10px}
+ .village-reward-dialog .dialog-body p{font-size:18px;line-height:1.35}
+ .village-reward-dialog #return-map{justify-self:start;min-height:48px}
+}
+
+/* Compact map navigation; each shortcut uses the same stage unlock rules as map pins. */
+#app.atlas .atlas-quick-actions{position:absolute;z-index:23;top:var(--hud-pad);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;max-width:calc(100% - 260px)}
+#app.atlas .atlas-quick-actions>.resident-directory{position:static;transform:none;flex:none}
+#app.atlas .stage-shortcuts{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--hud-icon);padding:6px 14px;color:var(--hud-ink);background:var(--hud-paper);border:2px solid var(--hud-line);border-radius:26px;box-shadow:var(--hud-shadow);font:normal clamp(15px,1.4vw,22px)/1.1 GeoDisplay,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+#app.atlas .stage-shortcuts:hover{background:#fff0c5}
+#app.atlas .stage-shortcuts:focus-visible{outline:3px solid #2e7358;outline-offset:3px}
+#app.atlas:not(.welcome) .atlas-footer{justify-content:flex-start}
+#app.atlas #preview-nav,#app.atlas .map-complete-actions{margin-left:auto}
+.stage-shortcuts-dialog{width:min(720px,calc(100vw - 32px))}
+.stage-shortcut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stage-shortcut{display:flex;align-items:center;gap:12px;min-height:76px;padding:12px;text-align:left;color:var(--hud-ink);background:#fff8df;border:2px solid var(--hud-line);border-radius:16px;cursor:pointer}
+.stage-shortcut:last-child{grid-column:1/-1}
+.stage-shortcut>.shortcut-number{display:grid;place-items:center;width:38px;height:38px;flex:none;background:#f4d385;border:1px solid #b28b43;border-radius:50%;font:22px GeoDisplay,system-ui,sans-serif}
+.shortcut-copy{display:grid;gap:4px;flex:1;min-width:0}
+.shortcut-copy strong{font:normal 22px/1.15 GeoDisplay,system-ui,sans-serif;word-break:keep-all}
+.shortcut-copy small{font-size:15px;line-height:1.25}
+.stage-shortcut>svg{flex:none}
+.stage-shortcut.completed .shortcut-number{background:#3e7b5d;color:white}
+.stage-shortcut:hover:not(:disabled){background:#f4e8b9;border-color:#826133}
+.stage-shortcut:focus-visible{outline:3px solid #2e7358;outline-offset:2px}
+.stage-shortcut:disabled{background:#eeebe2;border-color:#c9c3af;color:#746f5c;cursor:default;opacity:.7}
+@media(max-height:500px){.stage-shortcut{min-height:62px;padding:8px 12px}.stage-shortcut-grid{gap:8px}.shortcut-copy strong{font-size:20px}.shortcut-copy small{font-size:14px}}
+@media(max-width:960px){#app.atlas .atlas-quick-actions{gap:6px}#app.atlas .atlas-quick-actions>button{font-size:16px;min-height:48px;padding:6px 10px}}
+@media(max-width:580px){#app.atlas .atlas-quick-actions{top:calc(var(--hud-top) + 4px);max-width:calc(100% - 24px)}}
+
+/* Endpoint buttons and the slider aria-label already identify the observation. */
+#app.adventure .adventure-range>span{display:none}

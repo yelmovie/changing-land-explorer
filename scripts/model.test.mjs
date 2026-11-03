@@ -89,3 +89,13 @@ test('revisit cannot skip unfinished discoveries or cross activities',()=>{
  for(const phase of [0,1,2])completePhase(d,0,phase,'found');
  d.revisit='sample';assert.equal(revisitPhase(d,1).phase,0);
 });
+
+test('resident stamps survive replay and only belong to completed workplaces',()=>{
+ const old={...fresh(),completed:['river','volcano']};
+ delete old.residentStamps;
+ assert.deepEqual(sanitize(old).residentStamps,[]);
+ const saved=sanitize({...old,residentStamps:['river','river','city','unknown']});
+ assert.deepEqual(saved.residentStamps,['river']);
+ assert.deepEqual(sanitize(award(saved,'river',{})).residentStamps,['river']);
+ assert.deepEqual(sanitize({...old,residentStamps:{river:true}}).residentStamps,[]);
+});

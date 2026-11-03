@@ -6,7 +6,11 @@ graphify-out/
 image/
 assets/raw-png/
 assets/raw-glb/
-files/*.zip
+references/archive/original-delivery/*.zip
+assets/source-media/audio/*.mp3
+assets/source-media/video/*.mp4
+/.npm-cache/
+/.tmp/
 references/original-archives/
 references/source-images/
 references/sample-pages/

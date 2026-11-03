@@ -1,3 +1,4 @@
+import {observationTour} from './observation-tour.js';
 import {CITY_SITES} from '../learning-model.js';
 import {CITY_POINTS,CITY_OBSERVATIONS as OBSERVATIONS,cityTimeLabel,cityScene,paintScene,cityEvidence,cityMarker} from '../observation-scenes.js';
 
@@ -17,7 +18,7 @@ export function setup(scene,api){
  function token(label,x,y,width=270,height=66){return api.card(label,x,y,width,height,22);}
 
  function observe(){
-  api.task(`${s.name}의 시간이 어떻게 달라질까?`,'손잡이를 양쪽 끝까지 옮겨 살핀 뒤, 관찰 표식을 알맞은 시기에 붙여 줘.');
+  api.task(`${s.name}의 두 모습을 비교해 보자`,'아래 ‘분출 당시’와 ‘이후 모습’을 한 번씩 눌러 어떤 점이 달라졌는지 봐.');
   w.wipe??=.5;w.pairs??=[];w.seen??={before:false,after:false};
   // Both times use exactly the same camera and underlying illustration. The ash,
   // damage and closures below are time-state overlays, not mismatched photographs.
@@ -33,9 +34,9 @@ export function setup(scene,api){
   api.panel(600,568,1170,134,0xfff7df,.96);
   api.target(265,545,315,65,'');api.target(670,545,355,65,'');
   const recordLabels=[api.text(w.pairs.includes(0)?OBSERVATIONS[index][0]:'분출 당시 기록',265,545,22),api.text(w.pairs.includes(1)?OBSERVATIONS[index][1]:(index===1?'아주 오랜 시간 뒤 기록':'안전 확인 뒤 기록'),670,545,22)];
-  const stamps=[];
+  let range,completed=!!api.completed,display=w.wipe,motion=null;
   OBSERVATIONS[index].forEach((label,j)=>{
-   const t=token(label,255+j*370,610,345,48);stamps.push(t);if(w.pairs.includes(j))t.setAlpha(.35);
+   const t=token(label,255+j*370,610,345,48);if(w.pairs.includes(j))t.setAlpha(.35);
    function connect(slot){
     if(!w.seen.before||!w.seen.after){api.say('시간 손잡이를 왼쪽 끝과 오른쪽 끝으로 옮겨 두 모습을 먼저 살펴봐.');return false;}
     if(j===2||j!==slot){api.say(index===1?'피해를 입은 때와 아주 오랜 시간 뒤를 나눠 봐. 바로 비옥해지는 건 아니야.':'위험한 때와 안전이 확인된 뒤를 구분해 봐.');return false;}
@@ -44,23 +45,31 @@ export function setup(scene,api){
    api.drag(t,{onDrop:(o,x,y)=>inBox(x,y,265,545,315,75)?connect(0):inBox(x,y,670,545,355,75)?connect(1):false});
    api.assist(label+' → 분출 당시',()=>connect(0));api.assist(label+' → 이후',()=>connect(1));
   });
-  function set(value){
-   w.wipe=Math.max(.03,Math.min(.97,value));const x=w.wipe*1200;handle.setPosition(x,440);line.x=x;
+  function set(value,collect=true){
+   const bothSeen=w.seen.before&&w.seen.after;
+   display=Math.max(.03,Math.min(.97,value));if(range)range.value=Math.round((1-display)*100);const x=display*1200;handle.setPosition(x,440);line.x=x;
    wipeMask.clear().fillStyle(0xffffff).fillRect(0,0,x,510);afterMask.clear().fillStyle(0xffffff).fillRect(x,0,1200-x,510);
-   if(w.wipe>.92)w.seen.before=true;if(w.wipe<.08)w.seen.after=true;
+   if(!collect||completed||bothSeen)return;
+   w.wipe=display;if(display>.92)w.seen.before=true;if(display<.08)w.seen.after=true;
+   if(!bothSeen&&w.seen.before&&w.seen.after)api.say('두 모습을 봤어. 맨 아래 카드를 골라 알맞은 시기의 기록 칸에 놓아 봐.');
+   else if(!bothSeen&&(w.seen.before||w.seen.after))api.say(w.seen.before?'분출 때의 모습을 봤어. ‘이후 모습’도 눌러 봐.':'나중 모습을 봤어. ‘분출 당시’도 눌러 봐.');
    d.citySeen[s.id]={...w.seen};api.save();progress();
   }
-  function progress(){api.counter(Number(w.seen.before)+Number(w.seen.after)+w.pairs.length,4,'시간 비교와 기록');if(w.pairs.length===2&&w.seen.before&&w.seen.after){if(!d.evidence['city-'+s.id]?.pair)api.record({id:'city-'+s.id,kind:'city',...cityEvidence(index),label:s.name+'의 시간 변화',claim:s.claim,pair:true,site:s.id,asset:'city-calm',point:{x:SITE_X[index]/1200,y:SITE_Y[index]/640},time:w.wipe,text:s.now+' '+s.later});api.finish(index===1?'피해가 먼저 생겨. 토양이 변하려면 아주 오랜 시간이 필요해.':s.now+' '+s.later);}}
+  function progress(){api.counter(Number(w.seen.before)+Number(w.seen.after)+w.pairs.length,4,'시간 비교와 기록');if(!completed&&w.pairs.length===2&&w.seen.before&&w.seen.after){completed=true;if(!d.evidence['city-'+s.id]?.pair)api.record({id:'city-'+s.id,kind:'city',...cityEvidence(index),label:s.name+'의 시간 변화',claim:s.claim,pair:true,site:s.id,asset:'city-calm',point:{x:SITE_X[index]/1200,y:SITE_Y[index]/640},time:w.wipe,text:s.now+' '+s.later});api.finish(index===1?'피해가 먼저 생겨. 토양이 변하려면 아주 오랜 시간이 필요해.':s.now+' '+s.later);}}
   api.drag(handle,{onMove:(o,x)=>set(x/1200),onDrop:(o,x)=>{set(x/1200);return true;}});
-  api.range('시간 비교 손잡이',Math.round(w.wipe*100),3,97,v=>set(Number(v)/100));
+  range=api.range('시간 비교 손잡이',Math.round((1-w.wipe)*100),3,97,v=>set(1-Number(v)/100),['분출 당시','이후 모습']);
+  const stop=()=>{const interrupted=!!motion;motion=null;return interrupted;};
+  api.autoplay(observationTour(api,{label:'두 시기의 모습 관찰',items:[.97,.03],interval:3200,stop,
+    visit(value){if(reduced)set(value);else motion={from:display,to:value,elapsed:0};}
+  }));
   api.assist('분출 당시 모습 살피기',()=>set(.97));api.assist('이후 모습 살피기',()=>set(.03));
-  api.actions([]);set(w.wipe);
-  return {destroy(){marker.destroy();}};
+  api.actions([]);set(w.wipe,false);progress();
+  return {update(time,delta){if(!motion)return;const m=motion;m.elapsed+=Math.min(delta,60);const t=Math.min(1,m.elapsed/900),ease=t*t*(3-2*t);set(m.from+(m.to-m.from)*ease,false);if(t===1){motion=null;set(m.to);}},pause:stop,destroy(){stop();marker.destroy();}};
  }
 
  function advise(){
   const existing=new Set(scene.children.list);let ashShown=false;
-  api.task(`${s.name} 주민에게 안내판을 만들어 주자`,'내 관찰 그림, 까닭, 할 일을 안내판에 끌어다 붙여 줘.');
+  api.task(`${s.name} 주민에게 안내판을 만들어 주자`,'왼쪽에서 카드를 고르고 오른쪽 안내판의 맞는 칸을 눌러 봐. 그림·까닭·할 일을 하나씩 붙여 줘.');
   w.board??={};
   // The notice board art fixes the layout: three pinned notes sit inside its cork area.
   const BX=845,SW=440,SH=68,board=scene.textures.exists('art/ui/notice-board');
@@ -116,7 +125,7 @@ export function setup(scene,api){
    if(w.ashMask)mask.setScale(.6);
    const hint=api.card(w.ashWindow?'창문 닫음':'손잡이를 왼쪽으로 ←',550,505,300,52,22);
    const hintText=hint.list.at(-1);
-   function close(){w.ashWindow=true;pane.setPosition(414,340);hintText.setText('창문 닫음');api.save();safeProgress();return true;}
+   function close(){w.ashWindow=true;api.say('창문을 닫았어. 이제 마스크를 리버의 코와 입으로 옮겨 줘.');pane.setPosition(414,340);hintText.setText('창문 닫음');api.save();safeProgress();return true;}
    function cover(){if(!w.ashWindow){api.say('먼저 창문을 닫아 화산재가 실내로 들어오지 않게 하자.');return false;}w.ashMask=true;mask.setPosition(985,375).setScale(.6);api.save();safeProgress();return true;}
    api.drag(pane,{onMove:(o,x)=>o.setPosition(Math.max(414,Math.min(686,x)),340),onDrop:(o,x)=>{if(x<500)return close();pane.setPosition(w.ashWindow?414:686,340);return true;}});
    api.drag(mask,{onDrop:(o,x,y)=>inBox(x,y,985,375,190,180)?cover():false});

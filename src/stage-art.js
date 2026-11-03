@@ -5,6 +5,8 @@ const replacements={
  'volcano-lab':'art/volcano-workshop-v2',
  'volcano-field':'art/volcano-caldera-v2',
  'volcano-eruption':'art/volcano-caldera-v2',
+ 'rock-0':'art/rock-basalt-study-v1',
+ 'rock-1':'art/rock-granite-study-v1',
  'rocks-lab':'art/rocks-crystal-cave-v2',
  'city-calm':'art/city-harbor-v2',
  'classroom':'art/safety-island-classroom-v2',

@@ -3,9 +3,10 @@ import {$,escapeHTML} from './ui.js';
 // Optional turn-around view of a specimen or model. The 2D activity stays the
 // source of truth; this only opens when the matching GLB exists in assets/models.
 // flat: the model sits on a base Meshy leaves untextured, so the camera never goes underneath.
+// Only list GLBs that are actually shipped: probing a missing file logs a 404 in class.
+// rock-2 → rock-basalt-dense, rock-3 → rock-granite-pink 는 GLB를 넣을 때 한 줄씩 추가한다.
 const MODELS={
  'rock-0':{file:'rock-basalt-porous',noun:'돌'},'rock-1':{file:'rock-granite-white',noun:'돌'},
- 'rock-2':{file:'rock-basalt-dense',noun:'돌'},'rock-3':{file:'rock-granite-pink',noun:'돌'},
  'volcano-real':{file:'volcano-exterior',noun:'화산',flat:true},
  'river-hill':{file:'terrain-soil-block',noun:'흙 언덕',flat:true}
 };

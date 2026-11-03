@@ -1,3 +1,6 @@
+import {openStory,stopStory} from './story.js';
+import {musicScene,musicVolume,setMusicVolume} from './music.js';
+import {RESIDENTS,residentArt} from './residents.js';
 import {playSound,setSoundEnabled,stopSounds} from './sound.js';
 import {showConcept,CONCEPTS} from './concepts.js';
 import {STAGES,SAVE_KEY,LEGACY_SAVE_KEY,fresh,loadProgress,award,canEnter,saveDecision,seedPreview} from './model.js';
@@ -56,24 +59,49 @@ export function modal(title,content,setup){
  $('.dialog-close',dialog).onclick=close;
  dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close();}});
  dialog.addEventListener('close',()=>{dialog.remove();if(!document.querySelector('dialog[open]'))(previous?.isConnected?previous:$('#settings'))?.focus();},{once:true});
- dialog.showModal();setup?.(dialog,close);
+ dialog.showModal();
+ const list=$('.evidence-list',dialog);
+ if(list)paginateRecords(list);
+ setup?.(dialog,close);
+}
+function paginateRecords(list){
+ const cards=Array.from(list.children).filter(el=>el.classList.contains('saved-evidence'));
+ const perPage=matchMedia('(max-width:760px), (max-height:620px)').matches?1:2;
+ if(cards.length<=perPage)return;
+ const pages=Math.ceil(cards.length/perPage);
+ let page=0;
+ const nav=document.createElement('nav');
+ nav.className='record-pager';
+ nav.setAttribute('aria-label','관찰 수첩 페이지');
+ nav.innerHTML='<button class="secondary" type="button">이전 장</button><span aria-live="polite"></span><button class="secondary" type="button">다음 장</button>';
+ const [back,forward]=nav.querySelectorAll('button');
+ const count=nav.querySelector('span');
+ function show(){
+   cards.forEach((card,i)=>{card.hidden=Math.floor(i/perPage)!==page;});
+   count.textContent=(page+1)+' / '+pages+'장';
+   back.disabled=page===0;forward.disabled=page===pages-1;
+ }
+ function turn(delta){page+=delta;show();playSound('notebook-page',{force:true,inDialog:true});}
+ back.onclick=()=>turn(-1);forward.onclick=()=>turn(1);
+ list.before(nav);show();
 }
 function setPreview(value){
  if(value===admin)return;
  if(value){preview=seedPreview(structuredClone(student));admin=true;navigate('map');}
  else{admin=false;preview=null;const location=student.location||{type:'home'};navigate(location.type,location.arg,true);}
 }
-function settings(){modal('탐험 설정',`<label class="setting-row">전체 소리 <input id="sound-setting" type="checkbox" role="switch" ${student.sound?'checked':''}></label><label class="setting-row">관리자 전체 해금 <input id="admin-setting" type="checkbox" role="switch" ${admin?'checked':''}></label><p class="settings-note">모든 활동·엔딩·인증서를 살펴보는 수업 시연 기능이에요. 시연 중 답과 보상은 학생 기록에 저장되지 않아요. 끄면 원래 진행으로 돌아와요.</p>${storageProblem?`<p class="settings-status danger-note" role="status">${escapeHTML(storageProblem)}</p>`:''}<div class="settings-actions"><button class="secondary" id="intro-replay">이 탐험을 하는 이유 다시 보기</button><button class="secondary" id="concept-list">개념 영상 다시 보기</button><button class="secondary" id="bag-open">${icon('bag')} 내 탐험 가방</button><button class="secondary" id="ending-replay" ${!admin&&!student.finished?'disabled':''}>엔딩 다시 보기</button><button class="secondary" id="certificate-open" ${!admin&&!student.finished?'disabled':''}>인증서 받기</button></div>${!admin&&!student.finished?'<p class="settings-note">다섯 장소와 마지막 기록탑을 모두 마치면 엔딩과 인증서가 열려요.</p>':''}<div class="settings-links"><button class="secondary" id="app-info">앱 정보 · 배움과 보상</button><button class="secondary" id="help">학생용 가이드</button><button class="secondary" id="teacher-help">교사용 가이드</button><button class="secondary" id="credits-open">이미지·소리·저작권 고지</button></div><p class="settings-note">기록은 현재 기기의 브라우저와 이 앱 주소에 저장돼요. 다른 기기·브라우저로 자동 연결되지 않아요. 공용 기기에서는 다음 사용자가 기록을 볼 수 있어요.</p>`,(d,close)=>{
+function settings(){modal('탐험 설정',`<label class="setting-row">전체 소리 <input id="sound-setting" type="checkbox" role="switch" ${student.sound?'checked':''}></label><label class="setting-row music-setting" for="music-volume">배경 음악 크기 <span><input id="music-volume" type="range" min="0" max="100" step="5" value="${musicVolume()}"><output for="music-volume">${musicVolume()}%</output></span></label><label class="setting-row">교사용 전체 해금 <input id="admin-setting" type="checkbox" role="switch" ${admin?'checked':''}></label><p class="settings-note">모든 활동·엔딩·인증서를 살펴보는 수업 시연 기능이에요. 시연 중 답과 보상은 학생 기록에 저장되지 않아요. 끄면 원래 진행으로 돌아와요.</p>${storageProblem?`<p class="settings-status danger-note" role="status">${escapeHTML(storageProblem)}</p>`:''}<div class="settings-actions"><button class="secondary" id="intro-replay">인트로 영상 다시 보기</button><button class="secondary" id="concept-list">개념 영상 다시 보기</button><button class="secondary" id="bag-open">${icon('bag')} 내 탐험 가방</button><button class="secondary" id="ending-replay" ${!admin&&!student.finished?'disabled':''}>엔딩 영상 다시 보기</button><button class="secondary" id="certificate-open" ${!admin&&!student.finished?'disabled':''}>인증서 받기</button></div>${!admin&&!student.finished?'<p class="settings-note">다섯 장소와 마지막 기록탑을 모두 마치면 엔딩과 인증서가 열려요.</p>':''}<div class="settings-links"><button class="secondary" id="app-info">앱 정보 · 배움과 보상</button><button class="secondary" id="help">학생용 가이드</button><button class="secondary" id="teacher-help">교사용 가이드</button><button class="secondary" id="credits-open">이미지·소리·저작권 고지</button></div><p class="settings-note">기록은 현재 기기의 브라우저와 이 앱 주소에 저장돼요. 다른 기기·브라우저로 자동 연결되지 않아요. 공용 기기에서는 다음 사용자가 기록을 볼 수 있어요.</p>`,(d,close)=>{
  d.classList.add('settings-dialog');
  d.insertAdjacentHTML('beforeend',`<footer class="dialog-footer"><button class="text-button" id="${admin?'reset-preview':'reset-save'}">${admin?'시연 기록 초기화':'탐험 기록 초기화'}</button><button class="primary" id="settings-close">닫기</button></footer>`);
+ $('#music-volume',d).oninput=e=>{setMusicVolume(e.target.value);$('output[for="music-volume"]',d).textContent=musicVolume()+'%';};
  $('#sound-setting',d).onchange=e=>{student.sound=e.target.checked;saveSound();};
  $('#admin-setting',d).onchange=e=>{const enabled=e.target.checked;close();setPreview(enabled);};
  const open=(id,action)=>{$(id,d).onclick=()=>{close();action();};};
- open('#intro-replay',()=>modal('리버와 지오밸리를 연결해요',SETTINGS_CONTENT.intro));
+ open('#intro-replay',()=>showFilm('intro',{replay:true}));
  open('#concept-list',conceptList);open('#bag-open',bag);open('#help',help);open('#teacher-help',teacherHelp);
  open('#app-info',()=>modal('앱 정보 · 배움과 보상',SETTINGS_CONTENT.info(document.documentElement.dataset.appVersion||'')));
  open('#credits-open',()=>modal('이미지·소리·저작권 고지',SETTINGS_CONTENT.credits));
- open('#ending-replay',()=>navigate('final','ending'));open('#certificate-open',()=>navigate('final','certificate'));
+ open('#ending-replay',()=>navigate('final','celebration'));open('#certificate-open',()=>navigate('final','certificate'));
  open(admin?'#reset-preview':'#reset-save',resetProgress);$('#settings-close',d).onclick=close;
  });}
 function resetProgress(){
@@ -83,6 +111,7 @@ function resetProgress(){
   $('#confirm-reset',d).onclick=()=>{const sound=student.sound;if(previewReset){if(!admin){close();return;}preview=seedPreview(fresh());preview.sound=sound;}else{if(admin){close();return;}if(conflict||storageChanged()){close();showConflict();return;}student=fresh();student.sound=sound;storageReadOnly=false;save();}close();navigate('home');};
  });
 }
+export function showFilm(kind,options={}){stopSounds();openStory(kind,{...options,soundOn:()=>student.sound,toggleSound:()=>{student.sound=!student.sound;saveSound();}});}
 function saveSound(){persistStudent();$('#sound')?.setAttribute('aria-label',student.sound?'소리 끄기':'소리 켜기');$('#sound')?.setAttribute('aria-pressed',String(student.sound));if($('#sound'))$('#sound').innerHTML=icon(student.sound?'sound':'mute');setSoundEnabled(student.sound);}
 const conceptOpen=(id,step)=>admin||state().completed.includes(id)||activityComplete(id,step,state().drafts[id]?.data||{});
 function conceptList(){modal('개념 영상 다시 보기',`<div class="preview-links">${STAGES.map((s,i)=>`<strong>${s.place}</strong>${CONCEPTS[s.id].map((c,j)=>conceptOpen(s.id,j)?`<button class="secondary" data-concept="${i},${j}">${escapeHTML(c.title)}</button>`:`<button class="secondary" disabled>${escapeHTML(c.title)}<br><small>${s.place} 활동을 마치면 열려요</small></button>`).join('')}`).join('')}</div>`,d=>$$('[data-concept]',d).forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.concept.split(',').map(Number);showConcept({s:STAGES[i],step:j,modal},null,{replay:true});}));}
@@ -91,11 +120,12 @@ export function shell(title,body,cls=''){app.className=cls;app.innerHTML=`<heade
 function bag(){modal('내 탐험 가방',`<div class="bag-grid">${STAGES.map(s=>`<article class="${state().completed.includes(s.id)?'earned':''}">${icon(s.tool,32)}<h3>${state().completed.includes(s.id)?s.reward:'아직 빈 자리'}</h3><p>${escapeHTML(state().records[s.id]?.summary||s.name+'에서 관찰 기록을 모아 봐.')}</p><button class="secondary" data-bag-record="${s.id}">관찰 펼치기</button></article>`).join('')}</div>`,(dialog,close)=>{$$('[data-bag-record]',dialog).forEach(b=>b.onclick=()=>{const data=state().drafts[b.dataset.bagRecord]?.data||state().records[b.dataset.bagRecord]?.data;close();modal('내가 남긴 관찰','<div class="evidence-list">'+(Object.values(data?.evidence||{}).map(e=>evidenceCard(e)).join('')||'<p>아직 관찰 장면이 없어. 해당 장소에서 기록을 남겨 줘.</p>')+'</div>');});});}
 function home(){shell('움직이는 지오밸리',`<main class="home-scene"><div class="home-art"></div><div class="home-copy"><span class="eyebrow">초등 4학년 과학 · 땅의 변화</span><h1>움직이는<br><em>지오밸리</em></h1><p>사라진 다섯 관찰 기록.<br>너와 리버의 발견으로 다시 연결해 줘!</p><button class="primary large" id="start">${state().started?'탐험 이어 하기':'리버와 탐험 시작'} ${icon('arrow')}</button><button class="home-help" id="home-help">어떤 탐험이 기다릴까?</button><span class="save-note">강 · 화산 · 암석 · 도시 · 안전길</span></div><img class="home-hero" src="/assets/river-hero.webp" alt="탐험 수첩을 든 수달 리버"><div class="home-message">“네가 찾은 단서가<br>우리의 다음 도구가 될 거야!”</div></main>`,'home');$('#start').onclick=()=>{state().started=true;save();chime();navigate('map');};$('#home-help').onclick=help;}
 export async function navigate(type,arg,fromHistory=false){
- const revision=++navRevision;document.querySelectorAll('#overlay dialog').forEach(d=>d.close());stopSounds();dispose();dispose=()=>{};screen={type,arg};
+ const revision=++navRevision;stopStory();document.querySelectorAll('#overlay dialog').forEach(d=>d.close());stopSounds();dispose();dispose=()=>{};screen={type,arg};
+ musicScene(type==='final'&&['ending','certificate','celebration'].includes(arg)?'final':'main');
  if(type!=='home')app.innerHTML='<main class="loading-card" role="status">탐험 도구를 준비하고 있어…</main>';
  try{
   if(type==='home'){const m=await import('./map-adventure.js');if(revision!==navRevision)return;dispose=m.renderMap({welcome:true});}
-  else if(type==='map'){const m=await import('./map-adventure.js');if(revision!==navRevision)return;dispose=m.renderMap();}
+  else if(type==='map'){const m=await import('./map-adventure.js');if(revision!==navRevision)return;dispose=m.renderMap({arrival:arg?.arrival});screen.arg=undefined;}
   else if(type==='stage'){
    const index=arg?.index,s=STAGES[index],draft=s&&state().drafts[s.id];
    if(!draft||!canEnter(index,state(),admin)){navigate('map');return;}
@@ -104,7 +134,7 @@ export async function navigate(type,arg,fromHistory=false){
    const files=Object.fromEntries(STAGES.map(s=>[s.id,'./adventure/index.js']));
    const m=await import(files[s.id]);if(revision!==navRevision)return;
    renderStage(index,m.mount);screen.arg={index,step:draft.step};
-  }else if(type==='final'){const m=await import('./ending.js');if(revision!==navRevision)return;dispose=m.renderFinal(arg||'assembly');}
+  }else if(type==='final'){const m=await import('./ending.js');if(revision!==navRevision)return;const celebrate=arg==='celebration';if(celebrate)screen.arg='ending';dispose=m.renderFinal(celebrate?'ending':arg||'assembly');if(celebrate&&revision===navRevision&&(state().finished||isAdmin()))showFilm('final');}
   else{navigate('home');return;}
   if(revision!==navRevision)return;
   if(!admin){student.location=structuredClone(screen);save();if(!fromHistory)history.pushState({geo:screen},'');}
@@ -115,7 +145,7 @@ function back(){if(screen.type==='stage'){const {index}=screen.arg,d=state().dra
 export function enter(index,step){if(!canEnter(index,state(),admin)){toast('앞 장소의 관찰 기록을 먼저 완성하자.');return;}const s=STAGES[index];state().drafts[s.id]??={step:0,passed:[],data:{}};if(step!==undefined&&admin)state().drafts[s.id].step=step;navigate('stage',{index,step});}
 function renderStage(index,mount){
  const s=STAGES[index],d=state().drafts[s.id],step=d.step;d.data??={};d.passed??=[];
- shell(s.place,`<main class="adventure-page"><section class="adventure-heading"><div class="task-copy"><span class="eyebrow">탐험 ${index+1} · ${step===0?'실험과 관찰':'발견으로 문제 해결'}</span><h1 id="instruction">${s.steps[step]}</h1></div><nav id="phase-path" class="phase-path" aria-label="이번 활동의 세 가지 발견"></nav></section><section id="activity" class="adventure-surface" aria-label="${s.steps[step]}"></section><footer class="adventure-footer"><div class="river-narrator"><button class="narrator-help" id="river-hint" aria-label="리버에게 단계별 힌트 받기"><img src="/assets/hero-lens.webp" alt="탐험 동료 리버"><span>힌트</span></button><div><span id="river-status">리버의 길잡이</span><p id="speech" role="status">같이 단서를 찾아보자!</p></div></div><div class="adventure-toolbar"><div id="controls" class="controls"></div><button class="primary" id="next" disabled>다음 발견 ${icon('arrow')}</button></div></footer><div class="adventure-side-tools"><button class="icon-button" id="notebook" aria-label="내 관찰 수첩">${icon('book')}<b id="evidence-count">0</b></button><button class="secondary compact-tool" id="gesture-help">조작 도움</button><button class="secondary compact-tool" id="concept-review">개념 영상</button><button class="earned-tool" id="earned-tool" hidden></button></div><span class="discovery-total" aria-label="모은 발견 조각">${icon('star',18)} <b id="journey-count">${discoveryCount(state())}</b> / 30</span></main>`,'adventure');
+ shell(s.place,`<main class="adventure-page"><section class="adventure-heading"><div class="task-copy"><span class="eyebrow">탐험 ${index+1} · ${step===0?'실험과 관찰':'발견으로 문제 해결'}</span><h1 id="instruction">${s.steps[step]}</h1></div><nav id="phase-path" class="phase-path" aria-label="이번 활동의 세 가지 발견"></nav></section><section id="activity" class="adventure-surface" aria-label="${s.steps[step]}"></section><footer class="adventure-footer"><div class="river-narrator"><button class="narrator-help" id="river-hint" aria-label="리버에게 단계별 힌트 받기"><img src="/assets/hero-lens.webp" alt="탐험 동료 리버"><span>힌트</span></button><div><span id="river-status">리버의 길잡이</span><p id="speech" role="status">같이 단서를 찾아보자!</p></div></div><div class="adventure-toolbar"><div id="controls" class="controls"></div><button class="primary" id="next" disabled>다음 발견 ${icon('arrow')}</button></div></footer><div class="adventure-side-tools"><button class="icon-button" id="notebook" aria-label="내 관찰 수첩">${icon('book')}<b id="evidence-count">0</b></button><button class="secondary compact-tool" id="gesture-help">버튼으로 하기</button><button class="secondary compact-tool" id="concept-review">개념 영상</button><button class="earned-tool" id="earned-tool" hidden></button></div><span class="discovery-total" aria-label="모은 발견 조각">${icon('star',18)} <b id="journey-count">${discoveryCount(state())}</b> / 30</span></main>`,'adventure');
  const ctx={index,s,d,step,data:d.data,state:state(),sound:playSound,concept:after=>showConcept(ctx,after),root:$('#activity'),controls:$('#controls'),admin,save,toast,chime,modal,
   refresh:()=>navigate('stage',{index,step}),go:target=>navigate('stage',{index,step:target}),
   say(msg){$('#speech').textContent=msg;},instruction(msg){$('#instruction').textContent=msg;},
@@ -125,10 +155,21 @@ function renderStage(index,mount){
  };
  $('.adventure-toolbar').prepend($('.adventure-side-tools'));
  const mounted=mount(ctx);dispose=typeof mounted==='function'?mounted:()=>{};
- $('#notebook').onclick=()=>showEvidence(ctx);$('#concept-review').onclick=()=>conceptOpen(s.id,step)?showConcept(ctx,null,{replay:true}):toast('이 활동을 마치면 개념 영상을 다시 볼 수 있어요');ctx.update();
+ $('#notebook').onclick=()=>{showEvidence(ctx);playSound('notebook-open',{force:true,inDialog:true});};$('#concept-review').onclick=()=>conceptOpen(s.id,step)?showConcept(ctx,null,{replay:true}):toast('이 활동을 마치면 개념 영상을 다시 볼 수 있어요');ctx.update();
 }
 
-function complete(index){const s=STAGES[index],d=state().drafts[s.id];const evidenceCount=Object.keys(d.data.evidence||{}).length;const record={summary:`${s.name}에서 내 관찰 ${evidenceCount}개를 남겼어.`,data:structuredClone(d.data)};if(admin)preview=award(preview,s.id,record);else student=award(student,s.id,record);save();modal('새로운 탐험 도구를 얻었어!',`<div class="reward-reveal"><img class="reward-partner" src="/assets/hero-cheer.webp" alt="함께 기뻐하는 리버"><img class="reward-item" src="/assets/${TOOL_ASSETS[s.tool]}.webp" alt="${s.reward}"></div><h3>${s.reward}</h3><p>${s.benefit}</p><p class="world-change">${icon('check',20)} ${s.change}</p><button class="primary" id="return-map">가방에 넣고 지도로 ${icon('arrow')}</button>`,(dialog,close)=>{$('#return-map').onclick=()=>{close();navigate('map');};});}
+function complete(index){
+ const stage=STAGES[index],draft=state().drafts[stage.id],newArrival=!state().completed.includes(stage.id);
+ const record={summary:`${stage.name}에서 내 관찰 ${Object.keys(draft.data.evidence||{}).length}개를 남겼어.`,data:structuredClone(draft.data)};
+ if(admin)preview=award(preview,stage.id,record);else student=award(student,stage.id,record);
+ save();
+ const resident=RESIDENTS[stage.id];
+ modal(newArrival?`${stage.place} 복구 성공!`:'탐험 기록을 다시 남겼어!',`<div class="reward-reveal"><img class="reward-partner" src="${newArrival?residentArt(stage.id):'/assets/hero-cheer.webp'}" alt="${newArrival?resident.name:'리버'}"><img class="reward-item" src="/assets/${TOOL_ASSETS[stage.tool]}.webp" alt=""></div><h3>${stage.reward}</h3>${newArrival?`<div class="relit-counter" aria-label="마을 불빛 ${state().completed.length}개, 전체 5개"><span>마을 불빛</span>${STAGES.map(st=>`<i class="${state().completed.includes(st.id)?'lit':''}"></i>`).join('')}<b>${state().completed.length}/5</b></div>`:''}<p class="world-change">${stage.change}</p>${newArrival?`<p><strong>${resident.name}</strong>에게 말을 걸면 ${resident.stamp} 도장을 받을 수 있어.</p>`:''}<button class="primary" id="return-map">${newArrival?`${resident.name} 만나러 가기`:'지도로 돌아가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
+  dialog.classList.add('village-reward-dialog');
+  playSound('tool-reward',{force:true,inDialog:true});
+  $('#return-map',dialog).onclick=()=>{close();navigate('map',newArrival?{arrival:stage.id}:undefined);};
+ });
+}
 window.addEventListener('pagehide',save);
 window.addEventListener('popstate',e=>{if(e.state?.geo&&!admin)navigate(e.state.geo.type,e.state.geo.arg,true);else navigate('home',undefined,true);});
 const resume=student.started&&student.location?student.location:{type:'home'};

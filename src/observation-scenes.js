@@ -1,4 +1,5 @@
 import {backgroundForAsset} from './stage-art.js';
+import {riverSurface,wetSoilAlpha} from './river-water.js';
 // Serializable scene conditions. Activities, notebooks, selected records and
 // endings all render these same assets, coordinates, overlays and time labels.
 export const MODEL_MOUTH={x:560,y:195};
@@ -10,16 +11,11 @@ export const cityTimeLabel=index=>index===1?'아주 오랜 시간 뒤':'복구 �
 const image=(asset,x,y,w,h)=>({type:'image',asset,x,y,w,h});
 const ellipse=(x,y,w,h,color,alpha=1)=>({type:'ellipse',x,y,w,h,color,alpha});
 const line=(points,width,color,alpha=1)=>({type:'line',points,width,color,alpha});
-export function riverScene(time=0,water=1){
- const t=Math.max(0,Math.min(1,time)),px=v=>150+v*900,py=v=>120+v*400;
+export function riverScene(time=0,water=1,motion=0,flowing=false){
  const layers=[image('art/river-sand-model',600,320,900,400)];
- if(t>0){
-  const route=[[.19,.25],[.27,.38],[.53,.55],[.82,.72]],count=Math.min(1,t*1.5)*3,path=[{x:px(route[0][0]),y:py(route[0][1])}];
-  for(let i=0;i<Math.ceil(count);i++){const a=route[i],b=route[i+1],f=Math.min(1,count-i);path.push({x:px(a[0]+(b[0]-a[0])*f),y:py(a[1]+(b[1]-a[1])*f)});}
-  layers.push(line(path,7+water*4,'#72c8e5',.8),ellipse(px(.27),py(.38),t*water*30,t*water*12,'#725130',.8));
-  const settled=Math.max(0,Math.min(1,(t-.62)/.38));layers.push(ellipse(px(.82),py(.72),settled*water*48,settled*water*19,'#e1bd76'));
-  for(let i=0;i<26*water;i++){const f=Math.max(0,Math.min(1,t*1.4-i*.024));if(f>0)layers.push(ellipse(px(.27+f*.55)+(i%3-1)*5,py(.38+f*.34)+(i%4-2)*3,5.6,5.6,i%2?'#8a6036':'#b5874e'));}
- }
+ const alpha=wetSoilAlpha(time,water);
+ if(alpha>0)layers.push({...image('art/river-sand-wet-v1',600,320,900,400),alpha});
+ layers.push(...riverSurface(time,water,motion,flowing));
  return {width:1200,height:640,background:'river-lab',layers};
 }
 export function modelScene(parts=['tray','mountain','water'],amount=1){
@@ -30,8 +26,12 @@ export function modelScene(parts=['tray','mountain','water'],amount=1){
  if(amount>0){
   const count=Math.min(1,amount)*4,path=[MODEL_FLOW[0]];
   for(let i=0;i<Math.ceil(count);i++){const a=MODEL_FLOW[i],b=MODEL_FLOW[i+1],f=Math.min(1,count-i);path.push({x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f});}
-  layers.push(line(path,19,'#d85e50'),ellipse(560,195,56,17,'#e37161'));
-  if(amount>.8)layers.push(ellipse(754,464,(amount-.8)*320,18,'#d85e50'));
+  const stream=[path[0]];
+  for(let i=1;i<path.length;i++){const a=path[i-1],b=path[i];for(let j=1;j<=8;j++){const f=j/8;stream.push({x:a.x+(b.x-a.x)*f+Math.sin(f*Math.PI)*Math.sin(i*3+j)*2.3,y:a.y+(b.y-a.y)*f});}}
+  layers.push(line(stream,25,'#7d4636',.17),line(stream,15,'#d85e50',.86),ellipse(560,195,50,14,'#d85e50',.85));
+  // Broken reflections and uneven margins read as shallow coloured water, not a pipe.
+  for(let i=1;i<stream.length;i+=3){const p=stream[i];layers.push(ellipse(p.x-2,p.y,4+(i%4),7,'#ffd0b5',.38));}
+  if(amount>.8){const spread=(amount-.8)*320;layers.push(ellipse(754,466,spread*1.1,20,'#855142',.18),ellipse(754,464,spread,15,'#d85e50',.76),ellipse(743,465,spread*.65,18,'#d85e50',.5),ellipse(748,461,spread*.35,3,'#f4b29c',.55));}
  }
  return {width:1200,height:640,background:'volcano-lab',layers};
 }
@@ -61,7 +61,7 @@ export function paintScene(scene,api,description,{background=true,x=0,y=0,scale=
  const container=scene.add.container(x,y).setScale(scale);
  if(background)container.add(api.image(description.background,600,320,1200,640));
  for(const p of description.layers){
-  if(p.type==='image'){container.add(api.image(p.asset,p.x,p.y,p.w,p.h));continue;}
+  if(p.type==='image'){container.add(api.image(p.asset,p.x,p.y,p.w,p.h).setAlpha(p.alpha??1));continue;}
   if(p.type==='label'){container.add(api.text(p.text,p.x,p.y,24,'#ffffff').setBackgroundColor(p.color).setPadding(12,9));continue;}
   const g=scene.add.graphics();container.add(g);
   drawShapes(g,[p]);
@@ -70,9 +70,9 @@ export function paintScene(scene,api,description,{background=true,x=0,y=0,scale=
 }
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function sceneSVG(description){
- const picture=(asset,x,y,w,h)=>`<image href="/assets/${esc(backgroundForAsset(asset))}.webp" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none"/>`;
+ const picture=(asset,x,y,w,h,alpha=1)=>`<image href="/assets/${esc(backgroundForAsset(asset))}.webp" x="${x}" y="${y}" width="${w}" height="${h}" opacity="${alpha}" preserveAspectRatio="none"/>`;
  return picture(description.background,0,0,1200,640)+description.layers.map(p=>{
-  if(p.type==='image')return picture(p.asset,p.x-p.w/2,p.y-p.h/2,p.w,p.h);
+  if(p.type==='image')return picture(p.asset,p.x-p.w/2,p.y-p.h/2,p.w,p.h,p.alpha??1);
   if(p.type==='label')return `<rect x="${p.x-155}" y="${p.y-24}" width="310" height="48" rx="5" fill="${p.color}"/><text x="${p.x}" y="${p.y+8}" text-anchor="middle" fill="white" font-size="24">${esc(p.text)}</text>`;
   if(p.type==='line')return `<polyline points="${p.points.map(q=>q.x+','+q.y).join(' ')}" fill="none" stroke="${p.color}" stroke-width="${p.width}" opacity="${p.alpha??1}"/>`;
   if(p.type==='ellipse')return `<ellipse cx="${p.x}" cy="${p.y}" rx="${p.w/2}" ry="${p.h/2}" fill="${p.color}" opacity="${p.alpha??1}"/>`;

@@ -9,6 +9,7 @@ test('a save never overwrites storage another window changed',()=>{
 });
 test('teacher preview seeds earlier observations without touching the student record',()=>{
  const student=fresh(),mine={id:'rock-0-dark',kind:'rock',claim:'dark',label:'mine'};student.drafts.rocks={step:0,passed:[],data:{evidence:{'rock-0-dark':mine}}};
+ student.drafts.volcano={step:0,passed:[],data:{assembly:['tray']}};
  const raw=JSON.stringify(student),preview=seedPreview(structuredClone(student)),ev=id=>preview.drafts[id].data.evidence;
  assert.equal(JSON.stringify(student),raw);
  assert.deepEqual(ev('rocks')['rock-0-dark'],mine);
@@ -17,5 +18,8 @@ test('teacher preview seeds earlier observations without touching the student re
  assert.ok(FIELD_POINTS.every(p=>ev('river')[p.id].claim===p.claim));
  assert.ok(ev('volcano')['model-mouth']&&ev('volcano')['model-flow']);
  assert.equal(preview.drafts.river.data.prediction.demo,true);
+ assert.deepEqual(preview.drafts.volcano.data.assembly,['tray','mountain','water']);
+ assert.equal(ev('safety')['safety-desk'].demo,true);
+ assert.deepEqual(preview.completed,[]);assert.equal(preview.finished,false);
  assert.ok(Object.values(preview.drafts).flatMap(d=>Object.values(d.data.evidence||{})).filter(e=>e!==ev('rocks')['rock-0-dark']).every(e=>e.demo===true));
 });

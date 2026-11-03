@@ -41,7 +41,7 @@
 
 ## 효과음
 
-음원 파일은 `public/assets/audio/`에 로컬 보관한다. 배경 음악은 사용하지 않는다. 외부 요청 없이 효과음을 재생하며, 동시 1개·음소거·배경 탭 정지를 적용한다.
+음원 파일은 `public/assets/audio/`에 로컬 보관한다. 탐험 및 엔딩 테마와 인트로·엔딩 영상은 프로젝트 제작자가 제공한 파일을 사용한다. 외부 요청 없이 재생하며, 효과음과 별도로 배경 음악 크기를 조절할 수 있다. 전체 소리 끄기와 비활성 탭 일시 정지를 지원한다.
 
 | 앱 파일 | 원본 | 제작자·출처 | 라이선스 |
 |---|---|---|---|
@@ -111,3 +111,11 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 - `rock-basalt-porous`(표본 A), `rock-granite-white`(표본 B): 암석 공방 '돌 돌려 보기'
 - `volcano-exterior`: 화산 연구소 '모형과 실제 화산 같은 점' 화면의 '실제 화산 돌려 보기'
 - `terrain-soil-block`: 흐르는 물 첫 실험의 '흙 언덕 돌려 보기'
+
+### 물길 실험 물·흙 표현 — 2026-11-03
+
+기존 자체 생성 흙 언덕을 참조해 OpenAI 내장 이미지 생성으로 제작한 젖은 흙 언덕과 퇴적 모래 이미지예요. 배포 에셋: art/river-sand-wet-v1.webp, art/river-sediment-fan-v1.webp. 원본과 프롬프트: assets/raw-png/river-water-20261103/, docs/design/river-water-prompts.md. 물 흐름과 입자 애니메이션은 학습용 모형 표현이에요.
+
+### 화산·암석 관찰 표현 — 2026-11-03
+
+기존 자체 생성 표본을 참조해 OpenAI 내장 이미지 생성으로 현무암·화강암 확대 관찰용 표본과 화산재 구름을 제작했어요. 배포 파일: art/rock-basalt-study-v1.webp, art/rock-granite-study-v1.webp, art/volcano-ash-puff-{0,1,2}-v1.webp. 원본은 assets/raw-png/stage-polish-20261103/, 제작 프롬프트와 과학적 표현 기준은 docs/design/volcano-rock-polish-prompts.md에 있어요. 학습용 재현이며 실측 사진·실제 분출 속도는 아니에요.

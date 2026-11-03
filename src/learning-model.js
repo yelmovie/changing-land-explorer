@@ -18,8 +18,8 @@ export const FIELD_POINTS=[
 ];
 export const CITY_SITES=[
  {id:'airport',name:'공항',x:180,y:310,claim:'flight',now:'화산재 때문에 비행이 멈췄어.',later:'안전을 확인한 뒤 다시 운항해.',notice:'화산재가 날릴 때는 비행 안내를 확인해요.',reply:'운항 안내를 확인하고 일정을 바꿀게요.'},
- {id:'farm',name:'농장',x:490,y:350,claim:'soil',now:'분출물로 농작물이 피해를 입었어.',later:'오랜 시간 뒤 비옥한 토양이 되기도 해.',notice:'피해 복구와 토양 변화에는 시간이 필요해요.',reply:'곧바로 농사가 잘되는 건 아니군요.'},
- {id:'spa',name:'온천',x:800,y:320,claim:'heat',now:'위험한 동안에는 이용할 수 없어.',later:'안전을 확인한 뒤 온천을 이용해.',notice:'안전하다는 안내를 확인한 뒤 온천을 이용해요.',reply:'출입 안내를 먼저 확인할게요.'}
+ {id:'farm',name:'농장',x:490,y:350,claim:'soil',now:'분출물로 농작물이 피해를 입었어.',later:'화산재 같은 물질이 아주 오랜 시간 변하면 비옥한 흙이 되기도 해.',notice:'피해 복구와 토양 변화에는 시간이 필요해요.',reply:'곧바로 농사가 잘되는 건 아니군요.'},
+ {id:'spa',name:'온천',x:800,y:320,claim:'heat',now:'위험한 동안에는 이용할 수 없어.',later:'이 화산 지역에서는 땅속 열로 데워진 물을 온천으로 이용해. 안전 확인이 먼저야.',notice:'안전하다는 안내를 확인한 뒤 온천을 이용해요.',reply:'출입 안내를 먼저 확인할게요.'}
 ];
 export function riverFrame(time,water=1){const t=unit(time),amount=water===2?2:1;return {time:t,water:amount,erosion:t*amount,deposit:Math.max(0,t-.8)/.2*amount,front:t};}
 export function riverMarkValid(kind,point,time){const p=RIVER_MARKS[kind];return !!p&&time>=(kind==='deposit'?.85:.55)&&Number.isFinite(point?.x)&&Number.isFinite(point?.y)&&Math.hypot(point.x-p.x,point.y-p.y)<.16;}

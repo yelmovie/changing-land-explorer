@@ -23,7 +23,7 @@ async function assist(names,{repeat=1,pattern=null}={}){
  await page.locator('#assist-return').click();
 }
 async function place(tool,target){await assist(['도구 선택 · '+tool,'대상 선택 · '+target]);}
-async function pour(){await page.locator('#gesture-help').click();await page.getByRole('button',{name:'가운데 물주기',exact:true}).click();await page.waitForSelector('#next.ready',{timeout:15000});}
+async function pour(){await page.locator('#gesture-help').click();await page.getByRole('button',{name:'언덕에 물 주기',exact:true}).click();await page.waitForSelector('#next.ready',{timeout:15000});}
 async function riverLinks(){
  for(const [tool,target]of [['상류의 바위 관찰 카드','상류'],['상류의 물길 관찰 카드','상류'],['하류의 물길 관찰 카드','하류'],['하류의 모래 관찰 카드','하류'],['모래가 쌓여요 깃발','하류 끝 모래']])await place(tool,target);
  assert.match(await page.locator('#quest-meter').textContent(),/5\s*\/\s*5/);
@@ -34,7 +34,31 @@ async function volcanoLinks(){
 }
 async function next(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await settle();}
 async function concept(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await page.waitForSelector('.concept-dialog');concepts++;await page.locator('#concept-continue').click();}
-async function doneStage(index){await concept();await page.waitForSelector('#return-map');rewards++;await page.locator('#return-map').click();const s=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));assert.equal(s.completed.length,index+1);console.log('Completed',s.completed.at(-1));}
+async function doneStage(index){
+ await concept();await page.waitForSelector('#return-map');rewards++;
+ if(index===0){
+  const original=page.viewportSize();
+  await page.setViewportSize({width:850,height:420});
+  await page.waitForFunction(()=>{const button=document.querySelector('#return-map').getBoundingClientRect();return button.top>=0&&button.bottom<=innerHeight;});
+  await page.setViewportSize(original);
+ }
+ await page.locator('#return-map').click();
+ const s=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));
+ assert.equal(s.completed.length,index+1);
+ const id=s.completed.at(-1),resident=page.locator(`.map-resident.arrived[data-resident="${id}"]`);
+ await resident.waitFor();
+ assert.equal(await page.locator('.map-resident').count(),index+1);
+ assert.equal(await page.locator('.workplace.awake').count(),index+1);
+ assert.equal(await page.locator('.workplace.reopening').getAttribute('data-workplace'),id);
+ await resident.click();await page.locator('[data-ask="0"]').click();
+ assert.equal(await page.locator('[data-ask="0"]').getAttribute('aria-pressed'),'true');
+ if(index===0)await page.screenshot({path:`${out}/first-resident-dialog.png`});
+ await page.locator('[data-stamp]').click();assert.ok(await page.locator('[data-stamp]').isDisabled());
+ await page.locator('[data-close]').click();
+ assert.equal(await page.locator('.plaza-festival.celebrating').count(),index===4?1:0);
+ if(index===0||index===4)await page.screenshot({path:`${out}/map-after-${id}.png`});
+ console.log('Completed and talked to resident',id);
+}
 async function enter(index){await page.evaluate(async index=>(await import('/src/main.js')).enter(index,0),index);await settle();}
 async function rockInspect(){await assist(null,{pattern:/관찰$/});await assist(null,{pattern:/기록 붙이기$/});}
 async function pathRoute(outside=false){
@@ -82,7 +106,7 @@ async function finalChallenge(){
  for(const p of screenPoints.slice(1))await page.mouse.move(p.x,p.y,{steps:6});
  await page.mouse.up();await page.locator('#route-test').click();
  await page.waitForFunction(()=>document.querySelector('#next')?.disabled===false,null,{timeout:20000});
- await page.locator('#next').click();await page.waitForSelector('#certificate');
+ await page.locator('#next').click();await page.locator('#story-skip').click();await page.waitForSelector('#certificate');
  await page.screenshot({path:`${out}/flow-ending.png`,animations:'disabled'});
  await page.locator('#certificate').click();await page.waitForSelector('.certificate');
  await page.getByLabel('인증서에 쓸 별명').fill('복구 검증 탐험가');
@@ -92,7 +116,7 @@ async function finalChallenge(){
 try{
  await page.goto(process.env.CHECK_URL||'http://localhost:5177');await page.waitForSelector('#settings');
  if(!resumedStageState){
- await page.waitForSelector('#start');await page.locator('#start').click();await enter(0);
+ await page.waitForSelector('#start');await page.locator('#start').click();await page.locator('#story-skip').click();await enter(0);
  await place('예상 깃발','가운데 흙');await pour();await next();
  await pour();await next();
  await assist(['두 실험 처음으로 되감기','두 실험 마지막 모습 보기']);
@@ -117,7 +141,7 @@ try{
  }
  const before=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));
  assert.equal(Object.keys(before.records).length,5);if(!resumedStageState){assert.equal(concepts,10);assert.equal(rewards,5);}assert.equal(errors.length,0);
- await page.reload();await page.waitForSelector('#settings');const after=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));assert.deepEqual(after.completed,before.completed);
+ await page.reload();await page.waitForSelector('#settings');const after=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));assert.deepEqual(after.completed,before.completed);if(!resumedStageState)assert.deepEqual(after.residentStamps,after.completed);
  await fs.writeFile(`${out}/flow-student-state.json`,JSON.stringify(after));
  await finalChallenge();
  const finished=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));

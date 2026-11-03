@@ -15,5 +15,31 @@
     "hero-cheer",
     "hero-protect"
   ],
-  "notes": "Map based on project map; poses preserve River identity. Props and characters retain alpha. Educational diagrams are illustrative, not photographs."
+  "residentSet": {
+    "date": "2026-11-02",
+    "reference": "hero-lens.webp",
+    "method": "OpenAI image generation, one transparent character per file",
+    "files": [
+      "residents/river.webp",
+      "residents/volcano.webp",
+      "residents/rocks.webp",
+      "residents/city.webp",
+      "residents/safety.webp"
+    ]
+  },
+  "notes": "Map based on project map; poses preserve River identity. Props and characters retain alpha. Educational diagrams are illustrative, not photographs.",
+  "riverWalk": {
+    "date": "2026-11-03",
+    "method": "OpenAI image generation and targeted gait correction, alpha-preserving Sharp sprite registration",
+    "reference": [
+      "hero-lens.webp",
+      "map-adventure.webp"
+    ],
+    "source": "assets/raw-png/characters/river-walk-20261103/",
+    "prompt": "docs/design/river-walk-prompts.md",
+    "file": "characters/river-walk.webp",
+    "metadata": "characters/river-walk.json",
+    "directions": 8,
+    "framesPerDirection": 4
+  }
 }

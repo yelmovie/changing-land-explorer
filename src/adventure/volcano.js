@@ -1,11 +1,13 @@
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const near=(x,y,p,r=75)=>Math.hypot(x-p.x,y-p.y)<r;
+import {observationTour} from './observation-tour.js';
+import {eruptionMotion} from '../volcano-motion.js';
 import {hasModel,openModel3D} from '../rock3d.js';
-import {MODEL_MOUTH as MOUTH,MODEL_FLOW as FLOW,modelScene,paintScene,modelEvidence} from '../observation-scenes.js';
+import {MODEL_MOUTH as MOUTH,MODEL_FLOW as FLOW,modelScene,paintScene,drawShapes,modelEvidence} from '../observation-scenes.js';
 const OUTPUTS=[
-  {id:'lava',label:'용암',x:385,y:395,text:'땅속에서 나온 뜨거운 물질이 땅 위로 흘러.'},
+  {id:'lava',label:'용암',x:385,y:395,text:'땅속의 마그마가 땅 위로 나온 것을 용암이라고 해.'},
   {id:'gas',label:'화산 기체',x:610,y:80,text:'수증기 같은 기체도 나와. 보이지 않는 기체는 설명 표시로 나타냈어.'},
-  {id:'ash',label:'화산재',x:260,y:115,text:'아주 작은 고체 알갱이야. 연기와는 달라.'},
+  {id:'ash',label:'화산재',x:260,y:115,text:'분출할 때 잘게 부서진 암석과 화산 유리 같은 작은 고체 알갱이야.'},
   {id:'rock',label:'암석 조각',x:670,y:245,text:'큰 고체 암석 조각도 밖으로 나올 수 있어.'}
 ];
 
@@ -18,9 +20,11 @@ function lens(scene,api,x,y,label='돋보기'){
 }
 
 function model(scene,api){
-  const root=scene.add.container(0,0);let art;
+  const root=scene.add.container(0,0),liquid=scene.add.graphics();let art,key='';
   function draw(parts,amount=0){
-    art?.destroy(true);art=paintScene(scene,api,modelScene(parts,amount),{background:false});root.add(art);
+    const next=parts.join(',');
+    if(next!==key||!art){key=next;art?.destroy(true);art=paintScene(scene,api,modelScene(parts,0),{background:false});root.add(art);root.add(liquid);root.bringToTop(liquid);}
+    drawShapes(liquid,modelScene([],amount).layers);
   }
   draw([]);return {draw};
 }
@@ -43,69 +47,86 @@ export function setup(scene,api){
 }
 
 function assemble(scene,api){
-  const d=api.data,w=api.work;w.parts??=[];let finished=false;
+  const d=api.data,w=api.work;w.parts??=[];let parts=w.parts,finished=false,completed=!!api.completed;
   const art=model(scene,api);
   const order=['tray','mountain','water'];
   const spots={tray:{x:580,y:485},mountain:{x:560,y:315},water:{x:957,y:350}};
   const target=scene.add.graphics();
   const objects={};
   function show(){
-    art.draw(w.parts);target.clear();
-    const next=order[w.parts.length];
+    art.draw(parts);target.clear();
+    const next=order[parts.length];
     if(next){const p=spots[next];target.lineStyle(4,0xffd567).strokeCircle(p.x,p.y,70);}
-    const title=['쟁반을 작업대에 놓아 줘','쟁반 위에 산 모형을 올려 줘','붉은 물 주사기를 관에 연결해 줘'][w.parts.length];
+    const title=['쟁반을 작업대에 놓아 줘','쟁반 위에 산 모형을 올려 줘','붉은 물 주사기를 관에 연결해 줘'][parts.length];
     api.task(title||'모형을 조립했어','반짝이는 자리에 재료를 끌어 놓아 줘.');
-    api.counter(w.parts.length,3,'모형 조립');
+    api.counter(parts.length,3,'모형 조립');
   }
   function place(id){
-    if(finished||w.parts.includes(id))return true;
-    if(order[w.parts.length]!==id){api.say('쟁반 → 산 모형 → 붉은 물 주사기 순서로 놓아 줘.');return false;}
-    w.parts.push(id);if(!d.assembly.includes(id))d.assembly.push(id);
-    objects[id].setVisible(false);api.spark(spots[id].x,spots[id].y);show();api.save();
-    if(w.parts.length===3){finished=true;api.finish('실험 준비 완료! 주사기의 붉은 물이 어느 곳으로 나올지 살펴보자.');}
+    if(finished||parts.includes(id))return true;
+    if(order[parts.length]!==id){api.say('쟁반 → 산 모형 → 붉은 물 주사기 순서로 놓아 줘.');return false;}
+    parts.push(id);if(!completed&&!d.assembly.includes(id))d.assembly.push(id);
+    objects[id].setVisible(false);api.spark(spots[id].x,spots[id].y);show();if(!completed)api.save();
+    if(parts.length===3){finished=true;if(completed)api.stopAutoplay();else{completed=true;api.finish('실험 준비 완료! 주사기의 붉은 물이 어느 곳으로 나올지 살펴보자.');}}
     return true;
   }
   order.forEach((id,i)=>{
     const obj=objects[id]=part(scene,api,id,135,170+i*175);
-    obj.setVisible(!w.parts.includes(id));
+    obj.setVisible(!parts.includes(id));
     api.drag(obj,{onDrop(o,x,y){if(!near(x,y,spots[id],115)){api.say('반짝이는 자리에 놓아 줘.');return false;}return place(id);}});
     api.assist({tray:'쟁반 놓기',mountain:'산 모형 올리기',water:'붉은 물 주사기 연결'}[id],()=>place(id));
   });
+  api.autoplay({label:'실험 모형 차례로 조립',interval:1500,allowWhenComplete:true,ready:()=>true,advance(){if(finished||parts.length===3){parts=[];finished=false;order.forEach(id=>objects[id].setVisible(true));show();}const id=order[parts.length];if(id)place(id);}});
   show();
-  if(w.parts.length===3)api.actions([{id:'assembly-saved',label:'조립한 모형 확인',onClick(){if(!finished){finished=true;api.finish('모형 준비를 마쳤어. 이제 손잡이를 밀어 보자.');}},primary:true}]);
-  return {destroy(){api.save();}};
+  if(parts.length===3)api.actions([{id:'assembly-saved',label:'조립한 모형 확인',onClick(){if(!finished){finished=true;api.finish('모형 준비를 마쳤어. 이제 손잡이를 밀어 보자.');}},primary:true}]);
+  return {};
 }
 
 function inject(scene,api){
-  const d=api.data,w=api.work;w.push=clamp(w.push||0);w.flow=clamp(w.flow||0);let finished=false;
-  const art=model(scene,api);
-  api.task('주사기 손잡이를 천천히 아래로 밀어 봐','손잡이를 조금씩 밀면서 꼭대기와 경사면을 살펴봐.');
-  const stem=scene.add.graphics();
+  const d=api.data,w=api.work;w.push=clamp(w.push||0);w.flow=clamp(w.flow||0);
+  let finished=!!api.completed,active=false,replay=null;
+  const art=model(scene,api),stem=scene.add.graphics();
+  api.task('주사기 손잡이를 천천히 아래로 밀어 봐','손잡이를 밀거나 자동재생으로 꼭대기와 경사면을 살펴봐.');
   const handle=scene.add.container(957,185+w.push*145,[
-    scene.add.rectangle(0,0,105,46,0x357d6a).setStrokeStyle(3,0x245443),
-    api.text('↓',0,0,35,'#ffffff')
+    scene.add.rectangle(0,0,105,46,0x357d6a).setStrokeStyle(3,0x245443),api.text('↓',0,0,35,'#ffffff')
   ]).setSize(115,64);
-  const watch=api.text('붉은 물이 어디로 갈까?',560,535,24);
-  function push(v){
-    if(finished)return;
-    w.push=Math.max(w.push,clamp(v));handle.setPosition(957,185+w.push*145);d.injected=w.push;
-    if(w.push>.25)watch.setText('꼭대기 구멍에서 나오는 물을 봐!');
-    if(w.push>.7)watch.setText('붉은 물이 경사면을 따라 아래로 흘러.');
-    api.save();
-  }
-  api.drag(handle,{onMove(obj,x,y){push((y-185)/145);},onDrop(obj,x,y){push((y-185)/145);return true;}});
-  api.assist('손잡이 조금 밀기',()=>push(w.push+.2));
+  const watch=api.text('붉은 물이 어디로 갈까?',560,535,24).setBackgroundColor('#fff8e8').setPadding(10,6);
+  const view=()=>replay||w;
   function draw(){
-    art.draw(['tray','mountain','water'],w.flow);
-    stem.clear().lineStyle(12,0x3a6b5d).lineBetween(957,handle.y+22,957,300+w.push*110);
-    api.counter(Math.round(w.push*100),100,'손잡이 밀기');
+    const v=view();handle.setPosition(957,185+v.push*145);
+    art.draw(['tray','mountain','water'],v.flow);
+    stem.clear().lineStyle(12,0x3a6b5d).lineBetween(957,handle.y+22,957,300+v.push*110);
+    watch.setText(v.flow>.7?'붉은 물이 경사면을 따라 아래로 흘러.':v.flow>.1?'꼭대기 구멍에서 나오는 물을 봐!':'붉은 물이 어디로 갈까?');
+    api.counter(Math.round(v.flow*100),100,'붉은 물 관찰');
   }
+  function push(value){
+    if(finished&&(!replay||replay.flow>=1))replay={push:0,flow:0};
+    const v=view();v.push=Math.max(v.push,clamp(value));active=true;
+    if(!finished){d.injected=v.push;api.save();}
+    draw();
+  }
+  const stop=()=>{active=false;};
+  api.drag(handle,{onMove(obj,x,y){push((y-185)/145);},onDrop(obj,x,y){push((y-185)/145);return true;}});
+  api.assist('손잡이 조금 밀기',()=>push(finished&&(!replay||replay.flow>=1)?.2:view().push+.2));
+  api.autoplay({label:'붉은 물 분출 관찰',interval:650,allowWhenComplete:true,ready:()=>true,stop,
+    advance(){push(finished&&(!replay||replay.flow>=1)?.16:view().push+.16);}
+  });
   function finish(){
-    if(!finished&&w.push>=.98&&w.flow>=.98){finished=true;d.injected=1;d.modelTime=1;api.save();api.finish('붉은 물이 꼭대기 구멍으로 나와 경사면을 따라 흘렀어.');}
+    if(finished)return;
+    finished=true;active=false;w.flow=1;w.push=1;d.injected=1;d.modelTime=1;api.save();draw();
+    api.finish('붉은 물이 꼭대기 구멍으로 나와 경사면을 따라 흘렀어.');
   }
   draw();
-  if(w.push>=.98&&w.flow>=.98)api.actions([{id:'model-run-saved',label:'분출 관찰 확인',onClick:finish,primary:true}]);
-  return {update(time,delta){if(finished)return;w.flow=Math.min(w.push,w.flow+Math.min(delta,60)/2600);d.modelTime=w.flow;draw();finish();},destroy(){api.save();}};
+  if(!finished&&w.push>=.98&&w.flow>=.98)api.actions([{id:'model-run-saved',label:'분출 관찰 확인',onClick:finish,primary:true}]);
+  return {update(time,delta){
+    if(!active)return;
+    const v=view();v.flow=Math.min(v.push,v.flow+Math.min(delta,60)/4200);
+    if(!finished)d.modelTime=v.flow;
+    draw();
+    if(v.flow>=.999&&v.push>=.999){
+      if(finished){v.flow=1;active=false;api.stopAutoplay();api.say('다시 관찰했어. 실험 기록은 그대로야.');}
+      else finish();
+    }
+  },pause:stop,destroy:stop};
 }
 
 function trace(scene,api){
@@ -146,30 +167,40 @@ function trace(scene,api){
 
 function observeOutputs(scene,api){
   const d=api.data,w=api.work;w.found??=[];let selected=null,finished=false;
+  const motion=eruptionMotion(scene,api);
   api.image('volcano-eruption',600,320,1200,640);
+  motion.show();
   api.hero(1110,540,145,'hero-lens');
-  api.task('화산에서 나오는 네 가지를 조사해 봐','돋보기를 반짝이는 곳에 옮겨 설명을 보고, 관찰 핀을 남겨 줘.');
+  api.task('화산에서 나오는 네 가지를 조사해 봐','숫자를 누르거나 ‘자동재생’으로 모습을 살펴봐. 수첩에 담을 때는 ‘관찰 핀 남기기’를 직접 눌러.');
   const scope=lens(scene,api,130,495);
-  const rings=scene.add.graphics();
+  const markers=new Map();
   const panel=api.panel(900,435,460,180,0xfff7e2,.96);
   const title=api.text('어떤 물질이 나올까?',900,390,26);
   const body=api.text('용암뿐 아니라 다른 분출물도 찾아보자.',900,455,22,'#294239',405);
   const world=p=>({x:p.x*1.2,y:p.y*640/560});
-  function redraw(){rings.clear();OUTPUTS.forEach(p=>{const q=world(p);rings.lineStyle(4,w.found.includes(p.id)?0x8ddeaa:0xffd975).strokeCircle(q.x,q.y,30);});api.counter(w.found.length,4,'분출물 기록');}
-  function inspect(p){selected=p;const q=world(p);scope.setPosition(q.x,q.y);title.setText(p.label);body.setText(p.text);api.say(p.text);return true;}
+  function redraw(){for(const p of OUTPUTS)markers.get(p.id)(w.found.includes(p.id));api.counter(w.found.length,4,'분출물 기록');}
+  function inspect(p){selected=p;motion.play();const q=world(p);scope.setPosition(q.x,q.y);title.setText(p.label);body.setText(p.text);api.say(w.found.includes(p.id)?'이미 기록한 분출물이야. 다른 숫자를 눌러 봐.':p.label+'을 찾았어. 아래 ‘관찰 핀 남기기’를 눌러 수첩에 담아 봐.');return true;}
   function pin(){
     if(!selected){api.say('먼저 돋보기로 분출물을 찾아 줘.');return;}
-    const p=selected;if(!w.found.includes(p.id))w.found.push(p.id);
+    const p=selected;if(w.found.includes(p.id)){api.say('이미 수첩에 있어. 체크가 없는 숫자를 눌러 봐.');return;}
+    w.found.push(p.id);api.say('수첩에 담았어. 아직 체크가 없는 숫자를 찾아봐.');
     api.record({id:'output-'+p.id,kind:'volcano',label:p.label,asset:'volcano-eruption',claim:p.id,point:{x:p.x/1000,y:p.y/560},zoom:1.5,text:p.text});
     api.spark(scope.x,scope.y);redraw();api.save();
     if(w.found.length===4&&!finished){finished=true;api.finish('용암·화산재·화산 기체·암석 조각을 찾았어. 모형에 없는 분출물도 있네!');}
   }
   api.drag(scope,{onDrop(obj,x,y){const p=OUTPUTS.find(p=>near(x,y,world(p),85));if(p)return inspect(p);api.say('반짝이는 지점을 가까이 살펴봐.');return false;}});
   api.actions([{id:'volcano-output-pin',label:'관찰 핀 남기기',onClick:pin,primary:true}]);
-  OUTPUTS.forEach(p=>api.assist(p.label+' 관찰',()=>inspect(p)));
+  OUTPUTS.forEach((p,index)=>{
+    const q=world(p);
+    markers.set(p.id,api.marker(q.x,q.y,index+1,()=>inspect(p)));
+    api.assist(p.label+' 관찰',()=>inspect(p));
+  });
+  api.autoplay(observationTour(api,{label:'분출물 네 가지 관찰',items:OUTPUTS,interval:4100,
+    visit(p){inspect(p);api.say(p.label+' 모습을 살펴봐. 기록할 때는 ‘관찰 핀 남기기’를 직접 눌러.');},stop:motion.pause
+  }));
   redraw();
   if(w.found.length===4){selected=OUTPUTS[3];}
-  return {destroy(){api.save();}};
+  return {update:motion.update,pause:motion.pause,destroy:motion.destroy};
 }
 
 function compare(scene,api){

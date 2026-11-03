@@ -1,6 +1,8 @@
+import {observationTour} from './observation-tour.js';
 import {FIELD_POINTS, RIVER_MARKS} from '../learning-model.js';
 import {riverScene,drawShapes} from '../observation-scenes.js';
 import {hasModel,openModel3D} from '../rock3d.js';
+import {wetSoilAlpha,riverDeposit,drawRiverSpray} from '../river-water.js';
 
 const AREA = {x:150,y:120,w:900,h:400};
 const clamp = (v,a=0,b=1) => Math.max(a,Math.min(b,v));
@@ -12,7 +14,8 @@ function tool(scene,api,type,x,y,label) {
   if(scene.textures.exists(key)) {
     const picture=api.image(key,0,0,type==='can'?148:112,type==='can'?115:112);
     const caption=api.text(label,0,80,20).setBackgroundColor('#fff8e8').setPadding(8,5);
-    return scene.add.container(x,y,[picture,caption]).setSize(150,170);
+    const object=scene.add.container(x,y,[picture,caption]).setSize(150,170);
+    object.artwork=picture;object.caption=caption;return object;
   }
   const g=scene.add.graphics();
   if(type==='lens') {
@@ -37,8 +40,14 @@ function tool(scene,api,type,x,y,label) {
 function terrain(scene,api,x=150,y=120,w=900,h=400) {
   const sx=w/900,sy=h/400;
   api.image('art/river-sand-model',x+w/2,y+h/2,w,h);
+  const wet=api.image('art/river-sand-wet-v1',x+w/2,y+h/2,w,h).setAlpha(0);
+  const sediment=api.image('art/river-sediment-fan-v1',0,0,1,1).setAlpha(0);
   const g=scene.add.graphics().setPosition(x-150*sx,y-120*sy).setScale(sx,sy);
-  function draw(t,water=1){drawShapes(g,riverScene(t,water).layers);}
+  function draw(t,water=1,motion=0,flowing=false){
+    wet.setAlpha(wetSoilAlpha(t,water));
+    const fan=riverDeposit(t,water);sediment.setPosition(x+(fan.x-150)*sx,y+(fan.y-120)*sy).setDisplaySize(Math.max(.01,fan.w*sx),Math.max(.01,fan.h*sy)).setAlpha(fan.alpha);
+    drawShapes(g,riverScene(t,water,motion,flowing).layers);
+  }
   draw(0);return {draw};
 }
 
@@ -55,83 +64,123 @@ function experiment(scene,api) {
   if(api.phase===2) return markResults(scene,api);
   const water=api.phase===0?1:2;
   const land=terrain(scene,api);
-  let pouring=null,finished=false;
+  let pouring=null,replayTime=null;
   w.pour=clamp(w.pour||0); w.sweeps??=[];
-  api.task(water===1?'흙이 어디에 쌓일까? 예상하고 물을 흘려 봐':'같은 언덕에 물을 더 많이 흘려 봐',
-    water===1?'깃발로 예상한 뒤 물뿌리개를 끌어 줘. 또는 물뿌리개 → 언덕을 눌러 물을 주고, 멈춤 버튼으로 멈춰.':'같은 언덕에 물을 두 배로 줄 거야. 끌기·탭·조작 도움 중 편한 방법으로 물의 양을 비교해 봐.');
+  let finished=api.completed===true&&w.pour>=.999;
+  const predicting=()=>water===1&&!d.prediction;
+  function guide(){
+    if(predicting())api.task('흙이 어디에 쌓일까?','① 아래 깃발을 누르고, 흙이 쌓일 것 같은 곳을 눌러 봐.');
+    else api.task(water===1?'예상한 곳에 흙이 쌓이는지 살펴보자':'물을 두 배로 주면 흙은 어떻게 될까?','물뿌리개로 물을 주거나, 오른쪽 위 ‘자동재생’을 눌러 관찰해 봐.');
+  }
+  guide();
   api.text(water===1?'물 적게 · 첫 실험':'물 많이 · 두 번째 실험',600,62,28).setBackgroundColor('#fff8e8').setPadding(10,5);
-  const zone=scene.add.graphics().lineStyle(3,0x57958c,.8);
+  const zone=scene.add.graphics().fillStyle(0xa8edf4,.24).fillRoundedRect(250,145,300,94,25).lineStyle(5,0x1e747d,1);
   zone.strokeRoundedRect(250,145,300,94,25);
-  api.text('물을 줄 위치 · 멈춤 버튼으로 중단',400,123,20).setBackgroundColor('#fff8e8').setPadding(8,4);
+  const waterLabel=api.text('② 물 주는 곳',400,180,25,'#ffffff').setBackgroundColor('#226568').setPadding(10,5);
+  zone.setVisible(!predicting()&&!finished);waterLabel.setVisible(!predicting()&&!finished);
   const can=tool(scene,api,'can',140,515,'물뿌리개');
+  function liftFlag(object){
+    if(!object.artwork||object.predictionMarker)return object;
+    object.predictionMarker=true;
+    object.artwork.setPosition(34,-66).setDisplaySize(80,80);
+    object.caption.setText('내 예상').setPosition(34,-121);
+    object.setSize(170,280);
+    object.add(scene.add.graphics().lineStyle(2,0xb48b45).lineBetween(7,-27,0,0).lineStyle(2,0xfff2c7).strokeCircle(0,0,6));
+    return object;
+  }
   let flag;
   if(water===1) {
     const p=d.prediction?point(d.prediction):{x:340,y:515};
     flag=tool(scene,api,'flag',p.x,p.y,d.prediction?'내 예상':'예상 깃발');
+    if(d.prediction)liftFlag(flag);
+    const flagBadge=api.text('①',p.x-74,p.y-46,32,'#ffffff').setBackgroundColor('#21564b').setPadding(5,1).setVisible(predicting());
     api.drag(flag,{onDrop(obj,x,y){
       if(w.pour>0) {api.say('물은 이미 흐르기 시작했어. 처음 예상을 남겨 둘게.'); return false;}
       if(x<190||x>1030||y<200||y>485) {api.say('흙이 쌓일 것 같은 곳에 깃발을 놓아 줘.');return false;}
       d.prediction={x:clamp((x-AREA.x)/AREA.w),y:clamp((y-AREA.y)/AREA.h)};
-      api.save(); api.say('예상을 남겼어. 이제 물을 흘려 보자!',true);return true;
+      api.save();liftFlag(flag);flagBadge.setVisible(false);zone.setVisible(true);waterLabel.setVisible(true);guide();controls();draw();return true;
     }});
     api.assistPlacement([{label:'예상 깃발',object:flag}],[{label:'위쪽 흙',x:393,y:272},{label:'가운데 흙',x:627,y:340},{label:'아래쪽 흙',x:888,y:408}]);
   } else {
     const first=terrain(scene,api,665,52,325,150);first.draw(1,1);
     api.text('첫 실험의 기록',835,41,18);
-    if(d.prediction){const p=point(d.prediction);tool(scene,api,'flag',p.x,p.y,'내 예상').setScale(.65);}
+    if(d.prediction){const p=point(d.prediction);liftFlag(tool(scene,api,'flag',p.x,p.y,'내 예상')).setScale(.8);}
   }
   function inZone(x,y) {return x>=250&&x<=550&&y>=140&&y<=250;}
-  function stop(){pouring=null;drops.clear();api.save();}
+  function stop(){
+    pouring=null;drops.clear();
+    can.artwork?.setFlipX(false).setRotation(0);can.caption?.setVisible(true);
+    zone.setVisible(!predicting()&&!finished);waterLabel.setVisible(!predicting()&&!finished);
+    if(!finished)api.save();
+  }
   function start(mode){
-    if(finished||w.pour>=1)return false;
-    if(!d.prediction){api.say('예상 깃발을 먼저 흙 위에 놓아 줘.');return false;}
-    pouring=mode;w.inputModes??=[];if(!w.inputModes.includes(mode))w.inputModes.push(mode);
-    api.sound?.('water');api.say('이 위치에 물을 주고 있어. 멈춤 버튼을 누르면 멈춰.');return true;
+    if(predicting()){api.say('예상 깃발을 먼저 흙 위에 놓아 줘.');return false;}
+    if(finished){if(replayTime===null||replayTime>=1)replayTime=0;}
+    else {w.inputModes??=[];if(!w.inputModes.includes(mode))w.inputModes.push(mode);}
+    pouring=mode;
+    if(inZone(can.x,can.y))can.setPosition(400,140);
+    can.artwork?.setFlipX(true).setRotation(-.38);can.caption?.setVisible(false);
+    zone.setVisible(!inZone(can.x,can.y)&&!finished);waterLabel.setVisible(!inZone(can.x,can.y)&&!finished);
+    api.sound?.('water');api.say(finished?'기록한 실험을 다시 보고 있어. 물을 따라 움직이는 흙을 살펴봐.':'젖은 물길을 따라 흙이 움직여. 아래쪽에 쌓이는 모습도 살펴봐.');return true;
   }
   api.drag(can,{
     onStart(){start('drag');},
     onMove(obj,x,y){
-      if(!d.prediction||!inZone(x,y))return;
+      if(predicting()||!inZone(x,y))return;
+      obj.setPosition(400,140);zone.setVisible(false);waterLabel.setVisible(false);
       const band=Math.min(2,Math.floor((x-250)/100));
-      if(!w.sweeps.includes(band)){w.sweeps.push(band);api.save();}
+      if(!finished&&!w.sweeps.includes(band)){w.sweeps.push(band);api.save();}
     },
     onDrop(obj,x,y){stop();check();return inZone(x,y);},
     onTap(obj,x,y){if(!inZone(x,y)){stop();api.say('테두리 안의 언덕을 눌러 물 줄 위치를 골라 줘.');return false;}return start('tap');}
   });
-  api.assist('왼쪽 물주기',()=>assistPour(0),{closeOnUse:true});
-  api.assist('가운데 물주기',()=>assistPour(1),{closeOnUse:true});
-  api.assist('오른쪽 물주기',()=>assistPour(2),{closeOnUse:true});
-  function assistPour(band){
-    if(!d.prediction){api.say('예상 깃발을 먼저 놓아 줘.');return;}
-    can.setPosition(300+band*100,195);
-    if(!w.sweeps.includes(band))w.sweeps.push(band);
-    start('button');api.save();
+  api.assist('언덕에 물 주기',assistPour,{closeOnUse:true});
+  function assistPour(){
+    if(predicting()){api.say('예상 깃발을 먼저 놓아 줘.');return;}
+    can.setPosition(400,140);
+    start('button');if(!finished)api.save();
   }
+  api.autoplay({
+    label:'언덕에 물 흘리기',interval:1200,allowWhenComplete:true,ready:()=>!predicting(),
+    advance(){if(pouring!=='auto'){can.setPosition(400,140);start('auto');}},
+    stop(){if(pouring==='auto')stop();}
+  });
   const drops=scene.add.graphics();
-  function draw(){land.draw(w.pour,water);api.counter(Math.round(w.pour*100),100,'물 흘리기');}
+  function draw(motion=0){land.draw(replayTime??w.pour,water,motion,!!pouring);if(predicting())api.counter(0,1,'예상 깃발');else api.counter(Math.round(w.pour*100),100,'물 흘리기');}
   function check(){
     if(finished||w.pour<.999)return;
-    finished=true;w.pour=1;stop();draw();api.actions([]);d.water=water;d.scrub=1;
+    finished=true;w.pour=1;stop();can.setPosition(140,515);draw();api.actions([]);d.water=water;d.scrub=1;
     d.runs=d.runs.filter(r=>r.water!==water);
     d.runs.push({water,complete:true,version:1,inputModes:[...(w.inputModes||[])]});
     api.record({id:'river-run-'+water,kind:'river',label:water===1?'물 적게 실험':'물 많이 실험',point:{x:.82,y:.72},time:1,water,prediction:d.prediction,text:'같은 흙과 같은 언덕에서 '+(water===1?'적은 양':'두 배의 양')+'의 물을 흘려 깎임·이동·쌓임을 관찰했어.'});api.save();
     api.finish(water===1?'첫 실험을 기록했어. 같은 언덕에서 물의 양을 바꿔 보자.':'물을 많이 흘리니 흙이 더 많이 깎이고 옮겨졌어.',{water});
   }
   draw();
-  const pourActions=[{id:'river-pour-start',label:'이 위치에 물 주기',onClick:()=>{if(!inZone(can.x,can.y)){api.say('먼저 물뿌리개와 언덕 위치를 차례로 눌러 줘.');return;}start('button');}},{id:'river-pour-stop',label:'물 주기 멈춤',onClick:()=>{stop();api.say('물을 멈췄어. 다른 위치를 고르거나 이 위치에 물 주기로 이어 갈 수 있어.');}}];
-  api.actions(pourActions);
-  // Before the first pour, the 3D hill helps predict: high slopes get worn, low flat ground collects soil.
-  if(water===1)hasModel('river-hill').then(ok=>{if(ok&&scene.sys.isActive()&&!finished)api.actions([...pourActions,{id:'river-3d',label:'흙 언덕 돌려 보기',onClick:()=>openModel3D(api.modal,'river-hill','흙 언덕')}]);});
+  let modelAvailable=false;
+  function controls(){
+    const actions=[];
+    if(!predicting()&&!finished){
+      actions.push({id:'river-pour-start',label:'물 주기',primary:true,onClick(){
+        if(!inZone(can.x,can.y))can.setPosition(400,140);
+        start('button');
+      }},{id:'river-pour-stop',label:'물 멈추기',onClick(){stop();api.say('물을 멈췄어. ‘물 주기’를 누르면 이어서 관찰할 수 있어.');}});
+    }
+    if(modelAvailable&&!finished)actions.push({id:'river-3d',label:'흙 언덕 돌려 보기',onClick:()=>openModel3D(api.modal,'river-hill','흙 언덕')});
+    api.actions(actions);
+  }
+  controls();
+  if(water===1)hasModel('river-hill').then(ok=>{if(ok&&scene.sys.isActive()&&can.active&&!finished){modelAvailable=true;controls();}});
   if(w.pour>=.999)check();
   return {update(time,delta){
     drops.clear();
-    if(finished||!pouring||!inZone(can.x,can.y))return;
-    w.pour=clamp(w.pour+Math.min(delta,60)/6500);
-    for(let i=0;i<9*water;i++){
-      const fall=((time*.15+i*17)%80);
-      drops.fillStyle(0x6bbfe2,.85).fillCircle(can.x+65+i%3*7,can.y-25+fall,3);
-    }
-    draw();check();
+    if(!pouring||!inZone(can.x,can.y))return;
+    const advance=Math.min(delta,60)/8500;
+    if(finished)replayTime=clamp((replayTime??0)+advance);
+    else w.pour=clamp(w.pour+advance);
+    drawRiverSpray(drops,can,time,water);
+    draw(time);
+    if(finished&&replayTime>=1){api.stopAutoplay();stop();can.setPosition(140,515);draw();api.say('다시 관찰했어. 실험 기록은 그대로야.');}
+    else if(!finished)check();
   },pause:stop,destroy:stop};
 }
 
@@ -139,11 +188,17 @@ function markResults(scene,api) {
   const d=api.data,w=api.work;w.marks??=[];let finished=false;
   const left=terrain(scene,api,70,100,470,330),right=terrain(scene,api,625,100,470,330);
   api.text('물 적게',300,66,26);api.text('물 많이',865,66,26);
-  api.task('두 실험을 되감아 보고, 흙의 변화 이름표를 놓아 줘','시간을 마지막으로 옮겨 오른쪽 그림에서 깎인 곳 → 이동한 길 → 쌓인 곳을 찾아 봐.');
-  let time=clamp(w.scrub??1);
+  let time=clamp(w.scrub??1),timeline;
   function render(){left.draw(time,1);right.draw(time,2);}
-  function setTime(value){time=Number(value)/100;w.scrub=time;d.scrub=time;if(time<.15)w.rewound=true;render();api.save();}
-  api.range('실험 시간',Math.round(time*100),0,100,setTime);
+  function timeGuide(){
+    if(w.marks.length===3)return;
+    const hint=!w.rewound?'먼저 ‘처음 모습’을 눌러 물을 주기 전의 언덕을 봐.':time<.99?'이제 ‘마지막 모습’을 눌러 달라진 곳을 찾아봐.':'아래 이름표를 하나 골라 오른쪽 언덕에서 그 변화가 보이는 곳에 놓아 줘.';
+    api.task('두 언덕의 처음과 마지막을 비교해 보자',hint);
+  }
+  function setTime(value){time=Number(value)/100;if(timeline)timeline.value=String(value);if(!api.completed&&!finished){w.scrub=time;d.scrub=time;if(time<.15)w.rewound=true;api.save();}render();timeGuide();}
+  timeGuide();
+  timeline=api.range('실험 시간',Math.round(time*100),0,100,setTime,['처음 모습','마지막 모습']);
+  api.autoplay(observationTour(api,{label:'처음과 마지막 언덕 관찰',items:[0,100],interval:2800,visit:setTime}));
   api.assist('두 실험 처음으로 되감기',()=>setTime(0));
   api.assist('두 실험 마지막 모습 보기',()=>setTime(100));
   const short={erosion:'깎여요',transport:'옮겨져요',deposit:'쌓여요'};
@@ -190,10 +245,9 @@ function field(scene,api) {
   if(api.phase===2)return connectField(scene,api);
   const points=FIELD_POINTS.filter(p=>p.side===(api.phase===0?'upper':'lower'));
   w.found??=[];let finished=false;
-  api.task(api.phase===0?'돋보기로 상류의 두 단서를 찾아 봐':'아래쪽으로 와서 하류의 두 단서를 찾아 봐','반짝이는 곳으로 돋보기를 옮긴 뒤 놓으면 가까이 관찰할 수 있어.');
+  api.task(api.phase===0?'돋보기로 상류의 두 단서를 찾아 봐':'아래쪽으로 와서 하류의 두 단서를 찾아 봐','숫자를 누르거나 ‘자동재생’으로 두 곳을 살펴봐. 돋보기 안의 물길과 돌을 비교해 봐.');
   const lens=tool(scene,api,'lens',600,500,'돋보기');
-  const glow=scene.add.graphics();
-  for(const p of points){const x=p.x*1.2,y=p.y*640/560;glow.lineStyle(3,0xffe6a0).strokeCircle(x,y,35);}
+  const markers=new Map();
   api.panel(885,163,440,270,0xfff8e8,.96);
   const mask=scene.make.graphics({x:0,y:0,add:false});
   mask.fillStyle(0xffffff).fillRoundedRect(690,45,390,145,14);
@@ -205,14 +259,20 @@ function field(scene,api) {
     lens.setPosition(p.x*1.2,p.y*640/560);
     focus(lens.x,lens.y);
     name.setText(p.label);caption.setText(p.text);
-    if(!w.found.includes(p.id))w.found.push(p.id);
+    if(w.found.includes(p.id)){api.say(p.text);return true;}
+    w.found.push(p.id);markers.get(p.id)(true);api.say(p.text+' 남은 숫자도 눌러 봐.');
     api.record({id:p.id,kind:'field',label:p.label,asset:'river-field',point:{x:p.x/1000,y:p.y/560},zoom:2.5,claim:p.claim,text:p.text});
     api.counter(w.found.length,2,'관찰 단서');api.spark(lens.x,lens.y);api.save();
     if(w.found.length===2&&!finished){finished=true;api.finish(api.phase===0?'상류는 물길이 좁고 경사가 급해. 크고 각진 바위도 찾았어.':'하류는 물길이 넓고 완만해. 모래와 고운 흙도 찾았어.');}
     return true;
   }
   api.drag(lens,{onMove(obj,x,y){focus(x,y);},onDrop(obj,x,y){const p=points.find(p=>distance({x,y},{x:p.x*1.2,y:p.y*640/560})<80);if(p)return observe(p);api.say('반짝이는 물길이나 바위로 돋보기를 옮겨 줘.');return false;}});
-  points.forEach(p=>api.assist(p.label+' 가까이 보기',()=>observe(p)));
+  points.forEach((p,index)=>{
+    const paint=api.marker(p.x*1.2,p.y*640/560,index+1,()=>observe(p));
+    markers.set(p.id,paint);paint(w.found.includes(p.id));
+    api.assist(p.label+' 가까이 보기',()=>observe(p));
+  });
+  api.autoplay(observationTour(api,{label:api.phase===0?'상류 두 곳 관찰':'하류 두 곳 관찰',items:points,interval:3200,visit:observe}));
   api.counter(w.found.length,2,'관찰 단서');
   if(w.found.length===2)api.actions([{id:'field-saved',label:'관찰 기록 확인',onClick:()=>observe(points[1]),primary:true}]);
   return {destroy(){mask.destroy();api.save();}};

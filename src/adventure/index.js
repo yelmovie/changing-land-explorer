@@ -9,11 +9,13 @@ import {setup as safety} from './safety.js';
 import {HINTS} from './hints.js';
 import {destroyGame} from '../phaser-lifecycle.js';
 import {backgroundForAsset,STAGE_BACKGROUNDS} from '../stage-art.js';
+import {STAGES} from '../model.js';
+import {enter,navigate} from '../main.js';
 
 const SETUP={river,volcano,rocks,city,safety};
 const UI=name=>'art/ui/'+name;
 const ASSETS={
-  river:['river-lab','river-field','art/river-sand-model'],volcano:['volcano-lab','volcano-field','volcano-eruption','art/volcano-mountain','art/volcano-tray','art/volcano-syringe'],
+  river:['river-lab','river-field','art/river-sand-model','art/river-sand-wet-v1','art/river-sediment-fan-v1'],volcano:['volcano-lab','volcano-field','volcano-eruption','art/volcano-mountain','art/volcano-tray','art/volcano-syringe',...Array.from({length:3},(_,i)=>'art/volcano-ash-puff-'+i+'-v1')],
   rocks:['rocks-lab','art/rocks-quarry-atelier-v2','rock-0','rock-1','rock-2','rock-3','art/geologist-brush',UI('dust-crust'),UI('specimen-tray')],
   city:['city-before','city-eruption','city-calm','art/city-message-square-v2',...['notice-board','indoor-wall','window-frame','glass-pane','dust-mask','time-knob'].map(UI)],
   safety:['classroom','school','art/safety-cushion','art/hero-hold-leg-v1',...['warning-sign','school-desk','school-floor','flowerbed','broken-glass','fallen-shelf','exit-mat','playground','town-ground','house-roof','brick-wall','utility-pole'].map(UI)]
@@ -38,13 +40,54 @@ export function mount(ctx) {
   let game,closed=false,hooks,activeScene,phaseDone=false,toolHandler=null,zoomed=false;
   let sceneCleanups=[], assistActions=[];
   let hintIndex=0,initialHint='';
+  let refreshAssist=()=>{};
   ctx.root.innerHTML='<div class="phaser-stage" id="phaser-stage"></div><div class="stage-loader" role="status">리버가 탐험 도구를 꺼내고 있어…</div><div class="quest-meter" id="quest-meter" aria-live="polite"></div><div class="discovery-pop" id="discovery-pop" role="status" hidden></div>';
   // The task counter sits beside River's guidance so it never covers the scene.
   $('.river-narrator>div')?.prepend($('#quest-meter',ctx.root));
   const next=$('#next');
+  // A stage exposes only its repeatable observation, never an answer or a transition.
+  const autoButton=document.createElement('button');
+  autoButton.id='observation-auto';autoButton.type='button';autoButton.className='secondary';autoButton.hidden=true;
+  $('#sound').before(autoButton);
+  let auto=null,playing=false,elapsed=0;
+  function paintAuto(){
+    if(!auto||(phaseDone&&!auto.allowWhenComplete)||!auto.ready()){
+      if(playing)stopAuto();
+      if(!autoButton.hidden)autoButton.hidden=true;
+      if(autoButton.getAttribute('aria-pressed')==='true')autoButton.setAttribute('aria-pressed','false');
+      return;
+    }
+    if(autoButton.hidden)autoButton.hidden=false;
+    const label=playing?'일시정지':'자동재생';
+    if(autoButton.dataset.state===label&&autoButton.title===auto.label)return;
+    autoButton.dataset.state=label;autoButton.title=auto.label;
+    autoButton.textContent=(playing?'Ⅱ ':'▶ ')+label;
+    autoButton.setAttribute('aria-label',auto.label+' '+label);
+    autoButton.setAttribute('aria-pressed',String(playing));
+  }
+  function stopAuto(){
+    if(!playing)return;
+    playing=false;elapsed=0;auto?.stop?.();paintAuto();
+  }
+  autoButton.onclick=()=>{
+    if(playing){stopAuto();return;}
+    if(!auto||(phaseDone&&!auto.allowWhenComplete)||!auto.ready()||document.hidden||document.querySelector('dialog[open]'))return;
+    const work=chapter.work[chapter.phase];
+    if(!phaseDone){work.operationHelp=true;ctx.save();}playing=true;elapsed=0;
+    auto.advance();paintAuto();
+  };
+  function manual(event){if(playing&&!autoButton.contains(event.target))stopAuto();}
+  document.addEventListener('pointerdown',manual,true);
+  document.addEventListener('keydown',manual,true);
+  document.addEventListener('input',manual,true);
   function updateStepNav(){
     const phase=chapter.phase, names=PHASES[ctx.s.id][ctx.step];
-    $('#phase-path').innerHTML=names.map((name,i)=>`<button class="phase-node ${i===phase?'current':''} ${chapter.tasks[i]?.done?'done':''}" data-phase="${i}" ${i>phase&&!chapter.tasks[i-1]?.done&&!ctx.admin?'disabled':''} aria-label="${i+1}단계 ${escapeHTML(name)}${chapter.tasks[i]?.done?' 완료':''}" ${i===phase?'aria-current="step"':''}><span>${chapter.tasks[i]?.done?icon('check',16):i+1}</span><b>${name}</b></button>`).join('');
+    $('#phase-path').innerHTML=names.map((name,i)=>{
+      const done=chapter.tasks[i]?.done,locked=i>phase&&!chapter.tasks[i-1]?.done&&!ctx.admin;
+      const status=done?' 완료':locked?' 잠김':ctx.admin?' 교사 시연 열림':'';
+      const badge=done?icon('check',16):locked?icon('lock',16):ctx.admin&&i!==phase?icon('unlock',16):i+1;
+      return `<button class="phase-node ${i===phase?'current':''} ${done?'done':''}" data-phase="${i}" ${locked?'disabled':''} aria-label="${i+1}단계 ${escapeHTML(name)}${status}" ${i===phase?'aria-current="step"':''}><span>${badge}</span><b>${name}</b></button>`;
+    }).join('');
     $$('[data-phase]').forEach(button=>button.onclick=()=>{
       const target=Number(button.dataset.phase);
       if(target===chapter.phase)return;
@@ -53,14 +96,34 @@ export function mount(ctx) {
     $('#journey-count').textContent=String(discoveryCount(ctx.state));
     phaseDone=chapter.tasks[phase]?.done===true;
     next.disabled=!phaseDone;
+    skipLabel();
     next.innerHTML=(phase<2?'다음 발견':ctx.step===0?'현장으로 출발':'도구 받기')+icon('arrow',22);
     next.classList.toggle('ready',phaseDone);
-    $('#river-status').textContent=phaseDone?'발견 완료 · 오른쪽에서 계속하기':'리버의 길잡이 · 막히면 나를 눌러 줘';
+    $('#river-status').textContent=phaseDone?'발견 완료 ✓':'지금 해 볼 일';
   }
   function restart(){
     if(closed)return;
+    stopAuto();auto=null;paintAuto();
     $('#discovery-pop').hidden=true;
     if(activeScene)activeScene.scene.restart();
+  }
+  // 교사 시연: 직접 조작하지 않고 다음 단계 → 다음 활동 → 다음 장소 → 마지막 도전 순서로 넘긴다. 기록은 남기지 않는다.
+  const skip=ctx.admin?document.createElement('button'):null;
+  function skipLabel(){
+    if(!skip)return;
+    const label=chapter.phase<2?'다음 단계로':ctx.step===0?'다음 활동으로':STAGES[ctx.index+1]?'다음 장소로':'마지막 도전으로';
+    skip.innerHTML=`<small>교사 시연</small><span>${label}</span>${icon('arrow',22)}`;skip.setAttribute('aria-label',`교사 시연: 조작 없이 ${label} 넘기기`);
+  }
+  if(skip){
+    skip.type='button';skip.id='teacher-skip';skip.className='teacher-skip';
+    ctx.root.closest('.adventure-page').append(skip);skipLabel();
+    skip.onclick=()=>{
+      if(document.querySelector('dialog[open]'))return;
+      if(chapter.phase<2){chapter.phase++;ctx.save();restart();}
+      else if(ctx.step===0)ctx.go(1);
+      else if(STAGES[ctx.index+1])enter(ctx.index+1,0);
+      else navigate('final','assembly');
+    };
   }
   next.onclick=()=>{
     if(!phaseDone)return;
@@ -83,8 +146,30 @@ export function mount(ctx) {
   }
   $('#river-hint').onclick=showHint;
   helpButton.onclick=()=>ctx.modal('끌기 대신 버튼으로 조작',
-    '<p>도구와 대상을 직접 골라 조작해 봐. 조작 도움을 써도 보상은 같아. 정답 힌트를 펼친 연습은 수첩에 따로 표시해.</p><div class="assist-grid">'+assistActions.map((a,i)=>`<button class="secondary" data-assist="${i}">${escapeHTML(a.label)}</button>`).join('')+'</div><p class="assist-feedback" role="status"></p><button class="primary" id="assist-return">탐구로 돌아가기</button>',(dialog,close)=>{
-      $$('[data-assist]',dialog).forEach(button=>button.onclick=()=>{const action=assistActions[Number(button.dataset.assist)];if(action?.closeOnUse)close();const w=chapter.work[chapter.phase]??={};w.operationHelp=true;ctx.save();action?.callback();$('.assist-feedback',dialog).textContent=$('#speech').textContent;});
+    '<p class="assist-intro"></p><div class="assist-grid"></div><p class="assist-feedback" role="status"></p><button class="primary" id="assist-return">탐구로 돌아가기</button>',(dialog,close)=>{
+      $('.assist-intro',dialog).textContent=$('#instruction').textContent;
+      const grid=$('.assist-grid',dialog);
+      let rendered=0;
+      refreshAssist=()=>{
+        for(const [index,action] of assistActions.entries()){
+          if(index<rendered)continue;
+          const button=document.createElement('button');
+          button.type='button';button.className='secondary';button.dataset.assist=index;button.textContent=action.label;
+          if(action.group==='item')button.setAttribute('aria-pressed','false');
+          button.onclick=()=>{
+            if(action.closeOnUse)close();
+            const w=chapter.work[chapter.phase]??={};w.operationHelp=true;ctx.save();
+            action.callback();
+            if(action.group==='item')for(const item of grid.querySelectorAll('[aria-pressed]'))item.setAttribute('aria-pressed',String(item===button));
+            $('.assist-feedback',dialog).textContent=$('#speech').textContent;
+            if(phaseDone)$('#assist-return',dialog).textContent='완료! 탐구로 돌아가기';
+          };
+          grid.append(button);
+        }
+        rendered=assistActions.length;
+      };
+      refreshAssist();
+      dialog.addEventListener('close',()=>{refreshAssist=()=>{};},{once:true});
       $('#assist-return',dialog).onclick=close;
     });
   const tool=TOOLS[ctx.s.id],toolButton=$('#earned-tool');
@@ -125,16 +210,21 @@ export function mount(ctx) {
       let selected=null,pressed=null,pressPoint=null,gestureMoved=false;
       const tapRing=scene.add.graphics().setDepth(195);
       const draggables=new Map();
+      const meter=$('#quest-meter');
+      let meterText='',completionShown=false;
       const clearSelection=()=>{selected=null;tapRing.clear();};
       const select=object=>{scene.tweens.killTweensOf(object);selected=object;tapRing.clear().lineStyle(5,0xffd36b,1).strokeCircle(object.x,object.y,Math.min(110,Math.max(45,object.displayWidth/2+10)));ctx.say('도착할 곳을 눌러 줘. 손가락으로 끌어도 돼.');ctx.sound('pickup');};
       scene.input.on('pointerdown',(p)=>{pressPoint={x:p.x,y:p.y};gestureMoved=false;});
       scene.input.on('pointerup',(p)=>{
         if(document.querySelector('dialog[open]'))return;
         const moved=gestureMoved||!pressPoint||Math.hypot(p.x-pressPoint.x,p.y-pressPoint.y)>12;
-        if(!moved&&pressed){select(pressed);}
-        else if(!moved&&selected){
+        if(!moved&&selected&&pressed!==selected){
+          const at=scene.cameras.main.getWorldPoint(p.x,p.y);
           const object=selected,config=draggables.get(object),home={x:object.x,y:object.y};clearSelection();
-          if(config&&object.active){scene.tweens.killTweensOf(object);object.setPosition(p.x,p.y);config.onMove?.(object,p.x,p.y);const accepted=(config.onTap||config.onDrop)?.(object,object.x,object.y)===true;if(!accepted&&object.active)object.setPosition(home.x,home.y);ctx.sound(accepted?'place':'move');}
+          if(config&&object.active){scene.tweens.killTweensOf(object);object.setPosition(at.x,at.y);config.onMove?.(object,at.x,at.y);const accepted=(config.onTap||config.onDrop)?.(object,object.x,object.y)===true;if(!accepted&&object.active)object.setPosition(home.x,home.y);ctx.sound(accepted?'place':'move');}
+        }else if(!moved&&pressed){
+          const action=draggables.get(pressed)?.onPick;
+          if(action){clearSelection();action();}else select(pressed);
         }
         pressed=null;
       });
@@ -142,13 +232,23 @@ export function mount(ctx) {
       scene.input.on('gameout',()=>{pressed=null;});
       const api={
         stage:ctx.s.id,step:ctx.step,phase,data:ctx.data,work,state:ctx.state,admin:ctx.admin,
-        save:ctx.save,modal:ctx.modal,
+        save:ctx.save,modal:ctx.modal,completed:phaseDone,
+        stopAutoplay:stopAuto,
+        autoplay(config){auto=config;paintAuto();},
         task(title,hint){ctx.instruction(title);ctx.say(hint);initialHint=hint;},
         say(text,success=false){ctx.say(text);if(success)ctx.chime();},
-        counter(done,total,label){$('#quest-meter').innerHTML=`<span>${escapeHTML(label)}</span><strong>${Math.min(done,total)} <small>/ ${total}</small></strong>`;},
+        counter(done,total,label){
+          const value=Math.min(done,total), key=label+' '+value+'/'+total;
+          if(key===meterText)return;
+          meterText=key;
+          meter.innerHTML=`<span>${escapeHTML(label)}</span><strong>${value} <small>/ ${total}</small></strong>`;
+          meter.style.setProperty('--progress',(100*value/total)+'%');
+        },
         record(item){capture(ctx,{...item,phase,operationHelp:!!work.operationHelp,answerHint:!!work.answerHint}); next.disabled=!phaseDone;},
         sound:ctx.sound,
         finish(summary,details={}){
+          stopAuto();
+          if(completionShown)return;
           details={...details,operationHelp:!!work.operationHelp,answerHint:!!work.answerHint};
           const fresh=completePhase(ctx.data,ctx.step,phase,summary,details);
           // Admin may inspect later scenes without writing fictional earlier evidence.
@@ -156,6 +256,7 @@ export function mount(ctx) {
           if(ctx.admin&&!chapter.tasks[phase]?.done)chapter.tasks[phase]={done:true,summary,details};
           phaseDone=chapter.tasks[phase]?.done===true;
           if(!phaseDone)return;
+          completionShown=true;
           ctx.save();ctx.update();updateStepNav();ctx.say(summary);
           if(fresh){
             ctx.chime();
@@ -189,6 +290,22 @@ export function mount(ctx) {
           if(PAPER_COLORS.has(color))return api.paper('parchment-panel',x,y,w,h).setAlpha(Math.max(alpha,.92));
           return scene.add.rectangle(x,y,w,h,color,alpha).setStrokeStyle(2,0xcdbb8c,.6);
         },
+        marker(x,y,number,onPick){
+          const ring=scene.add.circle(0,0,25,0x164c49,.94).setStrokeStyle(4,0xffe5a0);
+          const glyph=api.text(number,0,0,26,'#ffffff');
+          const button=scene.add.container(x,y,[ring,glyph]).setSize(78,78).setInteractive({useHandCursor:true});
+          const canvas=scene.game.canvas;
+          const fitHitArea=()=>{
+            const width=canvas.getBoundingClientRect().width;
+            if(!width)return;
+            const size=Math.max(78,Math.ceil(48*scene.scale.gameSize.width/width));
+            button.setSize(size,size);button.input.hitArea.setSize(size,size);
+          };
+          const resizeHitArea=new ResizeObserver(fitHitArea);
+          resizeHitArea.observe(canvas);fitHitArea();sceneCleanups.push(()=>resizeHitArea.disconnect());
+          button.on('pointerup',()=>{if(!selected&&!pressed&&!gestureMoved&&!document.querySelector('dialog[open]'))onPick();});
+          return (done,visible=true)=>{button.setVisible(visible);glyph.setText(done?'✓':String(number));ring.setFillStyle(done?0x38693c:0x164c49,.94);};
+        },
         target(x,y,w,h,label){
           const area=scene.add.graphics();
           area.fillStyle(0xfff5ce,.42).fillRoundedRect(x-w/2,y-h/2,w,h,14).lineStyle(3,0x987a36,.85).strokeRoundedRect(x-w/2,y-h/2,w,h,14).lineStyle(2,0xffffff,.6).strokeRoundedRect(x-w/2+5,y-h/2+5,w-10,h-10,10);
@@ -201,14 +318,15 @@ export function mount(ctx) {
           c.add(api.text(label,pad/2+(icon?10:0),-2,size,color,w-28-pad*1.4));
           return c.setSize(w,h);
         },
-        drag(object,{onDrop,onMove,onStart,onTap}={}){
-          const home={x:object.x,y:object.y},depth=object.depth;
+        drag(object,{onDrop,onMove,onStart,onTap,onPick}={}){
+          let home={x:object.x,y:object.y};
+          const depth=object.depth;
           let dragging=false;
           if(!object.input)object.setInteractive({useHandCursor:true});
           scene.input.setDraggable(object);
-          draggables.set(object,{onDrop,onMove,onStart,onTap});
+          draggables.set(object,{onDrop,onMove,onStart,onTap,onPick});
           object.on('pointerdown',()=>{if(!document.querySelector('dialog[open]'))pressed=object;});
-          object.on('dragstart',()=>{if(document.querySelector('dialog[open]'))return;scene.tweens.killTweensOf(object);dragging=true;clearSelection();gestureMoved=true;ctx.sound('pickup');object.setDepth(200);onStart?.(object);});
+          object.on('dragstart',()=>{if(document.querySelector('dialog[open]'))return;scene.tweens.killTweensOf(object);dragging=true;home={x:object.x,y:object.y};clearSelection();gestureMoved=true;ctx.sound('pickup');object.setDepth(200);onStart?.(object);});
           object.on('drag',(_pointer,x,y)=>{object.setPosition(x,y);onMove?.(object,x,y);});
           object.on('dragend',()=>{
             if(!dragging)return;dragging=false;
@@ -225,20 +343,20 @@ export function mount(ctx) {
           buttons.innerHTML=actions.map(a=>`<button class="${a.primary?'primary':'secondary'}" id="${escapeHTML(a.id)}">${escapeHTML(a.label)}</button>`).join('');
           actions.forEach(a=>$('#'+CSS.escape(a.id),ctx.controls).onclick=a.onClick);
         },
-        range(label,value,min,max,onChange){
+        range(label,value,min,max,onChange,ends=['처음','끝']){
           const row=document.createElement('div');row.className='adventure-range';
           const span=document.createElement('span');span.textContent=label;
           const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.step=(max-min<=1)?.01:1;input.value=value;input.setAttribute('aria-label',label);
           input.oninput=()=>onChange(Number(input.value));input.onchange=ctx.save;
           const jump=(label,value)=>{const b=document.createElement('button');b.className='range-jump secondary';b.textContent=label;b.type='button';b.onclick=()=>{input.value=value;onChange(value);ctx.save();};return b;};
-          row.append(span,jump('처음',min),input,jump('끝',max));ctx.controls.append(row);return input;
+          row.append(span,jump(ends[0],min),input,jump(ends[1],max));ctx.controls.append(row);return input;
         },
-        assist(label,callback,options={}){assistActions.push({label,callback,...options});},
+        assist(label,callback,options={}){assistActions.push({label,callback,...options});refreshAssist();},
         // Students choose both the object and the destination. This runs the
         // physical drop handler, including its original learning validation.
         assistPlacement(items,targets){
           let chosen=null;
-          for(const item of items)api.assist('도구 선택 · '+item.label,()=>{chosen=item;api.say(item.label+' 선택. 놓을 대상을 골라 줘.');});
+          for(const item of items)api.assist('도구 선택 · '+item.label,()=>{chosen=item;api.say(item.label+' 선택. 놓을 대상을 골라 줘.');},{group:'item'});
           for(const target of targets)api.assist('대상 선택 · '+target.label,()=>{
             if(!chosen){api.say('먼저 옮길 도구나 카드를 골라 줘.');return;}
             const object=chosen.object,config=draggables.get(object);if(!config||!object.active)return;
@@ -259,20 +377,27 @@ export function mount(ctx) {
       };
       hooks=SETUP[ctx.s.id](scene,api);
       this.events.once('shutdown',()=>{
-        hooks?.destroy?.();hooks=null;
+        stopAuto();auto=null;paintAuto();hooks?.destroy?.();hooks=null;
         for(const clean of sceneCleanups)clean();sceneCleanups=[];
       });
       // The navigation button always reflects saved phase completion, not incidental captures.
       next.disabled=!phaseDone;
     }
     update(time,delta){
-      if(!closed&&!document.hidden&&!document.querySelector('dialog[open]'))hooks?.update?.(time,delta);
+      if(closed||document.hidden||document.querySelector('dialog[open]'))return;
+      hooks?.update?.(time,delta);
+      if(!auto)return;
+      paintAuto();
+      if(playing){
+        elapsed+=Math.min(delta,100);
+        if(elapsed>=auto.interval){elapsed=0;auto.advance();paintAuto();}
+      }
     }
   }
   function syncPause(){
     if(!game||!activeScene||closed)return;
     const pause=document.hidden||!!document.querySelector('dialog[open]');
-    if(pause)hooks?.pause?.();
+    if(pause){stopAuto();hooks?.pause?.();}
     if(pause&&game.scene.isActive('Activity'))game.scene.pause('Activity');
     else if(!pause&&game.scene.isPaused('Activity'))game.scene.resume('Activity');
   }
@@ -292,5 +417,5 @@ export function mount(ctx) {
       callbacks:{postBoot(game){game.canvas.setAttribute('aria-label',`${ctx.s.place} · 손으로 도구를 움직이는 탐구 장면`);game.canvas.setAttribute('role','img');}}
     });
   });
-  return()=>{closed=true;observer.disconnect();resizeObserver.disconnect();document.removeEventListener('visibilitychange',syncPause);destroyGame(game);ctx.save();};
+  return()=>{closed=true;stopAuto();auto=null;document.removeEventListener('pointerdown',manual,true);document.removeEventListener('keydown',manual,true);document.removeEventListener('input',manual,true);observer.disconnect();resizeObserver.disconnect();document.removeEventListener('visibilitychange',syncPause);destroyGame(game);ctx.save();};
 }

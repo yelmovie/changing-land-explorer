@@ -19,4 +19,19 @@
 - 물소리 원본·라이선스 표시: https://opengameart.org/content/bubble-sound-effects
 - CC0 원문: https://creativecommons.org/publicdomain/zero/1.0/legalcode
 - 수정: FFmpeg로 모노 MP3 변환. 소리 끄기·배경 탭 정지·동시 1개 재생 적용.
-- 원본 다운로드는 프로젝트 `.work/media-sources/`에 보존. 영상 그림은 프로젝트에서 직접 작성한 SVG이며 무음으로 제작했어.
+- 원본 다운로드는 프로젝트 `.work/media-sources/`에 보존. 활동별 개념 영상은 프로젝트에서 직접 작성한 SVG를 사용해 무음으로 제작했어.
+
+## 탐험과 수첩 소리
+
+2026-11-02에 제작자 Kenney가 OpenGameArt에 게시한 CC0 원본을 받았어. 아래 Ogg 파일은 원본 오디오를 그대로 사용하고, 게임에서 재생할 때 음량만 조절해. Vorbis를 지원하지 않는 브라우저는 기존 MP3 신호음을 사용해.
+
+메인 테마(`main-theme.mp3`, 원본 보관 `assets/source-media/audio/main-theme.mp3`, 전달 당시 `intro.mp3`)와 엔딩 테마(`final-theme.mp3`, 원본 보관 `assets/source-media/audio/final-theme.mp3`)는 프로젝트 제작자가 제공한 음악이야. 아래 CC0 표기는 외부 효과음에만 해당해.
+
+| 게임 파일 | 원본 파일 | 쓰는 곳 |
+|---|---|---|
+| trail-step.ogg | OGG/footstep01.ogg | 지도를 걸어서 출발할 때 한 번 |
+| notebook-open.ogg | OGG/bookOpen.ogg | 관찰 수첩 열기 |
+| notebook-page.ogg | OGG/bookFlip2.ogg | 수첩이나 기록 목록에서 장 넘기기 |
+| tool-reward.ogg | OGG/jingles_PIZZA/jingles_PIZZA03.ogg | 장소를 마치고 새 도구 받기 |
+
+발걸음과 종이 소리의 출처는 [Kenney의 50 RPG sound effects](https://opengameart.org/content/50-rpg-sound-effects), 보상음은 [Kenney의 85 Short music jingles](https://opengameart.org/content/85-short-music-jingles)야. 두 묶음 모두 제작자가 CC0로 공개했어.
