@@ -5,6 +5,7 @@ const {chromium}=await import(process.env.PLAYWRIGHT_PATH?pathToFileURL(process.
 const base=process.env.CHECK_URL||'http://localhost:5177';
 const out=process.env.CHECK_OUT||'.work/learning-verification';await fs.mkdir(out,{recursive:true});
 const results=[],errors=[],loading=[],sizes=(process.env.CHECK_SIZES?process.env.CHECK_SIZES.split(',').map(s=>s.split('x').map(Number)):[[1024,768],[1280,720],[1920,1080]]).filter(s=>!process.env.CHECK_VIEWPORT||s.join('x')===process.env.CHECK_VIEWPORT);
+const writeResults=()=>fs.writeFile(`${out}/results.json`,JSON.stringify({results,errors,loading},null,2));
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const ids=['river','volcano','rocks','city','safety'];
 async function record(page,label,scope='body',{scroll=false,shot=false}={}){
@@ -32,6 +33,15 @@ async function record(page,label,scope='body',{scroll=false,shot=false}={}){
   const activity=root.querySelector('#activity'),canvas=activity?.querySelector('canvas');
   if(canvas){const a=activity.getBoundingClientRect(),b=canvas.getBoundingClientRect();if(b.left<a.left-1||b.top<a.top-1||b.right>a.right+1||b.bottom>a.bottom+1)issues.push('activity canvas clipped');}
   if(heading&&phases){const h=heading.getBoundingClientRect(),p=phases.getBoundingClientRect();if(h.right>p.left+1&&h.left<p.right-1&&h.bottom>p.top+1&&h.top<p.bottom-1)issues.push('goal overlaps phase navigation');}
+  if(root.querySelector('.transfer-page')){
+   const svg=activity.querySelector('.scene-svg').getBoundingClientRect();
+   if(svg.height<128||!inside(svg))issues.push('transfer drawing area is too small or clipped');
+   for(const b of root.querySelectorAll('.transfer-page button:not(:disabled)')){
+    if(!vis(b))continue;
+    const r=b.getBoundingClientRect();
+    if(!b.contains(document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)))issues.push('transfer control obstructed: '+b.textContent);
+   }
+  }
   return {issues,controls,rect:{x:r.x,y:r.y,w:r.width,h:r.height},dialogScroll:body?body.scrollHeight-body.clientHeight:0};
  },{scroll});
  const pass=!data.issues.length;results.push({label,pass,...data});
@@ -55,6 +65,18 @@ try{
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base);await page.waitForSelector('#settings');
   loading.push(await page.evaluate(()=>{const n=performance.getEntriesByType('navigation')[0];return {width:innerWidth,height:innerHeight,domReadyMs:n.domContentLoadedEventEnd,loadMs:n.loadEventEnd,uiObservedMs:performance.now(),transferBytes:performance.getEntriesByType('resource').reduce((n,r)=>n+r.transferSize,0)};}));
+  if(width<600&&width/height<=.75){
+   await page.locator('#rotation-note').waitFor({state:'visible'});
+   await page.locator('#settings').click();
+   await page.locator('#settings-close').click();
+   await page.screenshot({path:`${out}/${width}-rotation-guide.png`});
+   await page.setViewportSize({width:height,height:width});
+   await page.locator('#rotation-note').waitFor({state:'hidden'});
+   await page.locator('#settings').click();
+   await page.locator('#settings-close').click();
+   results.push({label:`${width}-rotation-guide`,pass:true});
+   await writeResults();await context.close();continue;
+  }
   await record(page,`${width}-welcome`,'#app',{shot:true});
   await page.locator('#settings').click();await record(page,`${width}-settings`,'dialog',{scroll:true});
   await page.locator('#admin-setting').evaluate(e=>e.click());await page.waitForSelector('#preview-nav');
@@ -62,10 +84,10 @@ try{
   await page.locator('#preview-nav').click();await record(page,`${width}-preview`,'dialog',{scroll:true});await page.locator('.dialog-close').click();
   for(let index=0;index<5;index++)for(let step=0;step<2;step++)for(let phase=0;phase<3;phase++){
    const key=`${width}-${ids[index]}-${step}-${phase}`;await enter(page,index,step,phase);
-   await record(page,key,'#app',{shot:width===1280});
+   await record(page,key,'#app',{shot:width===1280&&height===800});
    await page.locator('#river-hint').click();await record(page,key+'-hint','dialog');await page.locator('.dialog-close').click();
    if(phase===0){
-    await page.locator('#concept-review').click();await record(page,key+'-concept','dialog',{shot:width===1280});
+    await page.locator('#concept-review').click();await record(page,key+'-concept','dialog',{shot:width===1280&&height===800});
     await page.locator('video').evaluate(v=>{if(!v.paused)throw Error('Reduced-motion video autoplayed');});
     await page.locator('#concept-play').click();await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=2&&v.currentTime>0;});
     const video=await page.locator('video').evaluate(v=>({duration:v.duration,muted:v.muted,width:v.videoWidth,height:v.videoHeight}));
@@ -75,10 +97,14 @@ try{
   }
   for(const mode of ['assembly','ending','certificate']){
    await page.evaluate(async(mode)=>{await(await import('/src/main.js')).navigate('final',mode);},mode);
-   await record(page,`${width}-final-${mode}`,'#app',{scroll:mode==='ending',shot:width===1280});
+   await record(page,`${width}-final-${mode}`,'#app',{scroll:mode==='ending',shot:width===1280&&height===800});
   }
-  await context.close();console.log(`Checked ${width}x${height}: 30 phases, hints, concepts, common pages`);
+  for(let round=0;round<3;round++){
+   await page.evaluate(async round=>{const m=await import('/src/main.js');Object.assign(m.state().final,{assembled:true,round});await m.navigate('final');},round);
+   await record(page,`${width}x${height}-transfer-${round+1}`,'#app',{shot:width===915||width===1280&&height===800});
+  }
+  await writeResults();await context.close();console.log(`Checked ${width}x${height}: 30 phases, hints, concepts, common pages`);
  }
-}finally{await browser.close();await fs.writeFile(`${out}/results.json`,JSON.stringify({results,errors,loading},null,2));}
+}finally{await writeResults();await browser.close();}
 const failed=results.filter(r=>!r.pass);console.log(`${results.length-failed.length}/${results.length} checks passed; ${errors.length} runtime errors.`);
 if(failed.length||errors.length)process.exitCode=1;

@@ -21,3 +21,4 @@ references/previews/
 *.log
 Thumbs.db
 .DS_Store
+._*

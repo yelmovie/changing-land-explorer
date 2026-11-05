@@ -119,3 +119,7 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 ### 화산·암석 관찰 표현 — 2026-11-03
 
 기존 자체 생성 표본을 참조해 OpenAI 내장 이미지 생성으로 현무암·화강암 확대 관찰용 표본과 화산재 구름을 제작했어요. 배포 파일: art/rock-basalt-study-v1.webp, art/rock-granite-study-v1.webp, art/volcano-ash-puff-{0,1,2}-v1.webp. 원본은 assets/raw-png/stage-polish-20261103/, 제작 프롬프트와 과학적 표현 기준은 docs/design/volcano-rock-polish-prompts.md에 있어요. 학습용 재현이며 실측 사진·실제 분출 속도는 아니에요.
+
+### 복구된 기록탑 — 2026-11-05
+
+프로젝트 엔딩의 기록탑을 참조해 OpenAI 내장 이미지 생성 도구로 만든 결과 화면 배경이에요. 배포본은 art/record-tower-restored-v1.webp, 원본은 assets/raw-png/record-tower-20261105/record-tower-restored-v1.png에 있어요. 프롬프트는 docs/design/record-tower-restored-prompt.md에 기록했어요.

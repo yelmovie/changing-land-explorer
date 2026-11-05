@@ -33,7 +33,7 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     dialog.classList.add('concept-dialog');
     const releaseMusic=holdMusic();
     const video = $('video', dialog), caption = $('.concept-caption', dialog), play = $('#concept-play', dialog);
-    let reachedEnd = false, departed = false;
+    let reachedEnd = false, departed = false, unavailable = false;
     let failedSources=0;
     const update = () => {
       const cue = Math.min(2, Math.floor(video.currentTime / (8 / 3)));
@@ -41,12 +41,12 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
       dialog.querySelectorAll('[data-cue]').forEach((label,i) => label.classList.toggle('active', i === cue));
     };
     const end = () => { reachedEnd = true; play.hidden = true; caption.textContent = concept.cues[2]; };
-    const start = () => { stopSounds(); reachedEnd = false; play.hidden = true; video.currentTime = 0; video.play().catch(() => { play.hidden = false; }); };
+    const start = () => { if(unavailable)return;stopSounds(); reachedEnd = false; play.hidden = true; video.currentTime = 0; video.play().catch(() => { if(!unavailable)play.hidden = false; }); };
     cleanup = () => { releaseMusic();video.pause(); video.removeAttribute('src'); video.querySelectorAll('source').forEach(s=>s.removeAttribute('src')); video.load(); document.removeEventListener('visibilitychange', visibility); };
-    const visibility = () => { if (document.hidden) video.pause(); else if (!reachedEnd) play.hidden = false; };
+    const visibility = () => { if (document.hidden) video.pause(); else if (!reachedEnd&&!unavailable) play.hidden = false; };
     const proceed = () => { if (departed) return; departed = true; close(); if (!replay) onContinue?.(); };
     video.addEventListener('timeupdate', update); video.addEventListener('ended', end);
-    const fail = () => { if(!dialog.open)return;play.hidden = true; $('.concept-error', dialog).hidden = false; caption.textContent = concept.cues.join(' '); };
+    const fail = () => { if(!dialog.open)return;unavailable=true;play.hidden=true;$('#concept-replay',dialog).disabled=true;$('.concept-error',dialog).hidden=false;caption.textContent=''; };
     video.addEventListener('error', fail);
     // When child <source> URLs all fail, browsers may emit errors only on them.
     video.querySelectorAll('source').forEach(source=>source.addEventListener('error',()=>{if(++failedSources===video.querySelectorAll('source').length)fail();}));

@@ -1,0 +1,8 @@
+# 복구된 기록탑 일러스트 · 2026-11-05
+
+OpenAI 내장 이미지 생성 도구를 사용했다. 기존 엔딩 스토리보드 `references/video-storyboard/final-03.png`를 건물과 섬의 화풍 참조로 제공했다. 결과 화면에만 새 배경을 사용하고, 제목과 진행 안내는 HTML로 올렸다.
+
+> Create a NEW single landscape illustration game environment for the Korean grade-four earth science exploration game Moving Geovalley. The supplied reference is ONLY to match the island world, the rounded painted 2.5D adventure illustration style and exact small octagonal pale masonry observatory with a dark teal blue dome with slender brass ribs and glowing arched windows. New composition: a medium-wide 16:9 landscape at eye-level on a landscaped limestone terrace, looking across the terrace toward this restored Memory Tower, with the tower complete and uncropped slightly right of center. Through the left half, the distant Geovalley island, thin winding turquoise river, low woodland and a distant dormant volcano; a little stone path ties the foreground to the tower. Fresh neutral daylight with naturally green foliage, pale stone and turquoise water, restrained amber light from the restored tower windows; no amber color cast, no yellow filter, no sepia. Soft hand-painted illustrative texture with clean readable silhouette, friendly upper primary adventure game, no photorealism. One integrated full-bleed scene, one image only. Keep foreground uncluttered. Absolutely no characters, no animals, no typography, no numbers, no signs or glyphs, no flags, no logos or watermarks, no UI, no panels, no frames, no inset images, no magic effects.
+
+- 원본 PNG: `assets/raw-png/record-tower-20261105/record-tower-restored-v1.png`
+- 배포 WebP: `public/assets/art/record-tower-restored-v1.webp` (1536×864, 324,762바이트)

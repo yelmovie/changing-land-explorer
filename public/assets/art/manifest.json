@@ -168,6 +168,17 @@
       "source": "assets/raw-png/stage-polish-20261103/volcano-ash-atlas-v1.png",
       "created": "2026-11-03",
       "prompt": "docs/design/volcano-rock-polish-prompts.md"
+    },
+    {
+      "name": "record-tower-restored-v1",
+      "file": "record-tower-restored-v1.webp",
+      "width": 1536,
+      "height": 864,
+      "bytes": 324762,
+      "alpha": false,
+      "source": "assets/raw-png/record-tower-20261105/record-tower-restored-v1.png",
+      "created": "2026-11-05",
+      "prompt": "docs/design/record-tower-restored-prompt.md"
     }
   ]
 }

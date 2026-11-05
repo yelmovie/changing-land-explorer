@@ -5,7 +5,8 @@ import fs from 'node:fs/promises';
 const out=process.env.CHECK_OUT||'.work/learning-verification';
 await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true});
-const context=await browser.newContext({viewport:{width:1280,height:800},reducedMotion:'reduce',serviceWorkers:'block'});
+const [width,height]=(process.env.CHECK_VIEWPORT||'1280x800').split('x').map(Number);
+const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce',serviceWorkers:'block'});
 const resumedStageState=Boolean(process.env.CHECK_RESUME_STATE);
 if(resumedStageState){
  const raw=await fs.readFile(process.env.CHECK_RESUME_STATE,'utf8');
@@ -117,7 +118,14 @@ try{
  await page.goto(process.env.CHECK_URL||'http://localhost:5177');await page.waitForSelector('#settings');
  if(!resumedStageState){
  await page.waitForSelector('#start');await page.locator('#start').click();await page.locator('#story-skip').click();await enter(0);
- await place('예상 깃발','가운데 흙');await pour();await next();
+ await place('예상 깃발','가운데 흙');await pour();
+ // A rapid repeat must advance only once; the next unfinished phase must
+ // survive a page reload without reopening the completed first experiment.
+ await page.locator('#next').evaluate(button=>{button.click();button.click();});
+ await page.waitForSelector('[data-phase="1"][aria-current="step"]');await settle();
+ assert.equal(await page.locator('#instruction').evaluate(e=>e===document.activeElement),true);
+ assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);
+ await page.reload();await settle();await page.waitForSelector('[data-phase="1"][aria-current="step"]');
  await pour();await next();
  await assist(['두 실험 처음으로 되감기','두 실험 마지막 모습 보기']);
  for(const [tool,target]of [['깎임 · 침식','위쪽 깎인 흙'],['이동 · 운반','가운데 흐르는 길'],['쌓임 · 퇴적','아래쪽 모래']])await place(tool,target);

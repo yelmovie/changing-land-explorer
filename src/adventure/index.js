@@ -1,6 +1,6 @@
 import {$, $$, icon, escapeHTML} from '../ui.js';
 import {capture,evidenceCard} from '../explore-ui.js';
-import {PHASES,TOOL_ASSETS,revisitPhase,completePhase,discoveryCount} from './rules.js';
+import {PHASES,TOOL_ASSETS,revisitPhase,completePhase} from './rules.js';
 import {setup as river} from './river.js';
 import {setup as volcano} from './volcano.js';
 import {setup as rocks} from './rocks.js';
@@ -8,19 +8,12 @@ import {setup as city} from './city.js';
 import {setup as safety} from './safety.js';
 import {HINTS} from './hints.js';
 import {destroyGame} from '../phaser-lifecycle.js';
-import {backgroundForAsset,STAGE_BACKGROUNDS} from '../stage-art.js';
+import {backgroundForAsset,STAGE_BACKGROUNDS,STAGE_ASSETS,SHARED_STAGE_ASSETS} from '../stage-art.js';
 import {STAGES} from '../model.js';
 import {enter,navigate} from '../main.js';
 
 const SETUP={river,volcano,rocks,city,safety};
 const UI=name=>'art/ui/'+name;
-const ASSETS={
-  river:['river-lab','river-field','art/river-sand-model','art/river-sand-wet-v1','art/river-sediment-fan-v1'],volcano:['volcano-lab','volcano-field','volcano-eruption','art/volcano-mountain','art/volcano-tray','art/volcano-syringe',...Array.from({length:3},(_,i)=>'art/volcano-ash-puff-'+i+'-v1')],
-  rocks:['rocks-lab','art/rocks-quarry-atelier-v2','rock-0','rock-1','rock-2','rock-3','art/geologist-brush',UI('dust-crust'),UI('specimen-tray')],
-  city:['city-before','city-eruption','city-calm','art/city-message-square-v2',...['notice-board','indoor-wall','window-frame','glass-pane','dust-mask','time-knob'].map(UI)],
-  safety:['classroom','school','art/safety-cushion','art/hero-hold-leg-v1',...['warning-sign','school-desk','school-floor','flowerbed','broken-glass','fallen-shelf','exit-mat','playground','town-ground','house-roof','brick-wall','utility-pole'].map(UI)]
-};
-const COMMON=['river-hero','river-pose-0','river-pose-1','river-pose-2','river-pose-3','hero-lens','hero-brush','hero-cheer','hero-protect','tool-water',UI('parchment-panel'),UI('paper-card'),...Object.values(TOOL_ASSETS)];
 // Cream panels become the illustrated field-notebook paper; coloured panels stay flat on purpose.
 const PAPER_COLORS=new Set([0xfff8e8,0xfff7df,0xfff5d9,0xfff8e5,0xf8f0d8,0xfff4d8,0xfff7e2,0xfff8e6]);
 const SLICES={'parchment-panel':[52,52,52,52],'paper-card':[36,36,32,40],'glass-pane':[16,16,16,16]};
@@ -36,12 +29,15 @@ export function mount(ctx) {
   const chapter=revisitPhase(ctx.data,ctx.step), reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const backdrop=`url('/assets/${backgroundForAsset(STAGE_BACKGROUNDS[ctx.s.id][ctx.step])}.webp')`;
   ctx.root.style.setProperty('--activity-backdrop',backdrop);
-  ctx.root.closest('.adventure-page')?.style.setProperty('--activity-backdrop',backdrop);
+  const page=ctx.root.closest('.adventure-page'), heading=$('.adventure-heading',page);
+  page.style.setProperty('--activity-backdrop',backdrop);
+  page.style.setProperty('--stage-accent',ctx.s.color);
   let game,closed=false,hooks,activeScene,phaseDone=false,toolHandler=null,zoomed=false;
+  let restarting=false,focusInstruction=false;
   let sceneCleanups=[], assistActions=[];
   let hintIndex=0,initialHint='';
   let refreshAssist=()=>{};
-  ctx.root.innerHTML='<div class="phaser-stage" id="phaser-stage"></div><div class="stage-loader" role="status">리버가 탐험 도구를 꺼내고 있어…</div><div class="quest-meter" id="quest-meter" aria-live="polite"></div><div class="discovery-pop" id="discovery-pop" role="status" hidden></div>';
+  ctx.root.innerHTML='<div class="phaser-stage" id="phaser-stage"></div><div class="stage-loader" role="status">리버가 탐험 도구를 꺼내고 있어요…</div><div class="quest-meter" id="quest-meter" aria-live="polite"></div>';
   // The task counter sits beside River's guidance so it never covers the scene.
   $('.river-narrator>div')?.prepend($('#quest-meter',ctx.root));
   const next=$('#next');
@@ -82,30 +78,34 @@ export function mount(ctx) {
   document.addEventListener('input',manual,true);
   function updateStepNav(){
     const phase=chapter.phase, names=PHASES[ctx.s.id][ctx.step];
-    $('#phase-path').innerHTML=names.map((name,i)=>{
+    const path=$('#phase-path'),focused=path.contains(document.activeElement)?document.activeElement.dataset.phase:null;
+    path.innerHTML=names.map((name,i)=>{
       const done=chapter.tasks[i]?.done,locked=i>phase&&!chapter.tasks[i-1]?.done&&!ctx.admin;
       const status=done?' 완료':locked?' 잠김':ctx.admin?' 교사 시연 열림':'';
       const badge=done?icon('check',16):locked?icon('lock',16):ctx.admin&&i!==phase?icon('unlock',16):i+1;
       return `<button class="phase-node ${i===phase?'current':''} ${done?'done':''}" data-phase="${i}" ${locked?'disabled':''} aria-label="${i+1}단계 ${escapeHTML(name)}${status}" ${i===phase?'aria-current="step"':''}><span>${badge}</span><b>${name}</b></button>`;
     }).join('');
-    $$('[data-phase]').forEach(button=>button.onclick=()=>{
+    $$('[data-phase]',path).forEach(button=>button.onclick=event=>{
       const target=Number(button.dataset.phase);
-      if(target===chapter.phase)return;
-      chapter.phase=target;ctx.save();restart();
+      if(restarting||target===chapter.phase)return;
+      chapter.phase=target;ctx.save();restart(event.detail===0);
     });
-    $('#journey-count').textContent=String(discoveryCount(ctx.state));
+    if(focused!==null)$('[data-phase="'+focused+'"]',path)?.focus({preventScroll:true});
     phaseDone=chapter.tasks[phase]?.done===true;
     next.disabled=!phaseDone;
     skipLabel();
     next.innerHTML=(phase<2?'다음 발견':ctx.step===0?'현장으로 출발':'도구 받기')+icon('arrow',22);
     next.classList.toggle('ready',phaseDone);
-    $('#river-status').textContent=phaseDone?'발견 완료 ✓':'지금 해 볼 일';
+    const badge=$('#river-status');
+    badge.hidden=!phaseDone;
+    badge.innerHTML=phaseDone?icon('check',16)+' '+escapeHTML(names[phase])+' 완료':'';
+    page.classList.toggle('phase-complete',phaseDone);
   }
-  function restart(){
-    if(closed)return;
+  function restart(focus=false){
+    if(closed||restarting||!activeScene)return;
+    restarting=true;focusInstruction=focus;phaseDone=false;next.disabled=true;
     stopAuto();auto=null;paintAuto();
-    $('#discovery-pop').hidden=true;
-    if(activeScene)activeScene.scene.restart();
+    activeScene.scene.restart();
   }
   // 교사 시연: 직접 조작하지 않고 다음 단계 → 다음 활동 → 다음 장소 → 마지막 도전 순서로 넘긴다. 기록은 남기지 않는다.
   const skip=ctx.admin?document.createElement('button'):null;
@@ -118,17 +118,17 @@ export function mount(ctx) {
     skip.type='button';skip.id='teacher-skip';skip.className='teacher-skip';
     ctx.root.closest('.adventure-page').append(skip);skipLabel();
     skip.onclick=()=>{
-      if(document.querySelector('dialog[open]'))return;
+      if(restarting||document.querySelector('dialog[open]'))return;
       if(chapter.phase<2){chapter.phase++;ctx.save();restart();}
       else if(ctx.step===0)ctx.go(1);
       else if(STAGES[ctx.index+1])enter(ctx.index+1,0);
       else navigate('final','assembly');
     };
   }
-  next.onclick=()=>{
-    if(!phaseDone)return;
+  next.onclick=event=>{
+    if(!phaseDone||restarting||document.querySelector('dialog[open]'))return;
     ctx.chime();
-    if(chapter.phase<2){chapter.phase++;ctx.save();restart();}
+    if(chapter.phase<2){chapter.phase++;ctx.save();restart(event.detail===0);}
     else ctx.finishActivity();
   };
 
@@ -194,12 +194,12 @@ export function mount(ctx) {
   class Activity extends window.Phaser.Scene {
     constructor(){super('Activity');}
     preload(){
-      for(const key of [...new Set([...COMMON,...ASSETS[ctx.s.id]])])if(!this.textures.exists(key))this.load.image(key,`/assets/${backgroundForAsset(key)}.webp`);
+      for(const key of [...new Set([...SHARED_STAGE_ASSETS,...STAGE_ASSETS[ctx.s.id]])])if(!this.textures.exists(key))this.load.image(key,`/assets/${backgroundForAsset(key)}.webp`);
       this.load.on('loaderror',file=>{console.error('Game asset unavailable:',file.key);});
     }
     create(){
       if(closed)return;
-      activeScene=this;hooks=null;toolHandler=null;zoomed=false;sceneCleanups=[];assistActions=[];
+      activeScene=this;restarting=false;hooks=null;toolHandler=null;zoomed=false;sceneCleanups=[];assistActions=[];
       hintIndex=0;
       ctx.controls.innerHTML='';$('#quest-meter').textContent='';
       $('.stage-loader',ctx.root)?.remove();
@@ -257,13 +257,12 @@ export function mount(ctx) {
           phaseDone=chapter.tasks[phase]?.done===true;
           if(!phaseDone)return;
           completionShown=true;
+          const focusAction=ctx.controls.contains(document.activeElement)&&document.activeElement.closest('.action-buttons');
           ctx.save();ctx.update();updateStepNav();ctx.say(summary);
+          if(focusAction)next.focus({preventScroll:true});
           if(fresh){
             ctx.chime();
-            const pop=$('#discovery-pop');
-            pop.innerHTML=`<img src="/assets/hero-cheer.webp" alt="기뻐하는 리버"><div><b>발견했어!</b><span>${escapeHTML(PHASES[ctx.s.id][ctx.step][phase])} 완료</span></div>`;
-            pop.hidden=false;scene.time.delayedCall(reduced?600:2400,()=>{if(pop.isConnected)pop.hidden=true;});
-            api.spark(600,100);
+            if(!reduced)$('#river-status').animate([{transform:'translateY(3px)',opacity:.65},{transform:'translateY(0)',opacity:1}],{duration:240,easing:'ease-out'});
           }
         },
         image(key,x,y,w,h){
@@ -340,8 +339,10 @@ export function mount(ctx) {
         actions(actions){
           let buttons=$('.action-buttons',ctx.controls);
           if(!buttons){buttons=document.createElement('div');buttons.className='action-buttons';ctx.controls.prepend(buttons);}
-          buttons.innerHTML=actions.map(a=>`<button class="${a.primary?'primary':'secondary'}" id="${escapeHTML(a.id)}">${escapeHTML(a.label)}</button>`).join('');
-          actions.forEach(a=>$('#'+CSS.escape(a.id),ctx.controls).onclick=a.onClick);
+          if(buttons.children.length!==actions.length||actions.some((a,i)=>buttons.children[i].id!==a.id)){
+            buttons.replaceChildren(...actions.map(a=>{const b=document.createElement('button');b.type='button';b.id=a.id;return b;}));
+          }
+          actions.forEach((a,i)=>{const b=buttons.children[i];b.className=a.primary?'primary':'secondary';if(b.textContent!==a.label)b.textContent=a.label;b.onclick=a.onClick;});
         },
         range(label,value,min,max,onChange,ends=['처음','끝']){
           const row=document.createElement('div');row.className='adventure-range';
@@ -376,6 +377,7 @@ export function mount(ctx) {
         }
       };
       hooks=SETUP[ctx.s.id](scene,api);
+      if(focusInstruction){focusInstruction=false;$('#instruction').focus({preventScroll:true});}
       this.events.once('shutdown',()=>{
         stopAuto();auto=null;paintAuto();hooks?.destroy?.();hooks=null;
         for(const clean of sceneCleanups)clean();sceneCleanups=[];
@@ -405,6 +407,10 @@ export function mount(ctx) {
     else if(!pause&&game.scene.isPaused('Activity'))game.scene.resume('Activity');
   }
   const observer=new MutationObserver(syncPause);
+  const headingObserver=new ResizeObserver(()=>{
+    page.style.setProperty('--activity-top',Math.ceil(heading.offsetTop+heading.offsetHeight+8)+'px');
+  });
+  headingObserver.observe(heading);
   const resizeObserver=new ResizeObserver(()=>{if(game&&!closed)game.scale.setParentSize(ctx.root.clientWidth,ctx.root.clientHeight);});
   resizeObserver.observe(ctx.root);
   observer.observe($('#overlay'),{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
@@ -415,10 +421,10 @@ export function mount(ctx) {
       type:window.Phaser.AUTO,parent:'phaser-stage',width:1200,height:640,
       backgroundColor:'#e5ead9',transparent:false,antialias:true,
       scale:{mode:window.Phaser.Scale.FIT,autoCenter:window.Phaser.Scale.CENTER_BOTH},
-      input:{activePointers:2,dragDistanceThreshold:4},
+      input:{activePointers:1,dragDistanceThreshold:8},
       audio:{noAudio:true},fps:{target:60,forceSetTimeOut:false},scene:Activity,
       callbacks:{postBoot(game){game.canvas.setAttribute('aria-label',`${ctx.s.place} · 손으로 도구를 움직이는 탐구 장면`);game.canvas.setAttribute('role','img');}}
     });
   });
-  return()=>{closed=true;stopAuto();auto=null;document.removeEventListener('pointerdown',manual,true);document.removeEventListener('keydown',manual,true);document.removeEventListener('input',manual,true);observer.disconnect();resizeObserver.disconnect();document.removeEventListener('visibilitychange',syncPause);destroyGame(game);ctx.save();};
+  return()=>{closed=true;stopAuto();auto=null;document.removeEventListener('pointerdown',manual,true);document.removeEventListener('keydown',manual,true);document.removeEventListener('input',manual,true);observer.disconnect();headingObserver.disconnect();resizeObserver.disconnect();document.removeEventListener('visibilitychange',syncPause);destroyGame(game);ctx.save();};
 }

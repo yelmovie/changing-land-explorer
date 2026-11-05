@@ -6,7 +6,7 @@ import {showConcept,CONCEPTS} from './concepts.js';
 import {STAGES,SAVE_KEY,LEGACY_SAVE_KEY,fresh,loadProgress,award,canEnter,saveDecision,seedPreview} from './model.js';
 import {SETTINGS_CONTENT} from './settings-content.js';
 import {activityComplete} from './learning-model.js';
-import {PHASES, TOOL_ASSETS, discoveryCount} from './adventure/rules.js';
+import {TOOL_ASSETS} from './adventure/rules.js';
 import {showEvidence,evidenceCard} from './explore-ui.js';
 import {$,$$,icon,escapeHTML,checklist} from './ui.js';
 let student,storageReadOnly=false,storageProblem='',storageWarning='',lastRaw=null,conflict=false;
@@ -145,7 +145,7 @@ function back(){if(screen.type==='stage'){const {index}=screen.arg,d=state().dra
 export function enter(index,step){if(!canEnter(index,state(),admin)){toast('앞 장소의 관찰 기록을 먼저 완성하자.');return;}const s=STAGES[index];state().drafts[s.id]??={step:0,passed:[],data:{}};if(step!==undefined&&admin)state().drafts[s.id].step=step;navigate('stage',{index,step});}
 function renderStage(index,mount){
  const s=STAGES[index],d=state().drafts[s.id],step=d.step;d.data??={};d.passed??=[];
- shell(s.place,`<main class="adventure-page"><section class="adventure-heading"><div class="task-copy"><span class="eyebrow">탐험 ${index+1} · ${step===0?'실험과 관찰':'발견으로 문제 해결'}</span><h1 id="instruction">${s.steps[step]}</h1></div><nav id="phase-path" class="phase-path" aria-label="이번 활동의 세 가지 발견"></nav></section><section id="activity" class="adventure-surface" aria-label="${s.steps[step]}"></section><footer class="adventure-footer"><div class="river-narrator"><button class="narrator-help" id="river-hint" aria-label="리버에게 단계별 힌트 받기"><img src="/assets/hero-lens.webp" alt="탐험 동료 리버"><span>힌트</span></button><div><span id="river-status">리버의 길잡이</span><p id="speech" role="status">같이 단서를 찾아보자!</p></div></div><div class="adventure-toolbar"><div id="controls" class="controls"></div><button class="primary" id="next" disabled>다음 발견 ${icon('arrow')}</button></div></footer><div class="adventure-side-tools"><button class="icon-button" id="notebook" aria-label="내 관찰 수첩">${icon('book')}<b id="evidence-count">0</b></button><button class="secondary compact-tool" id="gesture-help">버튼으로 하기</button><button class="secondary compact-tool" id="concept-review">개념 영상</button><button class="earned-tool" id="earned-tool" hidden></button></div><span class="discovery-total" aria-label="모은 발견 조각">${icon('star',18)} <b id="journey-count">${discoveryCount(state())}</b> / 30</span></main>`,'adventure');
+ shell(s.place,`<main class="adventure-page"><section class="adventure-heading"><div class="task-copy"><span class="stage-kicker">${index+1}. ${s.place} <span>· 활동 ${step+1}/2</span></span><h1 id="instruction" tabindex="-1">${s.steps[step]}</h1></div><nav id="phase-path" class="phase-path" aria-label="이번 활동의 세 가지 발견"></nav></section><section id="activity" class="adventure-surface" aria-label="${s.steps[step]}"></section><footer class="adventure-footer"><div class="river-narrator"><button class="narrator-help" id="river-hint" aria-label="리버에게 단계별 힌트 받기"><img src="/assets/hero-lens.webp" alt="탐험 동료 리버"><span>힌트</span></button><div><span id="river-status" hidden></span><p id="speech" role="status">같이 단서를 찾아보자!</p></div></div><div class="adventure-toolbar"><div id="controls" class="controls"></div><button class="primary" id="next" disabled>다음 발견 ${icon('arrow')}</button></div></footer><div class="adventure-side-tools"><button class="icon-button" id="notebook" aria-label="내 관찰 수첩">${icon('book')}<b id="evidence-count">0</b></button><button class="secondary compact-tool" id="gesture-help">버튼으로 하기</button><button class="secondary compact-tool" id="concept-review">개념 영상</button><button class="earned-tool" id="earned-tool" hidden></button></div></main>`,'adventure');
  const ctx={index,s,d,step,data:d.data,state:state(),sound:playSound,concept:after=>showConcept(ctx,after),root:$('#activity'),controls:$('#controls'),admin,save,toast,chime,modal,
   refresh:()=>navigate('stage',{index,step}),go:target=>navigate('stage',{index,step:target}),
   say(msg){$('#speech').textContent=msg;},instruction(msg){$('#instruction').textContent=msg;},
@@ -176,6 +176,6 @@ const resume=student.started&&student.location?student.location:{type:'home'};
 history.replaceState({geo:resume},'');
 navigate(resume.type,resume.arg,true);
 
-function viewport(){document.documentElement.style.setProperty('--app-height',(window.visualViewport?.height||innerHeight)+'px');}viewport();window.visualViewport?.addEventListener('resize',viewport);window.addEventListener('resize',viewport);
+function viewport(){document.documentElement.style.setProperty('--app-height',((window.visualViewport?.height||innerHeight)-$('#rotation-note').offsetHeight)+'px');}viewport();window.visualViewport?.addEventListener('resize',viewport);window.addEventListener('resize',viewport);
 
 function teacherHelp(){modal('교사용 수업 안내',SETTINGS_CONTENT.teacher);}

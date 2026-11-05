@@ -15,9 +15,10 @@ try{
   await p.goto(base);await p.locator('.map-resident').first().waitFor();
   assert.equal(await p.locator('.map-resident').count(),3);
   if(width===390){
-   assert.match(await p.evaluate(()=>getComputedStyle(document.body,'::after').content),/가로로/);
+   await p.locator('#rotation-note').waitFor({state:'visible'});
+   assert.match(await p.locator('#rotation-note').textContent(),/가로로/);
    await p.setViewportSize({width:height,height:width});
-   await p.waitForFunction(()=>!getComputedStyle(document.body,'::after').content.includes('가로로'));
+   await p.locator('#rotation-note').waitFor({state:'hidden'});
   }
 
   const snap=()=>p.evaluate(key=>localStorage.getItem(key),key),student=await snap();
