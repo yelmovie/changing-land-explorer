@@ -73,7 +73,6 @@ function assemble(scene,api){
     const obj=objects[id]=part(scene,api,id,135,170+i*175);
     obj.setVisible(!parts.includes(id));
     api.drag(obj,{onDrop(o,x,y){if(!near(x,y,spots[id],115)){api.say('반짝이는 자리에 놓아 줘.');return false;}return place(id);}});
-    api.assist({tray:'쟁반 놓기',mountain:'산 모형 올리기',water:'붉은 물 주사기 연결'}[id],()=>place(id));
   });
   api.autoplay({label:'실험 모형 차례로 조립',interval:1500,allowWhenComplete:true,ready:()=>true,advance(){if(finished||parts.length===3){parts=[];finished=false;order.forEach(id=>objects[id].setVisible(true));show();}const id=order[parts.length];if(id)place(id);}});
   show();
@@ -106,7 +105,6 @@ function inject(scene,api){
   }
   const stop=()=>{active=false;};
   api.drag(handle,{onMove(obj,x,y){push((y-185)/145);},onDrop(obj,x,y){push((y-185)/145);return true;}});
-  api.assist('손잡이 조금 밀기',()=>push(finished&&(!replay||replay.flow>=1)?.2:view().push+.2));
   api.autoplay({label:'붉은 물 분출 관찰',interval:650,allowWhenComplete:true,ready:()=>true,stop,
     advance(){push(finished&&(!replay||replay.flow>=1)?.16:view().push+.16);}
   });
@@ -156,8 +154,6 @@ function trace(scene,api){
   function check(){if(!finished&&w.mouth&&w.path===FLOW.length){finished=true;d.modelTime=1;api.finish('나온 구멍과 흐른 길을 기록했어. 실제 화산과 비교할 단서가 생겼어.');}}
   api.drag(scope,{onDrop(obj,x,y){if(near(x,y,MOUTH,75))return mouth();api.say('붉은 물이 처음 나온 꼭대기를 살펴봐.');return false;}});
   api.drag(pencil,{onMove(obj,x,y){advance(x,y);},onDrop(obj,x,y){advance(x,y);return true;}});
-  api.assist('꼭대기 구멍 관찰',mouth);
-  api.assist('흐른 길의 다음 점으로 이동',()=>{if(!w.mouth){api.say('물이 나온 곳부터 관찰해 줘.');return;}const p=FLOW[w.path];if(p){pencil.setPosition(p.x,p.y);advance(p.x,p.y);}});
   if(w.mouth)scope.setPosition(MOUTH.x,MOUTH.y).setScale(.7);
   if(w.path>0)pencil.setPosition(FLOW[w.path-1].x,FLOW[w.path-1].y);
   guideDraw();
@@ -193,7 +189,6 @@ function observeOutputs(scene,api){
   OUTPUTS.forEach((p,index)=>{
     const q=world(p);
     markers.set(p.id,api.marker(q.x,q.y,index+1,()=>inspect(p)));
-    api.assist(p.label+' 관찰',()=>inspect(p));
   });
   api.autoplay(observationTour(api,{label:'분출물 네 가지 관찰',items:OUTPUTS,interval:4100,
     visit(p){inspect(p);api.say(p.label+' 모습을 살펴봐. 기록할 때는 ‘관찰 핀 남기기’를 직접 눌러.');},stop:motion.pause
@@ -232,7 +227,7 @@ function compare(scene,api){
     }
   });
   // Alternate cards so placement requires matching the observed feature, not a left-to-right tap sequence.
-  const order=[cells[3],cells[0],cells[2],cells[1]],items=[];
+  const order=[cells[3],cells[0],cells[2],cells[1]];
   order.forEach((cell,i)=>{
     const text=cell.row[cell.side];
     const card=api.card(text,235+i*247,545,236,104,20,{color:cell.side==='left'?'#2d5a49':'#6b4423'});
@@ -251,10 +246,8 @@ function compare(scene,api){
       if(!near(x,y,cell,125)){api.say(cell.side==='left'?'내 모형에서 직접 본 모습을 알맞은 줄에 놓아 줘.':'실제 화산의 설명을 같은 주제의 줄에 놓아 줘.');return false;}
       return place();
     }});
-    items.push({label:text,object:card});
     if(w.links.includes(cell.id))card.setPosition(cell.x,cell.y).setScale(1.12);
   });
-  api.assistPlacement(items,cells.map(c=>({label:(c.side==='left'?'내 모형':'실제 화산')+' · '+c.row.title,x:c.x,y:c.y})));
   function check(){if(!finished&&w.links.length===4){finished=true;api.finish(same?'모형과 실제 화산은 구멍으로 물질이 나오고, 경사면을 따라 흐르는 모습이 닮았어.':'붉은 물은 용암이 아니야. 실제 화산에서는 뜨거운 용암과 여러 분출물이 나와.');}}
   api.counter(w.links.length,4,same?'같은 점 연결':'다른 점 연결');
   if(w.links.length===4)api.actions([{id:'compare-saved',label:'연결한 기록 확인',onClick:check,primary:true}]);

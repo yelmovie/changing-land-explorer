@@ -8,16 +8,16 @@ import {setup as river} from '../src/adventure/river.js';
 import {ROCKS,FIELD_POINTS,CITY_SITES,SCHOOL_PATH,OUTSIDE_PATH,routeSignature} from '../src/learning-model.js';
 globalThis.matchMedia=()=>({matches:false});globalThis.fetch=async()=>({ok:false});
 function harness(setup,step,phase,{data={},work={},completed=false}={}){
- const objects=[],drags=[],assists={},actions={},events={},cleanups=[];let auto,records=0,finishes=0,saves=0,stops=0,playing=false,elapsed=0,time=0;
+ const objects=[],drags=[],actions={},events={},cleanups=[];let auto,records=0,finishes=0,saves=0,stops=0,playing=false,elapsed=0,time=0;
  function object(x=0,y=0,list=[]){const t={x,y,list,active:true,visible:true,scale:1};const p=new Proxy(t,{get:(t,k)=>k in t?t[k]:(...a)=>{if(k==='setPosition'){t.x=a[0];t.y=a[1];}if(k==='setVisible')t.visible=a[0];if(k==='setText')t.text=a[0];if(k==='setAlpha')t.alpha=a[0];if(k==='setScale')t.scale=a[0];if(k==='add')t.list.push(a[0]);if(k==='destroy')t.active=false;return p;}});objects.push(p);return p;}
  const add=new Proxy({container:(x=0,y=0,list=[])=>object(x,y,list)},{get:(t,k)=>k in t?t[k]:(...a)=>object(a[0],a[1])});
  const scene={add,make:add,textures:{exists:()=>true},sys:{isActive:()=>true},input:{on:(e,f)=>(events[e]??=[]).push(f),off(){}},children:{list:objects,bringToTop(){}},tweens:{add(){}},time:{now:0}};
  function stop(){if(!playing)return;playing=false;elapsed=0;stops++;auto?.stop?.();}
- const api={step,phase,data,work,completed,admin:false,image:(k,x,y)=>{const o=object(x,y);o.asset=k;return o;},hero:(x,y)=>object(x,y),text:(t,x,y)=>{const o=object(x,y);o.text=t;return o;},panel:object,card:(t,x,y)=>object(x,y,[object()]),paper:object,target:object,task(){},say(){},counter(){},spark(){},sound(){},save(){saves++;},record(item){records++;data.evidence[item.id]=item;},finish(){finishes++;stop();},actions(list){for(const k of Object.keys(actions))delete actions[k];for(const a of list)actions[a.id]=a.onClick;},assist:(label,f)=>assists[label]=f,assistPlacement(){},drag:(o,h)=>drags.push({o,h}),listenCleanup:f=>cleanups.push(f),setToolHandler(){},marker:()=>()=>{},range:()=>({value:0}),autoplay:c=>auto=c,stopAutoplay:stop};
+ const api={step,phase,data,work,completed,admin:false,image:(k,x,y)=>{const o=object(x,y);o.asset=k;return o;},hero:(x,y)=>object(x,y),text:(t,x,y)=>{const o=object(x,y);o.text=t;return o;},panel:object,card:(t,x,y)=>object(x,y,[object()]),paper:object,target:object,task(){},say(){},counter(){},spark(){},sound(){},save(){saves++;},record(item){records++;data.evidence[item.id]=item;},finish(){finishes++;stop();},actions(list){for(const k of Object.keys(actions))delete actions[k];for(const a of list)actions[a.id]=a.onClick;},drag:(o,h)=>drags.push({o,h}),listenCleanup:f=>cleanups.push(f),setToolHandler(){},marker:()=>()=>{},range:()=>({value:0}),autoplay:c=>auto=c,stopAutoplay:stop};
  const hooks=setup(scene,api)||{};
  const tick=(ms=16000)=>{for(let n=0;n<ms;n+=20){time+=20;scene.time.now=time;hooks.update?.(time,20);if(playing){if(!auto.ready()){stop();continue;}elapsed+=20;if(elapsed>=auto.interval){elapsed=0;auto.advance();}}}};
  const press=()=>{if(playing){stop();return;}if(!auto?.ready())return;playing=true;elapsed=0;auto.advance();};
- return {data,work,api,hooks,objects,drags,assists,actions,events,press,stop,tick,get auto(){return auto;},get playing(){return playing;},counts:()=>({records,finishes,saves,stops}),snapshot:()=>JSON.stringify({data,work}),destroy:()=>{stop();hooks.destroy?.();cleanups.forEach(f=>f());}};
+ return {data,work,api,hooks,objects,drags,actions,events,press,stop,tick,get auto(){return auto;},get playing(){return playing;},counts:()=>({records,finishes,saves,stops}),snapshot:()=>JSON.stringify({data,work}),destroy:()=>{stop();hooks.destroy?.();cleanups.forEach(f=>f());}};
 }
 
 const STAGES={river,volcano,rocks,city,safety};

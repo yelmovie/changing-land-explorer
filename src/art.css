@@ -279,6 +279,33 @@
  #app.final .final-actions{padding:8px 0 2px;margin-top:4px}
 }
 
+/* 실험 상태를 유지하며 열고 닫는 흙 언덕 옆모습 모형. */
+dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
+.grain-guide{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(250px,1fr);gap:16px;align-items:center}
+.grain-board{margin:0;min-width:0;border:1px solid #c1aa75;border-radius:16px;overflow:hidden;background:#f9eed4}
+.grain-board figcaption{display:flex;justify-content:space-between;gap:8px;padding:8px 16px;color:#425740;font-weight:800;font-size:var(--fs-label)}
+.grain-board small{display:block;padding:8px 16px;color:#594c32;font-size:var(--fs-label)}
+.grain-diagram{display:block;width:100%;height:auto}
+.grain-lesson{min-width:0;display:grid;gap:16px}
+.grain-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0;padding:0;list-style:none}
+.grain-steps li{display:flex;align-items:center;justify-content:center;gap:4px;padding:4px;border-bottom:3px solid #d1c6a8;color:#554b39;white-space:nowrap;font-weight:800;font-size:var(--fs-label)}
+.grain-steps svg{width:20px;height:20px;flex:none}
+.grain-steps [aria-current="step"]{border-color:var(--grain-accent);color:var(--grain-accent)}
+.grain-explanation{border-inline-start:4px solid var(--grain-accent);padding-inline-start:12px}
+.dialog-body .grain-explanation h3{margin:0;color:var(--grain-accent);font-size:clamp(24px,2.2vw,33px)}
+.dialog-body .grain-explanation p{margin:4px 0 0;line-height:1.45}
+.grain-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.grain-progress{display:block;flex:0 0 100%;width:100%;height:8px;accent-color:var(--grain-accent)}
+.grain-actions .primary,.grain-actions .secondary{min-height:48px;font-size:clamp(16px,1.5vw,20px);padding:8px 12px}
+.grain-actions .primary{display:flex;align-items:center;gap:8px}
+@media(max-height:620px){
+ .grain-dialog .dialog-heading,.grain-dialog .dialog-body{padding:8px 16px}
+ .grain-guide,.grain-lesson{gap:8px}
+ .grain-board figcaption,.grain-board small{padding:4px 8px}
+ .grain-dialog .grain-explanation p{margin:4px 0 0}
+}
+@media(max-width:700px) and (orientation:portrait){.grain-guide{grid-template-columns:1fr}}
+
 /* The field notebook shows the action's progress without covering the experiment. */
 #app.adventure .river-narrator .quest-meter {
   background:linear-gradient(to right,#d4e9c5 var(--progress,0%),#fff3d4 var(--progress,0%));
@@ -286,9 +313,6 @@
 #app.adventure #river-status{display:inline-flex;align-items:center;gap:4px;margin:0 0 2px;padding:2px 8px;border-radius:8px;background:#deedd3;font-weight:800;color:#234e37;line-height:1.2}
 #app.adventure .phase-complete .river-narrator{border-color:#6d946d}
 #app.adventure .phase-complete .quest-meter{display:none}
-.assist-grid [aria-pressed="true"] {background:#20584b;color:white;box-shadow:inset 0 0 0 2px #e5c570}
-.assist-grid [aria-pressed="true"]::before {content:'✓ '}
-.assist-intro {font-weight:700}
 
 /* Observation playback shares the upper navigation row and reserves its own space. */
 #app.adventure #observation-auto{width:94px;min-height:var(--hud-icon);padding:0 5px;border:2px solid #32735f;border-radius:var(--radius-md);background:#f5ffef;color:#20523d;font-size:15px;white-space:nowrap;box-shadow:0 4px 0 #315e47}

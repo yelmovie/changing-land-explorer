@@ -2,6 +2,8 @@ import {pathToFileURL} from 'node:url';
 const {chromium}=await import(process.env.PLAYWRIGHT_PATH?pathToFileURL(process.env.PLAYWRIGHT_PATH).href:'playwright');
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import {FIELD_POINTS,RIVER_MARKS} from '../src/learning-model.js';
+import {MODEL_MOUTH,MODEL_FLOW} from '../src/observation-scenes.js';
 const out=process.env.CHECK_OUT||'.work/learning-verification';
 await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true});
@@ -16,23 +18,40 @@ const page=await context.newPage();const errors=[],httpErrors=[];let concepts=0,
 page.on('pageerror',e=>errors.push(e.message));
 page.on('response',response=>{if(response.status()>=400)httpErrors.push({url:response.url(),status:response.status()});});
 async function settle(){await page.waitForSelector('#activity canvas');await page.waitForFunction(()=>!document.querySelector('.stage-loader'));await page.waitForTimeout(120);}
-async function assist(names,{repeat=1,pattern=null}={}){
- await page.locator('#gesture-help').click();
- const buttons=page.locator('[data-assist]'),labels=await buttons.allTextContents();
- const wanted=names||labels.filter(n=>!pattern||pattern.test(n));
- for(const name of wanted)for(let i=0;i<repeat;i++)await page.getByRole('button',{name,exact:true}).click();
- await page.locator('#assist-return').click();
+// Stage activities run on real pointer input in 1200x640 game coordinates.
+async function spot(p){const b=await page.locator('#activity canvas').boundingBox();return {x:b.x+p.x*b.width/1200,y:b.y+p.y*b.height/640};}
+async function tap(x,y){const p=await spot({x,y});await page.mouse.click(p.x,p.y);await page.waitForTimeout(80);}
+async function stroke(...points){
+ const [first,...rest]=await Promise.all(points.map(spot));
+ await page.mouse.move(first.x,first.y);await page.mouse.down();
+ for(const p of rest)await page.mouse.move(p.x,p.y,{steps:12});
+ await page.mouse.up();await page.waitForTimeout(120);
 }
-async function place(tool,target){await assist(['도구 선택 · '+tool,'대상 선택 · '+target]);}
-async function pour(){await page.locator('#gesture-help').click();await page.getByRole('button',{name:'언덕에 물 주기',exact:true}).click();await page.waitForSelector('#next.ready',{timeout:15000});}
+const jump=name=>page.getByRole('button',{name,exact:true}).click();
+async function pour(){await tap(140,515);await tap(400,195);await page.waitForSelector('#next.ready',{timeout:15000});}
+async function riverMarks(){for(const [i,mark]of Object.values(RIVER_MARKS).entries())await stroke({x:270+i*280,y:525},{x:625+mark.x*470,y:100+mark.y*330});}
+async function fieldPoints(side){for(const p of FIELD_POINTS.filter(p=>p.side===side))await tap(p.x*1.2,p.y*640/560);}
 async function riverLinks(){
- for(const [tool,target]of [['상류의 바위 관찰 카드','상류'],['상류의 물길 관찰 카드','상류'],['하류의 물길 관찰 카드','하류'],['하류의 모래 관찰 카드','하류'],['모래가 쌓여요 깃발','하류 끝 모래']])await place(tool,target);
+ const zones={upper:{x:330,y:235},lower:{x:870,y:370}};
+ for(const [i,p]of FIELD_POINTS.entries())await stroke({x:190+i*228,y:515},zones[p.side]);
+ await stroke({x:1068,y:500},{x:950,y:375});
  assert.match(await page.locator('#quest-meter').textContent(),/5\s*\/\s*5/);
 }
-async function volcanoLinks(){
- await page.locator('#gesture-help').click();const labels=await page.locator('[data-assist]').allTextContents();await page.locator('#assist-return').click();
- for(const label of labels.filter(s=>s.startsWith('도구 선택'))){const text=label.replace('도구 선택 · ',''),side=text.startsWith('모형:')?'내 모형':'실제 화산';const topic=text.includes('구멍으로')?'나오는 곳':text.includes('경사면을 따라')?'흐르는 길':text.includes('차가운')||text.includes('뜨거운')?'흐르는 물질':'함께 나오는 것';await place(text,side+' · '+topic);}
+async function assemble(){for(const [i,to]of [{x:580,y:485},{x:560,y:315},{x:957,y:350}].entries())await stroke({x:135,y:170+i*175},to);}
+async function trace(){await stroke({x:175,y:260},MODEL_MOUTH);await stroke({x:180,y:480},...MODEL_FLOW);}
+async function volcanoOutputs(){for(const [x,y]of [[385,395],[610,80],[260,115],[670,245]]){await tap(x*1.2,y*640/560);await page.locator('#volcano-output-pin').click();}}
+async function volcanoLinks(){for(const [i,to]of [{x:835,y:400},{x:400,y:255},{x:400,y:400},{x:835,y:255}].entries())await stroke({x:235+i*247,y:545},to);}
+async function rub(){for(const cx of [440,840])await stroke(...[170,250,330,410].flatMap((y,row)=>(row%2?[120,-120]:[-120,120]).map(dx=>({x:cx+dx,y}))));}
+async function sortRocks(){
+ for(const cx of [420,780])for(const dx of [-88,88])await stroke({x:cx+dx,y:552},{x:cx,y:403});
+ await stroke({x:420,y:240},{x:140,y:275});await stroke({x:780,y:240},{x:1060,y:275});
 }
+async function classifyRock(){for(const x of [750,1010])await stroke({x:350,y:275},{x,y:435});}
+async function cityCompare(){await jump('분출 당시');await jump('이후 모습');await stroke({x:255,y:610},{x:265,y:545});await stroke({x:625,y:610},{x:670,y:545});}
+async function notice(){for(const [from,to]of [[150,262],[315,334],[425,406]])await stroke({x:300,y:from},{x:845,y:to});}
+async function ashSafety(){await stroke({x:686,y:340},{x:420,y:340});await stroke({x:420,y:560},{x:985,y:375});}
+async function hazards(){await stroke({x:400,y:578},{x:150,y:205});await stroke({x:760,y:578},{x:438,y:265});}
+async function shelter(){await stroke({x:950,y:465},{x:700,y:482});await stroke({x:520,y:525},{x:724,y:389});}
 async function next(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await settle();}
 async function concept(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await page.waitForSelector('.concept-dialog');concepts++;await page.locator('#concept-continue').click();}
 async function doneStage(index){
@@ -61,7 +80,7 @@ async function doneStage(index){
  console.log('Completed and talked to resident',id);
 }
 async function enter(index){await page.evaluate(async index=>(await import('/src/main.js')).enter(index,0),index);await settle();}
-async function rockInspect(){await assist(null,{pattern:/관찰$/});await assist(null,{pattern:/기록 붙이기$/});}
+async function rockInspect(){for(const [x,y]of [[248,220],[350,285],[450,330]])await tap(x,y);for(const x of [210,465,730,1000])await tap(x,570);}
 async function pathRoute(outside=false){
  await page.locator('#route-input').click();
  const points=outside?[{x:120,y:410},{x:180,y:410},{x:180,y:285},{x:550,y:285},{x:550,y:100},{x:880,y:100}]:[{x:140,y:100},{x:280,y:100},{x:280,y:280},{x:500,y:280},{x:500,y:370},{x:880,y:420}];
@@ -118,7 +137,7 @@ try{
  await page.goto(process.env.CHECK_URL||'http://localhost:5177');await page.waitForSelector('#settings');
  if(!resumedStageState){
  await page.waitForSelector('#start');await page.locator('#start').click();await page.locator('#story-skip').click();await enter(0);
- await place('예상 깃발','가운데 흙');await pour();
+ await stroke({x:340,y:515},{x:627,y:340});await pour();
  // A rapid repeat must advance only once; the next unfinished phase must
  // survive a page reload without reopening the completed first experiment.
  await page.locator('#next').evaluate(button=>{button.click();button.click();});
@@ -127,24 +146,18 @@ try{
  assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);
  await page.reload();await settle();await page.waitForSelector('[data-phase="1"][aria-current="step"]');
  await pour();await next();
- await assist(['두 실험 처음으로 되감기','두 실험 마지막 모습 보기']);
- for(const [tool,target]of [['깎임 · 침식','위쪽 깎인 흙'],['이동 · 운반','가운데 흐르는 길'],['쌓임 · 퇴적','아래쪽 모래']])await place(tool,target);
+ await jump('처음 모습');await jump('마지막 모습');
+ await riverMarks();
  await page.locator('#river-reflect-different').click();await concept();await settle();
- await assist();await next();await assist();await next();await riverLinks();await doneStage(0);
- await enter(1);await assist();await next();await assist(['손잡이 조금 밀기'],{repeat:5});await page.waitForSelector('#next.ready',{timeout:15000});await next();await assist(['꼭대기 구멍 관찰']);await assist(['흐른 길의 다음 점으로 이동'],{repeat:5});await concept();await settle();
- let outputLabels;await page.locator('#gesture-help').click();outputLabels=await page.locator('[data-assist]').allTextContents();await page.locator('#assist-return').click();
- for(const label of outputLabels){await assist([label]);await page.locator('#volcano-output-pin').click();}
- await next();await volcanoLinks();await next();await volcanoLinks();await doneStage(1);
- await enter(2);await assist(null,{repeat:16});await next();await rockInspect();await next();await rockInspect();await concept();await settle();
- await assist();await next();await rockInspect();await assist(null,{pattern:/쟁반으로 옮기기$/});await next();await rockInspect();await assist(null,{pattern:/쟁반으로 옮기기$/});await doneStage(2);
+ await fieldPoints('upper');await next();await fieldPoints('lower');await next();await riverLinks();await doneStage(0);
+ await enter(1);await assemble();await next();await stroke({x:957,y:185},{x:957,y:340});await page.waitForSelector('#next.ready',{timeout:15000});await next();await trace();await concept();await settle();
+ await volcanoOutputs();await next();await volcanoLinks();await next();await volcanoLinks();await doneStage(1);
+ await enter(2);await rub();await next();await rockInspect();await next();await rockInspect();await concept();await settle();
+ await sortRocks();await next();await rockInspect();await classifyRock();await next();await rockInspect();await classifyRock();await doneStage(2);
  await enter(3);
- for(let p=0;p<3;p++){
-  await assist(['분출 당시 모습 살피기','이후 모습 살피기']);
-  await page.locator('#gesture-help').click();const labels=await page.locator('[data-assist]').allTextContents();await page.locator('#assist-return').click();await assist([labels[0],labels[3]]);
-  if(p<2)await next();else await concept();
- }
- await settle();await assist(null,{pattern:/붙이기$/});await assist(['실내 창문 닫기','리버의 코와 입에 마스크 씌우기']);await next();await assist();await next();await assist();await doneStage(3);
- await enter(4);await assist();await next();await place('리버','책상 아래');await place('방석','머리 위');await next();await place('손으로 잡기','가까운 책상 다리');await page.waitForTimeout(2700);await page.locator('#confirm-stop').click();await concept();await settle();
+ for(let p=0;p<3;p++){await cityCompare();if(p<2)await next();else await concept();}
+ await settle();await notice();await ashSafety();await next();await notice();await next();await notice();await doneStage(3);
+ await enter(4);await hazards();await next();await shelter();await next();await stroke({x:1030,y:550},{x:820,y:512});await page.waitForTimeout(2700);await page.locator('#confirm-stop').click();await concept();await settle();
  await pathRoute();await next();await page.locator('#route-check').click();await page.waitForSelector('#next.ready',{timeout:20000});await next();await pathRoute(true);await doneStage(4);
  }
  const before=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));
@@ -159,5 +172,5 @@ try{
  await fs.writeFile(`${out}/flow-finished-state.json`,JSON.stringify(resumed));
  const discoveries=Object.values(after.drafts).flatMap(d=>Object.values(d.data.adventure.chapters)).reduce((n,c)=>n+Object.keys(c.tasks).length,0);assert.equal(discoveries,30);
  console.log(resumedStageState?'PASS: resumed earned 30-discovery state; three final challenges, ending, certificate and reload persistence.':'PASS: 30 discoveries, 10 concept handoffs, five rewards, three final challenges, ending, certificate and reload persistence.');
- await fs.writeFile(`${out}/flow.json`,JSON.stringify({completed:resumed.completed,errors,httpErrors,discoveries,concepts:resumedStageState?null:concepts,rewards:resumedStageState?null:rewards,resumedStageState,stageEvidenceSource:process.env.CHECK_RESUME_STATE||null,finalRounds:resumed.final.round,finished:resumed.finished,certificate:true,reloaded:true,interaction:'Gesture assistance for stage tasks; pointer input for school/outside/final routes. Assistance chooses valid task targets and does not establish independent learner performance.'},null,2));
+ await fs.writeFile(`${out}/flow.json`,JSON.stringify({completed:resumed.completed,errors,httpErrors,discoveries,concepts:resumedStageState?null:concepts,rewards:resumedStageState?null:rewards,resumedStageState,stageEvidenceSource:process.env.CHECK_RESUME_STATE||null,finalRounds:resumed.final.round,finished:resumed.finished,certificate:true,reloaded:true,interaction:'Real pointer input for every stage activity and route; the script knows each target, so a pass shows the activities can be finished, not independent learner performance.'},null,2));
 }catch(error){await page.screenshot({path:`${out}/flow-failure.png`});await fs.writeFile(`${out}/flow-failure.json`,JSON.stringify({message:error.message,errors,httpErrors,concepts,rewards},null,2));console.error(error);process.exitCode=1;}finally{await browser.close();}

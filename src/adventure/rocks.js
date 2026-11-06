@@ -59,7 +59,6 @@ export function setup(scene,api){
     const point=tiles[n].find((_,i)=>!dust[n].includes(i));
     if(point){brush.setPosition(point.x-65,point.y);sweep(point.x,point.y);}
   }});
-  centers.forEach((cx,n)=>api.assist(ROCKS[n].name+'의 다음 부분 털기',()=>{const i=tiles[n].findIndex((_,i)=>!dust[n].includes(i));if(i>=0)sweep(tiles[n][i].x,tiles[n][i].y);}));
   api.actions([]);progress();
  }
 
@@ -110,7 +109,7 @@ export function setup(scene,api){
     api.record({id:`rock-${sample}-${claim}`,kind:'rock',sample,claim,asset:r.asset,label:`${r.name} · ${FEATURES[claim]}`,point:{x:(focus.x-150)/400,y:(focus.y-141.5)/267},zoom:2.4,annotations:[],text:FEATURES[claim]});
     token.setAlpha(.35);api.spark(350,360);api.say(FEATURES[claim]+' 증거를 기록했어. 색과 알갱이를 모두 남겨 줘.');api.save();check();return false;
    };
-   api.drag(token,{onPick:apply,onDrop:(o,x,y)=>near(x,y,350,285,440,410)?apply():false});api.assist(FEATURES[claim]+' 기록 붙이기',apply);
+   api.drag(token,{onPick:apply,onDrop:(o,x,y)=>near(x,y,350,285,440,410)?apply():false});
   }
   function check(){
    const n=w.proofs.filter(c=>[r.color,r.grain].includes(c)).length;api.counter(Math.min(3,w.scanned.length)+n+(classify&&w.classified?1:0),classify?6:5,classify?'관찰과 분류':'관찰과 증거');
@@ -118,13 +117,12 @@ export function setup(scene,api){
    notes?.setText(`${FEATURES[r.color]} · ${FEATURES[r.grain]}`);
    if(!classify){if(completed)return;completed=true;api.finish(`${r.type==='basalt'?'현무암':'화강암'}이야. 색과 알갱이 두 가지를 기억하자.`);return;}
    if(!traysMade){traysMade=true;lens.disableInteractive().setVisible(false);api.say('두 증거가 모였어! 돌을 알맞은 이름표로 옮겨 줘.');
-    for(const [type,x,label] of [['basalt',750,'현무암'],['granite',1010,'화강암']]){tray(x,445,label,210);api.assist(label+' 쟁반으로 옮기기',()=>put(type));}
+    for(const [x,label] of [[750,'현무암'],[1010,'화강암']])tray(x,445,label,210);
     api.drag(specimen,{onDrop:(o,x,y)=>{const type=near(x,y,750,435,220,100)?'basalt':near(x,y,1010,435,220,100)?'granite':null;return type?put(type):false;}});
    }
    if(!completed&&w.classified&&d.rockNames[sample]===r.type){completed=true;api.finish('새 돌도 두 가지 관찰 증거로 알아냈어!');}
   }
   function put(type){if(type!==r.type){api.say('이름을 붙이기 전에 붙여 둔 색과 알갱이 증거를 비교해 봐.');return false;}d.rockNames[sample]=type;d.rockProofs[sample]=[r.color,r.grain];w.classified=true;api.save();api.spark(900,430);check();return false;}
-  api.assist('왼쪽 위 관찰',()=>drawLens(248,220));api.assist('가운데 관찰',()=>drawLens(350,285));api.assist('오른쪽 아래 관찰',()=>drawLens(450,330));
   scanSites.forEach(([x,y],index)=>scanMarkers.push(api.marker(x,y,index+1,()=>drawLens(x,y))));
   api.actions([]);drawLens(w.lens.x,w.lens.y,false);check();
   // The 3D specimen is an extra way to look, offered only once its GLB is in assets/models.
@@ -147,11 +145,10 @@ export function setup(scene,api){
     const token=api.card(FEATURES[claim],cx+(j?88:-88),552,172,74,18);
     const attach=()=>{if(!hasRockEvidence(d,id)){api.say('앞 활동에서 이 돌의 색과 알갱이 관찰 기록을 먼저 모아 줘.');return false;}if(!w.attached[id].includes(claim))w.attached[id].push(claim);token.setAlpha(.35);api.spark(cx,400);api.save();progress();return false;};
     if(w.attached[id].includes(claim))token.setAlpha(.35);
-    api.drag(token,{onDrop:(o,x,y)=>near(x,y,cx,360,320,180)?attach():false});api.assist(r.name+'에 '+FEATURES[claim]+' 붙이기',attach);
+    api.drag(token,{onDrop:(o,x,y)=>near(x,y,cx,360,320,180)?attach():false});
    });
    function put(type){if(w.attached[id].length!==2){api.say('이 돌에 색 기록과 알갱이 기록을 모두 붙여 줘.');return false;}if(type!==r.type){api.say('붙인 두 기록을 보고 쟁반 이름을 다시 골라 봐.');return false;}d.rockNames[id]=type;d.rockProofs[id]=[r.color,r.grain];if(!w.sorted.includes(id))w.sorted.push(id);stones[id].setPosition(TRAY[type],TRAY_Y-8).setDisplaySize(140,140);api.save();progress();return true;}
    api.drag(stones[id],{onDrop:(o,x,y)=>near(x,y,TRAY.basalt,TRAY_Y,210,230)?put('basalt'):near(x,y,TRAY.granite,TRAY_Y,210,230)?put('granite'):false});
-   api.assist(r.name+'를 현무암 쟁반으로',()=>put('basalt'));api.assist(r.name+'를 화강암 쟁반으로',()=>put('granite'));
    if(w.sorted.includes(id))stones[id].setPosition(id===0?TRAY.basalt:TRAY.granite,TRAY_Y-8).setDisplaySize(140,140);
   });
   function progress(){api.counter(w.sorted.length,2,'증거로 분류한 돌');if(w.sorted.length===2)api.finish('같은 특징을 가진 돌끼리 정리했어. 이제 새로운 돌도 조사하자!');}

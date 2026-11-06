@@ -34,9 +34,8 @@ export function mount(ctx) {
   page.style.setProperty('--stage-accent',ctx.s.color);
   let game,closed=false,hooks,activeScene,phaseDone=false,toolHandler=null,zoomed=false;
   let restarting=false,focusInstruction=false;
-  let sceneCleanups=[], assistActions=[];
+  let sceneCleanups=[];
   let hintIndex=0,initialHint='';
-  let refreshAssist=()=>{};
   ctx.root.innerHTML='<div class="phaser-stage" id="phaser-stage"></div><div class="stage-loader" role="status">리버가 탐험 도구를 꺼내고 있어요…</div><div class="quest-meter" id="quest-meter" aria-live="polite"></div>';
   // The task counter sits beside River's guidance so it never covers the scene.
   $('.river-narrator>div')?.prepend($('#quest-meter',ctx.root));
@@ -132,46 +131,17 @@ export function mount(ctx) {
     else ctx.finishActivity();
   };
 
-  const helpButton=$('#gesture-help');
   function showHint(){
     const cues=HINTS[ctx.s.id]?.[ctx.step]?.[chapter.phase]||[initialHint];
     ctx.sound('hint',{force:true});
-    ctx.modal('리버의 탐구 힌트',`<div class="hint-card"><img src="/assets/hero-lens.webp" alt="힌트를 주는 리버"><div><span class="eyebrow">${escapeHTML(PHASES[ctx.s.id][ctx.step][chapter.phase])}</span><p id="hint-copy">${escapeHTML(cues[hintIndex%cues.length])}</p><span id="hint-progress">힌트 ${hintIndex%cues.length+1} / ${cues.length}</span></div></div><div class="hint-actions"><button class="secondary" id="hint-more">한 걸음 더</button><button class="primary" id="hint-return">직접 해 볼게</button><button class="text-button" id="hint-assist">버튼으로 조작하기</button></div>`,(dialog,close)=>{
+    ctx.modal('리버의 탐구 힌트',`<div class="hint-card"><img src="/assets/hero-lens.webp" alt="힌트를 주는 리버"><div><span class="eyebrow">${escapeHTML(PHASES[ctx.s.id][ctx.step][chapter.phase])}</span><p id="hint-copy">${escapeHTML(cues[hintIndex%cues.length])}</p><span id="hint-progress">힌트 ${hintIndex%cues.length+1} / ${cues.length}</span></div></div><div class="hint-actions"><button class="secondary" id="hint-more">한 걸음 더</button><button class="primary" id="hint-return">직접 해 볼게</button></div>`,(dialog,close)=>{
       workHint();
       function workHint(){const w=chapter.work[chapter.phase]??={};w.answerHint=true;ctx.save();}
       $('#hint-more',dialog).onclick=()=>{hintIndex=(hintIndex+1)%cues.length;$('#hint-copy',dialog).textContent=cues[hintIndex];$('#hint-progress',dialog).textContent=`힌트 ${hintIndex+1} / ${cues.length}`;};
       $('#hint-return',dialog).onclick=close;
-      $('#hint-assist',dialog).onclick=()=>{close();helpButton.click();};
     });
   }
   $('#river-hint').onclick=showHint;
-  helpButton.onclick=()=>ctx.modal('끌기 대신 버튼으로 조작',
-    '<p class="assist-intro"></p><div class="assist-grid"></div><p class="assist-feedback" role="status"></p><button class="primary" id="assist-return">탐구로 돌아가기</button>',(dialog,close)=>{
-      $('.assist-intro',dialog).textContent=$('#instruction').textContent;
-      const grid=$('.assist-grid',dialog);
-      let rendered=0;
-      refreshAssist=()=>{
-        for(const [index,action] of assistActions.entries()){
-          if(index<rendered)continue;
-          const button=document.createElement('button');
-          button.type='button';button.className='secondary';button.dataset.assist=index;button.textContent=action.label;
-          if(action.group==='item')button.setAttribute('aria-pressed','false');
-          button.onclick=()=>{
-            if(action.closeOnUse)close();
-            const w=chapter.work[chapter.phase]??={};w.operationHelp=true;ctx.save();
-            action.callback();
-            if(action.group==='item')for(const item of grid.querySelectorAll('[aria-pressed]'))item.setAttribute('aria-pressed',String(item===button));
-            $('.assist-feedback',dialog).textContent=$('#speech').textContent;
-            if(phaseDone)$('#assist-return',dialog).textContent='완료! 탐구로 돌아가기';
-          };
-          grid.append(button);
-        }
-        rendered=assistActions.length;
-      };
-      refreshAssist();
-      dialog.addEventListener('close',()=>{refreshAssist=()=>{};},{once:true});
-      $('#assist-return',dialog).onclick=close;
-    });
   const tool=TOOLS[ctx.s.id],toolButton=$('#earned-tool');
   if(tool&&(ctx.state.completed.includes(tool.stage)||ctx.admin)){
     toolButton.hidden=false;
@@ -199,7 +169,7 @@ export function mount(ctx) {
     }
     create(){
       if(closed)return;
-      activeScene=this;restarting=false;hooks=null;toolHandler=null;zoomed=false;sceneCleanups=[];assistActions=[];
+      activeScene=this;restarting=false;hooks=null;toolHandler=null;zoomed=false;sceneCleanups=[];
       hintIndex=0;
       ctx.controls.innerHTML='';$('#quest-meter').textContent='';
       $('.stage-loader',ctx.root)?.remove();
@@ -352,20 +322,6 @@ export function mount(ctx) {
           const jump=(label,value)=>{const b=document.createElement('button');b.className='range-jump secondary';b.textContent=label;b.type='button';b.onclick=()=>{input.value=value;onChange(value);ctx.save();};return b;};
           row.append(span,jump(ends[0],min),input,jump(ends[1],max));ctx.controls.append(row);return input;
         },
-        assist(label,callback,options={}){assistActions.push({label,callback,...options});refreshAssist();},
-        // Students choose both the object and the destination. This runs the
-        // physical drop handler, including its original learning validation.
-        assistPlacement(items,targets){
-          let chosen=null;
-          for(const item of items)api.assist('도구 선택 · '+item.label,()=>{chosen=item;api.say(item.label+' 선택. 놓을 대상을 골라 줘.');},{group:'item'});
-          for(const target of targets)api.assist('대상 선택 · '+target.label,()=>{
-            if(!chosen){api.say('먼저 옮길 도구나 카드를 골라 줘.');return;}
-            const object=chosen.object,config=draggables.get(object);if(!config||!object.active)return;
-            const home={x:object.x,y:object.y};object.setPosition(target.x,target.y);config.onMove?.(object,target.x,target.y);
-            const ok=(config.onTap||config.onDrop)?.(object,target.x,target.y)===true;
-            if(!ok&&object.active)object.setPosition(home.x,home.y);
-          });
-        },
         setToolHandler(id,handler){if(tool?.id===id)toolHandler=handler;},
         listenCleanup(fn){sceneCleanups.push(fn);},
         spark(x,y){
@@ -400,7 +356,7 @@ export function mount(ctx) {
   function syncPause(){
     if(!game||!activeScene||closed)return;
     const pause=document.hidden||!!document.querySelector('dialog[open]');
-    // Assist buttons change text inside the open dialog; only the first pause may stop motion they start.
+    // Dialog contents can change while open; only the first pause may stop motion.
     if(pause&&!wasPaused){stopAuto();hooks?.pause?.();}
     wasPaused=pause;
     if(pause&&game.scene.isActive('Activity'))game.scene.pause('Activity');

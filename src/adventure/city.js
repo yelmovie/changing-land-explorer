@@ -43,7 +43,6 @@ export function setup(scene,api){
     if(!w.pairs.includes(j))w.pairs.push(j);t.setAlpha(.35);recordLabels[slot].setText(label);api.spark(slot?670:265,545);api.say(label+' 기록을 '+(slot?cityTimeLabel(index):'분출 당시')+'에 붙였어. 남은 시기의 기록을 비교해 줘.');api.save();progress();return false;
    }
    api.drag(t,{onDrop:(o,x,y)=>inBox(x,y,265,545,315,75)?connect(0):inBox(x,y,670,545,355,75)?connect(1):false});
-   api.assist(label+' → 분출 당시',()=>connect(0));api.assist(label+' → 이후',()=>connect(1));
   });
   function set(value,collect=true){
    const bothSeen=w.seen.before&&w.seen.after;
@@ -62,7 +61,6 @@ export function setup(scene,api){
   api.autoplay(observationTour(api,{label:'두 시기의 모습 관찰',items:[.97,.03],interval:3200,stop,
     visit(value){if(reduced)set(value);else motion={from:display,to:value,elapsed:0};}
   }));
-  api.assist('분출 당시 모습 살피기',()=>set(.97));api.assist('이후 모습 살피기',()=>set(.03));
   api.actions([]);set(w.wipe,false);progress();
   return {update(time,delta){if(!motion)return;const m=motion;m.elapsed+=Math.min(delta,60);const t=Math.min(1,m.elapsed/900),ease=t*t*(3-2*t);set(m.from+(m.to-m.from)*ease,false);if(t===1){motion=null;set(m.to);}},pause:stop,destroy(){stop();marker.destroy();}};
  }
@@ -95,7 +93,6 @@ export function setup(scene,api){
   function show(slot,text){if(placed[slot])return;const p=slots[slot];p.hint?.setVisible(false);placed[slot]=api.text(text,p.x,p.y,21,'#294239',SW-36);}
   cards.forEach(c=>{
    api.drag(c.obj,{onDrop:(o,x,y)=>{const slot=Object.keys(slots).find(k=>inBox(x,y,slots[k].x,slots[k].y,SW+40,SH+8));return slot?add(c,slot):false;}});
-   api.assist(c.text+' 붙이기',()=>add(c,c.kind));
    if(w.board[c.kind]&&c.good){c.obj.setAlpha(.35);show(c.kind,c.text);}
   });
   function progress(){const n=Object.keys(w.board).filter(k=>w.board[k]).length;api.counter(n,3,'안내판 조각');if(n===3){d.notices[s.id]=s.claim;api.record({id:'notice-'+s.id,kind:'notice',...cityEvidence(index),label:s.name+' 주민 안내',claim:s.claim,text:s.notice,site:s.id});api.save();api.say('주민: '+s.reply,true);if(index===0)ashSafety();else api.finish(s.reply);}}
@@ -129,7 +126,6 @@ export function setup(scene,api){
    function cover(){if(!w.ashWindow){api.say('먼저 창문을 닫아 화산재가 실내로 들어오지 않게 하자.');return false;}w.ashMask=true;mask.setPosition(985,375).setScale(.6);api.save();safeProgress();return true;}
    api.drag(pane,{onMove:(o,x)=>o.setPosition(Math.max(414,Math.min(686,x)),340),onDrop:(o,x)=>{if(x<500)return close();pane.setPosition(w.ashWindow?414:686,340);return true;}});
    api.drag(mask,{onDrop:(o,x,y)=>inBox(x,y,985,375,190,180)?cover():false});
-   api.assist('실내 창문 닫기',close);api.assist('리버의 코와 입에 마스크 씌우기',cover);
    function safeProgress(){api.counter(Number(!!w.ashWindow)+Number(!!w.ashMask),2,'화산재로부터 보호');if(w.ashWindow&&w.ashMask){d.ashSafety={indoor:true,window:true,mask:true};api.record({id:'city-ash-safety',kind:'safety',label:'화산재 안전 행동',text:'실내에서 창문을 닫고 마스크로 코와 입을 보호하며 안내를 확인해.'});api.save();api.finish('실내에서 창문을 닫고 코와 입을 보호했어. 어른과 함께 안전 안내를 확인하자.');}}
    safeProgress();
   }

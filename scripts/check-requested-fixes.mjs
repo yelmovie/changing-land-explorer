@@ -11,10 +11,9 @@ async function fresh(width=1280,height=800,touch=false){
 async function ready(){await page.waitForSelector('#activity canvas');await page.waitForFunction(()=>!document.querySelector('.stage-loader'));await page.waitForTimeout(200);}
 async function click(x,y){const b=await page.locator('#activity canvas').boundingBox();const p={x:b.x+x*b.width/1200,y:b.y+y*b.height/640};if(touchInput)await page.touchscreen.tap(p.x,p.y);else await page.mouse.click(p.x,p.y);}
 async function drag(from,to){const b=await page.locator('#activity canvas').boundingBox();const p=v=>({x:b.x+v.x*b.width/1200,y:b.y+v.y*b.height/640});const a=p(from),z=p(to);await page.mouse.move(a.x,a.y);await page.mouse.down();await page.mouse.move(z.x,z.y,{steps:15});await page.mouse.up();await page.waitForTimeout(220);}
-async function place(tool,target){await page.locator('#gesture-help').click();for(const label of ['도구 선택 · '+tool,'대상 선택 · '+target])await page.getByRole('button',{name:label,exact:true}).click();await page.locator('#assist-return').click();}
 async function data(stage){return page.evaluate(async stage=>(await import('/src/main.js')).state().drafts[stage].data,stage);}
 async function beginPour(mode){
- if(mode==='button'){await page.locator('#gesture-help').click();await page.getByRole('button',{name:'언덕에 물 주기',exact:true}).click();}
+ if(mode==='button'){await page.locator('#river-pour-start').click();}
  else if(mode==='tap'){await click(140,515);await click(400,195);}
  else {const b=await page.locator('#activity canvas').boundingBox();await page.mouse.move(b.x+140*b.width/1200,b.y+515*b.height/640);await page.mouse.down();await page.mouse.move(b.x+400*b.width/1200,b.y+195*b.height/640,{steps:15});}
 }
@@ -31,7 +30,7 @@ try{
   await click(340,515);await click(100,70);assert.equal((await data('river')).prediction,undefined,'wrong flag placement stays incomplete');
   await click(340,515);await click(627,340);assert.ok((await data('river')).prediction,'flag returned to its original place');
   await click(140,515);await click(1100,80);assert.equal((await data('river')).adventure.chapters[0].work[0].pour,0,'wrong watering position cannot advance');
-  if(mode==='button'){await page.locator('#gesture-help').click();await page.getByRole('button',{name:'언덕에 물 주기',exact:true}).click();}
+  if(mode==='button'){await page.locator('#river-pour-start').click();}
   else if(mode==='tap'){await click(140,515);await click(400,195);}
   else {const b=await page.locator('#activity canvas').boundingBox();await page.mouse.move(b.x+140*b.width/1200,b.y+515*b.height/640);await page.mouse.down();await page.mouse.move(b.x+400*b.width/1200,b.y+195*b.height/640,{steps:15});}
   await page.waitForTimeout(900);const partial=(await data('river')).adventure.chapters[0].work[0].pour;assert.ok(partial>.02&&partial<1,mode+' has real continuous progress');
@@ -39,7 +38,7 @@ try{
   const stopped=(await data('river')).adventure.chapters[0].work[0].pour;await page.waitForTimeout(400);assert.equal((await data('river')).adventure.chapters[0].work[0].pour,stopped,'explicit stop');
   if(width===1024){await page.setViewportSize({width:768,height:1024});await ready();assert.equal((await data('river')).adventure.chapters[0].work[0].pour,stopped);await layout('water-rotated-portrait');await page.setViewportSize({width,height});await ready();}
   await page.reload();await ready();assert.equal((await data('river')).adventure.chapters[0].work[0].pour,stopped,'intermediate saved amount');
-  if(mode==='button'){await page.locator('#gesture-help').click();await page.getByRole('button',{name:'언덕에 물 주기',exact:true}).click();}
+  if(mode==='button'){await page.locator('#river-pour-start').click();}
   else if(mode==='tap'){await click(140,515);await click(400,195);}
   else {const b=await page.locator('#activity canvas').boundingBox();await page.mouse.move(b.x+140*b.width/1200,b.y+515*b.height/640);await page.mouse.down();await page.mouse.move(b.x+400*b.width/1200,b.y+195*b.height/640,{steps:15});}
   await page.waitForSelector('#next.ready',{timeout:15000});if(mode==='drag')await page.mouse.up();
@@ -55,11 +54,11 @@ try{
   await click(520,525);await click(724,389);assert.ok(!(await data('safety')).protect?.head,'head protection requires getting under the desk first');
   if(mode==='drag'){await drag({x:950,y:465},{x:700,y:482});await drag({x:520,y:525},{x:724,y:389});}
   else if(mode==='tap'){await click(950,465);await click(700,482);await click(520,525);await click(724,389);}
-  else {await page.locator('#protect-head').click();assert.ok(!(await data('safety')).protect.head);await place('리버','책상 아래');await page.locator('#protect-head').click();assert.equal((await data('safety')).protect.headMethod,'arms');}
+  else {await page.locator('#protect-head').click();assert.ok(!(await data('safety')).protect.head);await drag({x:950,y:465},{x:700,y:482});await page.locator('#protect-head').click();assert.equal((await data('safety')).protect.headMethod,'arms');}
   const d=await data('safety');assert.ok(d.protect.under&&d.protect.head,mode+' shelter and head align');
   await layout(`${width}-${height}-safety-head-${mode}`);
   await page.locator('#next').click();await ready();
-  if(mode==='drag')await drag({x:1030,y:550},{x:820,y:512});else if(mode==='tap'){await click(1030,550);await click(820,512);}else await place('손으로 잡기','가까운 책상 다리');
+  if(mode==='drag')await drag({x:1030,y:550},{x:820,y:512});else if(mode==='tap'){await click(1030,550);await click(820,512);}else await drag({x:1030,y:550},{x:820,y:512});
   await page.waitForTimeout(2700);await page.locator('#confirm-stop').click();assert.ok((await data('safety')).protect.confirmed);
   const metrics=await layout(`${width}-${height}-safety-leg-${mode}`);await page.reload();await ready();assert.ok((await data('safety')).protect.confirmed);
   results.push({test:'safety',mode,...poseBefore,metrics});

@@ -53,6 +53,8 @@ export function drawShapes(g,layers){
  g.clear();
  for(const p of layers){
   if(p.type==='line'){g.lineStyle(p.width,color(p.color),p.alpha??1).beginPath().moveTo(p.points[0].x,p.points[0].y);p.points.slice(1).forEach(q=>g.lineTo(q.x,q.y));g.strokePath();}
+  else if(p.type==='poly'){if(p.points.length>2)g.fillStyle(color(p.color),p.alpha??1).fillPoints(p.points,true);}
+  else if(p.type==='grains'){g.fillStyle(color(p.color),p.alpha??1);for(const [x,y,s] of p.points)g.fillRect(x-s/2,y-s/2,s,s);}
   else if(p.stroke)g.lineStyle(p.stroke,color(p.color),p.alpha??1).strokeRect(p.x,p.y,p.w,p.h);
   else if(p.type==='ellipse'||p.type==='rect'){g.fillStyle(color(p.color),p.alpha??1);if(p.type==='ellipse')g.fillEllipse(p.x,p.y,p.w,p.h);else g.fillRect(p.x,p.y,p.w,p.h);}
  }
@@ -75,6 +77,8 @@ export function sceneSVG(description){
   if(p.type==='image')return picture(p.asset,p.x-p.w/2,p.y-p.h/2,p.w,p.h,p.alpha??1);
   if(p.type==='label')return `<rect x="${p.x-155}" y="${p.y-24}" width="310" height="48" rx="5" fill="${p.color}"/><text x="${p.x}" y="${p.y+8}" text-anchor="middle" fill="white" font-size="24">${esc(p.text)}</text>`;
   if(p.type==='line')return `<polyline points="${p.points.map(q=>q.x+','+q.y).join(' ')}" fill="none" stroke="${p.color}" stroke-width="${p.width}" opacity="${p.alpha??1}"/>`;
+  if(p.type==='poly')return `<polygon points="${p.points.map(q=>q.x+','+q.y).join(' ')}" fill="${p.color}" opacity="${p.alpha??1}"/>`;
+  if(p.type==='grains')return `<path d="${p.points.map(([x,y,s])=>`M${x-s/2} ${y-s/2}h${s}v${s}h${-s}z`).join('')}" fill="${p.color}" opacity="${p.alpha??1}"/>`;
   if(p.type==='ellipse')return `<ellipse cx="${p.x}" cy="${p.y}" rx="${p.w/2}" ry="${p.h/2}" fill="${p.color}" opacity="${p.alpha??1}"/>`;
   return `<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" ${p.stroke?`fill="none" stroke="${p.color}" stroke-width="${p.stroke}"`:`fill="${p.color}"`} opacity="${p.alpha??1}"/>`;
  }).join('');
