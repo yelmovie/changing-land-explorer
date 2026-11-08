@@ -18,7 +18,22 @@ for(const url of textures)if(!existsSync(path.join('dist',url)))throw new Error(
 const posters=[...Object.keys(STAGE_ASSETS).flatMap(id=>[0,1].map(step=>`/assets/concepts/${id}-${step}.webp`)),'/assets/story/intro.webp','/assets/story/final.webp'];
 const core=[...new Set(['/','/index.html',...srcFiles,...refs,...textures,...posters,...Object.keys(RESIDENTS).map(residentArt),...Object.values(TOOL_ASSETS).map(n=>`/assets/${n}.webp`)])].filter(u=>existsSync(path.join('dist',u)));
 const name='geovalley-v3-'+Date.now();
-await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(name)},CORE=${JSON.stringify(core)};self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>/^geovalley-v[23]-/.test(k)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin||e.request.headers.has('range')||/^\\/assets\\/(?:story\\/[^/]+\\.mp4|audio\\/(?:main|final)-theme\\.mp3)$/i.test(new URL(e.request.url).pathname))return;e.respondWith(caches.open(CACHE).then(async c=>{const hit=await c.match(e.request);if(hit)return hit;try{const r=await fetch(e.request);if(r.ok)e.waitUntil(c.put(e.request,r.clone()));return r;}catch(error){const shell=e.request.mode==='navigate'&&await c.match('/index.html');if(shell)return shell;throw error;}}));});`);
+await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(name)},CORE=${JSON.stringify(core)};
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>/^geovalley-v[23]-/.test(k)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{
+ const request=e.request,url=new URL(request.url);
+ if(request.method!=='GET'||url.origin!==self.location.origin||request.headers.has('range')||/^\\/assets\\/(?:story\\/[^/]+\\.mp4|audio\\/(?:main|final)-theme\\.mp3)$/i.test(url.pathname))return;
+ // Code and documents must refresh online; cached copies keep lessons usable offline.
+ const networkFirst=request.mode==='navigate'||/\\.(?:html?|m?js|css|json)$/i.test(url.pathname);
+ e.respondWith(caches.open(CACHE).then(async cache=>{
+  const cached=()=>cache.match(request);
+  const fresh=async()=>{const response=await fetch(request);if(response.ok)e.waitUntil(cache.put(request,response.clone()));return response;};
+  if(!networkFirst){const hit=await cached();if(hit)return hit;}
+  try{return await fresh();}
+  catch(error){const hit=await cached()||(request.mode==='navigate'&&await cache.match('/index.html'));if(hit)return hit;throw error;}
+ }));
+});`);
 const {version}=JSON.parse(await readFile('package.json','utf8'));
 let html=await readFile('dist/index.html','utf8');html=html.replace('<html lang="ko">',`<html lang="ko" data-app-version="${version}">`).replace('</body>','<script>if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));</script></body>');await writeFile('dist/index.html',html);
 // Copying onto exFAT recreates sidecars next to the copied files.

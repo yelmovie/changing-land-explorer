@@ -1,5 +1,5 @@
 export const PHASES = {
-  river: [['예상하고 실험', '물의 양 비교', '세 가지 흔적'], ['상류 탐사', '하류 탐사', '강 지도 완성']],
+  river: [['물 흘리기', '물의 양 비교', '세 가지 흔적'], ['상류 탐사', '하류 탐사', '강 지도 완성']],
   volcano: [['모형 조립', '직접 분출', '흐른 길 조사'], ['분출물 탐사', '같은 점 찾기', '다른 점 찾기']],
   rocks: [['표본 닦기', '어두운 돌 관찰', '밝은 돌 관찰'], ['표본 정리', '새로운 돌 C', '새로운 돌 D']],
   city: [['공항의 변화', '농장의 변화', '온천의 변화'], ['공항과 화산재', '농장에 소식', '온천에 소식']],
@@ -8,6 +8,30 @@ export const PHASES = {
 
 export const TOOL_ASSETS = {lens:'tool-lens',camera:'tool-camera',box:'tool-box',compass:'tool-compass',flag:'tool-flag'};
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const workStrings={parts:['tray','mountain','water'],inputModes:['drag','tap','auto','button'],marks:['erosion','transport','deposit'],proofs:['dark','light','fine','coarse']};
+const workIntegers={sweeps:2,scanned:5,sorted:1,pairs:1};
+function repairList(value,valid){
+  if(!Array.isArray(value))return [];
+  const seen=new Set(),clean=value.filter(v=>valid(v)&&!seen.has(v)&&seen.add(v));
+  return clean.length===value.length?value:clean;
+}
+function recoverWork(work){
+  // Repair only damaged fields; valid observations and completed discoveries stay intact.
+  for(const key of ['parts','inputModes','marks','found','connected','proofs','links'])if(work[key]!==undefined){
+    const allowed=workStrings[key];
+    work[key]=repairList(work[key],v=>typeof v==='string'&&(!allowed||allowed.includes(v)));
+  }
+  for(const [key,max] of Object.entries(workIntegers))if(work[key]!==undefined)work[key]=repairList(work[key],v=>Number.isInteger(v)&&v>=0&&v<=max);
+  if(work.dust!==undefined){
+    const dust=[0,1].map(i=>repairList(work.dust?.[i],v=>Number.isInteger(v)&&v>=0&&v<16));
+    if(!Array.isArray(work.dust)||work.dust.length!==2||dust.some((cells,i)=>cells!==work.dust[i]))work.dust=dust;
+  }
+  for(const [key,fields] of Object.entries({seen:['before','after'],board:['picture','reason','action']}))if(work[key]!==undefined){
+    if(!object(work[key]))work[key]={};
+    else for(const field of Object.keys(work[key]))if(!fields.includes(field)||typeof work[key][field]!=='boolean')delete work[key][field];
+  }
+  if(work.lens!==undefined&&(!object(work.lens)||!Number.isFinite(work.lens.x)||!Number.isFinite(work.lens.y)))delete work.lens;
+}
 
 export function chapterState(data, step) {
   if (!object(data.adventure) || data.adventure.version !== 1) data.adventure = {version:1, chapters:{}};
@@ -17,7 +41,10 @@ export function chapterState(data, step) {
   const chapter = adventure.chapters[step];
   if (!object(chapter.tasks)) chapter.tasks = {};
   if (!object(chapter.work)) chapter.work = {};
-  for (const phase of [0,1,2]) if (!object(chapter.work[phase])) chapter.work[phase] = {};
+  for (const phase of [0,1,2]) {
+    if (!object(chapter.work[phase])) chapter.work[phase] = {};
+    recoverWork(chapter.work[phase]);
+  }
   chapter.phase = Math.min(2,Math.max(0,Math.floor(Number(chapter.phase)||0)));
   // A saved phase cannot jump past unfinished learning actions.
   for (let i=0;i<chapter.phase;i++) if (chapter.tasks[i]?.done !== true) {chapter.phase=i;break;}

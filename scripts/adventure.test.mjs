@@ -30,12 +30,26 @@ test('tap waypoints validate the same safe route as continuous drawing',()=>{
  route.actions['route-check']();assert.equal(route.finished(),true);
 });
 
-test('tap waypoints cannot skip through a hazard or start away from River',()=>{
+test('point mode seeds only the real start and still rejects a shortcut through hazards',()=>{
  const route=routeActivity();route.actions['route-input']();
- route.handlers.pointerdown({x:700,y:500});
- assert.deepEqual(route.data.schoolRoute,[]);
- route.handlers.pointerdown({x:SCHOOL_CONFIG.start.x+100,y:SCHOOL_CONFIG.start.y+80});
- route.handlers.pointerdown({x:SCHOOL_CONFIG.goal.x+100,y:SCHOOL_CONFIG.goal.y+80});
+ assert.deepEqual(route.data.schoolRoute,[SCHOOL_CONFIG.start]);
  route.actions['route-check']();assert.equal(route.finished(),false);
  assert.equal(inspectRoute(route.data.schoolRoute,SCHOOL_CONFIG).ok,false);
+ // A distant tap appends a segment from River, never teleports the start.
+ route.handlers.pointerdown({x:700,y:500});
+ assert.deepEqual(route.data.schoolRoute,[SCHOOL_CONFIG.start,{x:600,y:420}]);
+ route.actions['route-check']();assert.equal(route.finished(),false);
+ assert.equal(inspectRoute(route.data.schoolRoute,SCHOOL_CONFIG).ok,false);
+ route.handlers.pointerdown({x:SCHOOL_CONFIG.goal.x+100,y:SCHOOL_CONFIG.goal.y+80});
+ assert.deepEqual(route.data.schoolRoute[0],SCHOOL_CONFIG.start);
+ route.actions['route-check']();assert.equal(route.finished(),false);
+ assert.equal(inspectRoute(route.data.schoolRoute,SCHOOL_CONFIG).ok,false);
+});
+
+test('continuous drawing still cannot start away from River',()=>{
+ const route=routeActivity();
+ route.handlers.pointerdown({x:700,y:500});
+ route.handlers.pointerup({x:SCHOOL_CONFIG.goal.x+100,y:SCHOOL_CONFIG.goal.y+80});
+ assert.deepEqual(route.data.schoolRoute,[]);
+ route.actions['route-check']();assert.equal(route.finished(),false);
 });

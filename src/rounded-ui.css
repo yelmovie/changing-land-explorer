@@ -1,0 +1,216 @@
+/* Text controls share soft capsule ends; large reading surfaces keep generous corners. */
+#app{--radius-lg:999px;--radius-md:999px;--control-radius:999px}
+:is(#app,#overlay) button{border-radius:999px}
+#app :is(.adventure-heading,.river-narrator,.stage-shortcuts,.atlas-core,.resident-directory,.resident-tag,.expedition-title>p,.quest-meter,#river-status,#map-speech,.teacher-skip,.chip,.pill,.scene-caption,.discovery-pop){border-radius:999px}
+#app.atlas .pin-sign{border-radius:999px;padding-inline-start:22px}
+#app.adventure .adventure-heading{padding-inline-start:22px}
+#app.adventure .river-narrator{padding-inline-end:24px}
+#app .topbar .icon-button,#app.adventure #observation-auto{border-radius:999px}
+#app.atlas:not(.welcome) .map-dpad{border-radius:30px}
+#app.atlas:not(.welcome) .map-dpad button{border-radius:999px}
+#overlay :is(dialog.learning-dialog,.mission-reward,.settings-status,.danger-note,.concept-summary,.saved-evidence,.bag-grid article,.hint-card,.friend-stamps){border-radius:30px}
+#overlay :is(.setting-row input,.record-pager span,.concept-labels span,.resident-reply){border-radius:999px}
+.volcano-closeup{height:min(34vh,260px);overflow:hidden;border-radius:26px;background:#2b4436}
+.volcano-closeup img{width:100%;height:100%;object-fit:cover;transform:scale(1.7)}
+.city-record-choices,.river-label-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.city-record-periods{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.city-record-choices button,.city-record-periods button,.river-label-choices button{min-height:48px;white-space:normal;font-size:20px;line-height:1.25;padding:8px 12px;-webkit-tap-highlight-color:transparent}
+.city-record-choices button[aria-pressed=true]{background:#f6d58a;border:3px solid #775c2b;box-shadow:0 0 0 2px #fff8e8 inset}
+.city-record-status{min-height:1.5em}
+/* Keep teacher navigation in its banner, clear of the learning cards. */
+#app.adventure .teacher-skip{position:fixed;top:2px;right:10px;bottom:auto;min-height:48px;z-index:40}
+#app.adventure:has(.teacher-skip) .preview-banner{padding-inline-end:230px}
+@media(max-width:1000px){#app.adventure:has(.teacher-skip) .preview-banner>span{display:none}}
+#app.atlas .map-resident{z-index:12;transform:translate(-50%,-100%) translateY(32px);isolation:isolate}
+#app.atlas .map-resident img{height:clamp(80px,calc(var(--map-unit,1.33px)*84),160px);width:auto;filter:drop-shadow(0 0 2px #fffbe7) drop-shadow(2px 0 1px #fffbe7) drop-shadow(-2px 0 1px #fffbe7) drop-shadow(0 5px 3px #18382cb3)}
+#app.atlas .map-resident::before{width:88%;height:18px;margin-bottom:-5px;background:#fff2b985;border:2px solid #ffe7a2;box-shadow:0 2px 5px #19392c80;z-index:-1}
+#app.atlas .map-resident .resident-tag{height:32px;min-width:74px;padding:4px 10px;background:#fff9e8;color:#244d3e;border:2px solid #8e6d37;font:normal 18px/1.1 GeoDisplay,system-ui,sans-serif;box-shadow:0 3px 0 #5d482a66}
+#app.adventure .volcano-observation .river-narrator{flex:1 1 620px}
+@media(max-width:800px){#app.adventure .adventure-heading{padding-inline-start:16px}#app.adventure .river-narrator{padding-inline-end:14px}}
+
+/* Keep the time slider below the label dock on short landscape screens. */
+@media(orientation:landscape) and (max-width:800px) and (max-height:500px){
+ #app.adventure .stage-kicker>span{display:none}
+ #app.adventure .volcano-observation{--hud-bottom:142px}
+ #app.adventure .volcano-observation .adventure-toolbar{flex:0 0 auto;max-width:190px}
+ #app.adventure .river-observation .adventure-toolbar{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:end;gap:6px}
+ #app.adventure .river-observation .adventure-side-tools{grid-area:1/1;width:auto;min-width:0}
+ #app.adventure .river-observation .controls{display:contents}
+ #app.adventure .river-observation .action-buttons{grid-area:1/2;justify-content:flex-end;gap:4px}
+ #app.adventure .river-observation #next{grid-area:1/2;justify-self:end}
+ #app.adventure .river-observation .adventure-range{grid-area:2/1/3/3;display:grid;grid-template-columns:auto minmax(48px,1fr) auto;gap:5px;width:100%;min-width:0}
+ #app.adventure .river-observation .adventure-range input[type=range]{width:100%;min-width:48px;margin:0}
+ #app.adventure .river-observation .adventure-range .range-jump{font-size:16px;white-space:nowrap}
+}
+
+/* Teacher-only evidence guide: full-row disclosure targets, not a tiny arrow. */
+.learning-guide{margin-top:20px;border-top:1px solid #d5c89d;padding-top:12px}
+.learning-guide summary{min-height:48px;box-sizing:border-box;padding:12px 10px;cursor:pointer;font-size:20px;line-height:1.4;font-weight:700;border-radius:12px}
+.learning-guide details{margin:10px 0;background:#edf0df;border:1px solid #d5ddc4;border-radius:16px;padding:4px 12px}
+.learning-guide summary:focus-visible{outline:3px solid #246749;outline-offset:2px}
+.learning-guide a{display:inline-flex;min-height:48px;align-items:center;text-underline-offset:4px}
+
+/* Equivalent manual choices for small canvas controls, with no answer labels. */
+.accessible-choices{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.accessible-choices button{min-height:48px;min-width:48px;font-size:20px;line-height:1.3;flex:1 1 180px;padding:12px}
+.accessible-choices button[aria-pressed="true"]{outline:3px solid #246749;background:#dce9cb}
+
+/* Activity layout: the scene and every operating control share one viewport. */
+#app.adventure .adventure-heading,
+#app.adventure:has(#observation-auto:not([hidden])) .adventure-heading{
+ left:calc(var(--hud-pad)*2 + var(--hud-icon)*3 + var(--hud-gap)*2);
+ right:calc(var(--hud-pad)*2 + var(--hud-icon)*2 + var(--hud-gap));
+ width:auto;max-width:none;gap:8px;padding:5px 10px 5px 16px;
+}
+#app.adventure .stage-kicker{display:flex;align-items:center;flex-wrap:wrap;column-gap:8px;font-size:14px;line-height:1.3}
+#app.adventure .stage-kicker .quest-meter{position:static;display:inline-flex;align-items:center;gap:6px;min-height:0;max-width:none;padding:0 6px;box-shadow:none;white-space:nowrap;border-radius:999px;background:linear-gradient(to right,#d4e9c5 var(--progress,0%),#fff3d4 var(--progress,0%))}
+#app.adventure .stage-kicker .quest-meter:empty{display:none}
+#app.adventure .stage-kicker .quest-meter>span{font-size:12px}
+#app.adventure .stage-kicker .quest-meter>strong{font-size:16px;line-height:1.2;white-space:nowrap}
+#app.adventure .stage-kicker .quest-meter small{font-size:12px}
+#app.adventure .phase-complete .stage-kicker .quest-meter{display:none}
+#app.adventure .task-copy{flex-basis:auto}
+#app.adventure .task-copy h1{font-size:clamp(20px,1.8vw,30px);line-height:1.25;text-wrap:pretty}
+#app.adventure .phase-path{padding-left:6px;gap:0;max-width:none}
+#app.adventure .phase-node{min-width:48px;padding:0}
+#app.adventure .phase-node b{display:none}
+#app.adventure .phase-menu-cue{display:none}
+#app.adventure .adventure-surface{left:8px;right:8px;bottom:var(--footer-height,120px)}
+#app.adventure .adventure-footer{
+ height:auto;min-height:0;display:grid;grid-template-columns:minmax(220px,.85fr) minmax(0,1.3fr);
+ gap:16px;align-items:center;padding:0 12px 10px;
+}
+#app.adventure .river-narrator{
+ width:auto;max-width:none;min-width:0;min-height:0;align-self:center;padding:10px 18px;
+ border-radius:24px;gap:0;
+}
+#app.adventure .river-narrator>div{overflow:visible;max-height:none;min-width:0}
+#app.adventure .river-narrator p{font-size:20px;line-height:1.35;margin:3px 0 0}
+#app.adventure .river-narrator .quest-meter{white-space:nowrap;max-width:100%;margin:0 0 2px;padding:1px 8px;gap:6px}
+#app.adventure .river-narrator .quest-meter>span{font-size:14px}
+#app.adventure .river-narrator .quest-meter>strong{font-size:18px;white-space:nowrap}
+#app.adventure .adventure-toolbar{
+ display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;align-items:center;
+ width:100%;max-width:none;min-width:0;gap:8px;padding:0;flex:none;
+}
+#app.adventure .adventure-toolbar .controls{
+ display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;
+ width:auto;max-width:100%;min-width:0;min-height:0;margin:0;overflow:visible;padding:0;order:1;
+}
+#app.adventure .action-buttons{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;max-width:100%}
+#app.adventure .adventure-toolbar :is(.primary,.secondary){
+ font-size:18px;min-height:48px;max-width:100%;padding:8px 14px;line-height:1.25;white-space:normal;word-break:keep-all;
+}
+#app.adventure .activity-playback{display:flex;gap:6px;align-items:center;order:0}
+#app.adventure #observation-auto{width:auto;min-width:120px;font-size:18px;min-height:48px;padding:8px 12px;white-space:nowrap}
+#app.adventure #observation-speed{
+ width:92px;min-width:76px;height:48px;border:2px solid #a98a52;border-radius:999px;
+ background:#fff9eb;color:#294f41;font:18px GeoDisplay,system-ui,sans-serif;padding:4px 8px;cursor:pointer;
+}
+#app.adventure :is(button,select,summary):focus-visible{outline:3px solid #ffe0a0;outline-offset:3px}
+#app.adventure .adventure-toolbar .suggested{background:#f7d680;color:#43331a;border:2px solid #956d2b;box-shadow:0 3px 0 #936c33,0 0 0 3px #ffedb4}
+#app.adventure #observation-auto.suggested{background:#f7d680;color:#43331a;border-color:#956d2b;box-shadow:0 3px 0 #936c33,0 0 0 3px #ffedb4}
+#app.adventure .adventure-toolbar .primary:not(.suggested):not(#next){background:#fff9eb;color:#294f41;border-color:#c7b78d;box-shadow:0 3px 0 #927c4c44}
+#app.adventure #observation-auto[aria-pressed=true]{background:#235f4a;color:#fff}
+#app.adventure .adventure-toolbar #next{min-height:48px;min-width:142px;margin:0;font-size:20px;order:2}
+#app.adventure .adventure-toolbar:has(#next.ready) .controls{display:none}
+#app.adventure .adventure-range{
+ display:grid;grid-template-columns:auto minmax(56px,1fr) auto;gap:6px;align-items:center;
+ width:100%;max-width:420px;min-width:0;flex:1 1 280px;grid-area:auto;
+}
+#app.adventure .adventure-range>span{display:none}
+#app.adventure .adventure-range input[type=range]{width:100%;min-width:48px;height:48px;min-height:48px;margin:0}
+#app.adventure .adventure-range .range-jump{font-size:16px;min-width:48px;padding:8px 10px;white-space:nowrap}
+/* Secondary learning tools stay available without consuming experiment space. */
+#app.adventure .activity-tools{position:relative;pointer-events:auto}
+#app.adventure .activity-tools>summary{
+ width:var(--hud-icon);height:var(--hud-icon);min-height:48px;list-style:none;cursor:pointer;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+ border:2px solid #8f7442;border-radius:999px;background:#fff9eb;color:#294f41;box-shadow:0 4px 0 #6e5428;
+}
+.activity-tools>summary::-webkit-details-marker{display:none}
+#app.adventure .activity-tools>summary>span{font-size:13px;font-weight:700;line-height:1}
+#app.adventure .activity-tools .adventure-side-tools{
+ position:absolute;inset:calc(100% + 10px) auto auto 0;z-index:40;
+ display:grid;grid-template-columns:1fr;width:220px;max-width:none;gap:8px;
+ padding:12px;background:#fff9eb;border:2px solid #a98a52;border-radius:24px;box-shadow:var(--hud-shadow);
+}
+#app.adventure .activity-tools:not([open]) .adventure-side-tools{display:none}
+#app.adventure .adventure-side-tools :is(button,.earned-tool){
+ width:100%;min-width:0;min-height:48px;max-width:none;font-size:18px;padding:8px 12px;
+ display:flex;align-items:center;justify-content:center;gap:8px;white-space:normal;line-height:1.25;
+}
+#app.adventure #evidence-count{position:static;min-width:22px;font-size:15px;padding:2px 5px}
+#app.adventure .earned-tool>img{width:28px;height:28px;object-fit:contain}
+#app.adventure .earned-tool>span{font-size:18px}
+.phase-choices{display:grid;gap:12px}
+.phase-choices>button{display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px 12px;align-items:center;text-align:left;min-height:72px;padding:12px 20px}
+.phase-choices>button>span{grid-row:1/3;display:grid;place-items:center;width:40px;height:40px;border:2px solid #a98a52;border-radius:50%;font-size:24px}
+.phase-choices strong{font-size:22px;line-height:1.3}
+.phase-choices small{font-size:18px;line-height:1.3}
+.phase-choices [aria-current=step]{outline:3px solid #55805e;background:#edf4e0}
+@media(min-width:1600px) and (min-height:850px){
+ #app.adventure .adventure-footer{grid-template-columns:minmax(300px,.8fr) minmax(0,1.3fr);padding:0 18px 14px}
+ #app.adventure .river-narrator p{font-size:23px}
+ #app.adventure .adventure-toolbar :is(.primary,.secondary){font-size:22px;min-height:56px}
+ #app.adventure #observation-speed{font-size:20px;height:56px;width:104px}
+}
+@media(max-width:980px){
+ #app.adventure .phase-node:not(.current){display:none}
+ #app.adventure .phase-path{border:0;padding:0}
+}
+@media(orientation:landscape) and (max-height:620px){
+ #app.adventure .adventure-page{--stage-dock-width:clamp(238px,29vw,304px)}
+ #app.adventure .adventure-heading,
+ #app.adventure:has(#observation-auto:not([hidden])) .adventure-heading{padding:4px 6px 4px 12px;gap:4px}
+ #app.adventure .activity-tools .adventure-side-tools{grid-template-columns:repeat(2,minmax(0,1fr));width:min(360px,calc(100vw - 180px))}
+ #app.adventure .river-narrator p{margin:0}
+ #app.adventure .stage-kicker{font-size:12px}
+ #app.adventure .stage-kicker>span{display:none}
+ #app.adventure .task-copy h1{font-size:20px;line-height:1.2}
+ #app.adventure .phase-node:not(.current){display:none}
+ #app.adventure .phase-path{border:0;padding:0}
+ #app.adventure .adventure-surface{right:calc(var(--stage-dock-width) + 16px);bottom:8px}
+ #app.adventure .adventure-footer{
+ left:auto;right:8px;top:var(--activity-top,var(--hud-top));bottom:8px;width:var(--stage-dock-width);
+ height:auto;padding:0;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);
+ gap:6px;align-items:start;align-content:start;
+ }
+ #app.adventure .river-narrator{align-self:start;padding:6px 12px;border-radius:20px;max-height:none}
+ #app.adventure .river-narrator p{font-size:20px;line-height:1.25}
+ #app.adventure .adventure-toolbar,
+ #app.adventure .river-observation .adventure-toolbar,
+ #app.adventure .volcano-observation .adventure-toolbar{
+ display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;gap:6px;
+ width:100%;min-height:0;max-width:none;grid-area:auto;
+ }
+ #app.adventure .activity-playback{width:100%;justify-content:space-between}
+ #app.adventure #observation-auto{flex:1;min-width:0}
+ #app.adventure #observation-speed{width:84px;min-width:76px}
+ #app.adventure .adventure-toolbar .controls,
+ #app.adventure .river-observation .controls{
+ display:flex;flex-direction:column;flex-wrap:nowrap;align-items:stretch;overflow:visible;
+ width:100%;min-height:0;max-height:none;gap:8px;grid-area:auto;
+ }
+ #app.adventure .action-buttons,
+ #app.adventure .river-observation .action-buttons{display:flex;flex-wrap:wrap;justify-content:stretch;width:100%;gap:8px;grid-area:auto}
+ #app.adventure .adventure-toolbar .action-buttons>button{flex:1 1 42%;font-size:17px;min-height:48px;padding:6px 8px}
+ #app.adventure .adventure-toolbar #next,
+ #app.adventure .river-observation #next{width:100%;min-width:0;min-height:48px;font-size:20px;grid-area:auto;justify-self:stretch}
+ #app.adventure .adventure-range,
+ #app.adventure .river-observation .adventure-range{display:grid;grid-template-columns:auto minmax(48px,1fr) auto;gap:4px;flex:none;width:100%;grid-area:auto}
+ #app.adventure .adventure-range .range-jump{font-size:14px;padding:4px 6px}
+ #app.adventure .adventure-toolbar:has(#next.ready) .controls{display:none}
+ #app.adventure .guidance-wide .river-narrator{
+  position:absolute;top:0;left:calc(var(--stage-dock-width) + 16px - 100vw);width:calc(100vw - 16px);max-width:none;
+ }
+ #app.adventure .guidance-wide .adventure-footer{grid-template-rows:minmax(0,1fr)}
+ #app.adventure .guidance-wide .adventure-toolbar{margin-top:calc(var(--wide-guidance-height) + 6px)}
+ #app.adventure .guidance-wide .adventure-surface{top:calc(var(--activity-top,var(--hud-top)) + var(--wide-guidance-height) + 6px)}
+}
+@media(orientation:portrait){
+ #app.adventure .adventure-footer{grid-template-columns:minmax(0,1fr);gap:8px}
+ #app.adventure .adventure-toolbar{justify-content:center}
+ #app.adventure .adventure-heading,
+ #app.adventure:has(#observation-auto:not([hidden])) .adventure-heading{top:var(--hud-top);left:8px;right:8px}
+}

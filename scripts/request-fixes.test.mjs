@@ -27,3 +27,18 @@ test('completed model evidence contains the assembled apparatus and the observed
  assert.deepEqual(d.layers.filter(p=>p.type==='image').map(p=>p.asset),['art/volcano-tray','art/volcano-mountain','art/volcano-syringe']);
  assert.ok(d.layers.some(p=>p.type==='line'&&p.color==='#d85e50'&&p.points.at(-1).x===755));
 });
+test('leaving a village stops an already playing cue and muting cancels queued cues',async()=>{
+ const priorDocument=globalThis.document,priorAudio=globalThis.Audio,clips=[];
+ globalThis.document={hidden:false,addEventListener(){},querySelector(){return null;}};
+ globalThis.Audio=class{constructor(){this.paused=true;this.currentTime=0;clips.push(this);}canPlayType(){return 'probably';}play(){this.paused=false;return Promise.resolve();}pause(){this.paused=true;}};
+ try{
+  const sound=await import('../src/sound.js'),wait=()=>new Promise(r=>setTimeout(r,20));
+  const stop=sound.playCue('village-wake');await wait();assert.equal(clips.length,1);assert.equal(clips[0].paused,false);
+  stop();assert.equal(clips[0].paused,true);stop();
+  const cancel=sound.playCue('lamp-light',10);cancel();await wait();assert.equal(clips.length,1);
+  sound.playCue('resident-pop',10);sound.setSoundEnabled(false);sound.setSoundEnabled(true);await wait();assert.equal(clips.length,1,'a muted queued arrival must not play later');
+ }finally{
+  if(priorDocument===undefined)delete globalThis.document;else globalThis.document=priorDocument;
+  if(priorAudio===undefined)delete globalThis.Audio;else globalThis.Audio=priorAudio;
+ }
+});

@@ -1,24 +1,33 @@
 import {$,$$,icon} from './ui.js';
+// 빌드 스크립트(Node)가 주민 데이터만 읽을 수 있게, 소리 모듈은 브라우저에서 필요할 때 불러온다.
+const sound=()=>import('./sound.js');
 
 // Feet are anchored to the painted path. The smaller landmark is anchored to the workplace.
 export const RESIDENTS={
- river:{name:'나루',stamp:'물방울',symbol:'water',role:'강나루 뱃사공',feet:[.202,.465],landmark:[.103,.370],mark:'lamp',
+ river:{name:'나루',stamp:'물방울',symbol:'water',role:'강나루 뱃사공',feet:[.224,.415],landmark:[.103,.370],mark:'lamp',
+  thanks:'고마워! 모래가 쌓인 곳을 알려 줘서 나루터를 다시 열 수 있게 됐어.',stampLine:'꾹! 물방울 도장을 찍었어. 배 타러 또 와!',
   hello:'내 등불 보여? 네가 모래가 쌓인 곳을 지도에 표시해 줘서 다시 나루터를 열었어!',
   chat:[['배는 어디로 다녀?','모래가 쌓인 자리는 얕아졌어. 네 지도를 보고 그곳을 빙 돌아서 배를 몰아.'],['등불은 왜 켰어?','저녁에 돌아오는 배도 나루터를 찾으라고! 오늘 첫 손님은 너야.']]},
- volcano:{name:'마그',stamp:'관측등',symbol:'sun',role:'화산 관측원',feet:[.359,.252],landmark:[.310,.170],mark:'lamp',
+ volcano:{name:'마그',stamp:'관측등',symbol:'sun',role:'화산 관측원',feet:[.355,.250],landmark:[.310,.170],mark:'lamp',
+  thanks:'고마워! 네 비교 기록 덕분에 관측등을 다시 켤 수 있어.',stampLine:'꾹! 관측등 도장을 찍었어. 화산 관찰은 늘 멀리서 하자!',
   hello:'관측등을 다시 켰어! 네가 모형과 화산 그림을 비교해 준 덕분이야.',
   chat:[['모형에서는 뭘 봤어?','붉은 물이 산비탈을 따라 흘렀지. 흐르는 모습은 비교할 수 있지만, 모형의 물은 용암처럼 뜨겁지 않아.'],['망원경으로 뭐 해?','멀리서 화산을 살펴봐. 오늘은 네가 찾아낸 용암 자국을 내 수첩에도 그렸어.']]},
- rocks:{name:'지오',stamp:'표본 상자',symbol:'box',role:'암석 공방지기',feet:[.604,.279],landmark:[.619,.193],mark:'samples',
+ rocks:{name:'지오',stamp:'표본 상자',symbol:'box',role:'암석 공방지기',feet:[.594,.267],landmark:[.619,.193],mark:'samples',
+  thanks:'와, 고마워! 이제 공방의 돌마다 이름표를 붙일 수 있어.',stampLine:'꾹! 표본 상자 도장을 찍었어. 돌 친구들도 반가워해!',
   hello:'어서 와! 뒤죽박죽이던 돌에 이름표가 생겼어. 이제 공방 손님도 두 돌을 비교할 수 있어.',
   chat:[['무슨 돌을 들고 있어?','분홍빛 알갱이도 보이지? 내 화강암이야. 돌 이름을 찾을 때는 색과 알갱이 크기를 함께 봐.'],['첫 손님은 누구였어?','바로 너야! 내가 아끼는 돌을 제일 앞에 꺼내 뒀어. 분홍 알갱이가 보이지?']]},
- city:{name:'타임',stamp:'사진기',symbol:'camera',role:'마을 사진 기록가',feet:[.842,.547],landmark:[.804,.468],mark:'board',
+ city:{name:'타임',stamp:'사진기',symbol:'camera',role:'마을 사진 기록가',feet:[.823,.495],landmark:[.804,.468],mark:'board',
+  thanks:'고마워! 사진 속 장소와 때를 찾아 줘서 소식판을 다시 열 수 있어.',stampLine:'꾹! 사진기 도장을 찍었어. 오늘 소식판 첫 줄은 너야!',
   hello:'마을 소식판이 다시 열렸어! 네가 사진 속 장소와 때를 찾아 줘서 소식을 제대로 붙였지.',
   chat:[['왜 같은 곳을 또 찍어?','같은 밭도 분출 당시와 오랜 시간이 지난 뒤의 모습이 달라. 나란히 놓으면 어디가 달라졌는지 잘 보여.'],['오늘의 마을 소식은?','암석 공방이 문을 열었대! 지오가 이름표를 붙인 돌 사진을 소식판에 걸었어.']]},
- safety:{name:'세이프',stamp:'안전 깃발',symbol:'flag',role:'안전 훈련 대장',feet:[.708,.815],landmark:[.737,.715],mark:'flag',
+ safety:{name:'세이프',stamp:'안전 깃발',symbol:'flag',role:'안전 훈련 대장',feet:[.765,.704],landmark:[.737,.715],mark:'flag',
+  thanks:'고마워! 네가 그린 대피로 덕분에 모두 안전하게 연습할 수 있어.',stampLine:'꾹! 안전 깃발 도장을 찍었어. 연습할 때 꼭 함께하자!',
   hello:'훈련 깃발을 올렸어! 네가 그린 대피로를 보며 다 같이 걷는 연습을 할 수 있어.',
   chat:[['교실이 흔들리면?','먼저 튼튼한 책상 아래에서 머리와 몸을 보호하고 책상 다리를 잡아. 흔들림이 멈추면 선생님 안내를 따라 걸어가.'],['깃발은 어디에 꽂아?','오늘 연습할 운동장의 모이는 자리에! 친구들이 다 왔는지 함께 확인할 거야.']]}
 };
 export const residentArt=id=>`/assets/residents/${id}.webp`;
+// 모모로 만든 주민 목소리. 대사 글과 같은 문장을 읽는다(scripts/voices.json 참고).
+export const residentVoice=(id,line)=>`${id}-${line}.m4a`;
 
 const signs={
  lamp:'<path fill="#503823" d="M13 8V5a3 3 0 0 1 6 0v3h3l2 4-2 2-1 12H11l-1-12-2-2 2-4z"/><path fill="#ffe598" d="M12 13h8l-1 10h-6z"/><path fill="#fff8be" d="m16 15 2 5-2 2-2-2z"/>',
@@ -54,10 +63,13 @@ export function showResidents(modal,stages,{initial,onGreet,preview,stamps,colle
    const st=stages.find(s=>s.id===id);if(!st)return;
    onGreet(id);
    const r=RESIDENTS[id];heading.textContent=`${r.name}에게 말 걸기`;
-   body.innerHTML=`<div class="resident-conversation"><div class="resident-portrait"><img src="${residentArt(id)}" alt="${r.role} ${r.name}"></div><div class="resident-lines"><span class="resident-place">${st.place} · ${r.role}</span><p class="resident-reply" aria-live="polite"></p><div class="resident-questions">${r.chat.map(([q],i)=>`<button class="secondary" data-ask="${i}" aria-pressed="false">${q}</button>`).join('')}</div></div></div><div class="resident-exit"><button class="stamp-press" data-stamp>${icon(r.symbol,20)} <span></span></button>${fromList?'<button class="secondary" data-roster>주민 목록</button>':''}<button class="primary" data-close>지도로 돌아가기</button></div>`;
-   const reply=$('.resident-reply',body);reply.textContent=r.hello;
+   body.innerHTML=`<div class="resident-conversation"><div class="resident-portrait"><img src="${residentArt(id)}" alt="${r.role} ${r.name}"></div><div class="resident-lines"><span class="resident-place">${st.place} · ${r.role}</span><p class="resident-reply" aria-live="polite"></p><button class="voice-replay" type="button" aria-label="${r.name}의 말 다시 듣기">${icon('sound',20)}<span>다시 듣기</span></button><div class="resident-questions">${r.chat.map(([q],i)=>`<button class="secondary" data-ask="${i}" aria-pressed="false">${q}</button>`).join('')}</div></div></div><div class="resident-exit"><button class="stamp-press" data-stamp>${icon(r.symbol,20)} <span></span></button><button class="secondary" data-roster>주민 목록</button><button class="primary" data-close>지도로 돌아가기</button></div>`;
+   const reply=$('.resident-reply',body);let line='hello';reply.textContent=r.hello;
+   const say=key=>{line=key;sound().then(s=>s.playVoice(residentVoice(id,key)));};
+   sound().then(s=>s.playCue('letter-open'));say('hello');
+   $('.voice-replay',body).onclick=()=>say(line);
    const buttons=$$('[data-ask]',body);
-   buttons.forEach((b,i)=>b.onclick=()=>{reply.textContent=r.chat[i][1];buttons.forEach(other=>other.setAttribute('aria-pressed',String(other===b)));});
+   buttons.forEach((b,i)=>b.onclick=()=>{reply.textContent=r.chat[i][1];say(`chat${i}`);buttons.forEach(other=>other.setAttribute('aria-pressed',String(other===b)));});
    const stamp=$('[data-stamp]',body),back=$('[data-close]',body);
    function updateStamp(){
     stamp.disabled=stamps.includes(id);
@@ -67,13 +79,14 @@ export function showResidents(modal,stages,{initial,onGreet,preview,stamps,colle
    stamp.onclick=()=>{
     if(!collect(id))return;
     updateStamp();
-    reply.textContent=stamps.length===5?'도장 다섯 개가 다 모였어! 기록탑 앞에 우리 마을 축제 깃발을 걸었어.':`꾹! 네 도장첩에 ${r.stamp} 도장을 찍었어. 이제 친구 도장이 ${stamps.length}개야!`;
+    reply.textContent=stamps.length===5?`${r.stampLine} 도장 다섯 개가 다 모였어! 기록탑 앞에 우리 마을 축제 깃발을 걸었어.`:`${r.stampLine} 이제 친구 도장이 ${stamps.length}개야!`;
+    say('stamp');
     stamp.classList.add('just-stamped');
     back.focus({preventScroll:true});
    };
    updateStamp();
-   back.onclick=()=>{close();if(stamps.length===5)visitPlaza();};
-   if(fromList){$('[data-roster]',body).onclick=()=>roster(id);buttons[0].focus();}
+   back.onclick=()=>{sound().then(s=>s.stopVoice());close();if(stamps.length===5)visitPlaza();};
+   $('[data-roster]',body).onclick=()=>{sound().then(s=>s.stopVoice());roster(id);};if(fromList)buttons[0].focus();
   }
   if(initial)talk(initial,false);else roster();
  });

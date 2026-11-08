@@ -27,7 +27,7 @@ export function hasRockEvidence(d,id){const r=ROCKS[id];return !!r&&[r.color,r.g
 export function activityComplete(stage,step,d={}){
  if(d.adventure?.version===1&&!chapterComplete(d,step))return false;
  const ev=d.evidence||{};
- if(stage==='river')return step===0?!!d.prediction&&[1,2].every(w=>d.runs?.some(r=>r.water===w&&r.complete&&r.version===1))&&Object.keys(RIVER_MARKS).every(k=>riverMarkValid(k,ev[`river-${k}`]?.point,ev[`river-${k}`]?.time))&&['same','different'].includes(d.reflection):FIELD_POINTS.every(p=>ev[p.id]?.claim===p.claim)&&d.fieldLink==='deposit';
+ if(stage==='river')return step===0?[1,2].every(w=>d.runs?.some(r=>r.water===w&&r.complete&&r.version===1))&&Object.keys(RIVER_MARKS).every(k=>riverMarkValid(k,ev[`river-${k}`]?.point,ev[`river-${k}`]?.time))&&['same','different','foot'].includes(d.reflection):FIELD_POINTS.every(p=>ev[p.id]?.claim===p.claim)&&d.fieldLink==='deposit';
  if(stage==='volcano')return step===0?['tray','mountain','water'].every(k=>d.assembly?.includes(k))&&['mouth','flow'].every(k=>ev[`model-${k}`]?.time>=.55):['lava','gas','ash','rock'].every(k=>ev[`output-${k}`]?.claim===k)&&['opening','downhill','material','extra'].every(k=>d.comparisons?.[k]===({opening:'same',downhill:'same',material:'different',extra:'different'}[k]));
  if(stage==='rocks')return step===0?[0,1].every(i=>hasRockEvidence(d,i)):[0,1,2,3].every(i=>hasRockEvidence(d,i)&&d.rockNames?.[i]===ROCKS[i].type&&d.rockProofs?.[i]?.every(f=>[ROCKS[i].color,ROCKS[i].grain].includes(f))&&new Set(d.rockProofs?.[i]).size===2);
  if(stage==='city')return step===0?CITY_SITES.every(s=>ev[`city-${s.id}`]?.claim===s.claim&&ev[`city-${s.id}`]?.pair===true):CITY_SITES.every(s=>ev[`city-${s.id}`]?.claim===s.claim&&d.notices?.[s.id]===s.claim);

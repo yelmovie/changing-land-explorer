@@ -2,7 +2,7 @@ import {RIVER_WALK,createRiverWalker} from './river-walk.js';
 import {STAGES,canEnter} from './model.js';
 import {villageLights} from './village-lights.js';
 import {RESIDENTS,residentMarker,showResidents} from './residents.js';
-import {playSound} from './sound.js';
+import {playSound,playCue} from './sound.js';
 import {$,$$,icon} from './ui.js';
 import {shell,state,isAdmin,save,enter,navigate,toast,modal,showFilm} from './main.js';
 import {TOOL_ASSETS,stageDiscoveries,discoveryCount} from './adventure/rules.js';
@@ -42,7 +42,7 @@ export function renderMap({welcome=false,arrival}={}){
       <button id="atlas-core" class="atlas-core ${coreOpen?'ready':''}" style="left:${CORE_LABEL[0]*100}%;top:${CORE_LABEL[1]*100}%" aria-label="기록탑 ${coreOpen?'마지막 도전 열림':'다섯 도구를 모아 연결'}">${icon(coreOpen?'star':'lock',22)}<span>기록탑</span><small>${isAdmin()?'시연 가능':s.completed.length+' / 5'}</small></button>
     </div>
     ${welcome?`<section class="welcome-scroll"><img class="welcome-river" src="/assets/hero-lens.webp" alt="탐험가 수달 리버"><div><span>초등 과학 · 땅의 변화</span><h2>리버와 발견 여행을 떠나자!</h2><p>다섯 곳의 관찰 기록을 모아<br>꺼진 기록탑을 다시 연결해 줘.</p><button class="primary" id="start">${s.started?'탐험 이어 하기':'탐험 시작'} ${icon('arrow')}</button></div></section>`:''}
-    </div><div class="map-dpad" role="group" aria-label="리버 이동 방향키"><button data-dir="up" aria-keyshortcuts="ArrowUp W" aria-label="위로 걷기">${icon('arrow',26)}</button><button data-dir="left" aria-keyshortcuts="ArrowLeft A" aria-label="왼쪽으로 걷기">${icon('arrow',26)}</button><button class="dpad-center" id="dpad-center" aria-label="리버가 있는 곳 보기"><img src="/assets/hero-lens.webp" alt=""></button><button data-dir="right" aria-keyshortcuts="ArrowRight D" aria-label="오른쪽으로 걷기">${icon('arrow',26)}</button><button data-dir="down" aria-keyshortcuts="ArrowDown S" aria-label="아래로 걷기">${icon('arrow',26)}</button></div><button class="next-guide" id="next-guide" hidden></button><div class="atlas-quick-actions"><button class="stage-shortcuts" id="stage-shortcuts" aria-haspopup="dialog">${icon('compass',22)} <span>장소 바로가기</span></button>${residents.length?`<button class="resident-directory" id="resident-directory" aria-label="${newcomer?RESIDENTS[newcomer.id].name+'에게 말 걸기':(isAdmin()?'주민 시연':'돌아온 주민')+' '+residents.length+'명, 대화 목록 열기'}">${icon('chat',22)} <span>${isAdmin()?'주민 시연':newcomer?`${RESIDENTS[newcomer.id].name}와 대화`:'돌아온 주민'}</span> <b>${residents.length}/5</b></button>`:''}</div><button id="travel-skip" class="secondary travel-skip" hidden>도착하기 ${icon('arrow',18)}</button><footer class="atlas-footer"><img class="map-river" src="/assets/hero-cheer.webp" alt="리버"><p id="map-speech" role="status">${newcomer?`마을 불빛 ${residents.length}/5 · ${RESIDENTS[newcomer.id].name}의 말풍선을 눌러 봐!`:isAdmin()?'시연할 장소 이름표를 눌러. 아래 시연 목록에서 활동이나 마지막 도전을 바로 고를 수도 있어.':finished?'30개 발견과 마지막 도전을 마쳤어. 기록을 다시 보거나 새 상황에 다시 도전해 봐.':all?'네가 찾은 단서들이 모였어. 가운데 기록탑에서 마지막 문제를 풀어 보자!':s.completed.length?`흩어진 관찰 기록을 모아 기록탑을 연결하자. 다음은 ${nextStage?.place||'기록탑'}야.`:'‘물길 관측소’를 눌러 첫 단서를 찾으러 가자!'}</p>${finished?'<div class="map-complete-actions"><button class="secondary" id="map-records">기록 다시 보기</button><button class="secondary" id="map-retry">새 상황 다시 도전</button></div>':''}${isAdmin()?'<button class="secondary" id="preview-nav">시연 목록</button>':''}</footer>
+    </div><div class="map-dpad" role="group" aria-label="리버 이동 방향키"><button data-dir="up" aria-keyshortcuts="ArrowUp W" aria-label="위로 걷기">${icon('arrow',26)}</button><button data-dir="left" aria-keyshortcuts="ArrowLeft A" aria-label="왼쪽으로 걷기">${icon('arrow',26)}</button><button class="dpad-center" id="dpad-center" aria-label="리버가 있는 곳 보기"><img src="/assets/hero-lens.webp" alt=""></button><button data-dir="right" aria-keyshortcuts="ArrowRight D" aria-label="오른쪽으로 걷기">${icon('arrow',26)}</button><button data-dir="down" aria-keyshortcuts="ArrowDown S" aria-label="아래로 걷기">${icon('arrow',26)}</button></div><button class="next-guide" id="next-guide" hidden></button><button id="travel-skip" class="secondary travel-skip" hidden>도착하기 ${icon('arrow',18)}</button><footer class="atlas-footer"><img class="map-river" src="/assets/hero-cheer.webp" alt="리버"><p id="map-speech" role="status">${newcomer?`마을 불빛 ${residents.length}/5 · ${RESIDENTS[newcomer.id].name}의 말풍선을 눌러 봐!`:isAdmin()?'시연할 장소 이름표를 눌러. 아래 시연 목록에서 활동이나 마지막 도전을 바로 고를 수도 있어.':finished?'30개 발견과 마지막 도전을 마쳤어. 기록을 다시 보거나 새 상황에 다시 도전해 봐.':all?'네가 찾은 단서들이 모였어. 가운데 기록탑에서 마지막 문제를 풀어 보자!':s.completed.length?`흩어진 관찰 기록을 모아 기록탑을 연결하자. 다음은 ${nextStage?.place||'기록탑'}야.`:'‘물길 관측소’를 눌러 첫 단서를 찾으러 가자!'}</p>${finished?'<div class="map-complete-actions"><button class="secondary" id="map-records">기록 다시 보기</button><button class="secondary" id="map-retry">새 상황 다시 도전</button></div>':''}${isAdmin()?'<button class="secondary" id="preview-nav">시연 목록</button>':''}${!finished?`<button class="stage-shortcuts" id="stage-shortcuts" aria-label="${nextStage?.place||'기록탑'} 바로가기"><span class="shortcut-copy"><small>${nextStage?'다음 장소 바로가기':'마지막 도전 바로가기'}</small><strong>${nextStage?.place||'기록탑'}</strong></span>${icon('arrow',24)}</button>`:''}</footer>
   </main>`,'atlas');
   $('.brand').innerHTML='<img class="brand-logo" src="/assets/title-logo.webp" alt="움직이는 지오밸리">';
   const world=$('.atlas-world'),page=$('.atlas-page');
@@ -94,13 +94,25 @@ export function renderMap({welcome=false,arrival}={}){
     const start=newcomer?RESIDENTS[newcomer.id].feet:goal===null?XY[current]:[(XY[current][0]+LABELS[goal][0])/2,(XY[current][1]+LABELS[goal][1])/2];
     const fx=view.w?(view.pw/2-view.x)/view.w:start[0],fy=view.h?((safe.top+safe.bottom)/2-view.y)/view.h:start[1];
     measureSafe();view.pw=page.clientWidth;view.ph=page.clientHeight;view.w=Math.max(view.pw,view.ph*16/9)*ZOOM;view.h=view.w*9/16;
-    world.style.width=`${view.w}px`;world.style.height=`${view.h}px`;
+    world.style.width=`${view.w}px`;world.style.height=`${view.h}px`;world.style.setProperty('--map-unit',`${view.h/675}px`);
     place(...cameraFor(fx,fy));
     // refresh()만 부르면 Phaser가 예전 부모 크기로 캔버스를 그려 작게 남는다. 새 크기를 먼저 넘긴다.
     if(game?.isBooted)game.scale.setParentSize(view.w,view.h);
   }
   const resize=new ResizeObserver(fitMap);resize.observe(page);fitMap();
   const hintTimer=setTimeout(()=>page.classList.add('map-dragged'),9000);
+  // 장소를 막 되살렸을 때: 문이 열리고 → 창에 불이 켜지고 → 기록탑 등불 → 주민 등장 → 마을 소리. 하나씩 더해지는 마을.
+  const cueStops=[];let arrivalTimer=0;
+  if(newcomer&&!reduced){
+    page.classList.add('village-arriving');
+    cueStops.push(playCue('workplace-open',250),playCue('lamp-light',1050),playCue('resident-pop',1650),playCue('village-wake',2050));
+    const lit=s.completed.length;
+    page.insertAdjacentHTML('beforeend',`<div class="village-progress" role="status"><strong>${newcomer.place} 다시 열림!</strong><span class="village-lamps" aria-label="마을 불빛 ${lit}개, 전체 5개">${STAGES.map((st,i)=>`<i class="${s.completed.includes(st.id)?'lit':''}${st.id===newcomer.id?' new':''}" style="--n:${i}"></i>`).join('')}<b>${lit}/5</b></span><small>${lit===5?'마을이 모두 깨어났어!':`마을이 ${lit}만큼 살아났어`}</small></div>`);
+    // 띠가 막 깨어난 장소나 주민을 가리면 아래쪽(말풍선 위)으로 내린다.
+    const ribbon=$('.village-progress',page),band=ribbon.getBoundingClientRect(),hides=el=>{const r=el?.getBoundingClientRect();return Boolean(r?.width)&&r.left<band.right&&r.right>band.left&&r.top<band.bottom+12&&r.bottom>band.top;};
+    if(hides($('.map-resident.arrived',world))||hides($('.wake-burst',world)))ribbon.classList.add('low');
+    arrivalTimer=setTimeout(()=>{page.classList.remove('village-arriving');$('.village-progress',page)?.remove();},5200);
+  }
   world.addEventListener('pointerdown',e=>{cancelAnimationFrame(glide);if(e.button>0||document.querySelector('dialog[open]'))return;grab={id:e.pointerId,x:e.clientX,y:e.clientY,ox:view.x,oy:view.y};dragged=false;});
   world.addEventListener('pointermove',e=>{
     if(grab?.id!==e.pointerId)return;const dx=e.clientX-grab.x,dy=e.clientY-grab.y;
@@ -153,8 +165,8 @@ export function renderMap({welcome=false,arrival}={}){
     if(!residents.some(st=>st.id===id)||s.residentStamps.includes(id))return false;
     s.residentStamps.push(id);
     if(!isAdmin())save();
-    if(s.residentStamps.length===5)$('.plaza-festival',world).classList.add('celebrating');
-    playSound('place',{force:true,inDialog:true});
+    if(s.residentStamps.length===5){$('.plaza-festival',world).classList.add('celebrating');cueStops.push(playCue('festival',500));}
+    playSound('stamp',{force:true,inDialog:true});
     return true;
   }
   function visitPlaza(){
@@ -172,17 +184,11 @@ export function renderMap({welcome=false,arrival}={}){
     $$('.map-resident,#resident-directory',page).forEach(button=>{button.disabled=busy;});
   }
   $$('.map-resident',world).forEach(button=>button.onclick=()=>openResidents(button.dataset.resident));
-  $('#stage-shortcuts').onclick=()=>modal('장소 바로가기',`<nav class="stage-shortcut-grid" aria-label="다섯 탐험 장소">${STAGES.map((st,i)=>{
-    const open=canEnter(i,s,isAdmin()),done=s.completed.includes(st.id),started=Boolean(s.drafts[st.id]);
-    const status=isAdmin()?'교사 시연':done?'완료 · 다시 탐험':open?(started?'이어서 탐험':'탐험 시작'):`${STAGES[i-1].place} 완료 후 열려`;
-    return `<button class="stage-shortcut ${done?'completed':''}" data-shortcut="${i}" ${open?'':'disabled'}><span class="shortcut-number">${done?icon('check',21):i+1}</span><span class="shortcut-copy"><strong>${st.place}</strong><small>${status}</small></span>${icon(open?'arrow':'lock',21)}</button>`;
-  }).join('')}</nav>`,(dialog,close)=>{
-    dialog.classList.add('stage-shortcuts-dialog');
-    $$('[data-shortcut]',dialog).forEach(button=>button.onclick=()=>{
-      const index=Number(button.dataset.shortcut);
-      if(!canEnter(index,s,isAdmin()))return;
-      close();s.started=true;save();enter(index);
-    });
+  $('#stage-shortcuts')?.addEventListener('click',()=>{
+    if(!nextStage){if(coreOpen)navigate('final');return;}
+    const index=STAGES.indexOf(nextStage);
+    if(!canEnter(index,s,isAdmin()))return;
+    s.started=true;save();enter(index);
   });
   $('#resident-directory')?.addEventListener('click',()=>openResidents($('.map-resident.arrived',world)?.dataset.resident));
   world.addEventListener('click',e=>{
@@ -204,7 +210,10 @@ export function renderMap({welcome=false,arrival}={}){
       clearTimeout(bootTimer);world.classList.add('map-ready');
       mapScene=this;this.cameras.main.setZoom(1.6).centerOn(600,337.5);
       const paths=this.add.graphics();
-      for(let i=0;i<5;i++)if(s.completed.includes(STAGES[i].id)){const route=[i?DOORS[i-1]:0,...findRoute(i?DOORS[i-1]:0,DOORS[i])];paths.lineStyle(7,0xffe78a,.68).beginPath();route.forEach((n,j)=>j?paths.lineTo(POINTS[n].x,POINTS[n].y):paths.moveTo(POINTS[n].x,POINTS[n].y));paths.strokePath();}
+      for(let i=0;i<5;i++)if(s.completed.includes(STAGES[i].id)){const route=[i?DOORS[i-1]:0,...findRoute(i?DOORS[i-1]:0,DOORS[i])];
+        // 새로 연 장소로 가는 길은 금빛 선이 천천히 그려진다.
+        if(STAGES[i].id===newcomer?.id&&!reduced){const glow=this.add.graphics(),pts=route.map(n=>POINTS[n]);this.tweens.addCounter({from:0,to:pts.length-1,duration:1500,delay:300,ease:'Sine.easeInOut',onUpdate:t=>{const v=t.getValue(),k=Math.floor(v),f=v-k;glow.clear().lineStyle(7,0xffe78a,.75).beginPath().moveTo(pts[0].x,pts[0].y);for(let j=1;j<=k;j++)glow.lineTo(pts[j].x,pts[j].y);if(k<pts.length-1)glow.lineTo(pts[k].x+(pts[k+1].x-pts[k].x)*f,pts[k].y+(pts[k+1].y-pts[k].y)*f);glow.strokePath();}});continue;}
+        paths.lineStyle(7,0xffe78a,.68).beginPath();route.forEach((n,j)=>j?paths.lineTo(POINTS[n].x,POINTS[n].y):paths.moveTo(POINTS[n].x,POINTS[n].y));paths.strokePath();}
       routeArt=this.add.graphics();const p=POINTS[current];walker=createRiverWalker(this,p.x,p.y);hero=walker.hero;
       if(pendingTravel){const {node,target}=pendingTravel;pendingTravel=null;go(node,target);}
     }
@@ -248,5 +257,5 @@ export function renderMap({welcome=false,arrival}={}){
         const round=['river','rocks','safety'].indexOf(target);
         if(round>=0){s.final.assembled=true;s.final.round=round;}
         navigate('final',round>=0?'assembly':target==='ending'?'celebration':target);});});
-  return()=>{closed=true;cancelAnimationFrame(glide);clearTimeout(hintTimer);clearTimeout(bootTimer);resize.disconnect();destroyGame(game);window.removeEventListener('keydown',key);};
+  return()=>{closed=true;clearTimeout(arrivalTimer);cueStops.forEach(stop=>stop());cancelAnimationFrame(glide);clearTimeout(hintTimer);clearTimeout(bootTimer);resize.disconnect();destroyGame(game);window.removeEventListener('keydown',key);};
 }

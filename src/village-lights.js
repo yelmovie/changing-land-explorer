@@ -24,6 +24,23 @@ function garland(x,y,width,sag){
  }).join('');
  return `<g transform="translate(${x} ${y})"><path d="M0 0Q${width/2} ${sag*2} ${width} 0" fill="none" stroke="#795837" stroke-width="2"/>${pennants}</g>`;
 }
+
+// 스테이지를 마칠 때마다 그 장소에 움직이는 생활 모습이 하나씩 더해진다. 좌표는 1672 × 941 지도 그림 기준.
+const puff=(x,y,i)=>`<circle class="smoke-puff" style="--i:${i}" cx="${x}" cy="${y}" r="7" fill="#f4efe6"/>`;
+const twinkle=([x,y],i)=>`<g transform="translate(${x} ${y})"><path class="life-twinkle" style="--i:${i}" d="M0-7 2-2 7 0 2 2 0 7-2 2-7 0-2-2Z" fill="#fffbe0"/></g>`;
+const SITE_LIFE={
+ river:[[300,440],[322,458],[288,423],[338,430]].map(twinkle).join(''),
+ volcano:[0,1,2].map(i=>puff(441,24,i)).join('')+[0,1].map(i=>puff(526,112,i+3)).join(''),
+ rocks:[[1012,176],[1078,150],[1146,186]].map(twinkle).join(''),
+ city:`<g transform="translate(1619 388)"><circle class="lighthouse-beam" r="26" fill="url(#v-lamp-halo)"/></g><g transform="translate(1540 452)"><path class="gull" d="M-9 0q5-6 9 0q4-6 9 0" fill="none" stroke="#fdf8ea" stroke-width="2.2" stroke-linecap="round"/></g>`,
+ safety:[[1236,700],[1296,676],[1350,712]].map(twinkle).join('')
+};
+// 새로 열린 장소에서 한 번 터지는 빛. 고리, 빛살, 올라가는 반짝이.
+function wakeBurst([x,y]){
+ const rays=Array.from({length:10},(_,i)=>`<path class="burst-ray" style="--a:${i*36}deg" d="M0-16V-34" stroke="#fff3a6" stroke-width="4" stroke-linecap="round"/>`).join('');
+ const sparks=Array.from({length:8},(_,i)=>`<path class="burst-spark" style="--dx:${(i-3.5)*13}px;--d:${(i%4)*.12}s" d="M0-6 1.7-1.7 6 0 1.7 1.7 0 6-1.7 1.7-6 0-1.7-1.7Z" fill="${['#fff6b8','#ffd567','#ffffff'][i%3]}"/>`).join('');
+ return `<g class="wake-burst" transform="translate(${x} ${y})"><circle class="burst-ring" r="22" fill="none" stroke="#ffe27c" stroke-width="5"/><circle class="burst-ring late" r="22" fill="none" stroke="#fff8d0" stroke-width="3"/>${rays}${sparks}</g>`;
+}
 export function villageLights(stages,newcomer,festival){
  const sites=Object.entries(locations).map(([id,site])=>{
   const [cx,cy,rx,ry]=site.halo;
@@ -34,9 +51,9 @@ export function villageLights(stages,newcomer,festival){
     ${site.feature}</g></g>`;
  }).join('');
  const towerLights=[[777,379],[810,395],[854,401],[898,395],[930,379]];
- const lamps=towerLights.map(([x,y],i)=>`<g transform="translate(${x} ${y})"><path d="M0 0v8m-3 0h6" stroke="#745937" stroke-width="2"/><circle r="5" fill="${i<stages.length?'#ffdc78':'#615f54'}" stroke="#896638" stroke-width="2"/>${i<stages.length?'<circle r="13" fill="url(#v-lamp-halo)"/>':''}</g>`).join('');
+ const lamps=towerLights.map(([x,y],i)=>`<g class="tower-lamp${newcomer&&i===stages.length-1?' lamp-new':''}" transform="translate(${x} ${y})"><path d="M0 0v8m-3 0h6" stroke="#745937" stroke-width="2"/><circle r="5" fill="${i<stages.length?'#ffdc78':'#615f54'}" stroke="#896638" stroke-width="2"/>${i<stages.length?'<circle r="13" fill="url(#v-lamp-halo)"/>':''}</g>`).join('');
  return `<svg class="village-lights" viewBox="0 0 1672 941" preserveAspectRatio="none" aria-hidden="true">
   <defs><radialGradient id="v-window-wash"><stop stop-color="#ffc054" stop-opacity=".46"/><stop offset="1" stop-color="#ffc054" stop-opacity="0"/></radialGradient><radialGradient id="v-lamp-halo"><stop stop-color="#fff6ad"/><stop offset=".32" stop-color="#ffd267" stop-opacity=".8"/><stop offset="1" stop-color="#ffb344" stop-opacity="0"/></radialGradient></defs>
-  ${sites}${lamps}${stages.length===5?'<circle cx="854" cy="276" r="22" fill="url(#v-lamp-halo)"/><path d="M846 350q8-9 16 0v10h-16z" fill="#ffde8b"/>':''}
+  ${sites}<g class="village-life">${stages.map(st=>`<g class="site-life life-${st.id}${st.id===newcomer?' life-new':''}">${SITE_LIFE[st.id]||''}</g>`).join('')}${stages.length>=2?'<g transform="translate(-60 70)"><path class="sky-birds" d="M0 0q6-7 11 0q5-7 11 0M30 12q5-6 9 0q4-6 9 0" fill="none" stroke="#fbf7ea" stroke-width="2.4" stroke-linecap="round"/></g>':''}</g>${newcomer&&locations[newcomer]?wakeBurst(locations[newcomer].halo.slice(0,2).map((v,i)=>locations[newcomer].origin[i]+v*.5)):''}${lamps}${stages.length===5?'<circle cx="854" cy="276" r="22" fill="url(#v-lamp-halo)"/><path d="M846 350q8-9 16 0v10h-16z" fill="#ffde8b"/>':''}
   <g class="plaza-festival${festival?' celebrating':''}"><path d="M770 352v31m163-31v31" stroke="#785934" stroke-width="3"/>${garland(770,352,83,15)}${garland(853,352,80,15)}<g class="plaza-ribbons">${[[787,299],[802,275],[821,300],[835,259],[857,279],[876,253],[897,286],[913,312],[932,277]].map(([x,y],i)=>`<g transform="translate(${x} ${y})"><path class="paper-ribbon" style="--delay:${(i%4)*.11}s" d="M0-4 3 0 0 5-3 1Z" fill="${['#e08351','#ffdb78','#4ea99c'][i%3]}" stroke="#fff3ce" stroke-width=".8"/></g>`).join('')}</g></g></svg>`;
 }

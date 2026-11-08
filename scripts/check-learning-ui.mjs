@@ -4,7 +4,7 @@ import {pathToFileURL} from 'node:url';
 const {chromium}=await import(process.env.PLAYWRIGHT_PATH?pathToFileURL(process.env.PLAYWRIGHT_PATH).href:'playwright');
 const base=process.env.CHECK_URL||'http://localhost:5177';
 const out=process.env.CHECK_OUT||'.work/learning-verification';await fs.mkdir(out,{recursive:true});
-const results=[],errors=[],loading=[],sizes=(process.env.CHECK_SIZES?process.env.CHECK_SIZES.split(',').map(s=>s.split('x').map(Number)):[[1024,768],[1280,720],[1920,1080]]).filter(s=>!process.env.CHECK_VIEWPORT||s.join('x')===process.env.CHECK_VIEWPORT);
+const results=[],errors=[],loading=[],sizes=(process.env.CHECK_SIZES?process.env.CHECK_SIZES.split(',').map(s=>s.split('x').map(Number)):[[667,375],[740,360],[1024,768],[1280,720],[1920,1080]]).filter(s=>!process.env.CHECK_VIEWPORT||s.join('x')===process.env.CHECK_VIEWPORT);
 const writeResults=()=>fs.writeFile(`${out}/results.json`,JSON.stringify({results,errors,loading},null,2));
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const ids=['river','volcano','rocks','city','safety'];
@@ -45,7 +45,7 @@ async function record(page,label,scope='body',{scroll=false,shot=false}={}){
   return {issues,controls,rect:{x:r.x,y:r.y,w:r.width,h:r.height},dialogScroll:body?body.scrollHeight-body.clientHeight:0};
  },{scroll});
  const pass=!data.issues.length;results.push({label,pass,...data});
- if(!pass||shot)await page.screenshot({path:`${out}/${label}.png`,animations:'disabled'});
+ if(!pass||shot||(process.env.CHECK_SHOTS&&new RegExp(process.env.CHECK_SHOTS).test(label)))await page.screenshot({path:`${out}/${label}.png`,animations:'disabled'});
  if(!pass)console.log('FAIL',label,data.issues.join('; '));
 }
 async function enter(page,index,step,phase){
@@ -85,9 +85,9 @@ try{
   for(let index=0;index<5;index++)for(let step=0;step<2;step++)for(let phase=0;phase<3;phase++){
    const key=`${width}-${ids[index]}-${step}-${phase}`;await enter(page,index,step,phase);
    await record(page,key,'#app',{shot:width===1280&&height===800});
-   await page.locator('#river-hint').click();await record(page,key+'-hint','dialog');await page.locator('.dialog-close').click();
+   await page.locator('.activity-tools>summary').click();await page.locator('#river-hint').click();await record(page,key+'-hint','dialog');await page.locator('.dialog-close').click();
    if(phase===0){
-    await page.locator('#concept-review').click();await record(page,key+'-concept','dialog',{shot:width===1280&&height===800});
+    await page.locator('.activity-tools>summary').click();await page.locator('#concept-review').click();await record(page,key+'-concept','dialog',{shot:width===1280&&height===800});
     await page.locator('video').evaluate(v=>{if(!v.paused)throw Error('Reduced-motion video autoplayed');});
     await page.locator('#concept-play').click();await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=2&&v.currentTime>0;});
     const video=await page.locator('video').evaluate(v=>({duration:v.duration,muted:v.muted,width:v.videoWidth,height:v.videoHeight}));

@@ -66,7 +66,18 @@ export function normalizeActivityData(d){
  for(const k of ['fieldIndex','compareIndex','rockSample'])index(k,3);for(const k of ['citySite','noticeSite'])index(k,2);
  d.runs=d.runs.filter(r=>object(r)&&[1,2].includes(r.water));d.assembly=d.assembly.filter(k=>['tray','mountain','water'].includes(k));
  for(const k of ['schoolRoute','outsideRoute'])d[k]=d[k].filter(p=>object(p)&&Number.isFinite(p.x)&&Number.isFinite(p.y));
- for(const [key,e] of Object.entries(d.evidence)){if(!object(e)||typeof e.id!=='string'||typeof e.kind!=='string'){delete d.evidence[key];continue;}if(e.point&&(!Number.isFinite(e.point.x)||!Number.isFinite(e.point.y)))delete e.point;if(['river','model','rock','field'].includes(e.kind)&&!e.point){delete d.evidence[key];continue;}if(e.kind==='route'&&!Array.isArray(e.points))delete d.evidence[key];if(e.annotations&&!Array.isArray(e.annotations))e.annotations=[];}
+ const finitePoint=p=>object(p)&&Number.isFinite(p.x)&&Number.isFinite(p.y);
+ for(const [key,e] of Object.entries(d.evidence)){
+  if(!object(e)||typeof e.id!=='string'||typeof e.kind!=='string'){delete d.evidence[key];continue;}
+  if(e.point&&!finitePoint(e.point))delete e.point;
+  if(['river','model','rock','field'].includes(e.kind)&&!e.point){delete d.evidence[key];continue;}
+  if(['model','comparison'].includes(e.kind)&&e.parts!==undefined)e.parts=Array.isArray(e.parts)?e.parts.filter(k=>['tray','mountain','water'].includes(k)):[...d.assembly];
+  if(e.kind==='route'){
+   if(!Array.isArray(e.points)){delete d.evidence[key];continue;}
+   e.points=e.points.filter(finitePoint);
+  }
+  if(e.annotations!==undefined)e.annotations=Array.isArray(e.annotations)?e.annotations.filter(finitePoint):[];
+ }
  for(const key of Object.keys(d.rockProofs))if(!Array.isArray(d.rockProofs[key]))d.rockProofs[key]=[];
  if(!object(d.rockView))d.rockView={x:.5,y:.5,zoom:1.8};d.rockView={x:Math.max(0,Math.min(1,Number(d.rockView.x)||.5)),y:Math.max(0,Math.min(1,Number(d.rockView.y)||.5)),zoom:Math.max(1,Math.min(3,Number(d.rockView.zoom)||1.8))};
  for(const k of ['modelTime','injected','wipe','scrub'])if(d[k]!==undefined)d[k]=Math.max(0,Math.min(1,Number(d[k])||0));

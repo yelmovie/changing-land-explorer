@@ -35,3 +35,21 @@
 | tool-reward.ogg | OGG/jingles_PIZZA/jingles_PIZZA03.ogg | 장소를 마치고 새 도구 받기 |
 
 발걸음과 종이 소리의 출처는 [Kenney의 50 RPG sound effects](https://opengameart.org/content/50-rpg-sound-effects), 보상음은 [Kenney의 85 Short music jingles](https://opengameart.org/content/85-short-music-jingles)야. 두 묶음 모두 제작자가 CC0로 공개했어.
+
+## 마을이 살아나는 소리 (2026-11-07 추가)
+
+지도에서 장소가 다시 열릴 때와 주민 대화·도장에 쓰는 소리야. 모두 Kenney가 CC0로 공개한 원본 Ogg를 바꾸지 않고 그대로 복사했고, 게임에서 재생할 때 음량만 조절해. 원본 묶음은 `.work/media-sources/`에 보관했어.
+
+| 게임 파일 | 원본 파일 | 묶음 | 쓰는 곳 |
+|---|---|---|---|
+| workplace-open.ogg | OGG/doorOpen_1.ogg | 50 RPG sound effects | 장소 문이 열릴 때 |
+| lamp-light.ogg | Audio/glass_002.ogg | Interface Sounds | 창과 기록탑에 불이 켜질 때 |
+| resident-pop.ogg | Audio/maximize_006.ogg | Interface Sounds | 주민이 지도에 나타날 때 |
+| village-wake.ogg | OGG/jingles_PIZZA/jingles_PIZZA07.ogg | 85 Short music jingles | 마을이 깨어나는 마무리 |
+| stamp.ogg | OGG/bookPlace1.ogg | 50 RPG sound effects | 친구 도장 찍기 |
+| festival.ogg | OGG/jingles_SAX/jingles_SAX07.ogg | 85 Short music jingles | 도장 다섯 개를 다 모았을 때 |
+| letter-open.ogg | OGG/bookFlip1.ogg | 50 RPG sound effects | 주민 대화창이 열릴 때 |
+
+- 50 RPG sound effects: https://opengameart.org/content/50-rpg-sound-effects (CC0)
+- 85 Short music jingles: https://opengameart.org/content/85-short-music-jingles (CC0)
+- Interface Sounds: https://kenney.nl/assets/interface-sounds (CC0)

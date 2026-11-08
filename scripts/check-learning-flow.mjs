@@ -29,7 +29,10 @@ async function stroke(...points){
 }
 const jump=name=>page.getByRole('button',{name,exact:true}).click();
 async function pour(){await tap(140,515);await tap(400,195);await page.waitForSelector('#next.ready',{timeout:15000});}
-async function riverMarks(){for(const [i,mark]of Object.values(RIVER_MARKS).entries())await stroke({x:270+i*280,y:525},{x:625+mark.x*470,y:100+mark.y*330});}
+async function riverMarks(){for(const [i,[id,mark]]of Object.entries(RIVER_MARKS).entries()){
+ if(width<1000){await page.locator('#river-choose-label').click();await page.locator(`[data-river-label="${id}"]`).click();await tap(150+mark.x*900,120+mark.y*400);}
+ else await stroke({x:275+i*325,y:535},{x:150+mark.x*900,y:120+mark.y*400});
+}}
 async function fieldPoints(side){for(const p of FIELD_POINTS.filter(p=>p.side===side))await tap(p.x*1.2,p.y*640/560);}
 async function riverLinks(){
  const zones={upper:{x:330,y:235},lower:{x:870,y:370}};
@@ -39,16 +42,21 @@ async function riverLinks(){
 }
 async function assemble(){for(const [i,to]of [{x:580,y:485},{x:560,y:315},{x:957,y:350}].entries())await stroke({x:135,y:170+i*175},to);}
 async function trace(){await stroke({x:175,y:260},MODEL_MOUTH);await stroke({x:180,y:480},...MODEL_FLOW);}
-async function volcanoOutputs(){for(const [x,y]of [[385,395],[610,80],[260,115],[670,245]]){await tap(x*1.2,y*640/560);await page.locator('#volcano-output-pin').click();}}
+async function volcanoOutputs(){for(const [x,y]of [[385,395],[610,80],[260,115],[670,245]]){await tap(x*1.2,y*640/560);}}
 async function volcanoLinks(){for(const [i,to]of [{x:835,y:400},{x:400,y:255},{x:400,y:400},{x:835,y:255}].entries())await stroke({x:235+i*247,y:545},to);}
 async function rub(){for(const cx of [440,840])await stroke(...[170,250,330,410].flatMap((y,row)=>(row%2?[120,-120]:[-120,120]).map(dx=>({x:cx+dx,y}))));}
 async function sortRocks(){
- for(const cx of [420,780])for(const dx of [-88,88])await stroke({x:cx+dx,y:552},{x:cx,y:403});
- await stroke({x:420,y:240},{x:140,y:275});await stroke({x:780,y:240},{x:1060,y:275});
+ await page.locator('#rock-ship-1').click();await page.locator('#rock-ship-0').click();
 }
 async function classifyRock(){for(const x of [750,1010])await stroke({x:350,y:275},{x,y:435});}
-async function cityCompare(){await jump('분출 당시');await jump('이후 모습');await stroke({x:255,y:610},{x:265,y:545});await stroke({x:625,y:610},{x:670,y:545});}
-async function notice(){for(const [from,to]of [[150,262],[315,334],[425,406]])await stroke({x:300,y:from},{x:845,y:to});}
+async function cityCompare(){await jump('분출 당시');await jump('이후 모습');
+ if(width<1000){for(let i=0;i<2;i++){await page.locator('#city-choose-record').click();await page.locator(`[data-city-card="${i}"]`).click();await page.locator(`[data-city-period="${i}"]`).click();if(await page.locator('dialog[open]').count())await page.locator('.dialog-close').click();}}
+ else {await stroke({x:255,y:610},{x:265,y:545});await stroke({x:625,y:610},{x:670,y:545});}
+}
+async function notice(){
+ if(width<1000){for(const [i,slot]of ['picture','reason','action'].entries()){await page.locator('#city-board-choose').click();await page.locator(`[data-board-card="${i}"]`).click();await page.locator(`[data-board-slot="${slot}"]`).click();}}
+ else for(const [from,to]of [[150,262],[315,334],[425,406]])await stroke({x:300,y:from},{x:845,y:to});
+}
 async function ashSafety(){await stroke({x:686,y:340},{x:420,y:340});await stroke({x:420,y:560},{x:985,y:375});}
 async function hazards(){await stroke({x:400,y:578},{x:150,y:205});await stroke({x:760,y:578},{x:438,y:265});}
 async function shelter(){await stroke({x:950,y:465},{x:700,y:482});await stroke({x:520,y:525},{x:724,y:389});}
@@ -137,7 +145,7 @@ try{
  await page.goto(process.env.CHECK_URL||'http://localhost:5177');await page.waitForSelector('#settings');
  if(!resumedStageState){
  await page.waitForSelector('#start');await page.locator('#start').click();await page.locator('#story-skip').click();await enter(0);
- await stroke({x:340,y:515},{x:627,y:340});await pour();
+ await pour();
  // A rapid repeat must advance only once; the next unfinished phase must
  // survive a page reload without reopening the completed first experiment.
  await page.locator('#next').evaluate(button=>{button.click();button.click();});
@@ -148,7 +156,7 @@ try{
  await pour();await next();
  await jump('처음 모습');await jump('마지막 모습');
  await riverMarks();
- await page.locator('#river-reflect-different').click();await concept();await settle();
+ await page.locator('#river-reflect-foot').click();await concept();await settle();
  await fieldPoints('upper');await next();await fieldPoints('lower');await next();await riverLinks();await doneStage(0);
  await enter(1);await assemble();await next();await stroke({x:957,y:185},{x:957,y:340});await page.waitForSelector('#next.ready',{timeout:15000});await next();await trace();await concept();await settle();
  await volcanoOutputs();await next();await volcanoLinks();await next();await volcanoLinks();await doneStage(1);

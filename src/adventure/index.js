@@ -6,13 +6,22 @@ import {setup as volcano} from './volcano.js';
 import {setup as rocks} from './rocks.js';
 import {setup as city} from './city.js';
 import {setup as safety} from './safety.js';
-import {HINTS} from './hints.js';
+import {HINTS,recordHint} from './hints.js';
 import {destroyGame} from '../phaser-lifecycle.js';
 import {backgroundForAsset,STAGE_BACKGROUNDS,STAGE_ASSETS,SHARED_STAGE_ASSETS} from '../stage-art.js';
 import {STAGES} from '../model.js';
 import {enter,navigate} from '../main.js';
+import {createPlayback,PLAYBACK_SPEEDS} from './playback.js';
 
 const SETUP={river,volcano,rocks,city,safety};
+let playbackSpeed=1;
+const ACTION_CUES={
+ river:[['물 주기나 자동재생을 눌러 봐.','물의 양을 바꿔 같은 언덕을 관찰해 봐.','이름표를 골라 빈 원에 놓아 봐.'],['숫자를 눌러 상류를 관찰해 봐.','숫자를 눌러 하류를 관찰해 봐.','관찰 카드를 알맞은 곳에 연결해 봐.']],
+ volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','손잡이를 밀거나 자동재생으로 물을 흘려 봐.','물이 나온 곳과 흐른 길을 조사해 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','관찰 기록에서 같은 모습을 연결해 봐.','모형과 실제 화산의 다른 점을 연결해 봐.']],
+ rocks:[['문지르거나 자동재생으로 먼지를 털어 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문의 특징에 맞는 표본을 보내 줘.','확대 관찰한 근거로 돌의 이름을 골라 봐.','확대 관찰한 근거로 돌의 이름을 골라 봐.']],
+ city:[['두 시기를 보고 기록을 골라 봐.','두 시기를 보고 기록을 골라 봐.','두 시기를 보고 기록을 골라 봐.'],['관찰한 그림·까닭·할 일을 연결해 봐.','관찰한 그림·까닭·할 일을 연결해 봐.','관찰한 그림·까닭·할 일을 연결해 봐.']],
+ safety:[['위험 표식을 알맞은 곳에 놓아 봐.','몸을 보호할 곳을 고르고 머리를 감싸 줘.','잡을 곳을 고르고 흔들림이 멈추면 확인해.'],['리버부터 출구까지 안전한 길을 그려 봐.','직접 그린 길을 따라 리버와 걸어 봐.','위험을 피해 공터까지 길을 그리고 걸어 봐.']]
+};
 const UI=name=>'art/ui/'+name;
 // Cream panels become the illustrated field-notebook paper; coloured panels stay flat on purpose.
 const PAPER_COLORS=new Set([0xfff8e8,0xfff7df,0xfff5d9,0xfff8e5,0xf8f0d8,0xfff4d8,0xfff7e2,0xfff8e6]);
@@ -37,41 +46,64 @@ export function mount(ctx) {
   let sceneCleanups=[];
   let hintIndex=0,initialHint='';
   ctx.root.innerHTML='<div class="phaser-stage" id="phaser-stage"></div><div class="stage-loader" role="status">리버가 탐험 도구를 꺼내고 있어요…</div><div class="quest-meter" id="quest-meter" aria-live="polite"></div>';
-  // The task counter sits beside River's guidance so it never covers the scene.
-  $('.river-narrator>div')?.prepend($('#quest-meter',ctx.root));
+  // Progress shares the stage label; guidance only describes the next action.
+  $('.stage-kicker',page).append($('#quest-meter',ctx.root));
   const next=$('#next');
+  const narration=$('.river-narrator>div',page);
+  narration.tabIndex=0; narration.setAttribute('role','region');narration.setAttribute('aria-label','리버의 탐구 안내');
+  const toolMenu=$('.activity-tools',page);
+  $('.topbar .nav-group',ctx.root.closest('#app')).append(toolMenu);
+  const dismissTools=()=>{toolMenu.open=false;toolMenu.querySelector('summary').focus({preventScroll:true});};
+  for(const button of toolMenu.querySelectorAll('button'))button.addEventListener('click',dismissTools);
+  const closeTools=event=>{if(event.key==='Escape'&&toolMenu.open){toolMenu.open=false;toolMenu.querySelector('summary').focus();}else if(event.type==='pointerdown'&&!toolMenu.contains(event.target))toolMenu.open=false;};
+  document.addEventListener('pointerdown',closeTools,true);document.addEventListener('keydown',closeTools,true);
   // A stage exposes only its repeatable observation, never an answer or a transition.
+  const playbackBar=document.createElement('div');playbackBar.className='activity-playback';playbackBar.hidden=true;
   const autoButton=document.createElement('button');
   autoButton.id='observation-auto';autoButton.type='button';autoButton.className='secondary';autoButton.hidden=true;
-  $('#sound').before(autoButton);
-  let auto=null,playing=false,elapsed=0;
+  const speed=document.createElement('select');speed.id='observation-speed';speed.setAttribute('aria-label','자동재생 속도');
+  for(const value of PLAYBACK_SPEEDS){const option=document.createElement('option');option.value=value;option.textContent=value+'배속';speed.append(option);}
+  speed.value=playbackSpeed;
+  playbackBar.append(autoButton,speed);ctx.controls.before(playbackBar);
+  let auto=null;
+  const playback=createPlayback({onChange:paintAuto});playback.setSpeed(playbackSpeed);
+  speed.onchange=()=>{playbackSpeed=Number(speed.value);playback.setSpeed(playbackSpeed);};
+  function guideAction(){
+    const candidates=[...ctx.controls.querySelectorAll('.action-buttons button:not(:disabled)')];
+    const suggested=phaseDone?next:auto&&playback.ready&&!auto.observed?autoButton:candidates.find(b=>b.classList.contains('primary'))||candidates[0];
+    for(const button of [autoButton,next,...ctx.controls.querySelectorAll('.action-buttons button')]){
+      const on=button===suggested; if(button.classList.contains('suggested')!==on)button.classList.toggle('suggested',on);
+    }
+  }
   function paintAuto(){
-    if(!auto||(phaseDone&&!auto.allowWhenComplete)||!auto.ready()){
-      if(playing)stopAuto();
+    if(!auto||(phaseDone&&!auto.allowWhenComplete)||!playback.ready){
+      if(playback.playing)stopAuto();
+      playbackBar.hidden=true;
       if(!autoButton.hidden)autoButton.hidden=true;
       if(autoButton.getAttribute('aria-pressed')==='true')autoButton.setAttribute('aria-pressed','false');
+      guideAction();
       return;
     }
+    playbackBar.hidden=false;
     if(autoButton.hidden)autoButton.hidden=false;
-    const label=playing?'일시정지':'자동재생';
+    if(autoButton.disabled===playback.ready)autoButton.disabled=!playback.ready;
+    const label=playback.playing?'일시정지':'자동재생';
+    guideAction();
     if(autoButton.dataset.state===label&&autoButton.title===auto.label)return;
     autoButton.dataset.state=label;autoButton.title=auto.label;
-    autoButton.textContent=(playing?'Ⅱ ':'▶ ')+label;
+    autoButton.textContent=(playback.playing?'Ⅱ ':'▶ ')+label;
     autoButton.setAttribute('aria-label',auto.label+' '+label);
-    autoButton.setAttribute('aria-pressed',String(playing));
+    autoButton.setAttribute('aria-pressed',String(playback.playing));
   }
-  function stopAuto(){
-    if(!playing)return;
-    playing=false;elapsed=0;auto?.stop?.();paintAuto();
-  }
+  function stopAuto(){playback.stop();}
   autoButton.onclick=()=>{
-    if(playing){stopAuto();return;}
+    if(playback.playing){stopAuto();return;}
     if(!auto||(phaseDone&&!auto.allowWhenComplete)||!auto.ready()||document.hidden||document.querySelector('dialog[open]'))return;
     const work=chapter.work[chapter.phase];
-    if(!phaseDone){work.operationHelp=true;ctx.save();}playing=true;elapsed=0;
-    auto.advance();paintAuto();
+    if(!phaseDone){work.operationHelp=true;ctx.save();}
+    toolMenu.open=false;playback.start();paintAuto();
   };
-  function manual(event){if(playing&&!autoButton.contains(event.target))stopAuto();}
+  function manual(event){if(playback.playing&&!playbackBar.contains(event.target))stopAuto();}
   document.addEventListener('pointerdown',manual,true);
   document.addEventListener('keydown',manual,true);
   document.addEventListener('input',manual,true);
@@ -82,11 +114,12 @@ export function mount(ctx) {
       const done=chapter.tasks[i]?.done,locked=i>phase&&!chapter.tasks[i-1]?.done&&!ctx.admin;
       const status=done?' 완료':locked?' 잠김':ctx.admin?' 교사 시연 열림':'';
       const badge=done?icon('check',16):locked?icon('lock',16):ctx.admin&&i!==phase?icon('unlock',16):i+1;
-      return `<button class="phase-node ${i===phase?'current':''} ${done?'done':''}" data-phase="${i}" ${locked?'disabled':''} aria-label="${i+1}단계 ${escapeHTML(name)}${status}" ${i===phase?'aria-current="step"':''}><span>${badge}</span><b>${name}</b></button>`;
+      return `<button class="phase-node ${i===phase?'current':''} ${done?'done':''}" data-phase="${i}" ${locked?'disabled':''} aria-label="${i+1}단계 ${escapeHTML(name)}${status}${i===phase?' · 단계 목록 열기':''}" ${i===phase?'aria-current="step" aria-haspopup="dialog"':''}><span>${badge}</span><b>${name}</b>${i===phase?`<i class="phase-menu-cue">${icon('arrow',14)}</i>`:''}</button>`;
     }).join('');
     $$('[data-phase]',path).forEach(button=>button.onclick=event=>{
       const target=Number(button.dataset.phase);
-      if(restarting||target===chapter.phase)return;
+      if(restarting)return;
+      if(target===chapter.phase){showPhaseChoices();return;}
       chapter.phase=target;ctx.save();restart(event.detail===0);
     });
     if(focused!==null)$('[data-phase="'+focused+'"]',path)?.focus({preventScroll:true});
@@ -96,14 +129,26 @@ export function mount(ctx) {
     next.innerHTML=(phase<2?'다음 발견':ctx.step===0?'현장으로 출발':'도구 받기')+icon('arrow',22);
     next.classList.toggle('ready',phaseDone);
     const badge=$('#river-status');
-    badge.hidden=!phaseDone;
-    badge.innerHTML=phaseDone?icon('check',16)+' '+escapeHTML(names[phase])+' 완료':'';
+    badge.hidden=true;
     page.classList.toggle('phase-complete',phaseDone);
+  }
+  function showPhaseChoices(){
+    const phase=chapter.phase,names=PHASES[ctx.s.id][ctx.step];
+    ctx.modal('이번 활동의 세 가지 발견',`<div class="phase-choices">${names.map((name,i)=>{
+      const done=chapter.tasks[i]?.done,locked=i>phase&&!chapter.tasks[i-1]?.done&&!ctx.admin;
+      return `<button class="secondary" data-choose-phase="${i}" ${locked?'disabled':''} ${i===phase?'aria-current="step"':''}><span>${done?icon('check',22):locked?icon('lock',22):i+1}</span><strong>${escapeHTML(name)}</strong><small>${done?'완료':locked?'앞 발견을 먼저 마쳐 줘':i===phase?'지금 탐구 중':'다시 살펴보기'}</small></button>`;
+    }).join('')}</div>`,(dialog,close)=>{
+      for(const button of dialog.querySelectorAll('[data-choose-phase]'))button.onclick=()=>{
+        const target=Number(button.dataset.choosePhase);close();
+        if(restarting||target===chapter.phase)return;
+        chapter.phase=target;ctx.save();restart(true);
+      };
+    });
   }
   function restart(focus=false){
     if(closed||restarting||!activeScene)return;
     restarting=true;focusInstruction=focus;phaseDone=false;next.disabled=true;
-    stopAuto();auto=null;paintAuto();
+    stopAuto();auto=null;playback.configure(null);paintAuto();
     activeScene.scene.restart();
   }
   // 교사 시연: 직접 조작하지 않고 다음 단계 → 다음 활동 → 다음 장소 → 마지막 도전 순서로 넘긴다. 기록은 남기지 않는다.
@@ -136,8 +181,8 @@ export function mount(ctx) {
     ctx.sound('hint',{force:true});
     ctx.modal('리버의 탐구 힌트',`<div class="hint-card"><img src="/assets/hero-lens.webp" alt="힌트를 주는 리버"><div><span class="eyebrow">${escapeHTML(PHASES[ctx.s.id][ctx.step][chapter.phase])}</span><p id="hint-copy">${escapeHTML(cues[hintIndex%cues.length])}</p><span id="hint-progress">힌트 ${hintIndex%cues.length+1} / ${cues.length}</span></div></div><div class="hint-actions"><button class="secondary" id="hint-more">한 걸음 더</button><button class="primary" id="hint-return">직접 해 볼게</button></div>`,(dialog,close)=>{
       workHint();
-      function workHint(){const w=chapter.work[chapter.phase]??={};w.answerHint=true;ctx.save();}
-      $('#hint-more',dialog).onclick=()=>{hintIndex=(hintIndex+1)%cues.length;$('#hint-copy',dialog).textContent=cues[hintIndex];$('#hint-progress',dialog).textContent=`힌트 ${hintIndex+1} / ${cues.length}`;};
+      function workHint(){const w=chapter.work[chapter.phase]??={};recordHint(w,ctx.s.id,ctx.step,chapter.phase,hintIndex%cues.length);ctx.save();}
+      $('#hint-more',dialog).onclick=()=>{hintIndex=(hintIndex+1)%cues.length;workHint();$('#hint-copy',dialog).textContent=cues[hintIndex];$('#hint-progress',dialog).textContent=`힌트 ${hintIndex+1} / ${cues.length}`;};
       $('#hint-return',dialog).onclick=close;
     });
   }
@@ -170,13 +215,16 @@ export function mount(ctx) {
     create(){
       if(closed)return;
       activeScene=this;restarting=false;hooks=null;toolHandler=null;zoomed=false;sceneCleanups=[];
-      hintIndex=0;
+      hintIndex=0;initialHint='';
       ctx.controls.innerHTML='';$('#quest-meter').textContent='';
       $('.stage-loader',ctx.root)?.remove();
       updateStepNav();
       const phase=chapter.phase;
+      page.classList.toggle('river-observation',ctx.s.id==='river'&&ctx.step===0&&phase===2);
+      page.classList.toggle('volcano-observation',ctx.s.id==='volcano'&&ctx.step===1&&phase===0);
       const work=chapter.work[phase]??={};
       const scene=this;
+      scene.input.dragDistanceThreshold=8;
       let selected=null,pressed=null,pressPoint=null,gestureMoved=false;
       const tapRing=scene.add.graphics().setDepth(195);
       const draggables=new Map();
@@ -202,10 +250,11 @@ export function mount(ctx) {
       scene.input.on('gameout',()=>{pressed=null;});
       const api={
         stage:ctx.s.id,step:ctx.step,phase,data:ctx.data,work,state:ctx.state,admin:ctx.admin,
+        now:()=>playback.time,
         save:ctx.save,modal:ctx.modal,completed:phaseDone,
         stopAutoplay:stopAuto,
-        autoplay(config){auto=config;paintAuto();},
-        task(title,hint){ctx.instruction(title);ctx.say(hint);initialHint=hint;},
+        autoplay(config){auto=config;playback.configure(config);paintAuto();},
+        task(title,hint){ctx.instruction(title);ctx.say(initialHint?hint:ACTION_CUES[ctx.s.id][ctx.step][phase]);initialHint=hint;},
         say(text,success=false){ctx.say(text);if(success)ctx.chime();},
         counter(done,total,label){
           const value=Math.min(done,total), key=label+' '+value+'/'+total;
@@ -214,12 +263,13 @@ export function mount(ctx) {
           meter.innerHTML=`<span>${escapeHTML(label)}</span><strong>${value} <small>/ ${total}</small></strong>`;
           meter.style.setProperty('--progress',(100*value/total)+'%');
         },
-        record(item){capture(ctx,{...item,phase,operationHelp:!!work.operationHelp,answerHint:!!work.answerHint}); next.disabled=!phaseDone;},
+        record(item){capture(ctx,{...item,phase,operationHelp:!!work.operationHelp,observationHint:!!work.observationHint,hintLevel:work.hintLevel||0,answerHint:!!work.answerHint}); next.disabled=!phaseDone;},
         sound:ctx.sound,
+        select(object){if(object?.active&&object.input?.enabled&&draggables.has(object)&&!document.querySelector('dialog[open]')){pressed=null;select(object);}},
         finish(summary,details={}){
           stopAuto();
           if(completionShown)return;
-          details={...details,operationHelp:!!work.operationHelp,answerHint:!!work.answerHint};
+          details={...details,operationHelp:!!work.operationHelp,observationHint:!!work.observationHint,hintLevel:work.hintLevel||0,answerHint:!!work.answerHint};
           const fresh=completePhase(ctx.data,ctx.step,phase,summary,details);
           // Admin may inspect later scenes without writing fictional earlier evidence.
           if(ctx.admin)chapter.phase=phase;
@@ -235,18 +285,32 @@ export function mount(ctx) {
             if(!reduced)$('#river-status').animate([{transform:'translateY(3px)',opacity:.65},{transform:'translateY(0)',opacity:1}],{duration:240,easing:'ease-out'});
           }
         },
-        image(key,x,y,w,h){
-          if(x===600&&y===320&&w===1200&&h===640)ctx.root.style.setProperty('--activity-backdrop',`url('/assets/${backgroundForAsset(key)}.webp')`);
-          return scene.add.image(x,y,key).setDisplaySize(w,h);
+        image(key,x,y,w,h,{sceneBackground=true}={}){
+          const background=sceneBackground&&x===600&&y===320&&w===1200&&h===640;
+          if(background){
+            const value=`url('/assets/${backgroundForAsset(key)}.webp')`;
+            ctx.root.style.setProperty('--activity-backdrop',value);
+            page.style.setProperty('--activity-backdrop',value);
+          }
+          return scene.add.image(x,y,key).setDisplaySize(w,h).setVisible(!background);
         },
         hero(x,y,size=110,pose='river-hero'){
+          const decorativeBack=pose==='river-pose-1';
           if(!scene.textures.exists(pose))pose='river-hero';
-          const img=scene.add.image(x,y,pose);img.setScale(size/img.height);return img;
+          const img=scene.add.image(x,y,pose);img.setScale(size/img.height);if(decorativeBack)img.setVisible(false);return img;
         },
         text(text,x,y,size=24,color='#294239',wrapWidth){
           const rect=ctx.root.getBoundingClientRect(),scale=Math.min(rect.width/1200,rect.height/640);
           if(size>=18)size=Math.max(size,Math.min(29,19/Math.max(.5,scale)));
-          return scene.add.text(x,y,String(text),{fontFamily:'GeoDisplay, Malgun Gothic, sans-serif',fontSize:size+'px',color,align:'center',padding:{x:3,y:3},...(wrapWidth?{wordWrap:{width:wrapWidth,useAdvancedWrap:true}}:{})}).setOrigin(.5);
+          const label=scene.add.text(x,y,String(text),{fontFamily:'GeoDisplay, Malgun Gothic, sans-serif',fontSize:size+'px',color,align:'center',padding:{x:3,y:3},...(wrapWidth?{wordWrap:{width:wrapWidth,useAdvancedWrap:true}}:{})}).setOrigin(.5);
+          const context=label.context,fillRect=context.fillRect;
+          // Phaser paints its text background with fillRect before uploading it.
+          context.fillRect=function(left,top,width,height){
+            if(left===0&&top===0&&label.style.backgroundColor){this.beginPath();this.roundRect(left,top,width,height,Math.min(width,height)/2);this.fill();}
+            else fillRect.call(this,left,top,width,height);
+          };
+          label.once('destroy',()=>{context.fillRect=fillRect;});
+          return label;
         },
         // Nine-slice art keeps brass corners crisp at any size; tiny boxes scale the whole slice down.
         paper(name,x,y,w,h){
@@ -282,9 +346,9 @@ export function mount(ctx) {
         },
         card(label,x,y,w,h,size=22,{icon,color='#294239'}={}){
           const c=scene.add.container(x,y,[api.paper('paper-card',0,0,w,h)]);
-          const pad=icon?h*.42:0;
-          if(icon&&scene.textures.exists(UI(icon)))c.add(scene.add.image(-w/2+pad+14,-2,UI(icon)).setDisplaySize(h*.62,h*.56));
-          c.add(api.text(label,pad/2+(icon?10:0),-2,size,color,w-28-pad*1.4));
+          const hasIcon=icon&&scene.textures.exists(UI(icon)),iconWidth=hasIcon?Math.min(h*.56,w*.22):0,gap=hasIcon?12:0;
+          if(hasIcon)c.add(scene.add.image(-w/2+14+iconWidth/2,-2,UI(icon)).setDisplaySize(iconWidth,h*.56));
+          c.add(api.text(label,(iconWidth+gap)/2,-2,size,color,w-28-iconWidth-gap));
           return c.setSize(w,h);
         },
         drag(object,{onDrop,onMove,onStart,onTap,onPick}={}){
@@ -307,12 +371,17 @@ export function mount(ctx) {
           return object;
         },
         actions(actions){
+          const extras=actions.filter(a=>a.id.endsWith('-3d'));
+          actions=actions.filter(a=>!a.id.endsWith('-3d'));
+          for(const old of toolMenu.querySelectorAll('[data-extra-tool]'))old.remove();
+          for(const action of extras){const b=document.createElement('button');b.type='button';b.id=action.id;b.dataset.extraTool='';b.className='secondary';b.textContent=action.label;b.onclick=()=>{dismissTools();action.onClick();};$('.adventure-side-tools',toolMenu).append(b);}
           let buttons=$('.action-buttons',ctx.controls);
           if(!buttons){buttons=document.createElement('div');buttons.className='action-buttons';ctx.controls.prepend(buttons);}
           if(buttons.children.length!==actions.length||actions.some((a,i)=>buttons.children[i].id!==a.id)){
             buttons.replaceChildren(...actions.map(a=>{const b=document.createElement('button');b.type='button';b.id=a.id;return b;}));
           }
-          actions.forEach((a,i)=>{const b=buttons.children[i];b.className=a.primary?'primary':'secondary';if(b.textContent!==a.label)b.textContent=a.label;b.onclick=a.onClick;});
+          actions.forEach((a,i)=>{const b=buttons.children[i];b.className=a.primary?'primary':'secondary';b.disabled=!!a.disabled;if(b.textContent!==a.label)b.textContent=a.label;b.onclick=a.onClick;});
+          guideAction();
         },
         range(label,value,min,max,onChange,ends=['처음','끝']){
           const row=document.createElement('div');row.className='adventure-range';
@@ -333,9 +402,11 @@ export function mount(ctx) {
         }
       };
       hooks=SETUP[ctx.s.id](scene,api);
+      if(phaseDone)ctx.say(chapter.tasks[phase]?.summary||'발견을 마쳤어. 다음으로 이어 가자.');
+      guideAction();
       if(focusInstruction){focusInstruction=false;$('#instruction').focus({preventScroll:true});}
       this.events.once('shutdown',()=>{
-        stopAuto();auto=null;paintAuto();hooks?.destroy?.();hooks=null;
+        stopAuto();auto=null;playback.configure(null);paintAuto();hooks?.destroy?.();hooks=null;
         for(const clean of sceneCleanups)clean();sceneCleanups=[];
       });
       // The navigation button always reflects saved phase completion, not incidental captures.
@@ -343,13 +414,9 @@ export function mount(ctx) {
     }
     update(time,delta){
       if(closed||document.hidden||document.querySelector('dialog[open]'))return;
-      hooks?.update?.(time,delta);
+      playback.update(delta,(clock,step)=>hooks?.update?.(clock,step));
       if(!auto)return;
       paintAuto();
-      if(playing){
-        elapsed+=Math.min(delta,100);
-        if(elapsed>=auto.interval){elapsed=0;auto.advance();paintAuto();}
-      }
     }
   }
   let wasPaused=false;
@@ -367,6 +434,30 @@ export function mount(ctx) {
     page.style.setProperty('--activity-top',Math.ceil(heading.offsetTop+heading.offsetHeight+8)+'px');
   });
   headingObserver.observe(heading);
+  const footer=$('.adventure-footer',page);
+  // Longer findings get the full width on a short screen, so neither the
+  // explanation nor the operating buttons need a scroll container.
+  let fitFrame=0,fitKey='';
+  function fitDock(){
+    fitFrame=0;if(closed)return;
+    const key=[page.clientWidth,page.clientHeight,heading.offsetHeight,$('#speech').textContent,ctx.controls.textContent,playbackBar.hidden,next.disabled].join('|');
+    if(key===fitKey)return;fitKey=key;
+    page.classList.remove('guidance-wide');
+    if(!matchMedia('(orientation:landscape) and (max-height:620px)').matches)return;
+    const guide=$('.river-narrator',page),toolbar=$('.adventure-toolbar',page);
+    if(guide.offsetHeight+toolbar.scrollHeight+6>footer.clientHeight+1){
+      page.classList.add('guidance-wide');
+      page.style.setProperty('--wide-guidance-height',Math.ceil(guide.offsetHeight)+'px');
+    }
+  }
+  const scheduleFit=()=>{if(!fitFrame)fitFrame=requestAnimationFrame(fitDock);};
+  const dockObserver=new MutationObserver(scheduleFit);
+  dockObserver.observe(footer,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden','disabled']});
+  const footerObserver=new ResizeObserver(()=>{
+    page.style.setProperty('--footer-height',Math.ceil(footer.offsetHeight+8)+'px');
+    scheduleFit();
+  });
+  for(const target of [footer,heading,page,$('.river-narrator',page),$('.adventure-toolbar',page)])footerObserver.observe(target);
   const resizeObserver=new ResizeObserver(()=>{if(game&&!closed)game.scale.setParentSize(ctx.root.clientWidth,ctx.root.clientHeight);});
   resizeObserver.observe(ctx.root);
   observer.observe($('#overlay'),{childList:true,subtree:true,attributes:true,attributeFilter:['open']});
@@ -375,12 +466,12 @@ export function mount(ctx) {
     if(closed)return;
     game=new window.Phaser.Game({
       type:window.Phaser.AUTO,parent:'phaser-stage',width:1200,height:640,
-      backgroundColor:'#e5ead9',transparent:false,antialias:true,
+      transparent:true,antialias:true,
       scale:{mode:window.Phaser.Scale.FIT,autoCenter:window.Phaser.Scale.CENTER_BOTH},
-      input:{activePointers:1,dragDistanceThreshold:8},
+      input:{activePointers:1},
       audio:{noAudio:true},fps:{target:60,forceSetTimeOut:false},scene:Activity,
       callbacks:{postBoot(game){game.canvas.setAttribute('aria-label',`${ctx.s.place} · 손으로 도구를 움직이는 탐구 장면`);game.canvas.setAttribute('role','img');}}
     });
   });
-  return()=>{closed=true;stopAuto();auto=null;document.removeEventListener('pointerdown',manual,true);document.removeEventListener('keydown',manual,true);document.removeEventListener('input',manual,true);observer.disconnect();headingObserver.disconnect();resizeObserver.disconnect();document.removeEventListener('visibilitychange',syncPause);destroyGame(game);ctx.save();};
+  return()=>{closed=true;stopAuto();auto=null;document.removeEventListener('pointerdown',manual,true);document.removeEventListener('keydown',manual,true);document.removeEventListener('input',manual,true);document.removeEventListener('pointerdown',closeTools,true);document.removeEventListener('keydown',closeTools,true);observer.disconnect();headingObserver.disconnect();footerObserver.disconnect();dockObserver.disconnect();cancelAnimationFrame(fitFrame);resizeObserver.disconnect();document.removeEventListener('visibilitychange',syncPause);destroyGame(game);ctx.save();};
 }

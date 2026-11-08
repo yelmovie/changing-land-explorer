@@ -5,7 +5,7 @@ import {activityComplete,riverFrame,RIVER_MARKS,FIELD_POINTS,ROCKS,CITY_SITES,in
 import {chapterState,chapterComplete,completePhase,discoveryCount,stageDiscoveries,revisitPhase} from '../src/adventure/rules.js';
 const river=()=>({prediction:{x:.8,y:.7},runs:[1,2].map(w=>({water:w,complete:true,version:1})),reflection:'same',evidence:Object.fromEntries(Object.entries(RIVER_MARKS).map(([k,p])=>['river-'+k,{point:p,time:1}]))});
 test('all ten activities reject empty records',()=>{for(const id of ['river','volcano','rocks','city','safety'])for(const step of [0,1])assert.equal(!!activityComplete(id,step,{}),false);});
-test('river requires two different completed conditions and prediction',()=>{const d=river();assert.equal(activityComplete('river',0,d),true);d.runs[1].water=1;assert.equal(activityComplete('river',0,d),false);d.runs[1].water=2;delete d.prediction;assert.equal(activityComplete('river',0,d),false);});
+test('river needs both water conditions and observations without a prediction flag',()=>{const d=river();delete d.prediction;d.reflection='foot';assert.equal(activityComplete('river',0,d),true);d.runs[1].water=1;assert.equal(activityComplete('river',0,d),false);d.runs[1].water=2;delete d.evidence['river-deposit'];assert.equal(activityComplete('river',0,d),false);});
 test('river rejects incorrect positions and early captures',()=>{const d=river();d.evidence['river-deposit'].time=.1;assert.equal(activityComplete('river',0,d),false);d.evidence['river-deposit']={point:{x:.2,y:.1},time:1};assert.equal(activityComplete('river',0,d),false);});
 test('scrubbing reproduces identical frame without accumulated changes',()=>{const before=riverFrame(.7,2);riverFrame(1,2);riverFrame(0,2);assert.deepEqual(riverFrame(.7,2),before);assert.equal(riverFrame(0,1).erosion,0);assert.equal(riverFrame(0,2).erosion,0);});
 test('field observation needs four evidence items and process connection',()=>{const d={evidence:Object.fromEntries(FIELD_POINTS.map(p=>[p.id,{claim:p.claim}]))};assert.equal(activityComplete('river',1,d),false);d.fieldLink='deposit';assert.equal(activityComplete('river',1,d),true);});
@@ -45,7 +45,7 @@ test('legacy evidence cannot bypass unfinished adventure phases',()=>{
  assert.equal(activityComplete('river',0,d),false);
  for(const phase of [0,1,2])completePhase(d,0,phase,'found');
  assert.equal(activityComplete('river',0,d),true);
- delete d.prediction;assert.equal(activityComplete('river',0,d),false);
+ delete d.reflection;assert.equal(activityComplete('river',0,d),false);
 });
 
 test('saved phase returns to the first missing discovery',()=>{

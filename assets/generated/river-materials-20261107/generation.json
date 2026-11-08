@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-07",
+  "method": "built-in image_gen",
+  "assets": [
+    {
+      "original": "assets/raw-png/river-materials-20261107/water-original.png",
+      "runtime": "public/assets/art/river-water-current-v2.webp",
+      "prompt": "A seamless water-only material for an illustrated elementary erosion experiment. Shallow muted blue-green current, fine tan suspended sediment, small natural ripples and broken pearly reflections; diagonal upper-left to lower-right flow, neutral daylight. Full-bleed square, seamlessly repeating on all edges. No banks, terrain, objects, text, logos, UI, large foam, neon colors or flat vector shapes."
+    },
+    {
+      "original": "assets/raw-png/river-materials-20261107/sediment-original.png",
+      "runtime": "public/assets/art/river-sediment-bank-v2.webp",
+      "prompt": "One isolated low and wide fan-shaped wet sand and tiny gravel deposit, transparent background, three-quarter front view. Tapered feeder on the left broadens into a rounded fan on the right. Detailed painterly tan and brown sediment, tiny pebbles, wet patches, shallow radiating grooves, feathered edges. About five times wider than tall. Neutral daylight. No cone, layered stripes, tray, hillside, water pool, scene, foliage, text, UI or logo."
+    }
+  ]
+}
