@@ -27,7 +27,7 @@ export const LEARNING_GUIDE=[
  {id:'safety',title:'안전 훈련소',standard:'4과11-04',source:'https://www.safekorea.go.kr/safekorea-kor/acts/nacts/action-guide.do?category=earthQuake&menuSn=4',
   activities:[
    {goal:'흔들리는 동안 머리와 몸을 보호해요.',action:'위험물 찾기·책상 아래로·다리 잡기·멈춤 확인',evidence:'몸 보호 순서와 흔들림이 멈춘 뒤 확인'},
-   {goal:'위험을 피해 대피하고 경로를 점검해요.',action:'학교·야외 경로 그리기 또는 경유점·걷기',evidence:'장애물을 피하고 실제로 확인한 두 경로'}
+   {goal:'위험을 피해 대피하고 경로를 점검해요.',action:'학교·야외 통로를 누르거나 방향 버튼으로 이동',evidence:'장애물을 피하고 실제로 확인한 두 경로'}
   ],transfer:'기록탑의 다른 장애물 배치에 적용한 뒤 실제 학교의 대피 안내와 연결해요.',caution:'이 가상 지도는 실제 건물의 대피 경로가 아니에요. 흔들림 중 뛰어나가지 않아요.'}
 ];
 export function learningGuideHTML(){

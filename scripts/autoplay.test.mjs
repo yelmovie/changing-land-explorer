@@ -12,7 +12,7 @@ function harness(setup,step,phase,{data={},work={},completed=false}={}){
  const objects=[],drags=[],actions={},events={},cleanups=[],markers=[];let auto,records=0,finishes=0,saves=0,stops=0,time=0;const playback=createPlayback();
  function object(x=0,y=0,list=[]){const t={x,y,list,active:true,visible:true,scale:1};const p=new Proxy(t,{get:(t,k)=>k in t?t[k]:(...a)=>{if(k==='setPosition'){t.x=a[0];t.y=a[1];}if(k==='setVisible')t.visible=a[0];if(k==='setText')t.text=a[0];if(k==='setAlpha')t.alpha=a[0];if(k==='setScale')t.scale=a[0];if(k==='add')t.list.push(a[0]);if(k==='destroy')t.active=false;return p;}});objects.push(p);return p;}
  const add=new Proxy({container:(x=0,y=0,list=[])=>object(x,y,list)},{get:(t,k)=>k in t?t[k]:(...a)=>object(a[0],a[1])});
- const scene={add,make:add,textures:{exists:()=>true},sys:{isActive:()=>true},input:{on:(e,f)=>(events[e]??=[]).push(f),off(){}},children:{list:objects,bringToTop(){}},tweens:{add(){}},time:{now:0}};
+ const scene={add,make:add,textures:{exists:()=>true,get:()=>({getSourceImage:()=>({width:500,height:500})})},sys:{isActive:()=>true},input:{on:(e,f)=>(events[e]??=[]).push(f),off(){}},children:{list:objects,bringToTop(){}},tweens:{add(){}},time:{now:0}};
  function stop(){playback.stop();}
  const api={step,phase,data,work,completed,admin:false,image:(k,x,y)=>{const o=object(x,y);o.asset=k;return o;},hero:(x,y)=>object(x,y),text:(t,x,y)=>{const o=object(x,y);o.text=t;return o;},panel:object,card:(t,x,y)=>object(x,y,[object()]),paper:object,target:object,task(){},say(){},counter(){},spark(){},sound(){},save(){saves++;},record(item){records++;data.evidence[item.id]=item;},finish(){finishes++;stop();},actions(list){for(const k of Object.keys(actions))delete actions[k];for(const a of list)actions[a.id]=a.onClick;},drag:(o,h)=>drags.push({o,h}),listenCleanup:f=>cleanups.push(f),setToolHandler(){},marker:(x,y,n,click)=>{markers.push({x,y,n,click});return()=>{};},range:()=>({value:0}),autoplay:c=>{auto=c;playback.configure({...c,stop(){stops++;c.stop?.();}});},stopAutoplay:stop};
  const hooks=setup(scene,api)||{};
@@ -22,8 +22,8 @@ function harness(setup,step,phase,{data={},work={},completed=false}={}){
 }
 
 const STAGES={river,volcano,rocks,city,safety};
-const allowed={river:[[0,0],[0,1],[0,2],[1,0],[1,1]],volcano:[[0,0],[0,1],[1,0]],rocks:[[0,0],[0,1],[0,2],[1,1],[1,2]],city:[[0,0],[0,1],[0,2]],safety:[[1,1],[1,2]]};
-test('all 30 phases expose autoplay only for the 18 permitted observation or operation phases',()=>{
+const allowed={river:[[0,0],[0,1],[0,2],[1,0],[1,1]],volcano:[[0,0],[0,1],[1,0]],rocks:[[0,0],[0,1],[0,2],[1,1],[1,2]],city:[[0,0],[0,1],[0,2]],safety:[]};
+test('all 30 phases expose autoplay only for the 16 permitted observation or operation phases',()=>{
  for(const [name,setup]of Object.entries(STAGES))for(let step=0;step<2;step++)for(let phase=0;phase<3;phase++){
   const h=harness(setup,step,phase);
   assert.equal(!!h.auto,allowed[name].some(p=>p[0]===step&&p[1]===phase),name+' '+step+'/'+phase);
@@ -130,14 +130,9 @@ test('rock orders reuse prior evidence without attaching the same feature cards 
  h.actions['rock-ship-0']();assert.deepEqual(h.work.sorted,[1,0]);assert.equal(h.counts().finishes,1);
  assert.deepEqual(h.data.rockProofs[0],['dark','fine']);assert.deepEqual(h.data.rockProofs[1],['light','coarse']);
 });
-for(const [phase,key,path]of [[1,'schoolRoute',SCHOOL_PATH],[2,'outsideRoute',OUTSIDE_PATH]]){
- test('safety '+phase+' only walks the learner route, pauses and replays without rewriting it',()=>{
-  const empty=harness(safety,1,phase);empty.press();empty.tick(3000);assert.equal(empty.auto.ready(),false);assert.deepEqual(empty.data[key],[]);assert.equal(empty.counts().finishes,0);
-  const h=harness(safety,1,phase,{data:{[key]:structuredClone(path)}});h.press();h.tick(500);h.stop();const paused=JSON.stringify(h.objects.map(o=>[o.x,o.y]));h.tick(2000);assert.equal(JSON.stringify(h.objects.map(o=>[o.x,o.y])),paused);
-  h.press();h.tick(20000);assert.equal(h.counts().finishes,1);assert.deepEqual(h.data[key],path);
-  const before=h.snapshot(),saved=h.counts().saves;h.press();h.tick(20000);assert.equal(h.snapshot(),before);assert.equal(h.counts().finishes,1);assert.equal(h.counts().saves,saved);
- });
-}
+for(const phase of [0,1,2])test('safety '+phase+' requires direct movement instead of autoplay',()=>{
+ const h=harness(safety,1,phase);assert.equal(h.auto,undefined);h.press();h.tick(3000);assert.equal(h.counts().finishes,0);h.destroy();
+});
 test('completed river field starts a replay on the first press without new evidence',()=>{
  const h=harness(river,1,0);h.press();h.tick(10000);const before=h.snapshot(),count=h.counts().records;
  h.press();assert.equal(h.playing,true);h.tick(10000);assert.equal(h.snapshot(),before);assert.equal(h.counts().records,count);

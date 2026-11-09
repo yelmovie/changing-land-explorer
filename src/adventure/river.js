@@ -14,8 +14,10 @@ function tool(scene,api,type,x,y,label) {
   const key={lens:'tool-lens',can:'tool-water',flag:'tool-flag'}[type];
   if(scene.textures.exists(key)) {
     const picture=api.image(key,0,0,type==='can'?148:112,type==='can'?115:112);
-    const caption=api.text(label,0,80,20).setBackgroundColor('#fff8e8').setPadding(8,5);
-    const object=scene.add.container(x,y,[picture,caption]).setSize(150,170);
+    const caption=api.text(label,0,83,22).setBackgroundColor(type==='lens'?'#174b44':'#fff8e8').setColor(type==='lens'?'#ffffff':'#233e34').setPadding(12,7);
+    const backing=type==='lens'?scene.add.graphics().fillStyle(0x173c35,.25).fillCircle(2,7,69).fillStyle(0xfffbec,1).fillCircle(0,0,69).lineStyle(3,0x406b57,1).strokeCircle(0,0,68):null;
+    const object=scene.add.container(x,y,[...(backing?[backing]:[]),picture,caption]).setSize(160,190);
+    if(type==='lens')object.setName('field-lens');
     object.artwork=picture;object.caption=caption;return object;
   }
   const g=scene.add.graphics();
@@ -252,22 +254,31 @@ function markResults(scene,api) {
 function field(scene,api) {
   const d=api.data,w=api.work;
   api.image('river-field',600,320,1200,640);
-  api.hero(1100,535,145,'hero-lens');
   if(api.phase===2)return connectField(scene,api);
+  // A subtle scrim separates interactive objects from the detailed landscape.
+  scene.add.rectangle(600,320,1200,640,0x173c35,.14);
+  const region=api.phase===0?{x:218,y:284,w:302,h:264,label:'상류',lx:218,ly:126}:{x:824,y:505,w:444,h:206,label:'하류',lx:824,ly:602};
+  scene.add.graphics().fillStyle(0xfff7d9,.12).fillRoundedRect(region.x-region.w/2,region.y-region.h/2,region.w,region.h,40).lineStyle(9,0x164b44,.75).strokeRoundedRect(region.x-region.w/2,region.y-region.h/2,region.w,region.h,40).lineStyle(4,0xffefb2,1).strokeRoundedRect(region.x-region.w/2,region.y-region.h/2,region.w,region.h,40);
+  api.text(region.label,region.lx,region.ly,28,'#ffffff').setBackgroundColor('#174b44').setPadding(20,9).setName('field-region-label');
+  // Keep the same character art, with a pale silhouette and a grounded shadow.
+  scene.add.ellipse(1110,614,126,25,0x153f35,.34);
+  const pose=scene.textures.exists('hero-lens')?'hero-lens':'river-hero',heroHeight=scene.textures.get(pose).getSourceImage().height;
+  for(const [dx,dy]of [[-4,0],[4,0],[0,-4],[0,4],[-3,-3],[3,-3],[-3,3],[3,3]])scene.add.image(1110+dx,530+dy,pose).setScale(176/heroHeight).setTintFill(0xfff9df);
+  api.hero(1110,530,176,pose).setName('field-companion');
   const points=FIELD_POINTS.filter(p=>p.side===(api.phase===0?'upper':'lower'));
   w.found??=[];let finished=!!api.completed;
   api.task(api.phase===0?'돋보기로 상류의 두 단서를 찾아 봐':'아래쪽으로 와서 하류의 두 단서를 찾아 봐','숫자를 누르거나 ‘자동재생’으로 두 곳을 살펴봐. 돋보기 안의 물길과 돌을 비교해 봐.');
   const lens=tool(scene,api,'lens',600,500,'돋보기');
   const markers=new Map();
-  // Twice the original observation area (390 × 145), with captions inside the
-  // parchment's 52px safe border. Keep the lower-river markers unobstructed.
+  // Retain the enlarged observation image, with a plain reading surface and
+  // generous space between the image, heading, and wrapped description.
   const preview={x:840,y:157.5,width:552,height:205};
-  api.panel(preview.x,216,656,408,0xfff8e8,.96);
+  api.panel(preview.x,216,656,408,0xfff8e8,1).setName('field-preview-panel');
   const mask=scene.make.graphics({x:0,y:0,add:false});
   mask.fillStyle(0xffffff).fillRoundedRect(preview.x-preview.width/2,preview.y-preview.height/2,preview.width,preview.height,14);
   const zoom=api.image('river-field',preview.x,preview.y,1800,960).setMask(mask.createGeometryMask());
-  const name=api.text('가까이 들여다보자',preview.x,292,26);
-  const caption=api.text('물길과 알갱이 모양이 단서야.',preview.x,339,23,'#294239',552);
+  const name=api.text('가까이 들여다보자',preview.x,292,28).setName('field-preview-title');
+  const caption=api.text('물길과 알갱이 모양이 단서야.',preview.x,350,25,'#294239',552).setName('field-preview-caption');
   const recorded=p=>w.found.includes(p.id)&&d.evidence[p.id]?.kind==='field'&&d.evidence[p.id]?.claim===p.claim;
   function check(){if(!finished&&points.every(recorded)){finished=true;api.finish(api.phase===0?'상류는 물길이 좁고 경사가 급해. 크고 각진 바위도 찾았어.':'하류는 물길이 넓고 완만해. 모래와 고운 흙도 찾았어.');}}
   function focus(x,y){zoom.setPosition(preview.x+(600-x)*1.5,preview.y+(320-y)*1.5);}
@@ -283,7 +294,9 @@ function field(scene,api) {
   }
   api.drag(lens,{onMove(obj,x,y){focus(x,y);},onDrop(obj,x,y){const p=points.find(p=>distance({x,y},{x:p.x*1.2,y:p.y*640/560})<80);if(p)return observe(p);api.say('반짝이는 물길이나 바위로 돋보기를 옮겨 줘.');return false;}});
   points.forEach((p,index)=>{
-    const paint=api.marker(p.x*1.2,p.y*640/560,index+1,()=>observe(p));
+    const mx=p.x*1.2,my=p.y*640/560;
+    scene.add.circle(mx,my,39,0xfff7d9,1).setStrokeStyle(3,0x174b44,1);
+    const paint=api.marker(mx,my,index+1,()=>observe(p));
     markers.set(p.id,paint);paint(recorded(p));
   });
   api.autoplay(observationTour(api,{label:api.phase===0?'상류 두 곳 관찰':'하류 두 곳 관찰',items:points,interval:3200,visit:observe}));

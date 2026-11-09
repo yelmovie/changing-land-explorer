@@ -1,8 +1,10 @@
-import {SCHOOL_CONFIG,OUTSIDE_CONFIG,SCHOOL_PATH,inspectRoute,routeSignature} from '../learning-model.js';
-import {appendRoutePoint} from '../route-points.js';
+import {setupEvacuation} from './evacuation.js';
 import {SHELTER,shelterPoint,inShelter,createShelter} from './shelter.js';
 
 const inside=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
+// Classroom art is 1600 × 900. Draw it at 1200 × 675 in the same coordinate
+// system as the targets, instead of anchoring targets to the page's cover crop.
+export const CLASSROOM_HAZARDS=[{id:'window',name:'창문',x:190,y:190,w:320,h:320,text:'창문 가까이에서는 유리나 화분이 떨어질 수 있어.'},{id:'shelf',name:'책장',x:465,y:295,w:190,h:290,text:'책장과 책이 넘어질 수 있어. 떨어진 곳에서 몸을 보호해.'}];
 export function setup(scene,api){
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
  const d=api.data,w=api.work;d.evidence??={};d.protect??={under:false,head:false,leg:false,stopped:false,confirmed:false};
@@ -23,23 +25,28 @@ export function setup(scene,api){
  function protect(){
   api.image('classroom',600,320,1200,640);
   const p=d.protect,phase=api.phase;
-  const hero=api.hero(950,465,phase===0?160:SHELTER.body.size,'river-pose-2');
+  api.image('classroom',600,320,1200,675,{sceneBackground:false}).setName('aligned-classroom');
+  scene.add.ellipse(950,588,150,27,0x3a2718,.26);
+  const hero=api.hero(950,450,270,'river-pose-2').setName('classroom-companion');
   if(phase===0){
    api.task('흔들리기 전에, 위험한 곳을 찾아보자','위험 표식을 창문과 책장에 끌어다 놓아 줘.');
-   const hazards=[{id:'window',name:'창문',x:150,y:205,w:240,h:240,text:'창문 가까이에서는 유리나 화분이 떨어질 수 있어.'},{id:'shelf',name:'책장',x:438,y:265,w:190,h:210,text:'책장과 책이 넘어질 수 있어. 떨어진 곳에서 몸을 보호해.'}];
+   const hazards=CLASSROOM_HAZARDS;
    const hazardActions=[],risk=scene.add.graphics();
    function showRisk(){
     risk.clear();
-    for(const h of hazards.filter(h=>d.evidence['safety-'+h.id])){
-     risk.fillStyle(0xa95636,.12).fillRoundedRect(h.x-h.w/2,h.y-h.h/2,h.w,h.h,16).lineStyle(3,0xa95636,.78);
+    for(const h of hazards){
+     const done=!!d.evidence['safety-'+h.id];
+     risk.fillStyle(0xffefbf,done?.16:.06).fillRoundedRect(h.x-h.w/2,h.y-h.h/2,h.w,h.h,16).lineStyle(done?4:3,done?0xa95636:0xffe2a0,.95);
      const x=h.x-h.w/2,y=h.y-h.h/2;
      for(const [cx,cy,dx,dy]of [[x,y,1,1],[x+h.w,y,-1,1],[x,y+h.h,1,-1],[x+h.w,y+h.h,-1,-1]])risk.beginPath().moveTo(cx,cy+dy*24).lineTo(cx,cy).lineTo(cx+dx*24,cy).strokePath();
      risk.fillStyle(0x684b36,.17).fillEllipse(h.x,h.y+h.h*.42,h.w*.7,18);
     }
    }
+   showRisk();
    hazards.forEach((h,i)=>{
+    api.text(h.name,h.x,h.y-h.h/2+26,24,'#ffffff').setBackgroundColor('#315c47').setPadding(12,6);
     const mark=chip(h.name+' 위험',400+i*360,578,240,'warning-sign');
-    function place(){api.record({id:'safety-'+h.id,kind:'safety',asset:'classroom',label:h.name,point:{x:h.x/1200,y:h.y/640},text:h.text});showRisk();mark.setPosition(h.x,h.y);mark.setAlpha(.9);api.spark(h.x,h.y);api.say(h.text);progress();return true;}
+    function place(){api.record({id:'safety-'+h.id,kind:'safety',asset:'classroom',label:h.name,point:{x:h.x/1200,y:(h.y+17.5)/675},text:h.text});showRisk();mark.setPosition(h.x,h.y);mark.setAlpha(1);api.spark(h.x,h.y);api.say(h.text);progress();return true;}
     hazardActions.push({id:'safety-mark-'+h.id,label:h.name+' 표식 놓기',onClick:()=>chooseTarget(h.name+' 표식을 어디에 놓을까?', [['window','창문'],['shelf','책장'],['desk','책상 아래']],id=>id===h.id?place():false)});
     api.drag(mark,{onDrop:(o,x,y)=>inside(x,y,h.x,h.y,h.w,h.h)?place():false});
     if(d.evidence['safety-'+h.id]){mark.setPosition(h.x,h.y);showRisk();}
@@ -62,7 +69,7 @@ export function setup(scene,api){
   }
   if(api.admin&&phase===2){p.under=true;p.head=true;}
   const shelter=createShelter(scene,api,hero,p);
-  api.card('가상 행동 연습 · 실제 대피 훈련은 선생님과 함께',600,606,520,50,19);
+  api.card('가상 행동 연습 · 실제 대피 훈련은 선생님과 함께',600,582,520,50,19);
   if(phase===1){
    api.task('리버의 몸과 머리를 보호하자','리버를 책상 아래로 옮겨. 팔로 머리를 감싸거나 곁에 있는 방석을 써.');
    const pillow=scene.add.container(SHELTER.x-180,525,[api.image('art/safety-cushion',0,0,145,91)]).setSize(150,96);
@@ -97,124 +104,5 @@ export function setup(scene,api){
   return {update(time,delta){visualTime+=Math.min(delta,100);drawVibration();if(p.stopped||!p.leg)return;elapsed+=Math.min(delta,100);shelter.shake(reduced?0:Math.sin(elapsed/80)*2);if(elapsed>=2400){p.stopped=true;shelter.shake(0);vibration.clear();status.setText('흔들림이 멈췄어 · 확인해 줘');api.save();api.say('흔들림이 멈췄어. 멈춤을 확인한 뒤 선생님 안내를 따라가자.');progress();}}};
  }
 
- function route(){
-  const outside=api.phase===2,playback=api.phase===1,config=outside?OUTSIDE_CONFIG:SCHOOL_CONFIG,key=outside?'outsideRoute':'schoolRoute';
-  d[key]??=[];const ox=100,oy=80,scale=1;
-  const toScreen=p=>({x:ox+p.x*scale,y:oy+p.y*scale});
-  const toMap=p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale});
-  api.image('school',600,320,1200,640);
-  // Walls stay a dark board; walkable floor and hazards are illustrated, but every
-  // shape keeps the exact rectangles inspectRoute uses.
-  const board=scene.add.graphics().fillStyle(0x3f5f50,.96).fillRoundedRect(85,68,1030,525,22).lineStyle(6,0xd9b46a,1).strokeRoundedRect(85,68,1030,525,22);
-  const floorKey=outside?'art/ui/town-ground':'art/ui/school-floor',areaMask=scene.make.graphics({add:false});
-  config.areas.forEach(r=>areaMask.fillStyle(0xffffff).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,12));
-  if(scene.textures.exists(floorKey))api.image(floorKey,600,330,1030,560).setMask(areaMask.createGeometryMask());
-  else{const plain=scene.add.graphics();config.areas.forEach(r=>plain.fillStyle(0xf2e6c9,1).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,9));}
-  const map=scene.add.graphics();
-  config.areas.forEach(r=>map.lineStyle(3,0xffffff,.5).strokeRoundedRect(ox+r.x,oy+r.y,r.w,r.h,12));
-  const HAZARD_ART={'화단':['flowerbed',1,1],'깨진 유리':['broken-glass',1,1],'넘어진 책장':['fallen-shelf',1,1],'건물':['house-roof',1,1],'담장':['brick-wall',.5,1],'전신주':['utility-pole',1.3,1.1]};
-  config.hazards.forEach(r=>{
-   // The dashed border is the very same ten-unit safety margin used by inspectRoute.
-   map.fillStyle(0xc36c44,.16).fillRoundedRect(ox+r.x-10,oy+r.y-10,r.w+20,r.h+20,10);
-   for(let x=ox+r.x-10;x<ox+r.x+r.w+10;x+=16)map.lineStyle(3,0xc36c44,.8).lineBetween(x,oy+r.y-10,Math.min(x+9,ox+r.x+r.w+10),oy+r.y-10).lineBetween(x,oy+r.y+r.h+10,Math.min(x+9,ox+r.x+r.w+10),oy+r.y+r.h+10);
-   for(let y=oy+r.y-10;y<oy+r.y+r.h+10;y+=16)map.lineStyle(3,0xc36c44,.8).lineBetween(ox+r.x-10,y,ox+r.x-10,Math.min(y+9,oy+r.y+r.h+10)).lineBetween(ox+r.x+r.w+10,y,ox+r.x+r.w+10,Math.min(y+9,oy+r.y+r.h+10));
-   const art=HAZARD_ART[r.label],key=art&&'art/ui/'+art[0],cx=ox+r.x+r.w/2,cy=oy+r.y+r.h/2;
-   if(key&&scene.textures.exists(key))api.image(key,cx,cy,r.w*art[1],r.h*art[2]);
-   else map.fillStyle(r.label==='화단'?0x86a56b:0xa98366).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,7);
-   // Labels stay inside the blocked footprint, so a legal route does not cover them.
-   const label=r.label==='넘어진 책장'?'넘어진\n책장':r.label;
-   const tag=api.text(label,cx,oy+r.y+17,19,'#fff9e9');tag.setBackgroundColor('#7a3f27').setPadding(7,3).setDepth(4);
-  });
-  config.gates.forEach(g=>{if(scene.textures.exists('art/ui/exit-mat'))api.image('art/ui/exit-mat',ox+g.x,oy+g.y,150,68);else api.panel(ox+g.x,oy+g.y,110,42,0x6f9e80,1);api.text('출구',ox+g.x,oy+g.y+46,19,'#ffffff').setBackgroundColor('#2f7a55').setPadding(8,2);});
-  const start=toScreen(config.start),goal=toScreen(config.goal);
-  scene.add.circle(start.x,start.y,32,0xf6c45f,.55).setStrokeStyle(4,0xfffbdf);
-  api.text('출발',start.x,start.y-60,19,'#ffffff').setBackgroundColor('#735321').setPadding(8,2);
-  if(scene.textures.exists('art/ui/playground'))api.image('art/ui/playground',goal.x,goal.y,104,104);else scene.add.circle(goal.x,goal.y,37,0x84bf85).setStrokeStyle(5,0xfffbdf);
-  api.text(outside?'공터':'운동장',goal.x,goal.y+64,19,'#ffffff').setBackgroundColor('#2f7a55').setPadding(8,2);
-  api.card('가상 지도 · 실제로는 선생님의 안내를 따라가요',600,40,560,52,20);
-  const lines=scene.add.graphics(),travelled=scene.add.graphics(),foot=scene.add.graphics();const hero=api.hero(start.x,start.y,66,'river-pose-2');
-  const sampleRoute=api.admin&&playback&&!d[key].length;
-  let points=structuredClone(sampleRoute?SCHOOL_PATH:d[key]),draft=[],drawing=false,pressStart=null,dragged=false,moving=false,segment=1,result=null,current={...config.start},runPoints=[],complete=!!api.completed,tapMode=false,pausedRoute=false;
-  function finish(summary){api.actions([]);if(complete)return;complete=true;api.finish(summary);}
-  let checked=d[key+'Done']&&d[key+'Signature']===routeSignature(points)&&inspectRoute(points,config).ok;
-  if(!checked)d[key+'Done']=false;
-  function draw(){
-   lines.clear();travelled.clear();const list=drawing?draft:points;
-   if(list.length){
-    lines.lineStyle(13,0xfffcdf,1).beginPath().moveTo(ox+list[0].x,oy+list[0].y);list.slice(1).forEach(p=>lines.lineTo(ox+p.x,oy+p.y));lines.strokePath();lines.lineStyle(6,checked?0x439b70:0x3884a1,1).beginPath().moveTo(ox+list[0].x,oy+list[0].y);list.slice(1).forEach(p=>lines.lineTo(ox+p.x,oy+p.y));lines.strokePath();
-    // Direction belongs only to the learner's own line; no suggested route is drawn.
-    for(let i=1;i<list.length;i++){
-     const a=list[i-1],b=list[i],length=Math.hypot(b.x-a.x,b.y-a.y);if(length<56)continue;
-     const ux=(b.x-a.x)/length,uy=(b.y-a.y)/length;
-     for(let distance=42;distance<length-12;distance+=92){const x=ox+a.x+ux*distance,y=oy+a.y+uy*distance;lines.lineStyle(2,0xfffcdf,.95).beginPath().moveTo(x-ux*6-uy*4,y-uy*6+ux*4).lineTo(x,y).lineTo(x-ux*6+uy*4,y-uy*6-ux*4).strokePath();}
-    }
-   }
-   if(runPoints.length&&(moving||checked||(pausedRoute&&routeSignature(points)===routeSignature(runPoints)))){
-    travelled.lineStyle(7,0x72b483,.95).beginPath().moveTo(ox+runPoints[0].x,oy+runPoints[0].y);
-    runPoints.slice(1,segment).forEach(p=>travelled.lineTo(ox+p.x,oy+p.y));travelled.lineTo(ox+current.x,oy+current.y).strokePath();
-   }
-   if(result&&!result.ok){lines.lineStyle(5,0xc36c44,1).strokeCircle(ox+result.point.x,oy+result.point.y,23);}
-   const h=toScreen(current);foot.clear().fillStyle(0x183d32,.18).fillEllipse(h.x,h.y+29,45,12);hero.setPosition(h.x,h.y);
-  }
-  function invalidate(){checked=false;d[key+'Done']=false;d[key+'Signature']=null;w.replayed=false;api.save();}
-  function store(){if(draft.length<2)return;points=draft.map(p=>({...p}));draft=[];d[key]=structuredClone(points);result=null;current={...config.start};invalidate();draw();api.say(outside?'공터까지 이었으면 ‘이 길로 걸어가기’를 눌러 봐.':playback?'길을 고쳤어. ‘리버와 걸어가기’를 눌러 확인해.':'운동장까지 이었으면 ‘길 확인’을 눌러 봐.');}
-  function append(p){if(!appendRoutePoint(draft,p))api.say('길이 너무 길어졌어. ‘다시 그리기’를 누른 뒤 더 짧은 길로 이어 줘.');draw();}
-  function reset(){if(complete)return;moving=false;pausedRoute=false;drawing=false;pressStart=null;points=[];draft=[];d[key]=[];current={...config.start};result=null;invalidate();draw();api.say('리버에서부터 다시 이어 줘. 실패해도 보상은 줄어들지 않아.');}
-  function check(){
-   if(moving)return;
-   if(pausedRoute&&routeSignature(points)===routeSignature(runPoints)){pausedRoute=false;moving=true;return;}
-   pausedRoute=false;result=inspectRoute(points,config);draw();
-   if(!result.ok){api.say(result.message);api.counter(0,1,'안전한 길');return;}
-   if(!outside&&!playback){w.planned=true;d[key]=structuredClone(points);api.save();api.counter(1,1,'안전한 길');finish('위험한 곳을 피해 출구까지 이어졌어. 이제 리버와 이 길을 확인하자.');return;}
-   runPoints=structuredClone(points);segment=1;current={...config.start};moving=true;api.say('리버가 네 길을 따라 걸어가. 출구와 위험한 곳을 함께 살펴봐.');
-  }
-  api.task(outside?'학교 밖에서도 안전한 곳으로 가자':playback?'그린 길을 따라 출구로 걸어가자':'학교 안에서 안전한 길을 그리자',outside?'리버에서 넓은 공터까지, 건물·담장·전신주를 피해 길을 이어 줘.':playback?'길을 확인하고 리버를 출구와 운동장으로 안내해 줘. 위험하면 길을 다시 고칠 수 있어.':'리버에서 출구를 지나 운동장까지 끌어 봐. 점으로 잇고 싶으면 리버를 한 번 눌러.');
-  function down(p){
-   if(moving||complete)return;const q=toMap(p);
-   if(tapMode){
-    if(!points.length){
-      if(Math.hypot(q.x-config.start.x,q.y-config.start.y)>45){api.say('먼저 노란 출발 원에 서 있는 리버를 눌러 줘.');return;}
-      points=[{...config.start}];draw();api.say('출발! 길이 꺾이는 곳과 도착점을 차례로 눌러 줘.');return;
-    }
-    draft=points.length?structuredClone(points):[{...config.start}];drawing=true;result=null;append(q);drawing=false;store();return;
-   }
-   if(Math.hypot(q.x-config.start.x,q.y-config.start.y)>45){api.say('노란 출발 원의 리버부터 길을 이어 줘.');return;}draft=[{...config.start}];drawing=true;pressStart={x:p.x,y:p.y};dragged=false;result=null;
-  }
-  function move(p){
-   if(!pressStart)return;
-   if(Math.hypot(p.x-pressStart.x,p.y-pressStart.y)>8)dragged=true;
-   if(dragged)append(toMap(p));
-  }
-  function up(p){
-   if(!pressStart)return;
-   move(p);pressStart=null;drawing=false;
-   if(!dragged){
-    draft=[];tapMode=true;
-    if(!points.length)points=[{...config.start}];
-    actions();draw();api.say('점으로 길을 이을 수 있어. 위험을 피해 길이 꺾이는 곳과 도착점을 눌러 줘.');return;
-   }
-   store();
-  }
-  scene.input.on('pointerdown',down);scene.input.on('pointermove',move);scene.input.on('pointerup',up);scene.input.on('pointerupoutside',up);
-  api.listenCleanup(()=>{scene.input.off('pointerdown',down);scene.input.off('pointermove',move);scene.input.off('pointerup',up);scene.input.off('pointerupoutside',up);});
-  const modeLabel=()=>tapMode?'선 그리기로':'점 찍기로';
-  function actions(){api.actions([{id:'route-check',label:playback||outside?'길 따라 걷기':'길 확인',primary:true,onClick:check},{id:'route-input',label:modeLabel(),onClick(){tapMode=!tapMode;if(tapMode&&!points.length){points=[{...config.start}];d[key]=structuredClone(points);invalidate();draw();}actions();api.say(tapMode?'출발점은 정했어. 위험을 피해 다음 경유점과 도착점을 직접 눌러 길을 이어 줘.':'리버에서 출발해 손가락으로 길을 그려 줘.');}},{id:'route-reset',label:'다시 그리기',onClick:reset}]);}
-  const pauseWalk=()=>{if(moving){moving=false;pausedRoute=true;}};
-  if(playback||outside)api.autoplay({label:'내가 그린 안전길 걸어가기',interval:1000,allowWhenComplete:true,
-    ready:()=>!drawing&&inspectRoute(points,config).ok,advance:check,stop:pauseWalk});
-  actions();
-  if(sampleRoute)api.say('예시 길을 걸어 보거나 다시 그려 봐.');
-  else if(playback&&!points.length)api.say('리버부터 출구를 지나 길을 그려 줘.');
-  api.counter(checked?1:0,1,'안전한 길');draw();
-  if(checked&&(outside||playback))finish(outside?'다른 장소에서도 위험을 피해 안전한 곳에 도착했어!':'출구를 지나 운동장에 도착했어.');
-  else if(w.planned&&!outside&&!playback&&inspectRoute(points,config).ok)finish('안전한 길을 그렸어. 다음 단계에서 걸어 보자.');
-  let compassUntil=0;const compass=scene.add.graphics();
-  api.setToolHandler?.('compass',()=>{compass.clear().lineStyle(6,0xffd569,1);config.hazards.forEach(r=>compass.strokeRect(ox+r.x-10,oy+r.y-10,r.w+20,r.h+20));compassUntil=(api.now?.()??scene.time.now)+3000;api.say(outside?'노란 테두리 바깥으로 돌아서 넓은 공터로 가자.':'노란 테두리 바깥으로 돌아서 출구를 지나자.');});
-  return {update(time,delta){
-   if(compassUntil&&time>=compassUntil){compass.clear();compassUntil=0;}
-   if(!moving)return;let distance=Math.min(delta,100)*.25;
-   while(distance>0&&segment<runPoints.length){const target=runPoints[segment],length=Math.hypot(target.x-current.x,target.y-current.y);if(length<=distance){current={...target};distance-=length;segment++;}else{current.x+=(target.x-current.x)/length*distance;current.y+=(target.y-current.y)/length*distance;distance=0;}}
-   draw();if(segment>=runPoints.length){moving=false;pausedRoute=false;api.stopAutoplay();if(complete){api.say('네가 그린 길을 다시 걸었어. 안전길 기록은 그대로야.');return;}checked=true;d[key]=structuredClone(runPoints);d[key+'Done']=true;d[key+'Signature']=routeSignature(runPoints);w.replayed=true;api.record({id:key,kind:'route',label:outside?'내 학교 밖 안전길':'내 학교 안 안전길',points:structuredClone(runPoints),outside,text:outside?'건물·담장·전신주를 피해 넓은 공터에 도착했어.':'위험한 곳을 피하고 출구를 지나 운동장에 도착했어.'});api.save();api.spark(goal.x,goal.y);api.counter(1,1,'안전한 길');finish(outside?'건물과 담장, 전신주를 피해 넓은 공터에 도착했어!':'출구를 지나 운동장에 도착했어. 학교 밖에서도 안전한 곳을 찾아보자.');}
-  },pause:pauseWalk,destroy:pauseWalk};
- }
+ function route(){return setupEvacuation(scene,api);}
 }

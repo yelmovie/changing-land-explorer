@@ -90,11 +90,10 @@ async function doneStage(index){
 async function enter(index){await page.evaluate(async index=>(await import('/src/main.js')).enter(index,0),index);await settle();}
 async function rockInspect(){for(const [x,y]of [[248,220],[350,285],[450,330]])await tap(x,y);for(const x of [210,465,730,1000])await tap(x,570);}
 async function pathRoute(outside=false){
- await page.locator('#route-input').click();
  const points=outside?[{x:120,y:410},{x:180,y:410},{x:180,y:285},{x:550,y:285},{x:550,y:100},{x:880,y:100}]:[{x:140,y:100},{x:280,y:100},{x:280,y:280},{x:500,y:280},{x:500,y:370},{x:880,y:420}];
- const box=await page.locator('#activity canvas').boundingBox();
- for(const p of points){await page.mouse.click(box.x+(p.x+100)*box.width/1200,box.y+(p.y+80)*box.height/640);await page.waitForTimeout(120);}
- await page.locator('#route-check').click();await page.waitForSelector('#next.ready',{timeout:20000});
+ let last=points[0];
+ for(const p of points.slice(1)){await page.waitForTimeout(250);await tap(p.x+100,p.y+80);await page.waitForTimeout(Math.ceil(Math.hypot(p.x-last.x,p.y-last.y)/.17)+200);last=p;}
+ await page.waitForSelector('#next.ready',{timeout:20000});
 }
 async function finalChallenge(){
  await page.evaluate(async()=>{await(await import('/src/main.js')).navigate('final');});
@@ -166,7 +165,7 @@ try{
  for(let p=0;p<3;p++){await cityCompare();if(p<2)await next();else await concept();}
  await settle();await notice();await ashSafety();await next();await notice();await next();await notice();await doneStage(3);
  await enter(4);await hazards();await next();await shelter();await next();await stroke({x:1030,y:550},{x:820,y:512});await page.waitForTimeout(2700);await page.locator('#confirm-stop').click();await concept();await settle();
- await pathRoute();await next();await page.locator('#route-check').click();await page.waitForSelector('#next.ready',{timeout:20000});await next();await pathRoute(true);await doneStage(4);
+ await pathRoute();await next();await pathRoute();await next();await pathRoute(true);await doneStage(4);
  }
  const before=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));
  assert.equal(Object.keys(before.records).length,5);if(!resumedStageState){assert.equal(concepts,10);assert.equal(rewards,5);}assert.equal(errors.length,0);

@@ -20,10 +20,10 @@ const ACTION_CUES={
  volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','손잡이를 밀거나 자동재생으로 물을 흘려 봐.','물이 나온 곳과 흐른 길을 조사해 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','관찰 기록에서 같은 모습을 연결해 봐.','모형과 실제 화산의 다른 점을 연결해 봐.']],
  rocks:[['문지르거나 자동재생으로 먼지를 털어 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문의 특징에 맞는 표본을 보내 줘.','확대 관찰한 근거로 돌의 이름을 골라 봐.','확대 관찰한 근거로 돌의 이름을 골라 봐.']],
  city:[['두 시기를 보고 기록을 골라 봐.','두 시기를 보고 기록을 골라 봐.','두 시기를 보고 기록을 골라 봐.'],['관찰한 그림·까닭·할 일을 연결해 봐.','관찰한 그림·까닭·할 일을 연결해 봐.','관찰한 그림·까닭·할 일을 연결해 봐.']],
- safety:[['위험 표식을 알맞은 곳에 놓아 봐.','몸을 보호할 곳을 고르고 머리를 감싸 줘.','잡을 곳을 고르고 흔들림이 멈추면 확인해.'],['리버부터 출구까지 안전한 길을 그려 봐.','직접 그린 길을 따라 리버와 걸어 봐.','위험을 피해 공터까지 길을 그리고 걸어 봐.']]
+ safety:[['위험 표식을 알맞은 곳에 놓아 봐.','몸을 보호할 곳을 고르고 머리를 감싸 줘.','잡을 곳을 고르고 흔들림이 멈추면 확인해.'],['가까운 통로를 눌러 리버를 출구와 운동장으로 안내해.','위험 구역을 피해 다시 운동장까지 직접 걸어 봐.','건물·담장·전신주를 피해 공터까지 걸어 봐.']]
 };
 const UI=name=>'art/ui/'+name;
-// Cream panels become the illustrated field-notebook paper; coloured panels stay flat on purpose.
+// Reading surfaces use a quiet, inset outline instead of artwork that competes with text.
 const PAPER_COLORS=new Set([0xfff8e8,0xfff7df,0xfff5d9,0xfff8e5,0xf8f0d8,0xfff4d8,0xfff7e2,0xfff8e6]);
 const SLICES={'parchment-panel':[52,52,52,52],'paper-card':[36,36,32,40],'glass-pane':[16,16,16,16]};
 const TOOLS={
@@ -306,14 +306,21 @@ export function mount(ctx) {
           const context=label.context,fillRect=context.fillRect;
           // Phaser paints its text background with fillRect before uploading it.
           context.fillRect=function(left,top,width,height){
-            if(left===0&&top===0&&label.style.backgroundColor){this.beginPath();this.roundRect(left,top,width,height,Math.min(width,height)/2);this.fill();}
+            if(left===0&&top===0&&label.style.backgroundColor){this.beginPath();this.roundRect(left,top,width,height,Math.min(16,width/3,height/3));this.fill();}
             else fillRect.call(this,left,top,width,height);
           };
           label.once('destroy',()=>{context.fillRect=fillRect;});
           return label;
         },
-        // Nine-slice art keeps brass corners crisp at any size; tiny boxes scale the whole slice down.
+        // Text stays inside the usable surface: no decorative corners cross the content.
         paper(name,x,y,w,h){
+          if(name==='parchment-panel'||name==='paper-card'){
+            const r=Math.min(24,h/3),surface=scene.add.graphics();
+            surface.fillStyle(0x163e38,.24).fillRoundedRect(-w/2+2,-h/2+6,w,h,r);
+            surface.fillStyle(0xfffbef,1).fillRoundedRect(-w/2,-h/2,w,h,r);
+            surface.lineStyle(2,0xa59161,.85).strokeRoundedRect(-w/2+1,-h/2+1,w-2,h-2,r);
+            return scene.add.container(x,y,[surface]).setSize(w,h).setData('readingSurface',{width:w,height:h,padding:18});
+          }
           const key=UI(name),[l,r,t,b]=SLICES[name];
           if(!scene.textures.exists(key))return scene.add.rectangle(x,y,w,h,0xfff7df,.96).setStrokeStyle(2,0xcdbb8c,.6);
           const s=Math.min(1,w/(l+r+12),h/(t+b+12));
@@ -345,11 +352,13 @@ export function mount(ctx) {
           api.text(label,x,y,23,'#294239',w-20);return area;
         },
         card(label,x,y,w,h,size=22,{icon,color='#294239'}={}){
-          const c=scene.add.container(x,y,[api.paper('paper-card',0,0,w,h)]);
           const hasIcon=icon&&scene.textures.exists(UI(icon)),iconWidth=hasIcon?Math.min(h*.56,w*.22):0,gap=hasIcon?12:0;
-          if(hasIcon)c.add(scene.add.image(-w/2+14+iconWidth/2,-2,UI(icon)).setDisplaySize(iconWidth,h*.56));
-          c.add(api.text(label,(iconWidth+gap)/2,-2,size,color,w-28-iconWidth-gap));
-          return c.setSize(w,h);
+          const text=api.text(label,(iconWidth+gap)/2,0,size,color,w-36-iconWidth-gap);
+          const height=Math.max(h,text.height+24);
+          const c=scene.add.container(x,y,[api.paper('paper-card',0,0,w,height)]);
+          if(hasIcon)c.add(scene.add.image(-w/2+18+iconWidth/2,0,UI(icon)).setDisplaySize(iconWidth,h*.56));
+          c.add(text);c.setData('learningCard',true);
+          return c.setSize(w,height);
         },
         drag(object,{onDrop,onMove,onStart,onTap,onPick}={}){
           let home={x:object.x,y:object.y};

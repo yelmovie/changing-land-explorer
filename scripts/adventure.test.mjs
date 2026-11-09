@@ -1,55 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {setup} from '../src/adventure/safety.js';
-import {SCHOOL_PATH,inspectRoute,SCHOOL_CONFIG} from '../src/learning-model.js';
-
-// Rendering is stubbed; the real activity input handlers and route rules run.
-function routeActivity(){
- const object=()=>{const target={x:0,y:0};const proxy=new Proxy(target,{get:(t,k)=>k in t?t[k]:(...args)=>proxy});return proxy;};
- const handlers={},actions={};let finished=false;
- const scene={add:new Proxy({},{get:()=>object}),make:new Proxy({},{get:()=>object}),textures:{exists:()=>false},input:{on:(event,fn)=>handlers[event]=fn,off(){}},time:{now:0}};
- const data={},api={step:1,phase:0,data,work:{},image:object,hero:object,panel:object,text:object,card:object,paper:object,
-  task(){},say(){},save(){},counter(){},spark(){},record(){},listenCleanup(){},setToolHandler(){},
-  actions:list=>list.forEach(a=>actions[a.id]=a.onClick),finish:()=>finished=true};
- setup(scene,api);return {data,handlers,actions,finished:()=>finished};
+import {SCHOOL_PATH,OUTSIDE_PATH,inspectRoute,SCHOOL_CONFIG,OUTSIDE_CONFIG} from '../src/learning-model.js';
+function activity(phase=0,completed=false,data={}){
+ const objects=[],handlers={},actions={};let finishes=0,clock=0;
+ const object=(x=0,y=0)=>{const t={x,y};const p=new Proxy(t,{get:(t,k)=>k in t?t[k]:(...args)=>{if(k==='setPosition'){t.x=args[0];t.y=args[1];}if(k==='setText')t.text=args[0];return p;}});objects.push(p);return p;};
+ const scene={add:new Proxy({},{get:()=>object}),make:new Proxy({},{get:()=>object}),textures:{exists:()=>false},input:{on:(e,f)=>handlers[e]=f,off(){}},time:{now:0}};
+ const api={step:1,phase,data,completed,work:{},image:object,hero:object,panel:object,text:(t,x,y)=>object(x,y),card:object,task(){},say(){},save(){},counter(){},spark(){},record(){},listenCleanup(){},setToolHandler(){},actions:list=>list.forEach(a=>actions[a.id]=a.onClick),finish:()=>finishes++};
+ const hooks=setup(scene,api),tick=ms=>{for(let n=0;n<ms;n+=20)hooks.update(clock+=20,20);};
+ const walk=(p,ms=4000)=>{handlers.pointerdown({x:p.x+100,y:p.y+80});tick(ms);};
+ return {api,data,objects,actions,hooks,tick,walk,finishes:()=>finishes};
 }
-
-test('physical pointer drawing still stores and validates the entire school path',()=>{
- const route=routeActivity(),screen=p=>({x:p.x+100,y:p.y+80});
- route.handlers.pointerdown(screen(SCHOOL_PATH[0]));
- for(const point of SCHOOL_PATH.slice(1,-1))route.handlers.pointermove(screen(point));
- route.handlers.pointerup(screen(SCHOOL_PATH.at(-1)));
- assert.deepEqual(route.data.schoolRoute,SCHOOL_PATH);
- route.actions['route-check']();assert.equal(route.finished(),true);
+for(const phase of [0,1,2])test('direct movement reaches the valid destination in phase '+phase,()=>{
+ const h=activity(phase),path=phase===2?OUTSIDE_PATH:SCHOOL_PATH;
+ for(const p of path.slice(1))h.walk(p);
+ assert.equal(h.finishes(),1);const key=phase===2?'outsideRoute':'schoolRoute';assert.ok(inspectRoute(h.data[key],phase===2?OUTSIDE_CONFIG:SCHOOL_CONFIG).ok);if(phase)assert.equal(h.data[key+'Done'],true);
+ const before=JSON.stringify(h.data);h.actions['route-reset']();for(const p of path.slice(1))h.walk(p);assert.equal(h.finishes(),1);assert.equal(JSON.stringify(h.data),before);
 });
-
-test('tap waypoints validate the same safe route as continuous drawing',()=>{
- const route=routeActivity();route.actions['route-input']();
- for(const point of SCHOOL_PATH)route.handlers.pointerdown({x:point.x+100,y:point.y+80});
- assert.deepEqual(route.data.schoolRoute,SCHOOL_PATH);
- route.actions['route-check']();assert.equal(route.finished(),true);
+test('hazards stop movement, consume three hearts, and reset permits retry',()=>{
+ const h=activity();for(let i=0;i<3;i++)h.walk({x:140,y:230});assert.ok(h.objects.some(o=>typeof o.text==='string'&&o.text.startsWith('♡♡♡')));assert.equal(h.finishes(),0);for(const p of SCHOOL_PATH.slice(1))h.walk(p);assert.equal(h.finishes(),0);h.actions['route-reset']();assert.ok(h.objects.some(o=>typeof o.text==='string'&&o.text.startsWith('♥♥♥')));for(const p of SCHOOL_PATH.slice(1))h.walk(p);assert.equal(h.finishes(),1);
 });
-
-test('point mode seeds only the real start and still rejects a shortcut through hazards',()=>{
- const route=routeActivity();route.actions['route-input']();
- assert.deepEqual(route.data.schoolRoute,[SCHOOL_CONFIG.start]);
- route.actions['route-check']();assert.equal(route.finished(),false);
- assert.equal(inspectRoute(route.data.schoolRoute,SCHOOL_CONFIG).ok,false);
- // A distant tap appends a segment from River, never teleports the start.
- route.handlers.pointerdown({x:700,y:500});
- assert.deepEqual(route.data.schoolRoute,[SCHOOL_CONFIG.start,{x:600,y:420}]);
- route.actions['route-check']();assert.equal(route.finished(),false);
- assert.equal(inspectRoute(route.data.schoolRoute,SCHOOL_CONFIG).ok,false);
- route.handlers.pointerdown({x:SCHOOL_CONFIG.goal.x+100,y:SCHOOL_CONFIG.goal.y+80});
- assert.deepEqual(route.data.schoolRoute[0],SCHOOL_CONFIG.start);
- route.actions['route-check']();assert.equal(route.finished(),false);
- assert.equal(inspectRoute(route.data.schoolRoute,SCHOOL_CONFIG).ok,false);
-});
-
-test('continuous drawing still cannot start away from River',()=>{
- const route=routeActivity();
- route.handlers.pointerdown({x:700,y:500});
- route.handlers.pointerup({x:SCHOOL_CONFIG.goal.x+100,y:SCHOOL_CONFIG.goal.y+80});
- assert.deepEqual(route.data.schoolRoute,[]);
- route.actions['route-check']();assert.equal(route.finished(),false);
+test('pause cancels pending movement until a new learner action',()=>{
+ const h=activity();h.walk({x:280,y:100},100);h.hooks.pause();const before=h.objects.map(o=>[o.x,o.y]);h.tick(3000);assert.deepEqual(h.objects.map(o=>[o.x,o.y]),before);assert.equal(h.finishes(),0);
 });

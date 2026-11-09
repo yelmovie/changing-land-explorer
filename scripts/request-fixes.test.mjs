@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {fresh,sanitize} from '../src/model.js';
 import {appendRoutePoint,MAX_ROUTE_POINTS} from '../src/route-points.js';
 import {inspectRoute,SCHOOL_CONFIG,SCHOOL_PATH} from '../src/learning-model.js';
-import {cityPairSVG,cityTimeLabel,modelScene} from '../src/observation-scenes.js';
+import {cityPairSVG,cityTimeLabel,modelScene,MODEL_PARTS,MODEL_FLOW} from '../src/observation-scenes.js';
 test('long paths preserve their end, turns, signatures and evidence through all save locations',()=>{
  const route=[SCHOOL_PATH[0],...Array.from({length:760},(_,i)=>({x:150+(i%10)*10,y:100+(i%2)*25})),...SCHOOL_PATH.slice(1)];
  assert.equal(inspectRoute(route,SCHOOL_CONFIG).ok,true);
@@ -25,7 +25,7 @@ test('airport/spa recovery and farm geological time remain distinct in evidence'
 test('completed model evidence contains the assembled apparatus and the observed red-water flow',()=>{
  const d=modelScene(['tray','mountain','water'],1);
  assert.deepEqual(d.layers.filter(p=>p.type==='image').map(p=>p.asset),['art/volcano-tray','art/volcano-mountain','art/volcano-syringe']);
- assert.ok(d.layers.some(p=>p.type==='line'&&p.color==='#d85e50'&&p.points.at(-1).x===755));
+ assert.ok(d.layers.some(p=>p.type==='line'&&p.color==='#d85e50'&&p.points.at(-1).x===MODEL_FLOW.at(-1).x));
 });
 test('leaving a village stops an already playing cue and muting cancels queued cues',async()=>{
  const priorDocument=globalThis.document,priorAudio=globalThis.Audio,clips=[];
@@ -41,4 +41,12 @@ test('leaving a village stops an already playing cue and muting cancels queued c
   if(priorDocument===undefined)delete globalThis.document;else globalThis.document=priorDocument;
   if(priorAudio===undefined)delete globalThis.Audio;else globalThis.Audio=priorAudio;
  }
+});
+
+test('volcano apparatus preserves native aspect ratios and the mountain fits on its tray',()=>{
+ const [,tx,ty,tw,th]=MODEL_PARTS.tray,[,mx,my,mw,mh]=MODEL_PARTS.mountain;
+ assert.ok(Math.abs(tw/th-700/156)<.01);assert.equal(mw/mh,700/500);
+ assert.ok(mx-mw/2>tx-tw/2&&mx+mw/2<tx+tw/2);
+ assert.ok(my+mh/2>ty-th/2&&my+mh/2<ty+th/2);
+ const end=MODEL_FLOW.at(-1);assert.ok(end.x>tx-tw/2&&end.x<tx+tw/2&&end.y>ty-th/2&&end.y<ty+th/2);
 });

@@ -69,8 +69,8 @@ export function setup(scene,api){
   const sample=api.step===0?api.phase-1:api.phase+1,r=ROCKS[sample],classify=api.step===1;
   w.scanned??=[];w.proofs??=[];w.lens??={x:350,y:285};
   api.task(classify?`${r.name}의 정체를 알아내자`:`${r.name}를 확대해서 살펴보자`,'왼쪽 돌의 숫자 세 곳을 눌러 확대해 봐. 오른쪽에서 색과 알갱이를 살펴봐.');
-  api.panel(350,300,470,445,0xfff8e5,.88);api.panel(850,290,440,425,0xfff8e5,.9);
-  const specimen=api.image(r.asset,350,275,400,267);api.text(r.name,350,95,27);const detailTitle=api.text('내가 살핀 부분',850,95,24);
+  api.panel(350,290,470,450,0xfff8e5,.88);api.panel(850,280,440,450,0xfff8e5,.9);
+  const specimen=api.image(r.asset,350,275,400,267);api.text(r.name,350,100,27);const detailTitle=api.text('내가 살핀 부분',850,100,24);
   const maskShape=scene.add.graphics().fillStyle(0xffffff).fillCircle(850,282,156);maskShape.setVisible(false);
   const detail=api.image(r.asset,850,282,960,640).setMask(maskShape.createGeometryMask());
   const optics=scene.add.graphics();
@@ -181,9 +181,9 @@ export function setup(scene,api){
    api.spark(TRAY[r.type],TRAY_Y);api.save();progress();
   }
   [0,1].forEach(id=>{
-   const r=ROCKS[id],cx=id?780:420,panel=api.panel(cx,280,330,405,0xfff7df,.9);
+   const r=ROCKS[id],cx=id?780:420,panel=api.panel(cx,280,330,430,0xfff7df,.9);
    panel.setInteractive({useHandCursor:true}).on('pointerup',p=>{if(!p.getDistance||p.getDistance()<18)ship(id);});
-   api.text(r.name,cx,95,25);stones[id]=api.image(r.asset,cx,225,240,240);
+   api.text(r.name,cx,100,25);stones[id]=api.image(r.asset,cx,225,240,240);
    api.text(hasRockEvidence(d,id)?FEATURES[r.color]+'\n'+FEATURES[r.grain]:'관찰 수첩의 기록을 확인해 봐',cx,374,21,'#345546',290);
    api.text('표본을 눌러 보내기',cx,446,20).setBackgroundColor('#fff8e8').setPadding(12,5);
    if(w.sorted.includes(id))stones[id].setPosition(TRAY[r.type],TRAY_Y-8).setDisplaySize(140,140);

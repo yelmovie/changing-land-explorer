@@ -9,7 +9,7 @@ export const STAGES=[
 ];
 export const LEGACY_SAVE_KEY='moving-geovalley-v2';
 export const SAVE_KEY='moving-geovalley-v3';
-const TITLES=[['두 실험을 비교해','강에서 흔적을 찾아'],['화산 모형을 만들어','모형과 화산을 비교해'],['돌을 크게 살펴봐','내 증거로 이름을 찾아'],['도시의 시간을 비교해','주민 안내판을 만들어'],['흔들릴 때 몸을 보호해','안전한 길을 그려']];
+const TITLES=[['두 실험을 비교해','강에서 흔적을 찾아'],['화산 모형을 만들어','모형과 화산을 비교해'],['돌을 크게 살펴봐','내 증거로 이름을 찾아'],['도시의 시간을 비교해','주민 안내판을 만들어'],['흔들릴 때 몸을 보호해','안전한 길로 대피해']];
 STAGES.forEach((s,i)=>s.steps=TITLES[i]);
 export const fresh=()=>({version:3,started:false,completed:[],residentStamps:[],drafts:{},records:{},sound:true,mapNode:0,final:{round:0,answers:{},links:{}},finished:false});
 const object=v=>v&&typeof v==='object'&&!Array.isArray(v);

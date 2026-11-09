@@ -48,7 +48,7 @@ function model(scene,api){
       waterLight.lineStyle(1.7,0xffded1,.6).lineBetween(a.x-2,a.y,b.x-2,b.y);
     }
     waterLight.lineStyle(1.1,0xffd5c2,.48).strokeEllipse(MOUTH.x,MOUTH.y,39,8);
-    if(amount>.8){const k=(motion*.00045+.35)%1,spread=(amount-.8)*320;waterLight.lineStyle(1,0xffd6c6,(1-k)*.38).strokeEllipse(754,464,spread*(.45+k*.5),4+k*8);}
+    if(amount>.8){const k=(motion*.00045+.35)%1,spread=(amount-.8)*320;waterLight.lineStyle(1,0xffd6c6,(1-k)*.38).strokeEllipse(FLOW.at(-1).x,FLOW.at(-1).y,spread*(.45+k*.5),4+k*8);}
   }
   draw([]);return {draw};
 }
@@ -74,7 +74,7 @@ function assemble(scene,api){
   const d=api.data,w=api.work;w.parts??=[];let parts=w.parts,finished=false,completed=!!api.completed;
   const art=model(scene,api);
   const order=['tray','mountain','water'];
-  const spots={tray:{x:580,y:485},mountain:{x:560,y:315},water:{x:957,y:350}};
+  const spots={tray:{x:580,y:490},mountain:{x:560,y:349},water:{x:957,y:350}};
   const target=scene.add.graphics();
   const objects={};
   function show(){
@@ -249,13 +249,13 @@ function compare(scene,api){
     {id:'material',title:'흐르는 물질',source:'model-flow',left:'모형: 차가운 붉은 물을 사용했어.',right:'실제: 땅속에서 나온 뜨거운 용암이 흘러.'},
     {id:'extra',title:'함께 나오는 것',source:'model-mouth',left:'모형: 붉은 물만 나왔어.',right:'실제: 화산재·화산 기체·암석 조각도 나와.'}
   ];
-  api.text('내 모형',380,67,26);api.text('실제 화산',830,67,26);
-  const smallModel=paintScene(scene,api,modelScene(d.assembly,d.modelTime??1),{x:278,y:80,scale:.17});
-  const smallReal=api.image('volcano-eruption',830,135,270,110);
+  api.text('내 모형',380,74,26);api.text('실제 화산',830,74,26);
+  const smallModel=paintScene(scene,api,modelScene(d.assembly,d.modelTime??1),{x:290,y:100,scale:.15});
+  const smallReal=api.image('volcano-eruption',830,149,250,100);
   const cells=[],placements=new Map();
   rows.forEach((row,r)=>{
     const y=255+r*145;
-    api.text(row.title,135,y,22,'#49684b',130);
+    api.text(row.title,147,y,22,'#49684b',112);
     for(const side of ['left','right']){
       const x=side==='left'?400:835;
       api.panel(x,y,370,110,0xe7eedc,.9).setStrokeStyle(2,0xb8c6a9);

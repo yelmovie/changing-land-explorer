@@ -1,7 +1,7 @@
 /* Text controls share soft capsule ends; large reading surfaces keep generous corners. */
 #app{--radius-lg:999px;--radius-md:999px;--control-radius:999px}
 :is(#app,#overlay) button{border-radius:999px}
-#app :is(.adventure-heading,.river-narrator,.stage-shortcuts,.atlas-core,.resident-directory,.resident-tag,.expedition-title>p,.quest-meter,#river-status,#map-speech,.teacher-skip,.chip,.pill,.scene-caption,.discovery-pop){border-radius:999px}
+#app :is(.stage-shortcuts,.atlas-core,.resident-directory,.resident-tag,.expedition-title>p,.quest-meter,#river-status,#map-speech,.teacher-skip,.chip,.pill,.scene-caption,.discovery-pop){border-radius:999px}
 #app.atlas .pin-sign{border-radius:999px;padding-inline-start:22px}
 #app.adventure .adventure-heading{padding-inline-start:22px}
 #app.adventure .river-narrator{padding-inline-end:24px}
@@ -213,4 +213,20 @@
  #app.adventure .adventure-toolbar{justify-content:center}
  #app.adventure .adventure-heading,
  #app.adventure:has(#observation-auto:not([hidden])) .adventure-heading{top:var(--hud-top);left:8px;right:8px}
+}
+
+/* Reading areas need straight sides; capsule ends are only for short controls. */
+#app.adventure .adventure-page .river-narrator{border-radius:22px;padding:12px 18px}
+#app.adventure .adventure-page .river-narrator>div{border-radius:0;min-width:0;max-width:100%}
+#app.adventure .adventure-page .river-narrator p{overflow-wrap:anywhere;word-break:keep-all}
+#app.adventure .adventure-heading{border-radius:24px}
+#app.adventure .adventure-toolbar .action-buttons>button,
+#app.adventure .adventure-toolbar #next,
+#overlay .accessible-choices button,
+#overlay .phase-choices>button{border-radius:20px}
+@media(orientation:landscape) and (max-height:620px){
+ #app.adventure .adventure-page .river-narrator{padding:8px 14px;border-radius:18px}
+}
+@media(orientation:landscape) and (max-height:400px){
+ #app.adventure .adventure-page .river-narrator{padding-block:5px}
 }

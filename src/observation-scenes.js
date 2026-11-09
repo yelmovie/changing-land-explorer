@@ -2,8 +2,10 @@ import {backgroundForAsset} from './stage-art.js';
 import {riverSurface,wetSoilAlpha} from './river-water.js';
 // Serializable scene conditions. Activities, notebooks, selected records and
 // endings all render these same assets, coordinates, overlays and time labels.
-export const MODEL_MOUTH={x:560,y:195};
-export const MODEL_FLOW=[MODEL_MOUTH,{x:595,y:255},{x:642,y:325},{x:700,y:398},{x:755,y:465}];
+export const MODEL_MOUTH={x:560,y:229};
+export const MODEL_FLOW=[MODEL_MOUTH,{x:591,y:289},{x:631,y:351},{x:682,y:421},{x:737,y:491}];
+// Match the original asset proportions; the mountain leaves a visible tray rim.
+export const MODEL_PARTS={tray:['art/volcano-tray',580,490,560,125],mountain:['art/volcano-mountain',560,349,392,280],water:['art/volcano-syringe',957,343,100,231]};
 export const CITY_POINTS=[{x:210,y:282},{x:530,y:280},{x:1030,y:330}];
 export const cityMarker=index=>({...CITY_POINTS[index],y:CITY_POINTS[index].y+5,w:index===1?350:220,h:145});
 export const CITY_OBSERVATIONS=[['비행 중단','안전 확인 뒤 운항','화산재 속에서도 운항'],['농작물 피해','오랜 시간 뒤 토양 변화','분출하자마자 풍년'],['위험할 때 출입 금지','안전 확인 뒤 이용','분출 중에도 온천 이용']];
@@ -21,18 +23,17 @@ export function riverScene(time=0,water=1,motion=0,flowing=false){
 }
 export function modelScene(parts=['tray','mountain','water'],amount=1){
  const layers=[];
- if(parts.includes('water'))layers.push(line([{x:955,y:425},{x:850,y:425},{x:560,y:433},{x:560,y:215}],14,'#bcae98'),line([{x:955,y:425},{x:850,y:425},{x:560,y:433},{x:560,y:215}],7,'#e5d7bd'));
- const assets={tray:['art/volcano-tray',582,485,545,90],mountain:['art/volcano-mountain',560,326,470,310],water:['art/volcano-syringe',957,343,100,231]};
- for(const id of parts)if(assets[id])layers.push(image(...assets[id]));
+ if(parts.includes('water'))layers.push(line([{x:955,y:425},{x:850,y:425},{x:560,y:465},{x:560,y:249}],14,'#bcae98'),line([{x:955,y:425},{x:850,y:425},{x:560,y:465},{x:560,y:249}],7,'#e5d7bd'));
+ for(const id of parts)if(MODEL_PARTS[id])layers.push(image(...MODEL_PARTS[id]));
  if(amount>0){
   const count=Math.min(1,amount)*4,path=[MODEL_FLOW[0]];
   for(let i=0;i<Math.ceil(count);i++){const a=MODEL_FLOW[i],b=MODEL_FLOW[i+1],f=Math.min(1,count-i);path.push({x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f});}
   const stream=[path[0]];
   for(let i=1;i<path.length;i++){const a=path[i-1],b=path[i];for(let j=1;j<=8;j++){const f=j/8;stream.push({x:a.x+(b.x-a.x)*f+Math.sin(f*Math.PI)*Math.sin(i*3+j)*2.3,y:a.y+(b.y-a.y)*f});}}
-  layers.push(line(stream,25,'#7d4636',.17),line(stream,15,'#d85e50',.86),ellipse(560,195,50,14,'#d85e50',.85));
+  layers.push(line(stream,25,'#7d4636',.17),line(stream,15,'#d85e50',.86),ellipse(MODEL_MOUTH.x,MODEL_MOUTH.y,42,12,'#d85e50',.85));
   // Broken reflections and uneven margins read as shallow coloured water, not a pipe.
   for(let i=1;i<stream.length;i+=3){const p=stream[i];layers.push(ellipse(p.x-2,p.y,4+(i%4),7,'#ffd0b5',.38));}
-  if(amount>.8){const spread=(amount-.8)*320;layers.push(ellipse(754,466,spread*1.1,20,'#855142',.18),ellipse(754,464,spread,15,'#d85e50',.76),ellipse(743,465,spread*.65,18,'#d85e50',.5),ellipse(748,461,spread*.35,3,'#f4b29c',.55));}
+  if(amount>.8){const spread=(amount-.8)*320;layers.push(ellipse(737,493,spread*1.1,20,'#855142',.18),ellipse(737,491,spread,15,'#d85e50',.76),ellipse(726,492,spread*.65,18,'#d85e50',.5),ellipse(731,488,spread*.35,3,'#f4b29c',.55));}
  }
  return {width:1200,height:640,background:'volcano-lab',layers};
 }
