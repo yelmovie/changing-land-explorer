@@ -259,15 +259,18 @@ function field(scene,api) {
   api.task(api.phase===0?'돋보기로 상류의 두 단서를 찾아 봐':'아래쪽으로 와서 하류의 두 단서를 찾아 봐','숫자를 누르거나 ‘자동재생’으로 두 곳을 살펴봐. 돋보기 안의 물길과 돌을 비교해 봐.');
   const lens=tool(scene,api,'lens',600,500,'돋보기');
   const markers=new Map();
-  api.panel(885,163,440,270,0xfff8e8,.96);
+  // Twice the original observation area (390 × 145), with captions inside the
+  // parchment's 52px safe border. Keep the lower-river markers unobstructed.
+  const preview={x:840,y:157.5,width:552,height:205};
+  api.panel(preview.x,216,656,408,0xfff8e8,.96);
   const mask=scene.make.graphics({x:0,y:0,add:false});
-  mask.fillStyle(0xffffff).fillRoundedRect(690,45,390,145,14);
-  const zoom=api.image('river-field',885,116,1800,960).setMask(mask.createGeometryMask());
-  const name=api.text('가까이 들여다보자',885,220,26);
-  const caption=api.text('물길과 알갱이 모양이 단서야.',885,264,21,'#294239',390);
+  mask.fillStyle(0xffffff).fillRoundedRect(preview.x-preview.width/2,preview.y-preview.height/2,preview.width,preview.height,14);
+  const zoom=api.image('river-field',preview.x,preview.y,1800,960).setMask(mask.createGeometryMask());
+  const name=api.text('가까이 들여다보자',preview.x,292,26);
+  const caption=api.text('물길과 알갱이 모양이 단서야.',preview.x,339,23,'#294239',552);
   const recorded=p=>w.found.includes(p.id)&&d.evidence[p.id]?.kind==='field'&&d.evidence[p.id]?.claim===p.claim;
   function check(){if(!finished&&points.every(recorded)){finished=true;api.finish(api.phase===0?'상류는 물길이 좁고 경사가 급해. 크고 각진 바위도 찾았어.':'하류는 물길이 넓고 완만해. 모래와 고운 흙도 찾았어.');}}
-  function focus(x,y){zoom.setPosition(885+(600-x)*1.5,116+(320-y)*1.5);}
+  function focus(x,y){zoom.setPosition(preview.x+(600-x)*1.5,preview.y+(320-y)*1.5);}
   function observe(p){
     lens.setPosition(p.x*1.2,p.y*640/560);
     focus(lens.x,lens.y);
