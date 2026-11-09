@@ -14,11 +14,14 @@ const baseVolumes = new WeakMap();
 export const effectsVolume = () => effectsLevel;
 export const voiceVolume = () => voiceLevel;
 function saveVolume(key, value) { try { localStorage.setItem(key, String(value)); } catch {} }
-function effectVolume(audio, base) { baseVolumes.set(audio, base); audio.volume = base * effectsLevel / 100; }
+function effectVolume(audio, base) { baseVolumes.set(audio, base); audio.volume = base * effectsLevel / 100 * (voice ? .3 : 1); }
+function refreshEffectLevels() {
+  if (active) effectVolume(active, baseVolumes.get(active));
+  cues.forEach(cue => effectVolume(cue, baseVolumes.get(cue)));
+}
 export function setEffectsVolume(value) {
   effectsLevel = clampVolume(value); saveVolume(effectsKey, effectsLevel);
-  if (active) active.volume = baseVolumes.get(active) * effectsLevel / 100;
-  cues.forEach(cue => { cue.volume = baseVolumes.get(cue) * effectsLevel / 100; });
+  refreshEffectLevels();
   if (!effectsLevel) { stopSounds(); stopCues(); }
 }
 export function setVoiceVolume(value) {
@@ -97,6 +100,7 @@ export function stopVoice() {
     previous.onended = null; previous.onerror = null;
     previous.pause(); previous.currentTime = 0;
   }
+  refreshEffectLevels();
   release?.();
 }
 export function playVoice(file) {
@@ -106,6 +110,7 @@ export function playVoice(file) {
   stopVoice();
   const clip = new Audio('/assets/voices/'+file);
   voice = clip; releaseVoiceMusic = release;
+  refreshEffectLevels();
   clip.volume = .9 * voiceLevel / 100;
   const finish = () => { if (voice === clip) stopVoice(); };
   clip.onended = finish;

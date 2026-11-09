@@ -77,3 +77,13 @@ test('voice holds BGM and releases exactly once without stale playback', async()
   releaseExternal();assert.equal(bgm.paused,false);
   audio.stopAllSounds();audio.setSoundEnabled(false);
 });
+
+test('field effects duck under NPC speech and restore after it ends', async()=>{
+ audio.setSoundEnabled(true);audio.setEffectsVolume(100);audio.setVoiceVolume(100);document.hidden=false;
+ audio.playSound('water',{force:true});const effect=players.at(-1);assert.equal(effect.volume,.24);
+ audio.playVoice('resident.m4a');assert.equal(effect.volume,.24*.3);
+ audio.setEffectsVolume(50);assert.equal(effect.volume,.24*.5*.3);
+ audio.playCue('stamp');await tick();const cue=players.at(-1);assert.equal(cue.volume,.42*.5*.3);
+ audio.stopVoice();assert.equal(effect.volume,.24*.5);assert.equal(cue.volume,.42*.5);
+ audio.stopAllSounds();audio.setSoundEnabled(false);
+});
