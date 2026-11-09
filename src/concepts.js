@@ -1,3 +1,4 @@
+import {bindConceptFocus,emphasizeConcept} from './concept-focus.js';
 import {holdMusic} from './music.js';
 import {$, icon, escapeHTML} from './ui.js';
 import {playSound, stopSounds} from './sound.js';
@@ -34,6 +35,7 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     const releaseMusic=holdMusic();
     const video = $('video', dialog), caption = $('.concept-caption', dialog), play = $('#concept-play', dialog);
     let reachedEnd = false, departed = false, unavailable = false;
+    let releaseFocus=()=>{};
     let failedSources=0;
     const update = () => {
       const cue = Math.min(2, Math.floor(video.currentTime / (8 / 3)));
@@ -42,11 +44,11 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     };
     const end = () => { reachedEnd = true; play.hidden = true; caption.textContent = concept.cues[2]; };
     const start = () => { if(unavailable)return;stopSounds(); reachedEnd = false; play.hidden = true; video.currentTime = 0; video.play().catch(() => { if(!unavailable)play.hidden = false; }); };
-    cleanup = () => { releaseMusic();video.pause(); video.removeAttribute('src'); video.querySelectorAll('source').forEach(s=>s.removeAttribute('src')); video.load(); document.removeEventListener('visibilitychange', visibility); };
+    cleanup = () => { releaseFocus();releaseMusic();video.pause(); video.removeAttribute('src'); video.querySelectorAll('source').forEach(s=>s.removeAttribute('src')); video.load(); document.removeEventListener('visibilitychange', visibility); };
     const visibility = () => { if (document.hidden) video.pause(); else if (!reachedEnd&&!unavailable) play.hidden = false; };
     const proceed = () => { if (departed) return; departed = true; close(); if (!replay) onContinue?.(); };
     video.addEventListener('timeupdate', update); video.addEventListener('ended', end);
-    const fail = () => { if(!dialog.open)return;unavailable=true;play.hidden=true;$('#concept-replay',dialog).disabled=true;$('.concept-error',dialog).hidden=false;caption.textContent=''; };
+    const fail = () => { if(!dialog.open)return;unavailable=true;play.hidden=true;$('#concept-replay',dialog).disabled=true;$('.concept-error',dialog).hidden=false;video.pause();caption.classList.add('concept-fallback-cues');caption.innerHTML=concept.cues.map((text,i)=>'<span><b>'+String(i+1)+'.</b> '+emphasizeConcept(text,terms)+'</span>').join(''); };
     video.addEventListener('error', fail);
     // When child <source> URLs all fail, browsers may emit errors only on them.
     video.querySelectorAll('source').forEach(source=>source.addEventListener('error',()=>{if(++failedSources===video.querySelectorAll('source').length)fail();}));
@@ -58,6 +60,10 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     dialog.addEventListener('close', () => { cleanup(); });
     update();
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) start();
+    const terms={river:['침식','운반','퇴적','상류','하류'],volcano:['붉은 물','손잡이','모형','용암','화산재','기체'],rocks:['현무암','화강암','알갱이','화성암'],city:['화산재','오랜 시간','안전'],safety:['흔들릴 때','머리','흔들림이 멈춘','흔들림이 멈추면','선생님','계단','대피']}[ctx.s.id];
+    const labels=ctx.s.id==='river'&&ctx.step===0?['침식 · 깎임','운반 · 이동','퇴적 · 쌓임']:concept.labels;
+    releaseFocus=bindConceptFocus(dialog,video,{steps:labels.map((term,i)=>({at:i*(8/3),term})),terms,caption,anchor:$('.concept-visual',dialog)});
+    $('.concept-summary',dialog).innerHTML=emphasizeConcept(concept.summary,terms);
     playSound('observe');
   });
 }
