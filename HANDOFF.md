@@ -1,5 +1,6 @@
 # 지오밸리 인계
 프로젝트: 현재 체크아웃의 루트 (`package.json`이 있는 폴더). 드라이브 문자는 작업 환경마다 다르다.
+2026-11-09 밤 고도화(브랜치 `claude/upgrade-20261109`, 미배포): 개념영상 10편을 HyperFrames로 다시 만듦(15초, 캡션 0·5·10초, 원본 `films/concepts/`, 다시 렌더 `node films/concepts/render.mjs` — 옛 `npm run concepts:render`는 8초 영상으로 덮어쓰니 쓰지 말 것). 개념 창 글자·낮은 화면 배치, 공유 썸네일, 학습 목표 메타, 인트로·엔딩 5MB 이하. 결과 `docs/reviews/UPGRADE-RESULT-20261109.md`, 점수 `SCORE-20261109.md`.
 
 2026-11-04 배포: `b64d14a`를 커밋·푸시하고 https://geovalley.pages.dev 운영 배포 완료. 공개 주소 파일 216/216 바이트 일치, 서비스워커 74개 캐시·오프라인 새로고침, 공개 주소 학생 완주 통과. 배포 전 `npm test` 73, 화면 522/522, 키보드·주민·요청 수정·끝 화면 검사 통과. 실기기(iPad 등)는 아직 안 봤다. Pages가 mp4 Range 요청에 206이 아닌 200을 주므로 Safari 영상 재생을 실기기에서 확인할 것.
 
