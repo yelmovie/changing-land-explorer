@@ -30,19 +30,20 @@ export const CONCEPTS = {
 export function showConcept(ctx, onContinue, {replay = false} = {}) {
   const concept = CONCEPTS[ctx.s.id][ctx.step], key = `${ctx.s.id}-${ctx.step}`;
   let cleanup = () => {};
-  ctx.modal(concept.title, `<section class="concept-player"><div class="concept-visual"><video playsinline muted preload="metadata" poster="/assets/concepts/${key}.webp" aria-label="${escapeHTML(concept.title)} 모션 그래픽"><source src="/assets/concepts/${key}.webm" type="video/webm"><source src="/assets/concepts/${key}.mp4" type="video/mp4"></video><div class="concept-labels">${concept.labels.map((label,i)=>`<span data-cue="${i}">${escapeHTML(label)}</span>`).join('')}</div><button class="concept-play primary" id="concept-play">${icon('arrow')} 영상 재생</button></div><p class="concept-caption" aria-live="polite"></p><p class="concept-summary">${escapeHTML(concept.summary)}</p><div class="concept-actions"><button class="secondary" id="concept-replay">다시 보기</button><button class="primary" id="concept-continue">${replay?'탐구로 돌아가기':ctx.step===0?'다음 활동으로':'도구 받기'} ${icon('arrow')}</button></div><p class="concept-error" role="status" hidden>영상을 불러오지 못했어. 아래 핵심 내용을 확인하고 계속할 수 있어.</p></section>`, (dialog, close) => {
+  ctx.modal(concept.title, `<section class="concept-player"><div class="concept-visual"><video playsinline muted preload="metadata" poster="/assets/concepts/${key}.webp" aria-label="${escapeHTML(concept.title)} 모션 그래픽"><source src="/assets/concepts/${key}.webm" type="video/webm"><source src="/assets/concepts/${key}.mp4" type="video/mp4"></video><div class="concept-labels">${concept.labels.map((label,i)=>`<span data-cue="${i}">${escapeHTML(label)}</span>`).join('')}</div><button class="concept-play primary" id="concept-play">${icon('arrow')} 영상 재생</button></div><div class="concept-reading"><div class="concept-scene-heading"><h3 class="concept-current-term"></h3><span class="concept-scene-count" aria-label="현재 장면"></span></div><p class="concept-caption" aria-live="polite" aria-atomic="true"></p><div class="concept-takeaway"><strong>기억해 두기</strong><p class="concept-summary">${escapeHTML(concept.summary)}</p></div></div><div class="concept-actions"><button class="secondary" id="concept-replay">다시 보기</button><button class="primary" id="concept-continue">${replay?'탐구로 돌아가기':ctx.step===0?'다음 활동으로':'도구 받기'} ${icon('arrow')}</button></div><p class="concept-error" role="status" hidden>영상을 불러오지 못했어. 아래 핵심 내용을 확인하고 계속할 수 있어.</p></section>`, (dialog, close) => {
     dialog.classList.add('concept-dialog');
     const releaseMusic=holdMusic();
     const video = $('video', dialog), caption = $('.concept-caption', dialog), play = $('#concept-play', dialog);
-    let reachedEnd = false, departed = false, unavailable = false;
+    let reachedEnd = false, departed = false, unavailable = false, lastCue = -1;
     let releaseFocus=()=>{};
     let failedSources=0;
     const update = () => {
+      if (unavailable) return;
       const cue = Math.min(2, Math.floor(video.currentTime / (8 / 3)));
-      caption.textContent = concept.cues[cue];
+      if (cue !== lastCue) { caption.textContent = concept.cues[cue]; lastCue = cue; }
       dialog.querySelectorAll('[data-cue]').forEach((label,i) => label.classList.toggle('active', i === cue));
     };
-    const end = () => { reachedEnd = true; play.hidden = true; caption.textContent = concept.cues[2]; };
+    const end = () => { reachedEnd = true; play.hidden = true; update(); };
     const start = () => { if(unavailable)return;stopSounds(); reachedEnd = false; play.hidden = true; video.currentTime = 0; video.play().catch(() => { if(!unavailable)play.hidden = false; }); };
     cleanup = () => { releaseFocus();releaseMusic();video.pause(); video.removeAttribute('src'); video.querySelectorAll('source').forEach(s=>s.removeAttribute('src')); video.load(); document.removeEventListener('visibilitychange', visibility); };
     const visibility = () => { if (document.hidden) video.pause(); else if (!reachedEnd&&!unavailable) play.hidden = false; };
@@ -53,7 +54,7 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     // When child <source> URLs all fail, browsers may emit errors only on them.
     video.querySelectorAll('source').forEach(source=>source.addEventListener('error',()=>{if(++failedSources===video.querySelectorAll('source').length)fail();}));
     document.addEventListener('visibilitychange', visibility);
-    play.onclick = start; video.onclick = () => { if (video.paused) start(); else {video.pause(); play.hidden = false;} };
+    play.onclick = start; video.onclick = () => { if(unavailable)return;if (video.paused) {stopSounds();video.play().catch(()=>{play.hidden=false;});} else video.pause(); };
     $('#concept-replay', dialog).onclick = start;
     $('#concept-continue', dialog).onclick = proceed;
     // Closing never advances a learner. The saved activity remains complete.
@@ -62,7 +63,7 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) start();
     const terms={river:['침식','운반','퇴적','상류','하류'],volcano:['붉은 물','손잡이','모형','용암','화산재','기체'],rocks:['현무암','화강암','알갱이','화성암'],city:['화산재','오랜 시간','안전'],safety:['흔들릴 때','머리','흔들림이 멈춘','흔들림이 멈추면','선생님','계단','대피']}[ctx.s.id];
     const labels=ctx.s.id==='river'&&ctx.step===0?['침식 · 깎임','운반 · 이동','퇴적 · 쌓임']:concept.labels;
-    releaseFocus=bindConceptFocus(dialog,video,{steps:labels.map((term,i)=>({at:i*(8/3),term})),terms,caption,anchor:$('.concept-visual',dialog)});
+    releaseFocus=bindConceptFocus(dialog,video,{steps:labels.map((term,i)=>({at:i*(8/3),term})),terms,caption,anchor:$('.concept-reading',dialog)});
     $('.concept-summary',dialog).innerHTML=emphasizeConcept(concept.summary,terms);
     playSound('observe');
   });
