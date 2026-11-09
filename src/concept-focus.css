@@ -42,29 +42,29 @@ dialog.science-focus-player .concept-labels span.active { color: var(--science-g
 .science-focus-player .concept-reading { grid-column: 2; grid-row: 1 / span 2; min-width: 0; align-self: center; }
 .science-focus-player .concept-scene-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 dialog.science-focus-player .concept-current-term { margin: 0; font-family: var(--science-display); font-weight: 400; font-size: clamp(27px, 2.9vw, 40px); line-height: 1.22; text-wrap: balance; word-break: keep-all; overflow-wrap: break-word; }
-.science-focus-player .concept-scene-count { flex: none; color: var(--science-muted); font: 700 16px/1.3 var(--science-body); font-variant-numeric: tabular-nums; }
+.science-focus-player .concept-scene-count { flex: none; color: var(--science-muted); font: 700 18px/1.3 var(--science-body); font-variant-numeric: tabular-nums; }
 dialog.science-focus-player .concept-caption { display: block; margin: 0; min-height: 4.65em; font-family: var(--science-body); font-size: clamp(20px, 1.9vw, 25px); font-weight: 500; line-height: 1.55; text-align: left; text-wrap: pretty; word-break: keep-all; overflow-wrap: break-word; }
 .science-focus-player .concept-takeaway { margin-top: 22px; padding-top: 17px; border-top: 1px solid var(--science-line); }
-.science-focus-player .concept-takeaway > strong { display: block; margin-bottom: 7px; font: 700 16px/1.3 var(--science-body); color: var(--science-muted); }
-dialog.science-focus-player .concept-summary { margin: 0; padding: 0; border: 0; border-radius: 0; background: none; font: 400 clamp(18px, 1.6vw, 21px)/1.55 var(--science-body); text-align: left; word-break: keep-all; overflow-wrap: break-word; text-wrap: pretty; }
+.science-focus-player .concept-takeaway > strong { display: block; margin-bottom: 7px; font: 700 18px/1.3 var(--science-body); color: var(--science-muted); }
+dialog.science-focus-player .concept-summary { margin: 0; padding: 0; border: 0; border-radius: 0; background: none; font: 400 clamp(20px, 1.6vw, 21px)/1.55 var(--science-body); text-align: left; word-break: keep-all; overflow-wrap: break-word; text-wrap: pretty; }
 .science-focus-player .science-keyword { color: inherit; background: var(--science-mark); border-radius: .15em; padding: 0 .12em; font-weight: 800; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 .science-focus-player .science-focus-progress { grid-column: 1; grid-row: 2; height: 4px; border-radius: 4px; background: var(--science-line); overflow: hidden; margin-top: -8px; }
 .science-focus-player .science-focus-progress > span { display: block; width: 100%; height: 100%; background: var(--science-green); transform-origin: left; transform: scaleX(0); }
 .science-focus-player .science-focus-rail { grid-column: 1/-1; grid-row: 3; display: flex; align-items: stretch; gap: 12px; min-width: 0; margin: 0; }
 .science-focus-player .science-focus-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex: 1; min-width: 0; }
-#overlay .science-focus-player .science-focus-steps button { display: flex; align-items: center; justify-content: flex-start; gap: 9px; min-height: 56px; min-width: 0; margin: 0; padding: 10px 12px; border: 1px solid var(--science-line); border-radius: 12px; background: var(--science-paper); color: var(--science-muted); font: 400 clamp(16px, 1.4vw, 19px)/1.35 var(--science-body); box-shadow: none; text-align: left; word-break: keep-all; overflow-wrap: break-word; cursor: pointer; transition: background 150ms ease-out, color 150ms ease-out, transform 150ms ease-out; }
+#overlay .science-focus-player .science-focus-steps button { display: flex; align-items: center; justify-content: flex-start; gap: 9px; min-height: 56px; min-width: 0; margin: 0; padding: 10px 12px; border: 1px solid var(--science-line); border-radius: 12px; background: var(--science-paper); color: var(--science-muted); font: 400 clamp(18px, 1.4vw, 19px)/1.35 var(--science-body); box-shadow: none; text-align: left; word-break: keep-all; overflow-wrap: break-word; cursor: pointer; transition: background 150ms ease-out, color 150ms ease-out, transform 150ms ease-out; }
 .science-focus-player .science-focus-steps button > span { display: grid; place-items: center; flex: 0 0 26px; width: 26px; height: 26px; border-radius: 50%; background: var(--science-soft); color: var(--science-muted); font: 700 14px/1 var(--science-body); }
 .science-focus-player .science-focus-steps button.is-current { background: var(--science-gold-soft); border-color: var(--science-gold-ink); color: var(--science-ink); }
 .science-focus-player .science-focus-steps button.is-current > span { background: var(--science-gold-ink); color: var(--science-white); }
 .science-focus-player .science-focus-steps button.is-seen:not(.is-current) { background: var(--science-soft); }
-.science-focus-player .science-focus-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 7px; flex: 0 0 120px; min-height: 56px; margin: 0; padding: 10px 12px; border: 0; border-radius: 12px; background: var(--science-green); color: var(--science-white); font: 700 17px/1.2 var(--science-body); box-shadow: none; cursor: pointer; transition: background 150ms ease-out, transform 150ms ease-out; }
+.science-focus-player .science-focus-toggle { display: inline-flex; align-items: center; justify-content: center; gap: 7px; flex: 0 0 120px; min-height: 56px; margin: 0; padding: 10px 12px; border: 0; border-radius: 12px; background: var(--science-green); color: var(--science-white); font: 700 18px/1.2 var(--science-body); box-shadow: none; cursor: pointer; transition: background 150ms ease-out, transform 150ms ease-out; }
 .science-focus-player .science-focus-time { display: none; }
 .science-focus-player [hidden] { display: none !important; }
-dialog.science-focus-player .science-focus-hint { grid-column: 1/-1; grid-row: 4; margin: -6px 0 0; color: var(--science-muted); font: 400 16px/1.4 var(--science-body); }
+dialog.science-focus-player .science-focus-hint { grid-column: 1/-1; grid-row: 4; margin: -6px 0 0; color: var(--science-muted); font: 400 20px/1.4 var(--science-body); }
 dialog.science-focus-player .concept-actions { grid-column: 1/-1; grid-row: 5; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 2px 0 0; padding: 16px 0 0; border-top: 1px solid var(--science-line); }
 dialog.science-focus-player .concept-actions button { min-height: 50px; font-size: 20px; padding: 9px 18px; border-radius: 12px; box-shadow: none; transition: background 150ms ease-out, transform 150ms ease-out; }
 dialog.science-focus-player .concept-actions .primary { background: var(--science-gold); color: var(--science-ink); border: 1px solid var(--science-gold-ink); }
-dialog.science-focus-player .concept-actions .secondary { background: none; color: var(--science-green); border: 1px solid var(--science-line); font-family: var(--science-body); font-size: 17px; }
+dialog.science-focus-player .concept-actions .secondary { background: none; color: var(--science-green); border: 1px solid var(--science-line); font-family: var(--science-body); font-size: 18px; }
 .science-focus-player button:focus-visible { outline: 3px solid var(--science-focus); outline-offset: 3px; }
 .science-focus-player .science-focus-rail button:disabled { cursor: not-allowed; opacity: .55; }
 dialog.science-focus-player .concept-error { grid-column: 1/-1; grid-row: 6; color: var(--science-ink); background: var(--science-gold-soft); border-radius: 12px; padding: 12px; margin: 0; font-size: 17px; }
@@ -84,13 +84,34 @@ dialog.science-focus-player .concept-caption.concept-fallback-cues { font-size: 
   dialog.science-focus-player .concept-player { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 10px 20px; }
   dialog.science-focus-player .concept-current-term { font-size: 27px; }
   .science-focus-player .concept-scene-heading { margin-bottom: 8px; }
-  dialog.science-focus-player .concept-caption { min-height: 3.1em; font-size: 19px; line-height: 1.45; }
+  dialog.science-focus-player .concept-caption { min-height: 3.1em; font-size: 20px; line-height: 1.45; }
   .science-focus-player .concept-takeaway { margin-top: 12px; padding-top: 10px; }
-  dialog.science-focus-player .concept-summary { font-size: 18px; line-height: 1.4; }
-  #overlay .science-focus-player .science-focus-steps button { min-height: 48px; padding: 7px 9px; font-size: 16px; }
+  dialog.science-focus-player .concept-summary { font-size: 20px; line-height: 1.4; }
+  #overlay .science-focus-player .science-focus-steps button { min-height: 48px; padding: 7px 9px; font-size: 18px; }
   .science-focus-player .science-focus-toggle { min-height: 48px; flex-basis: 112px; }
   dialog.science-focus-player .concept-actions { padding-top: 10px; }
   dialog.science-focus-player .concept-actions button { min-height: 48px; font-size: 18px; padding: 7px 14px; }
+}
+/* Phone landscape and other short screens: every control stays on screen without scrolling. */
+@media(max-height:480px) and (min-width:701px) {
+  dialog.learning-dialog.concept-dialog.science-focus-player { max-height: calc(100dvh - 16px); border-radius: 18px; }
+  dialog.science-focus-player .dialog-heading { padding: 8px 16px; }
+  dialog.science-focus-player .dialog-heading h2 { font-size: 22px; }
+  dialog.science-focus-player .dialog-body { padding: 10px 16px; }
+  dialog.science-focus-player .concept-player { grid-template-columns: min(36vw, 320px) minmax(0, 1fr); gap: 8px 16px; }
+  .science-focus-player .concept-scene-heading, dialog.science-focus-player .science-focus-hint { display: none; }
+  dialog.science-focus-player .concept-caption { min-height: 0; font-size: 20px; line-height: 1.35; }
+  .science-focus-player .concept-takeaway { margin-top: 6px; padding-top: 6px; }
+  .science-focus-player .concept-takeaway > strong { margin-bottom: 2px; }
+  dialog.science-focus-player .concept-summary { font-size: 20px; line-height: 1.3; }
+  .science-focus-player .science-focus-progress { margin-top: -4px; }
+  .science-focus-player .science-focus-rail { gap: 8px; }
+  .science-focus-player .science-focus-steps { gap: 6px; }
+  #overlay .science-focus-player .science-focus-steps button { min-height: 48px; padding: 4px 8px; gap: 6px; font-size: 18px; line-height: 1.15; }
+  .science-focus-player .science-focus-steps button > span { flex-basis: 24px; width: 24px; height: 24px; }
+  .science-focus-player .science-focus-toggle { min-height: 48px; flex-basis: 100px; }
+  dialog.science-focus-player .concept-actions { padding-top: 0; border-top: 0; }
+  dialog.science-focus-player .concept-actions button { min-height: 48px; font-size: 18px; padding: 6px 14px; }
 }
 @media(max-width:700px) {
   dialog.learning-dialog.concept-dialog.science-focus-player { width: calc(100% - 20px); max-height: calc(100dvh - 20px); border-radius: 18px; }
@@ -104,13 +125,13 @@ dialog.science-focus-player .concept-caption.concept-fallback-cues { font-size: 
   dialog.science-focus-player .concept-current-term { font-size: 28px; }
   dialog.science-focus-player .concept-caption { font-size: 20px; min-height: 0; }
   .science-focus-player .concept-takeaway { margin-top: 15px; padding-top: 13px; }
-  dialog.science-focus-player .concept-summary { font-size: 18px; }
+  dialog.science-focus-player .concept-summary { font-size: 20px; }
   .science-focus-player .science-focus-rail { flex-wrap: wrap; width: 100%; gap: 10px; }
   .science-focus-player .science-focus-steps { flex-basis: 100%; gap: 6px; }
-  #overlay .science-focus-player .science-focus-steps button { flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px; min-height: 64px; font-size: 16px; }
+  #overlay .science-focus-player .science-focus-steps button { flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px; min-height: 64px; font-size: 18px; }
   .science-focus-player .science-focus-toggle { min-height: 48px; flex-basis: 120px; }
   .science-focus-player .science-focus-time { display: block; align-self: center; color: var(--science-muted); font: 400 16px/1.2 var(--science-body); font-variant-numeric: tabular-nums; }
-  dialog.science-focus-player .science-focus-hint { margin: -4px 0 0; font-size: 15px; }
+  dialog.science-focus-player .science-focus-hint { margin: -4px 0 0; font-size: 20px; }
   dialog.science-focus-player .concept-actions { width: 100%; padding-top: 14px; gap: 8px; }
   dialog.science-focus-player .concept-actions button { font-size: 18px; padding: 9px 12px; }
 }
