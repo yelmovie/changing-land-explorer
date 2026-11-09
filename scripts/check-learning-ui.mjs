@@ -8,6 +8,7 @@ const results=[],errors=[],loading=[],sizes=(process.env.CHECK_SIZES?process.env
 const writeResults=()=>fs.writeFile(`${out}/results.json`,JSON.stringify({results,errors,loading},null,2));
 const browser=await chromium.launch({channel:'chrome',headless:true});
 const ids=['river','volcano','rocks','city','safety'];
+const manifest=JSON.parse(await fs.readFile(new URL('../public/assets/concepts/manifest.json',import.meta.url),'utf8'));
 async function record(page,label,scope='body',{scroll=false,shot=false}={}){
  const data=await page.locator(scope).evaluate((root,{scroll})=>{
   const r=root.getBoundingClientRect(),vis=e=>e.getClientRects().length&&!e.closest('[hidden]'),issues=[];
@@ -89,9 +90,11 @@ try{
    if(phase===0){
     await page.locator('.activity-tools>summary').click();await page.locator('#concept-review').click();await record(page,key+'-concept','dialog',{shot:width===1280&&height===800});
     await page.locator('video').evaluate(v=>{if(!v.paused)throw Error('Reduced-motion video autoplayed');});
-    await page.locator('#concept-play').click();await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=2&&v.currentTime>0;});
+    // The scene rail's play toggle replaced the overlay play button (concept-focus.js).
+    await page.locator('.science-focus-toggle').click();await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=2&&v.currentTime>0;});
     const video=await page.locator('video').evaluate(v=>({duration:v.duration,muted:v.muted,width:v.videoWidth,height:v.videoHeight}));
-    results.push({label:key+'-media',pass:Math.abs(video.duration-8)<.1&&video.muted&&video.width===1280,...video});
+    const expected=manifest.find(m=>m.key===`${ids[index]}-${step}`)?.seconds;
+    results.push({label:key+'-media',pass:Math.abs(video.duration-expected)<.1&&video.muted&&video.width===1280,expected,...video});
     await page.locator('#concept-continue').click();await page.waitForFunction(()=>!document.querySelector('dialog'));
    }
   }
