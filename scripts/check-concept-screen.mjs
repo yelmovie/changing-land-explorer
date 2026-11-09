@@ -66,7 +66,7 @@ try{
  await page.locator('.science-focus-toggle').click();const paused=await page.locator('video').evaluate(v=>v.currentTime);await page.waitForTimeout(300);assert.equal(await page.locator('video').evaluate(v=>v.currentTime),paused);
  await page.locator('[data-science-step="1"]').click();await page.locator('video').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>3);assert.ok(await page.locator('video').evaluate(v=>v.currentTime>5),'video tap resumes rather than restarts');
  await page.locator('#concept-replay').click();assert.ok(await page.locator('video').evaluate(v=>v.currentTime<1));
- await page.waitForFunction(()=>document.querySelector('video').ended,{},{timeout:12000});assert.equal(await page.locator('.concept-scene-count').textContent(),'3 / 3');
+ await page.waitForFunction(()=>document.querySelector('video').ended,{},{timeout:20000}); // films are 15 sassert.equal(await page.locator('.concept-scene-count').textContent(),'3 / 3');
  await page.locator('[data-science-step="0"]').focus();await page.keyboard.press('Enter');assert.equal(await page.locator('video').evaluate(v=>v.paused),true);
  assert.equal(await page.locator('[data-science-step="0"]').evaluate(e=>getComputedStyle(e).outlineStyle),'solid');
  await page.keyboard.press('Escape');await page.waitForSelector('dialog',{state:'detached'});assert.equal(await page.evaluate(()=>window.conceptContinues),0);
@@ -92,7 +92,7 @@ try{
  await noRange.waitForFunction(()=>Math.abs(document.querySelector('video').currentTime-5)<.02);
  assert.equal(await noRange.locator('.concept-current-term').textContent(),'운반');
  await noRange.locator('[data-science-step="2"]').click();
- await noRange.waitForFunction(()=>Math.abs(document.querySelector('video').currentTime-16/3)<.02);
+ await noRange.waitForFunction(()=>Math.abs(document.querySelector('video').currentTime-10)<.02);
  assert.equal(await noRange.locator('.concept-current-term').textContent(),'퇴적');
  await noRange.locator('.dialog-close').click();await noRangeContext.close();
  await fs.writeFile(`${out}/results.json`,JSON.stringify({results,errors},null,2));
