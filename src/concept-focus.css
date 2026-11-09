@@ -36,7 +36,8 @@ dialog.science-focus-player .dialog-body { padding: 24px 28px; overflow-x: clip;
 dialog.science-focus-player .concept-player { display: grid; grid-template-columns: minmax(0, 1.48fr) minmax(0, 1fr); gap: 16px 28px; align-items: start; }
 dialog.learning-dialog.concept-dialog.science-focus-player .concept-visual { grid-column: 1; grid-row: 1; width: 100%; max-width: none; max-height: none; height: auto; min-height: 0; align-self: center; aspect-ratio: 16/9; border: 1px solid var(--science-line); border-radius: 16px; background: var(--science-soft); }
 dialog.science-focus-player .concept-visual video { width: 100%; height: 100%; object-fit: contain; }
-dialog.science-focus-player .concept-labels { gap: 6px; bottom: 3%; }
+/* The films draw each name tag on its object, so the old chip row under the picture is not repeated. */
+dialog.science-focus-player .concept-labels { display: none; }
 dialog.science-focus-player .concept-labels span { font-family: var(--science-body); font-size: clamp(14px, 1.4vw, 18px); line-height: 1.2; padding: 5px 9px; border: 1px solid var(--science-line); border-radius: 8px; color: var(--science-muted); background: var(--science-paper); }
 dialog.science-focus-player .concept-labels span.active { color: var(--science-gold-ink); background: var(--science-gold-soft); border-color: var(--science-gold-ink); }
 .science-focus-player .concept-reading { grid-column: 2; grid-row: 1 / span 2; min-width: 0; align-self: center; }
@@ -98,7 +99,7 @@ dialog.science-focus-player .concept-caption.concept-fallback-cues { font-size: 
   dialog.science-focus-player .dialog-heading { padding: 8px 16px; }
   dialog.science-focus-player .dialog-heading h2 { font-size: 22px; }
   dialog.science-focus-player .dialog-body { padding: 10px 16px; }
-  dialog.science-focus-player .concept-player { grid-template-columns: min(36vw, 320px) minmax(0, 1fr); gap: 8px 16px; }
+  dialog.science-focus-player .concept-player { grid-template-columns: min(34vw, 300px) minmax(0, 1fr); gap: 8px 16px; }
   .science-focus-player .concept-scene-heading, dialog.science-focus-player .science-focus-hint { display: none; }
   dialog.science-focus-player .concept-caption { min-height: 0; font-size: 20px; line-height: 1.35; }
   .science-focus-player .concept-takeaway { margin-top: 6px; padding-top: 6px; }

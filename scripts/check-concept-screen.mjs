@@ -29,7 +29,7 @@ try{
    assert.ok(await page.locator('video').evaluate(v=>v.paused),'reduced motion does not autoplay');
    for(const cue of [0,1,2]){
     await page.locator(`[data-science-step="${cue}"]`).click();
-    await page.waitForFunction(cue=>Math.abs(document.querySelector('video').currentTime-cue*8/3)<.02,cue);
+    await page.waitForFunction(cue=>Math.abs(document.querySelector('video').currentTime-cue*5)<.02,cue);
     assert.equal(await page.locator('[aria-current="step"]').getAttribute('data-science-step'),String(cue));
     assert.equal(await page.locator('.concept-caption').textContent(),await page.evaluate(async({id,step,cue})=>(await import('/src/concepts.js')).CONCEPTS[id][step].cues[cue],{id,step,cue}));
     const issues=await page.locator('dialog').evaluate(d=>{
@@ -64,7 +64,7 @@ try{
  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(base);await page.waitForSelector('#settings');
  await open(page,'river',0);await page.waitForFunction(()=>document.querySelector('video').currentTime>.1);
  await page.locator('.science-focus-toggle').click();const paused=await page.locator('video').evaluate(v=>v.currentTime);await page.waitForTimeout(300);assert.equal(await page.locator('video').evaluate(v=>v.currentTime),paused);
- await page.locator('[data-science-step="1"]').click();await page.locator('video').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>3);assert.ok(await page.locator('video').evaluate(v=>v.currentTime>8/3),'video tap resumes rather than restarts');
+ await page.locator('[data-science-step="1"]').click();await page.locator('video').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>3);assert.ok(await page.locator('video').evaluate(v=>v.currentTime>5),'video tap resumes rather than restarts');
  await page.locator('#concept-replay').click();assert.ok(await page.locator('video').evaluate(v=>v.currentTime<1));
  await page.waitForFunction(()=>document.querySelector('video').ended,{},{timeout:12000});assert.equal(await page.locator('.concept-scene-count').textContent(),'3 / 3');
  await page.locator('[data-science-step="0"]').focus();await page.keyboard.press('Enter');assert.equal(await page.locator('video').evaluate(v=>v.paused),true);
@@ -89,7 +89,7 @@ try{
  });
  await noRange.goto(base);await noRange.waitForSelector('#settings');await open(noRange,'river',0,true);
  await noRange.locator('[data-science-step="1"]').click();
- await noRange.waitForFunction(()=>Math.abs(document.querySelector('video').currentTime-8/3)<.02);
+ await noRange.waitForFunction(()=>Math.abs(document.querySelector('video').currentTime-5)<.02);
  assert.equal(await noRange.locator('.concept-current-term').textContent(),'운반');
  await noRange.locator('[data-science-step="2"]').click();
  await noRange.waitForFunction(()=>Math.abs(document.querySelector('video').currentTime-16/3)<.02);

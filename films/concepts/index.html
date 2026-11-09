@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko" data-composition-variables='[{"id":"film","type":"enum","label":"개념 영상","default":"river-0","options":[{"value":"river-0","label":"강 1 · 물이 땅을 바꾸는 세 가지 일"},{"value":"river-1","label":"강 2 · 상류에서 하류까지"},{"value":"volcano-0","label":"화산 1 · 화산 모형의 흐름"},{"value":"volcano-1","label":"화산 2 · 모형과 실제 비교"},{"value":"rocks-0","label":"암석 1 · 색과 알갱이"},{"value":"rocks-1","label":"암석 2 · 증거로 분류"},{"value":"city-0","label":"도시 1 · 시간에 따른 영향"},{"value":"city-1","label":"도시 2 · 관찰에서 행동으로"},{"value":"safety-0","label":"안전 1 · 몸 보호"},{"value":"safety-1","label":"안전 2 · 안전한 길"}]}]'>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: 'Jua'; src: url('assets/fonts/jua-korean-400.woff2') format('woff2'); }
+      @font-face { font-family: 'Jua'; src: url('assets/fonts/jua-latin-400.woff2') format('woff2'); unicode-range: U+0000-00FF; }
+      /* GeoValley palette, taken from the game's own tokens (src/style.css, concept-focus.css). */
+      :root {
+        --paper: #fff5dd;
+        --paper-hi: #fffaf0;
+        --rule: #e9dcb8;
+        --ink: #243e36;
+        --muted: #4c675c;
+        --green: #234d43;
+        --gold: #f3cb6c;
+        --gold-soft: #ffe7a6;
+        --gold-ink: #69501c;
+        --water: #58bbd1;
+        --red: #d5543b;
+        --soil: #9a6a3e;
+        --font: 'Jua', sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); }
+      #film { position: absolute; inset: 0; font-family: var(--font); color: var(--ink); overflow: hidden; }
+      /* notebook page: faint ruled lines and a margin line, no gradients or glow */
+      #page { position: absolute; inset: 0; background-color: var(--paper);
+        background-image: linear-gradient(var(--rule) 2px, transparent 2px), linear-gradient(90deg, #f0c9a8 3px, transparent 3px);
+        background-size: 100% 64px, 100% 100%; background-position: 0 30px, 92px 0; background-repeat: repeat, no-repeat; }
+      #stage { position: absolute; inset: 0; overflow: hidden; clip-path: inset(160px 0 0 0); } /* the question line stays clear */
+      #cam, #shake, #art, #fx { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+      #fx { pointer-events: none; overflow: visible; }
+      .art-img { position: absolute; display: block; }
+      .frame { position: absolute; border: 6px solid var(--paper-hi); border-radius: 18px; box-shadow: 0 6px 0 #d8c79e; overflow: hidden; }
+      .frame > img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; }
+      #lines { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: visible; }
+      .leader-line { stroke: var(--ink); stroke-width: 5; fill: none; stroke-linecap: round; }
+      .leader-dot { fill: var(--gold); stroke: var(--ink); stroke-width: 5; }
+      #tags { position: absolute; inset: 0; }
+      .tag { position: absolute; padding: 12px 26px 10px; background: var(--gold-soft); border: 4px solid var(--gold-ink); border-radius: 18px; color: var(--ink); font-size: 50px; line-height: 1.12; white-space: nowrap; box-shadow: 0 5px 0 #c9b582; }
+      .tag.minor { font-size: 40px; padding: 8px 18px 6px; background: var(--paper-hi); border-color: #6f7d68; color: #3d544a; }
+      #question { position: absolute; left: 130px; top: 54px; display: flex; align-items: center; gap: 22px; max-width: 1500px; }
+      #question .chip { flex: none; padding: 8px 22px 6px; border-radius: 999px; background: var(--green); color: var(--paper-hi); font-size: 40px; }
+      #question-text { font-size: 62px; line-height: 1.15; color: var(--ink); white-space: nowrap; }
+      #conclusion { position: absolute; left: 130px; bottom: 44px; display: flex; align-items: center; gap: 22px; padding: 14px 34px 12px 18px; background: var(--paper-hi); border: 4px solid var(--green); border-radius: 22px; box-shadow: 0 6px 0 #b9c9b4; }
+      #conclusion .chip { flex: none; padding: 6px 20px 4px; border-radius: 999px; background: var(--gold); color: var(--ink); font-size: 40px; }
+      #conclusion-text { font-size: 56px; white-space: nowrap; }
+      .word { display: inline-block; white-space: pre; }
+      #river-wrap { position: absolute; right: 50px; bottom: 0; }
+      #river { display: block; height: 430px; }
+      #probe { position: absolute; width: 0; height: 0; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <div id="film" data-composition-id="main" data-start="0" data-duration="15" data-width="1920" data-height="1080" data-fps="30">
+      <div id="page"></div>
+      <div id="stage">
+        <div id="cam"><div id="shake"><div id="art"></div><svg id="fx" viewBox="0 0 1920 1080"></svg></div></div>
+      </div>
+      <svg id="lines" viewBox="0 0 1920 1080"></svg>
+      <div id="tags"></div>
+      <div id="question"><span class="chip">질문</span><span id="question-text"></span></div>
+      <div id="conclusion"><span class="chip">정리</span><span id="conclusion-text"></span></div>
+      <div id="river-wrap"><img id="river" alt="" src="assets/art/hero-cheer.webp" /></div>
+      <svg id="probe"></svg>
+    </div>
+    <script src="kit.js"></script>
+    <script src="scenes.js"></script>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const vars = (window.__hyperframes && window.__hyperframes.getVariables && window.__hyperframes.getVariables()) || {};
+      const key = vars.film || new URLSearchParams(location.search).get('film') || 'river-0';
+      document.fonts.ready.then(() => {
+        const film = window.GEO_FILMS[key];
+        const { tl } = window.buildFilm(film);
+        window.__timelines['main'] = tl;
+        tl.seek(0);
+      });
+    </script>
+  </body>
+</html>

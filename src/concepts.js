@@ -4,6 +4,9 @@ import {$, icon, escapeHTML} from './ui.js';
 import {playSound, stopSounds} from './sound.js';
 
 // All captions remain DOM text, so a teacher can read them from a whiteboard.
+// Each 15-second film (films/concepts) shows one caption per 5 seconds: question and experiment,
+// a close look with a name tag, then the conclusion. The name tags are drawn inside the film.
+export const CONCEPT_CUES=[0,5,10];
 export const CONCEPTS = {
   river: [
     {title:'물이 땅을 바꾸는 세 가지 일', labels:['깎임','이동','쌓임'], cues:['흐르는 물이 땅을 깎아. 이것을 침식이라고 해.','물이 흙과 돌을 다른 곳으로 옮겨. 이것을 운반이라고 해.','물의 흐름이 느려진 곳에 흙이나 모래가 쌓일 수 있어. 이렇게 쌓이는 것을 퇴적이라고 해.'], summary:'같은 지형에서 물의 양을 바꾸면, 깎이고 옮겨지는 흙의 양도 달라져.'},
@@ -39,7 +42,7 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     let failedSources=0;
     const update = () => {
       if (unavailable) return;
-      const cue = Math.min(2, Math.floor(video.currentTime / (8 / 3)));
+      const cue = CONCEPT_CUES.reduce((n,at,i)=>video.currentTime+0.001>=at?i:n,0);
       if (cue !== lastCue) { caption.textContent = concept.cues[cue]; lastCue = cue; }
       dialog.querySelectorAll('[data-cue]').forEach((label,i) => label.classList.toggle('active', i === cue));
     };
@@ -63,7 +66,7 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) start();
     const terms={river:['침식','운반','퇴적','상류','하류'],volcano:['붉은 물','손잡이','모형','용암','화산재','기체'],rocks:['현무암','화강암','알갱이','화성암'],city:['화산재','오랜 시간','안전'],safety:['흔들릴 때','머리','흔들림이 멈춘','흔들림이 멈추면','선생님','계단','대피']}[ctx.s.id];
     const labels=ctx.s.id==='river'&&ctx.step===0?['침식 · 깎임','운반 · 이동','퇴적 · 쌓임']:concept.labels;
-    releaseFocus=bindConceptFocus(dialog,video,{steps:labels.map((term,i)=>({at:i*(8/3),term})),terms,caption,anchor:$('.concept-reading',dialog)});
+    releaseFocus=bindConceptFocus(dialog,video,{steps:labels.map((term,i)=>({at:CONCEPT_CUES[i],term})),terms,caption,anchor:$('.concept-reading',dialog)});
     $('.concept-summary',dialog).innerHTML=emphasizeConcept(concept.summary,terms);
     playSound('observe');
   });
