@@ -87,7 +87,7 @@ export function mount(ctx) {
     playbackBar.hidden=false;
     if(autoButton.hidden)autoButton.hidden=false;
     if(autoButton.disabled===playback.ready)autoButton.disabled=!playback.ready;
-    const label=playback.playing?'일시정지':'자동재생';
+    const label=playback.playing?'직접 해보기':'자동재생';
     guideAction();
     if(autoButton.dataset.state===label&&autoButton.title===auto.label)return;
     autoButton.dataset.state=label;autoButton.title=auto.label;
