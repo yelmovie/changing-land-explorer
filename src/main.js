@@ -10,7 +10,7 @@ import {SETTINGS_CONTENT} from './settings-content.js';
 import {activityComplete} from './learning-model.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
 import {showEvidence,evidenceCard} from './explore-ui.js';
-import {$,$$,icon,escapeHTML,checklist} from './ui.js';
+import {$,$$,icon,escapeHTML} from './ui.js';
 let student,storageReadOnly=false,storageProblem='',storageWarning='',lastRaw=null,conflict=false;
 const plainObject=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
 function readableProgress(raw){

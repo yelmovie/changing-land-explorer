@@ -1,5 +1,5 @@
 import {STAGES} from './model.js';
-import {$,$$,icon,escapeHTML} from './ui.js';
+import {$,$$,escapeHTML} from './ui.js';
 import {shell,state,isAdmin,save,navigate,enter,toast,chime,modal} from './main.js';
 import {evidenceCard,btn,pill,svgFrame,pointerSurface,bindChoices} from './explore-ui.js';
 import {riverArt,pin} from './visuals.js';
