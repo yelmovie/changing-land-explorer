@@ -16,7 +16,7 @@ const refs=(await Promise.all(['index.html',...srcFiles.map(f=>f.slice(1))].map(
 const textures=[...new Set([...SHARED_STAGE_ASSETS,...Object.values(STAGE_ASSETS).flat()])].map(n=>`/assets/${backgroundForAsset(n)}.webp`);
 for(const url of textures)if(!existsSync(path.join('dist',url)))throw new Error(`Missing stage texture: ${url}`);
 const posters=[...Object.keys(STAGE_ASSETS).flatMap(id=>[0,1].map(step=>`/assets/concepts/${id}-${step}.webp`)),'/assets/story/intro.webp','/assets/story/final.webp'];
-const core=[...new Set(['/','/index.html',...srcFiles,...refs,...textures,...posters,...Object.keys(RESIDENTS).map(residentArt),...Object.values(TOOL_ASSETS).map(n=>`/assets/${n}.webp`)])].filter(u=>existsSync(path.join('dist',u)));
+const core=[...new Set(['/','/index.html',...srcFiles,...refs,...textures,...posters,...Object.keys(RESIDENTS).map(residentArt),...Object.values(TOOL_ASSETS).map(n=>`/assets/${n}.webp`)])].filter(u=>existsSync(path.join('dist',u))&&u!=='/assets/og-image.jpg'); // the share card is for link previews only
 const name='geovalley-v3-'+Date.now();
 await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(name)},CORE=${JSON.stringify(core)};
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
