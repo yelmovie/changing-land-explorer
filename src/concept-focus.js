@@ -32,7 +32,7 @@ export function bindConceptFocus(host, video, {steps, terms, caption, anchor, co
   const progress=doc.createElement('div');progress.className='science-focus-progress';progress.setAttribute('aria-hidden','true');progress.innerHTML='<span></span>';anchor.before(progress);
   const hint=doc.createElement('p');hint.className='science-focus-hint';hint.textContent='장면을 누르면 멈춰서 볼 수 있어.';rail.after(hint);
   const formatTime=value=>Number.isFinite(value)?`${Math.floor(value/60)}:${String(Math.floor(value%60)).padStart(2,'0')}`:'0:00';
-  let last=-1, destroyed=false, failed=false;
+  let last=-1, destroyed=false, failed=false, pendingSeek=null, seekBuffer=null, seekURL=null;
   const update=()=>{
     if(destroyed||failed)return;
     let current=0;steps.forEach((step,i)=>{if(video.currentTime+0.001>=step.at)current=i;});
@@ -49,17 +49,48 @@ export function bindConceptFocus(host, video, {steps, terms, caption, anchor, co
     if(controls)host.querySelectorAll('.concept-play').forEach(button=>{button.hidden=true;});
     const toggle=rail.querySelector('.science-focus-toggle');if(toggle){toggle.innerHTML=`<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="currentColor">${video.paused?'<path d="M7 4v16l13-8z"/>':'<path d="M6 4h4v16H6zm8 0h4v16h-4z"/>'}</svg><span>${video.paused?'재생':'일시정지'}</span>`;toggle.setAttribute('aria-label',video.paused?'개념 영상 재생':'개념 영상 일시정지');}
   };
+  const finishSeek=()=>{
+    if(pendingSeek===null||destroyed||failed)return;
+    const at=pendingSeek;pendingSeek=null;
+    // Seek just inside the cue: media clocks round fractional seconds.
+    video.currentTime=at>0?at+0.001:0;
+    video.dispatchEvent(new Event('timeupdate'));update();
+    rail.removeAttribute('aria-busy');hint.textContent='장면을 누르면 멈춰서 볼 수 있어.';
+  };
+  const seekTo=at=>{
+    pendingSeek=at;
+    const seekable=Array.from({length:video.seekable.length},(_,i)=>[video.seekable.start(i),video.seekable.end(i)]);
+    if(at===0||seekable.some(([start,end])=>at>=start&&at<end)){finishSeek();return;}
+    // Some static hosts return 200 for byte ranges. A small, same-source Blob
+    // makes these eight-second films seekable without changing their bytes.
+    rail.setAttribute('aria-busy','true');hint.textContent='장면을 준비하고 있어.';
+    if(seekBuffer||!video.currentSrc||video.readyState===0)return;
+    const source=video.currentSrc;
+    seekBuffer=fetch(source,{signal:controller.signal}).then(response=>{
+      if(!response.ok)throw new Error('Concept media unavailable');return response.blob();
+    }).then(blob=>{
+      if(destroyed||failed||pendingSeek===null)return;
+      if(seekURL)URL.revokeObjectURL(seekURL);
+      seekURL=URL.createObjectURL(blob);video.src=seekURL;video.load();
+    }).catch(error=>{
+      if(destroyed||failed||error.name==='AbortError')return;
+      pendingSeek=null;rail.removeAttribute('aria-busy');hint.textContent='장면을 옮기지 못했어. 다시 누르거나 영상을 재생해 봐.';
+    }).finally(()=>{seekBuffer=null;});
+  };
+  // A later play/replay action cancels an unfinished chapter request.
+  video.addEventListener('play',()=>{pendingSeek=null;rail.removeAttribute('aria-busy');hint.textContent='장면을 누르면 멈춰서 볼 수 있어.';},options);
+  video.addEventListener('loadedmetadata',()=>{if(pendingSeek!==null){if(seekURL)finishSeek();else seekTo(pendingSeek);}},options);
   rail.addEventListener('click',event=>{
     const button=event.target.closest('button');if(!button)return;
-    if(button.hasAttribute('data-science-step')){video.pause();video.hidden=false;host.querySelectorAll('.concept-end-frame,.concept-end').forEach(el=>{el.hidden=true;});/* Seek just inside the cue: media clocks round fractional seconds. */const at=steps[Number(button.dataset.scienceStep)].at;video.currentTime=at>0?at+0.001:0;video.dispatchEvent(new Event('timeupdate'));update();}
+    if(button.hasAttribute('data-science-step')){video.pause();video.hidden=false;host.querySelectorAll('.concept-end-frame,.concept-end').forEach(el=>{el.hidden=true;});seekTo(steps[Number(button.dataset.scienceStep)].at);}
     else if(video.paused)video.play().catch(()=>update());else video.pause();
   },options);
   for(const event of ['timeupdate','seeked','play','pause','ended','loadedmetadata'])video.addEventListener(event,update,options);
   video.addEventListener('loadedmetadata',()=>{rail.querySelectorAll('button').forEach(button=>{button.disabled=false;});},options);
-  const unavailable=()=>{failed=true;rail.querySelectorAll('button').forEach(button=>{button.disabled=true;});hint.textContent='영상 대신 핵심 내용을 읽고 계속할 수 있어.';if(heading)heading.textContent='핵심 내용';if(count)count.hidden=true;time.hidden=true;progress.hidden=true;};
+  const unavailable=()=>{failed=true;pendingSeek=null;rail.removeAttribute('aria-busy');rail.querySelectorAll('button').forEach(button=>{button.disabled=true;});hint.textContent='영상 대신 핵심 내용을 읽고 계속할 수 있어.';if(heading)heading.textContent='핵심 내용';if(count)count.hidden=true;time.hidden=true;progress.hidden=true;};
   video.addEventListener('error',unavailable,options);
   const lastSource=[...video.querySelectorAll('source')].at(-1);lastSource?.addEventListener('error',unavailable,options);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)video.pause();},options);
   update();
-  return ()=>{if(destroyed)return;destroyed=true;controller.abort();rail.remove();progress.remove();hint.remove();};
+  return ()=>{if(destroyed)return;destroyed=true;controller.abort();if(seekURL)URL.revokeObjectURL(seekURL);rail.remove();progress.remove();hint.remove();};
 }

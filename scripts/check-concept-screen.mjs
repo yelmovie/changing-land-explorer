@@ -79,6 +79,22 @@ try{
  assert.equal(await failedPage.locator('.concept-fallback-cues > span').count(),3);assert.equal(await failedPage.locator('.concept-current-term').textContent(),'핵심 내용');assert.ok(await failedPage.locator('.science-focus-toggle').isDisabled());
  await failedPage.locator('video').evaluate(v=>v.dispatchEvent(new Event('timeupdate')));assert.equal(await failedPage.locator('.concept-fallback-cues > span').count(),3,'late events preserve all fallback cues');
  await failedPage.screenshot({path:`out/error.png`.replace('out/',out+'/')});await failedPage.locator('#concept-continue').click();await failedPage.waitForSelector('dialog',{state:'detached'});await failedContext.close();
+ // Regression: static CDN ignores Range and exposes seekable=[0,0].
+ const noRangeContext=await browser.newContext({viewport:{width:1024,height:768},reducedMotion:'reduce',serviceWorkers:'block'});
+ const noRange=await noRangeContext.newPage();
+ await noRange.route(/\/assets\/concepts\/.*\.(mp4|webm)$/,async route=>{
+  const pathname=new URL(route.request().url()).pathname;
+  const body=await fs.readFile(new URL('../public'+pathname,import.meta.url));
+  await route.fulfill({status:200,body,contentType:pathname.endsWith('.webm')?'video/webm':'video/mp4'});
+ });
+ await noRange.goto(base);await noRange.waitForSelector('#settings');await open(noRange,'river',0,true);
+ await noRange.locator('[data-science-step="1"]').click();
+ await noRange.waitForFunction(()=>Math.abs(document.querySelector('video').currentTime-8/3)<.02);
+ assert.equal(await noRange.locator('.concept-current-term').textContent(),'운반');
+ await noRange.locator('[data-science-step="2"]').click();
+ await noRange.waitForFunction(()=>Math.abs(document.querySelector('video').currentTime-16/3)<.02);
+ assert.equal(await noRange.locator('.concept-current-term').textContent(),'퇴적');
+ await noRange.locator('.dialog-close').click();await noRangeContext.close();
  await fs.writeFile(`${out}/results.json`,JSON.stringify({results,errors},null,2));
  assert.equal(results.filter(r=>r.issues.length).length,0);assert.deepEqual(errors,[]);
  console.log(`PASS: ${results.length} concept/scene/viewport cases, playback, resume, replay, keyboard, repeated continue, close, failed-media fallback, and storage preservation.`);

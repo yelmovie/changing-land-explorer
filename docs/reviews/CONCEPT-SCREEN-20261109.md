@@ -46,3 +46,13 @@ PLAYWRIGHT_PATH='/Volumes/T7 Shield/iscreammedia_sc34/8 creatures/node_modules/p
 ## 안전한 반영
 
 수정 대상은 `src/concepts.js`, `src/concept-focus.js`, `src/concept-focus.css`, `scripts/check-concept-screen.mjs`, `package.json`, 이 문서다. 기존 미추적 검토 문서와 output 폴더는 커밋하지 않는다. 기존 미디어 바이너리와 학생 저장 코드 변경은 없다.
+
+## 운영 구간 재생 보정
+
+첫 운영 배포 뒤 새 브라우저에서 Cloudflare가 영상 Range 요청에 200을 반환하여, 다운로드가 끝나도 `seekable`이 `[0,0]`으로 남는 사례를 확인했다. 이미 서비스워커에 영상이 캐시된 브라우저는 정상이라 로컬·캐시 경로와 결과가 달랐다.
+
+장면 이동 대상이 브라우저의 탐색 가능 범위에 없을 때만 동일 원본 영상을 Blob으로 읽어 장면 이동을 지원하도록 보정했다. 원본 바이너리·내용·저장 규칙은 바꾸지 않았다. 닫을 때 요청을 중단하고 임시 URL을 해제하며, 연속 장면 선택은 마지막 선택을 따른다. 재생·다시 보기의 새 동작이 대기 중 이동을 취소하며, 오류 대체 안내는 유지한다.
+
+- HTTP 200, `seekable=[0,0]` 재현 검사에서 Blob 적용 후 `seekable=[0,8]`, 두 번째 장면 시각 2.667666초 확인.
+- 240개 화면·장면 조합과 HTTP Range 미지원 회귀검사 통과.
+- 138개 테스트·전체 구문검사·최종 빌드 통과.
