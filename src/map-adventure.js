@@ -8,6 +8,7 @@ import {shell,state,isAdmin,save,enter,navigate,toast,modal,showFilm} from './ma
 import {TOOL_ASSETS,stageDiscoveries,discoveryCount} from './adventure/rules.js';
 import {destroyGame} from './phaser-lifecycle.js';
 import {backgroundForAsset} from './stage-art.js';
+import {overviewFrame,clampMapAxis} from './map-camera.js';
 
 const XY=[[.18,.75],[.195,.62],[.26,.56],[.26,.49],[.245,.43],[.235,.38],[.16,.38],[.235,.31],[.265,.25],[.29,.205],[.34,.23],[.39,.25],[.43,.20],[.51,.20],[.58,.215],[.65,.205],[.677,.24],[.70,.31],[.72,.39],[.77,.46],[.72,.50],[.66,.59],[.615,.67],[.635,.75],[.70,.70],[.60,.57],[.54,.55],[.50,.48],[.50,.42]];
 const LINKS=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[5,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,15],[15,16],[16,17],[17,18],[18,19],[19,20],[20,21],[21,22],[22,23],[23,24],[21,25],[25,26],[26,27],[27,28]];
@@ -42,18 +43,19 @@ export function renderMap({welcome=false,arrival}={}){
       <button id="atlas-core" class="atlas-core ${coreOpen?'ready':''}" style="left:${CORE_LABEL[0]*100}%;top:${CORE_LABEL[1]*100}%" aria-label="기록탑 ${coreOpen?'마지막 도전 열림':'다섯 도구를 모아 연결'}">${icon(coreOpen?'star':'lock',22)}<span>기록탑</span><small>${isAdmin()?'시연 가능':s.completed.length+' / 5'}</small></button>
     </div>
     ${welcome?`<section class="welcome-scroll"><img class="welcome-river" src="/assets/hero-lens.webp" alt="탐험가 수달 리버"><div><span>초등 과학 · 땅의 변화</span><h2>리버와 발견 여행을 떠나자!</h2><p>다섯 곳의 관찰 기록을 모아<br>꺼진 기록탑을 다시 연결해 줘.</p><button class="primary" id="start">${s.started?'탐험 이어 하기':'탐험 시작'} ${icon('arrow')}</button></div></section>`:''}
-    </div><div class="map-dpad" role="group" aria-label="리버 이동 방향키"><button data-dir="up" aria-keyshortcuts="ArrowUp W" aria-label="위로 걷기">${icon('arrow',26)}</button><button data-dir="left" aria-keyshortcuts="ArrowLeft A" aria-label="왼쪽으로 걷기">${icon('arrow',26)}</button><button class="dpad-center" id="dpad-center" aria-label="리버가 있는 곳 보기"><img src="/assets/hero-lens.webp" alt=""></button><button data-dir="right" aria-keyshortcuts="ArrowRight D" aria-label="오른쪽으로 걷기">${icon('arrow',26)}</button><button data-dir="down" aria-keyshortcuts="ArrowDown S" aria-label="아래로 걷기">${icon('arrow',26)}</button></div><button class="next-guide" id="next-guide" hidden></button><button id="travel-skip" class="secondary travel-skip" hidden>도착하기 ${icon('arrow',18)}</button><footer class="atlas-footer"><img class="map-river" src="/assets/hero-cheer.webp" alt="리버"><p id="map-speech" role="status">${newcomer?`마을 불빛 ${residents.length}/5 · ${RESIDENTS[newcomer.id].name}의 말풍선을 눌러 봐!`:isAdmin()?'시연할 장소 이름표를 눌러. 아래 시연 목록에서 활동이나 마지막 도전을 바로 고를 수도 있어.':finished?'30개 발견과 마지막 도전을 마쳤어. 기록을 다시 보거나 새 상황에 다시 도전해 봐.':all?'네가 찾은 단서들이 모였어. 가운데 기록탑에서 마지막 문제를 풀어 보자!':s.completed.length?`흩어진 관찰 기록을 모아 기록탑을 연결하자. 다음은 ${nextStage?.place||'기록탑'}야.`:'‘물길 관측소’를 눌러 첫 단서를 찾으러 가자!'}</p>${finished?'<div class="map-complete-actions"><button class="secondary" id="map-records">기록 다시 보기</button><button class="secondary" id="map-retry">새 상황 다시 도전</button></div>':''}${isAdmin()?'<button class="secondary" id="preview-nav">시연 목록</button>':''}${!finished?`<button class="stage-shortcuts" id="stage-shortcuts" aria-label="${nextStage?.place||'기록탑'} 바로가기"><span class="shortcut-copy"><small>${nextStage?'다음 장소 바로가기':'마지막 도전 바로가기'}</small><strong>${nextStage?.place||'기록탑'}</strong></span>${icon('arrow',24)}</button>`:''}</footer>
+    </div><div class="map-view-tools" role="group" aria-label="지도 보기"><button type="button" id="map-hand" aria-label="지도 끌어서 이동" title="지도 끌어서 이동" aria-pressed="true">${icon('hand',26)}</button><button type="button" id="map-overview" aria-label="지도 전체 보기" title="지도 전체 보기" aria-pressed="false">${icon('overview',26)}</button></div><div class="map-dpad" role="group" aria-label="리버 이동 방향키"><button data-dir="up" aria-keyshortcuts="ArrowUp W" aria-label="위로 걷기">${icon('arrow',26)}</button><button data-dir="left" aria-keyshortcuts="ArrowLeft A" aria-label="왼쪽으로 걷기">${icon('arrow',26)}</button><button class="dpad-center" id="dpad-center" aria-label="리버가 있는 곳 보기"><img src="/assets/hero-lens.webp" alt=""></button><button data-dir="right" aria-keyshortcuts="ArrowRight D" aria-label="오른쪽으로 걷기">${icon('arrow',26)}</button><button data-dir="down" aria-keyshortcuts="ArrowDown S" aria-label="아래로 걷기">${icon('arrow',26)}</button></div><button class="next-guide" id="next-guide" hidden></button><button id="travel-skip" class="secondary travel-skip" hidden>도착하기 ${icon('arrow',18)}</button><footer class="atlas-footer"><img class="map-river" src="/assets/hero-cheer.webp" alt="리버"><p id="map-speech" role="status">${newcomer?`마을 불빛 ${residents.length}/5 · ${RESIDENTS[newcomer.id].name}의 말풍선을 눌러 봐!`:isAdmin()?'시연할 장소 이름표를 눌러. 아래 시연 목록에서 활동이나 마지막 도전을 바로 고를 수도 있어.':finished?'30개 발견과 마지막 도전을 마쳤어. 기록을 다시 보거나 새 상황에 다시 도전해 봐.':all?'네가 찾은 단서들이 모였어. 가운데 기록탑에서 마지막 문제를 풀어 보자!':s.completed.length?`흩어진 관찰 기록을 모아 기록탑을 연결하자. 다음은 ${nextStage?.place||'기록탑'}야.`:'‘물길 관측소’를 눌러 첫 단서를 찾으러 가자!'}</p>${finished?'<div class="map-complete-actions"><button class="secondary" id="map-records">기록 다시 보기</button><button class="secondary" id="map-retry">새 상황 다시 도전</button></div>':''}${isAdmin()?'<button class="secondary" id="preview-nav">시연 목록</button>':''}${!finished?`<button class="stage-shortcuts" id="stage-shortcuts" aria-label="${nextStage?.place||'기록탑'} 바로가기"><span class="shortcut-copy"><small>${nextStage?'다음 장소 바로가기':'마지막 도전 바로가기'}</small><strong>${nextStage?.place||'기록탑'}</strong></span>${icon('arrow',24)}</button>`:''}</footer>
   </main>`,'atlas');
   $('.brand').innerHTML='<img class="brand-logo" src="/assets/title-logo.webp" alt="움직이는 지오밸리">';
   const world=$('.atlas-world'),page=$('.atlas-page');
   // 1~4번 프로젝트처럼 지도를 화면보다 크게(cover×ZOOM) 깔고 손으로 끌어 둘러본다. 지도 가장자리가 드러나지 않게 이동 범위를 막는다.
-  const ZOOM=1.2,view={x:0,y:0,w:0,h:0,pw:0,ph:0};let grab=null,dragged=false,follow=true;
+  const ZOOM=1.2,view={x:0,y:0,w:0,h:0,pw:0,ph:0};let grab=null,dragged=false,follow=true,panEnabled=true,overview=false,savedView=null;
   const goal=nextStage?STAGES.indexOf(nextStage):null;
   // 지도에서 실제로 보이는 칸: 위 아이콘 아래 ~ 아래 말풍선 위. 방향키 패드는 왼쪽 아래 덮개로 따로 본다.
   const safe={top:0,bottom:0};
   function measureSafe(){
     const pr=page.getBoundingClientRect();
     safe.top=($('.topbar')?.getBoundingClientRect().bottom??pr.top)-pr.top;safe.bottom=$('.atlas-footer').getBoundingClientRect().top-pr.top;
+    page.style.setProperty('--atlas-safe-top',`${Math.max(0,safe.top)}px`);
     page.style.setProperty('--atlas-footer-h',`${Math.round(pr.bottom-$('.atlas-footer').getBoundingClientRect().top)}px`);
   }
   const nextTarget=goal!==null?$(`.atlas-pin[data-stage="${goal}"]`,world):all&&!finished?$('#atlas-core'):null;
@@ -61,7 +63,7 @@ export function renderMap({welcome=false,arrival}={}){
   if(nextTarget){
     const name=goal!==null?STAGES[goal].place:'기록탑',guide=$('#next-guide'),[gx,gy]=goal!==null?LABELS[goal]:CORE_LABEL;
     guide.innerHTML=`${icon('arrow',22)}<span>다음: ${name}</span>`;guide.setAttribute('aria-label',`다음 목적지 ${name}로 지도 옮기기`);
-    guide.onclick=()=>{follow=false;panTo(cameraFor(gx,gy));};
+    guide.onclick=()=>{leaveOverview();follow=false;panTo(cameraFor(gx,gy));};
   }
   function dimUnderHud(){
     const pr=page.getBoundingClientRect(),pad=$('.map-dpad')?.getBoundingClientRect();
@@ -76,7 +78,7 @@ export function renderMap({welcome=false,arrival}={}){
     guide.style.left=`${x}px`;guide.style.top=`${y}px`;guide.style.setProperty('--turn',`${Math.atan2(cy-y,cx-x)}rad`);
   }
   function place(x,y){
-    view.x=Math.max(view.pw-view.w,Math.min(0,x));view.y=Math.max(view.ph-view.h,Math.min(0,y));
+    view.x=overview?(view.pw-view.w)/2:clampMapAxis(x,view.pw,view.w);view.y=overview?overviewFrame(view.pw,safe.top,safe.bottom).y:clampMapAxis(y,view.ph,view.h);
     world.style.transform=`translate(${view.x}px,${view.y}px)`;dimUnderHud();updateGuide();
   }
   // 안내 화살표·리버 보기 버튼은 지도를 부드럽게 옮긴다. 움직임 줄이기 설정이면 바로 옮긴다.
@@ -93,13 +95,36 @@ export function renderMap({welcome=false,arrival}={}){
     // 처음엔 리버와 다음 목적지 사이를, 크기가 바뀌면 보고 있던 곳을 가운데에 둔다.
     const start=newcomer?RESIDENTS[newcomer.id].feet:goal===null?XY[current]:[(XY[current][0]+LABELS[goal][0])/2,(XY[current][1]+LABELS[goal][1])/2];
     const fx=view.w?(view.pw/2-view.x)/view.w:start[0],fy=view.h?((safe.top+safe.bottom)/2-view.y)/view.h:start[1];
-    measureSafe();view.pw=page.clientWidth;view.ph=page.clientHeight;view.w=Math.max(view.pw,view.ph*16/9)*ZOOM;view.h=view.w*9/16;
+    measureSafe();view.pw=page.clientWidth;view.ph=page.clientHeight;view.w=overview?overviewFrame(view.pw,safe.top,safe.bottom).w:Math.max(view.pw,view.ph*16/9)*ZOOM;view.h=view.w*9/16;
     world.style.width=`${view.w}px`;world.style.height=`${view.h}px`;world.style.setProperty('--map-unit',`${view.h/675}px`);
     place(...cameraFor(fx,fy));
     // refresh()만 부르면 Phaser가 예전 부모 크기로 캔버스를 그려 작게 남는다. 새 크기를 먼저 넘긴다.
     if(game?.isBooted)game.scale.setParentSize(view.w,view.h);
   }
   const resize=new ResizeObserver(fitMap);resize.observe(page);fitMap();
+  function syncViewControls(){
+    page.classList.toggle('map-overview',overview);page.classList.toggle('map-pan-disabled',!panEnabled||overview);
+    $('#map-hand').setAttribute('aria-pressed',String(panEnabled&&!overview));
+    const fit=$('#map-overview'),label=overview?'이전 지도 보기로 돌아가기':'지도 전체 보기';
+    fit.setAttribute('aria-pressed',String(overview));fit.setAttribute('aria-label',label);fit.title=label;
+  }
+  function leaveOverview(){
+    if(!overview)return;
+    overview=false;syncViewControls();fitMap();
+    if(savedView){follow=savedView.follow;place(...cameraFor(savedView.fx,savedView.fy));savedView=null;}
+  }
+  $('#map-hand').onclick=()=>{
+    cancelAnimationFrame(glide);grab=null;world.classList.remove('grabbing');
+    if(overview){leaveOverview();panEnabled=true;}else panEnabled=!panEnabled;
+    syncViewControls();
+  };
+  $('#map-overview').onclick=()=>{
+    cancelAnimationFrame(glide);grab=null;world.classList.remove('grabbing');
+    if(overview){leaveOverview();return;}
+    savedView={fx:(view.pw/2-view.x)/view.w,fy:((safe.top+safe.bottom)/2-view.y)/view.h,follow};
+    overview=true;follow=false;syncViewControls();fitMap();
+  };
+  syncViewControls();
   const hintTimer=setTimeout(()=>page.classList.add('map-dragged'),9000);
   // 장소를 막 되살렸을 때: 문이 열리고 → 창에 불이 켜지고 → 기록탑 등불 → 주민 등장 → 마을 소리. 하나씩 더해지는 마을.
   const cueStops=[];let arrivalTimer=0;
@@ -117,14 +142,15 @@ export function renderMap({welcome=false,arrival}={}){
   world.addEventListener('pointermove',e=>{
     if(grab?.id!==e.pointerId)return;const dx=e.clientX-grab.x,dy=e.clientY-grab.y;
     if(!dragged&&Math.hypot(dx,dy)<8)return;
-    if(!dragged){dragged=true;follow=false;world.setPointerCapture(e.pointerId);world.classList.add('grabbing');page.classList.add('map-dragged');}
+    dragged=true;if(!panEnabled||overview)return;
+    if(!world.hasPointerCapture(e.pointerId)){follow=false;world.setPointerCapture(e.pointerId);world.classList.add('grabbing');page.classList.add('map-dragged');}
     place(grab.ox+dx,grab.oy+dy);
   });
-  const letGo=e=>{if(grab?.id!==e.pointerId)return;grab=null;world.classList.remove('grabbing');};
-  world.addEventListener('pointerup',letGo);world.addEventListener('pointercancel',letGo);
+  const letGo=e=>{if(grab?.id!==e.pointerId)return;grab=null;world.classList.remove('grabbing');if(world.hasPointerCapture(e.pointerId))world.releasePointerCapture(e.pointerId);};
+  world.addEventListener('pointerup',letGo);world.addEventListener('pointercancel',letGo);world.addEventListener('lostpointercapture',letGo);
   // 끌기가 끝난 손가락이 장소 누르기로 바뀌지 않게 막는다.
   world.addEventListener('click',e=>{if(!dragged)return;dragged=false;e.preventDefault();e.stopPropagation();},{capture:true});
-  world.addEventListener('wheel',e=>{e.preventDefault();follow=false;place(view.x-e.deltaX,view.y-e.deltaY);},{passive:false});
+  world.addEventListener('wheel',e=>{if(!panEnabled||overview)return;e.preventDefault();follow=false;place(view.x-e.deltaX,view.y-e.deltaY);},{passive:false});
   function useFallback(){
     if(closed||mapScene)return;
     fallback=true;clearTimeout(bootTimer);world.classList.add('map-fallback');
@@ -144,7 +170,7 @@ export function renderMap({welcome=false,arrival}={}){
   function arrive(){moving=false;travelControls(false);updateDpad();$('#travel-skip').hidden=true;s.mapNode=current;save();routeArt?.clear();walker?.stop();if(destination!==null){const target=destination;destination=null;if(target==='core')navigate('final');else missionCard(target);}}
   function go(node,target){
     if(closed||moving)return;
-    follow=true;
+    leaveOverview();follow=true;
     if(fallback){current=node;place(...cameraFor(...XY[node]));const river=$('.atlas-fallback-river');river.style.left=`${XY[node][0]*100}%`;river.style.top=`${XY[node][1]*100}%`;destination=target;arrive();return;}
     if(!mapScene){pendingTravel={node,target};travelControls(true);return;}
     queue=findRoute(current,node);destination=target;moving=queue.length>0;travelControls(moving);$('#travel-skip').hidden=!moving;
@@ -170,7 +196,7 @@ export function renderMap({welcome=false,arrival}={}){
     return true;
   }
   function visitPlaza(){
-    follow=false;
+    leaveOverview();follow=false;
     const [x,y]=cameraFor(.51,.408);
     const coreY=CORE_LABEL[1]*view.h;
     const clearOfHud=safe.top+$('#atlas-core').offsetHeight/2+8;
@@ -245,12 +271,14 @@ export function renderMap({welcome=false,arrival}={}){
     }
     const dir=KEY_DIRS[e.code?.toLowerCase()]||KEY_DIRS[e.key?.toLowerCase()];
     if(!dir)return;
-    e.preventDefault();stepToward(DIRS[dir]);
+    e.preventDefault();
+    if(target?.closest('#map-hand')&&panEnabled&&!overview){cancelAnimationFrame(glide);follow=false;const [dx,dy]=DIRS[dir];place(view.x-dx*64,view.y-dy*64);return;}
+    stepToward(DIRS[dir]);
   };
   window.addEventListener('keydown',key);
   $$('[data-dir]').forEach(button=>button.onclick=()=>stepToward(DIRS[button.dataset.dir]));
   // 가운데 버튼: 장소 입구에 서 있으면 들어가기, 아니면 리버가 있는 곳으로 지도를 옮긴다.
-  $('#dpad-center').onclick=()=>{if(moving)return;const stage=doorHere();if(stage==='core'){navigate('final');return;}if(stage!==null){missionCard(stage);return;}follow=true;panTo(cameraFor(...XY[current]));};
+  $('#dpad-center').onclick=()=>{if(moving)return;leaveOverview();const stage=doorHere();if(stage==='core'){navigate('final');return;}if(stage!==null){missionCard(stage);return;}follow=true;panTo(cameraFor(...XY[current]));};
   updateDpad();
   if(isAdmin())$('#preview-nav').onclick=()=>modal('관리자 · 모든 활동 살펴보기',`<div class="preview-links">${STAGES.map((st,i)=>`<strong>${st.place}</strong>${st.steps.map((name,j)=>`<button class="secondary" data-preview="${i},${j}">${icon('unlock',18)} ${name}</button>`).join('')}`).join('')}<strong>마지막 기록탑</strong><button class="secondary" data-final="assembly">다섯 관찰 고르기</button><button class="secondary" data-final="river">물길 도전</button><button class="secondary" data-final="rocks">암석 도전</button><button class="secondary" data-final="safety">안전길 도전</button><button class="secondary" data-final="ending">엔딩</button><button class="secondary" data-final="certificate">인증서</button></div>`,(dialog,close)=>{$$('[data-preview]',dialog).forEach(button=>button.onclick=()=>{const [index,step]=button.dataset.preview.split(',').map(Number);close();enter(index,step);});$$('[data-final]',dialog).forEach(button=>button.onclick=()=>{close();const target=button.dataset.final;
         if(target==='assembly'){s.final.assembled=false;s.final.round=0;}

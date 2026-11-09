@@ -554,3 +554,14 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 @keyframes progress-ribbon{0%{opacity:0;transform:translate(-50%,-14px)}8%,86%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-8px)}}
 @keyframes lamp-on{0%{background:#e7e1d2;transform:scale(.7)}60%{transform:scale(1.25)}100%{transform:none}}
 @keyframes lamp-glow{50%{box-shadow:0 0 14px 3px #ffc34ed9}}
+
+/* Map camera controls stay outside the moving world and have no visible text. */
+#app.atlas:not(.welcome) .map-view-tools{position:absolute;z-index:26;right:var(--hud-pad);top:calc(var(--atlas-safe-top,64px) + 8px);display:flex;gap:8px}
+#app.atlas:not(.welcome) .map-view-tools button{display:grid;place-items:center;flex:none;width:52px;height:52px;min-width:48px;min-height:48px;padding:0;border:2px solid var(--hud-line);border-radius:14px;background:var(--hud-paper);color:var(--hud-ink);box-shadow:var(--hud-shadow);touch-action:manipulation;cursor:pointer}
+#app.atlas:not(.welcome) .map-view-tools button[aria-pressed=true]{background:#e1edbc;border-color:#527341;box-shadow:inset 0 0 0 2px #a5c47a,var(--hud-shadow)}
+#app.atlas:not(.welcome) .map-view-tools button:focus-visible{outline:3px solid #ffd36b;outline-offset:3px}
+#app.atlas:not(.welcome) .map-pan-disabled .atlas-world{cursor:default}
+#app.atlas:not(.welcome) .map-overview .map-dpad,#app.atlas:not(.welcome) .map-overview .next-guide{display:none}
+#app.atlas:not(.welcome) .map-overview .under-hud{opacity:1}
+@media(max-height:620px){#app.atlas:not(.welcome) .map-view-tools button{width:48px;height:48px}}
+#app.atlas:not(.welcome) .atlas-page.map-overview{background:#285d5e}
