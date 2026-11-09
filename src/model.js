@@ -8,6 +8,17 @@ export const STAGES=[
  {id:'city',name:'도시의 시간여행',subtitle:'화산은 우리 생활에 어떤 영향을 줄까?',place:'시간 관측소',npc:'타임',standard:'4과11-04',color:'#6e9562',reward:'안전 나침반',tool:'compass',record:'도시 변화 기록',change:'불이 켜진 항구에 타임의 마을 소식이 도착했어!',intro:'타임의 사진첩이 뒤섞였어. 같은 장소의 시간을 움직이며 주민들에게 필요한 소식을 찾아보자.',benefit:'시간과 장소를 함께 살펴보면 안전 나침반을 받아. 안전 훈련에서 위험한 주변을 점검할 수 있어.',steps:['시간을 움직이자','사진 속 변화를 찾자','영향을 정리하자','주민에게 소식을 전하자']},
  {id:'safety',name:'우리의 안전길',subtitle:'흔들릴 때와 멈춘 뒤, 어떻게 행동할까?',place:'안전 훈련소',npc:'세이프',standard:'4과11-04',color:'#c0903c',reward:'탐험대 깃발',tool:'flag',record:'안전 행동 기록',change:'훈련소에 불이 켜지고 운동장에 집합 깃발이 섰어!',intro:'2017년 포항 지진 때 학교 벽이 갈라지고 수능이 연기됐어. 실제 피해를 살펴보고, 흔들릴 때와 멈춘 뒤에 할 일을 연습해 보자.',benefit:'몸 보호와 대피를 모두 마치면 탐험대 깃발을 받아. 마지막 기록탑에서 다섯 발견을 연결하자.',steps:['주변을 먼저 살피자','흔들릴 때 몸을 보호해','멈춘 뒤 안전한 길로','다른 장소에서도 실천해']}
 ];
+// Structured learning goals and review status for each place (curriculum check: docs/reviews/CURRICULUM-CHECK-20261102.md).
+// needsReview stays true until a classroom teacher signs off the wording.
+const STAGE_META={
+ river:{learningObjectives:['흐르는 물이 흙 언덕을 깎고(침식) 옮기고(운반) 쌓는(퇴적) 흔적을 관찰해 연결한다.','물의 양을 바꾸면 깎이고 옮겨지는 흙의 양이 달라지는지 비교한다.','상류와 하류의 물길 폭·경사·돌 크기를 비교해 강 주변 지형의 차이를 설명한다.']},
+ volcano:{learningObjectives:['화산은 땅속의 마그마가 분출해 용암·화산재 같은 물질이 쌓여 만들어진 지형임을 안다.','화산 모형에서 붉은 물이 나와 흐르는 길을 관찰하고, 모형이 나타내는 것과 나타내지 못하는 것을 구별한다.','실제 화산의 분출물(용암·기체·화산재·암석 조각)을 찾아 모형과 비교한다.']},
+ rocks:{learningObjectives:['현무암과 화강암의 전체 색과 알갱이 크기를 관찰해 비교한다.','색과 알갱이 두 가지 관찰 근거로 새 표본을 기준 표본과 비교해 분류한다.','현무암과 화강암이 마그마나 용암이 식어 굳은 화성암임을 안다.']},
+ city:{learningObjectives:['화산 활동이 공항·농장·온천 등 생활에 주는 피해와 이로움을 시기별로 비교한다.','화산재 같은 관찰 사실과 그 까닭을 연결해 알맞은 안전 행동을 고른다.']},
+ safety:{learningObjectives:['지진이 났을 때 흔들리는 동안 몸을 보호하는 방법을 실천한다.','흔들림이 멈춘 뒤 위험한 곳을 피해 넓은 곳으로 대피하는 길을 찾는다.']}
+};
+for(const stage of STAGES)Object.assign(stage,STAGE_META[stage.id],{review:{needsReview:true,source:'2022 개정 과학과 교육과정 3~4학년군 '+stage.standard+' · docs/reviews/CURRICULUM-CHECK-20261102.md',reviewer:null}});
+
 export const LEGACY_SAVE_KEY='moving-geovalley-v2';
 export const SAVE_KEY='moving-geovalley-v3';
 const TITLES=[['두 실험을 비교해','강에서 흔적을 찾아'],['화산 모형을 만들어','모형과 화산을 비교해'],['돌을 크게 살펴봐','내 증거로 이름을 찾아'],['도시의 시간을 비교해','주민 안내판을 만들어'],['흔들릴 때 몸을 보호해','안전한 길로 대피해']];

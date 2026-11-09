@@ -99,3 +99,4 @@ test('resident stamps survive replay and only belong to completed workplaces',()
  assert.deepEqual(sanitize(award(saved,'river',{})).residentStamps,['river']);
  assert.deepEqual(sanitize({...old,residentStamps:{river:true}}).residentStamps,[]);
 });
+test('every place carries curriculum goals and review metadata',async()=>{const {STAGES}=await import('../src/model.js');for(const s of STAGES){assert.match(s.standard,/^4과11-0[1-4]$/);assert.ok(Array.isArray(s.learningObjectives)&&s.learningObjectives.length>=2,s.id);for(const goal of s.learningObjectives)assert.ok(goal.trim().length>10,s.id);assert.equal(typeof s.review.needsReview,'boolean');assert.match(s.review.source,/4과11-0[1-4]/);}});
