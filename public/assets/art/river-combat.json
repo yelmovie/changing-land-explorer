@@ -1,0 +1,131 @@
+{
+  "name": "river-combat",
+  "file": "river-combat.webp",
+  "width": 1024,
+  "height": 256,
+  "bytes": 55090,
+  "alpha": true,
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "columns": 4,
+  "rows": 1,
+  "anchor": [
+    0.5,
+    0.87890625
+  ],
+  "source": ".work/combat-art/river-combat-raw.png",
+  "created": "2026-11-09",
+  "generator": "OpenAI built-in image generation",
+  "method": "Distinct generated poses; Sharp only extracts, uniformly rescales, feet-registers and encodes frames.",
+  "sha256": "47551f1363b6eb6b7d2d8946616c80fb5f8d7868e98a8da534cdfbb78f4bf85f",
+  "frames": [
+    {
+      "index": 0,
+      "name": "ready",
+      "column": 0,
+      "row": 0,
+      "sourceRect": {
+        "left": 93,
+        "top": 26,
+        "width": 385,
+        "height": 581
+      },
+      "sourceFoot": {
+        "x": 320,
+        "y": 603
+      },
+      "bbox": {
+        "left": 61,
+        "top": 52,
+        "right": 174,
+        "bottom": 224,
+        "width": 114,
+        "height": 173
+      },
+      "pixels": 12080,
+      "edgePixels": 0,
+      "sha256": "1a01fe52ae38e6b2e1ea0dcfb423aee10e42b14c105dee37e600778b1004db6a"
+    },
+    {
+      "index": 1,
+      "name": "attack",
+      "column": 1,
+      "row": 0,
+      "sourceRect": {
+        "left": 583,
+        "top": 40,
+        "width": 653,
+        "height": 561
+      },
+      "sourceFoot": {
+        "x": 845,
+        "y": 597
+      },
+      "bbox": {
+        "left": 50,
+        "top": 58,
+        "right": 243,
+        "bottom": 225,
+        "width": 194,
+        "height": 168
+      },
+      "pixels": 13747,
+      "edgePixels": 0,
+      "sha256": "de63e7c781468725ecb894b5661cb8b2be1573f1318d57129e6c952604498546"
+    },
+    {
+      "index": 2,
+      "name": "hurt",
+      "column": 2,
+      "row": 0,
+      "sourceRect": {
+        "left": 110,
+        "top": 649,
+        "width": 440,
+        "height": 585
+      },
+      "sourceFoot": {
+        "x": 320,
+        "y": 1230
+      },
+      "bbox": {
+        "left": 65,
+        "top": 52,
+        "right": 195,
+        "bottom": 225,
+        "width": 131,
+        "height": 174
+      },
+      "pixels": 12693,
+      "edgePixels": 0,
+      "sha256": "3c7528e78a7a6f1fff45ab9c9e87326658739f2cef27ba60039bff179c37cb68"
+    },
+    {
+      "index": 3,
+      "name": "recover",
+      "column": 3,
+      "row": 0,
+      "sourceRect": {
+        "left": 642,
+        "top": 641,
+        "width": 447,
+        "height": 592
+      },
+      "sourceFoot": {
+        "x": 886,
+        "y": 1229
+      },
+      "bbox": {
+        "left": 56,
+        "top": 50,
+        "right": 188,
+        "bottom": 225,
+        "width": 133,
+        "height": 176
+      },
+      "pixels": 14093,
+      "edgePixels": 0,
+      "sha256": "fd0f4c850ae182e99362e0691010cc525a838d136da2499be26d2f9d513c8aa5"
+    }
+  ]
+}

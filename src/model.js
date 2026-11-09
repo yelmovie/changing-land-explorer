@@ -1,3 +1,4 @@
+import {normalizeVillains} from './map-villain-rules.js';
 import {FIELD_POINTS,ROCKS,FEATURES,CITY_SITES,RIVER_MARKS} from './learning-model.js';
 import {MODEL_MOUTH} from './observation-scenes.js';
 export const STAGES=[
@@ -11,13 +12,14 @@ export const LEGACY_SAVE_KEY='moving-geovalley-v2';
 export const SAVE_KEY='moving-geovalley-v3';
 const TITLES=[['두 실험을 비교해','강에서 흔적을 찾아'],['화산 모형을 만들어','모형과 화산을 비교해'],['돌을 크게 살펴봐','내 증거로 이름을 찾아'],['도시의 시간을 비교해','주민 안내판을 만들어'],['흔들릴 때 몸을 보호해','안전한 길로 대피해']];
 STAGES.forEach((s,i)=>s.steps=TITLES[i]);
-export const fresh=()=>({version:3,started:false,completed:[],residentStamps:[],drafts:{},records:{},sound:true,mapNode:0,final:{round:0,answers:{},links:{}},finished:false});
+export const fresh=()=>({version:3,started:false,completed:[],residentStamps:[],mapVillains:normalizeVillains(),drafts:{},records:{},sound:true,mapNode:0,final:{round:0,answers:{},links:{}},finished:false});
 const object=v=>v&&typeof v==='object'&&!Array.isArray(v);
 function cleanData(value,depth=0){if(depth>12)return null;if(typeof value==='string')return value.slice(0,1000);if(typeof value==='number')return Number.isFinite(value)?value:0;if(typeof value==='boolean'||value===null)return value;if(Array.isArray(value)){const coordinates=value.every(p=>object(p)&&Number.isFinite(p.x)&&Number.isFinite(p.y));return (coordinates?value:value.slice(0,600)).map(v=>cleanData(v,depth+1));}if(object(value)){const out={};for(const [k,v]of Object.entries(value).slice(0,100)){if(!['__proto__','constructor','prototype'].includes(k))out[k]=cleanData(v,depth+1);}return out;}return null;}
 export function sanitize(value){
  const base=fresh();if(!object(value)||![2,3].includes(value.version))return base;
  base.started=value.started===true;base.sound=value.sound!==false;base.mapNode=Number.isInteger(value.mapNode)&&value.mapNode>=0&&value.mapNode<29?value.mapNode:0;
  base.completed=[...new Set((Array.isArray(value.completed)?value.completed:[]).filter(id=>STAGES.some(s=>s.id===id)))];
+ base.mapVillains=normalizeVillains(value.mapVillains);
  const stamps=Array.isArray(value.residentStamps)?value.residentStamps:[];
  base.residentStamps=base.completed.filter(id=>stamps.includes(id));
  for(const s of STAGES){const record=value.records?.[s.id];if(object(record)){base.records[s.id]=cleanData(record);if(object(base.records[s.id].data))base.records[s.id].data=normalizeActivityData(base.records[s.id].data);}const draft=value.drafts?.[s.id];if(object(draft)){base.drafts[s.id]={step:value.version===2?Math.min(1,Math.floor((Number(draft.step)||0)/2)):Math.min(1,Math.max(0,Number(draft.step)||0)),passed:[],data:{}};if(value.version===3){base.drafts[s.id].data=normalizeActivityData(object(draft.data)?cleanData(draft.data):{});base.drafts[s.id].passed=(Array.isArray(draft.passed)?draft.passed:[]).filter(n=>n===0||n===1);}else base.drafts[s.id].legacy=cleanData(draft);}}

@@ -1,0 +1,33 @@
+/* GeoValley: hand-painted basalt villains and River exploration-tool combat. */
+#app.atlas .map-villains{position:absolute;inset:0;pointer-events:none;z-index:5}
+#app.atlas .map-villain{position:absolute;transform:translate(-50%,-88%);width:var(--foe-cell,114px);height:calc(var(--foe-cell,114px) + 8px);min-width:56px;min-height:64px;padding:0;border:0;background:none;box-shadow:none;pointer-events:auto;cursor:pointer;touch-action:manipulation;overflow:visible;isolation:isolate}
+#app.atlas .map-villain[hidden],#app.atlas .map-combat-river[hidden],#app.atlas .combat-retry[hidden]{display:none}
+#app.atlas .map-villain:disabled{opacity:1;cursor:default}
+#app.atlas .map-villain:focus-visible{outline:4px solid #ffdf84;outline-offset:4px;border-radius:22px}
+#app.atlas .villain-art,#app.atlas .combat-mini{background-image:url('/assets/art/geo-rubble-sprites.webp');background-size:300% 200%;background-repeat:no-repeat}
+#app.atlas .villain-art{position:absolute;width:var(--foe-cell,114px);height:var(--foe-cell,114px);left:0;bottom:8px;filter:drop-shadow(0 2px 1px #fff0c9) drop-shadow(0 5px 3px #182b3966);pointer-events:none;transform-origin:50% 82%;transform:scaleX(var(--facing,1))}
+#app.atlas .villain-shadow{position:absolute;width:68%;height:14px;left:16%;bottom:13px;border-radius:50%;background:#251b314a;pointer-events:none}
+#app.atlas .villain-hp{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font:900 13px/16px system-ui;letter-spacing:3px;color:#e58538;background:#fff7df;border:2px solid #765b42;border-radius:10px;padding:0 4px 0 7px;white-space:nowrap;min-height:20px}
+#app.atlas .villain-impact{position:absolute;inset:0;display:grid;place-items:center;color:#fff8c2;text-shadow:0 0 10px #ffa94d;font-size:82px;opacity:0;pointer-events:none}
+#app.atlas .map-villain.hit .villain-impact{animation:combat-spark .35s ease-out}
+#app.atlas .map-villain.defeated .villain-art{animation:combat-retreat .55s ease-in forwards}
+#app.atlas .map-villain.defeated .villain-hp{visibility:hidden}
+#app.atlas .map-view-tools #map-villain-focus{width:auto;min-width:80px;gap:5px;display:flex;padding:4px 8px;font:bold 16px/1 system-ui}
+#app.atlas .combat-mini{display:block;width:30px;height:30px}
+#app.atlas .map-combat-hud{position:absolute;z-index:35;right:16px;bottom:calc(var(--atlas-footer-h,100px) + 18px);display:flex;align-items:center;gap:8px;pointer-events:none}
+#app.atlas .combat-health{border:2px solid #827147;border-radius:15px;background:#fff9e8;box-shadow:0 3px 0 #54483144;padding:7px 12px;color:#9c392d;text-align:center;font:800 20px/1.15 system-ui}
+#app.atlas .combat-health span{display:block;letter-spacing:3px}#app.atlas .combat-health b{display:block;font-size:12px;color:#574b35}
+#app.atlas #map-attack{pointer-events:auto;width:88px;height:78px;border:3px solid #6c542c;border-radius:24px;background:linear-gradient(#ffedb4,#efbd64);box-shadow:0 4px 0 #7f592b;color:#4b351b;font:900 19px/1 system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;touch-action:manipulation}
+#app.atlas #map-attack>span{font-size:30px;color:#f9fff8;text-shadow:0 0 3px #688e7c,0 0 8px #688e7c}#app.atlas #map-attack small{font-size:11px}#app.atlas #map-attack[data-ready=false]{filter:saturate(.5)}
+#app.atlas .combat-retry{pointer-events:auto;position:absolute;right:0;bottom:95px;width:260px;padding:16px;border:3px solid #866b47;border-radius:20px;background:#fff9e8;box-shadow:0 6px 20px #192d3644;color:#4d402d;text-align:center}
+#app.atlas .combat-retry strong{font-size:20px}#app.atlas .combat-retry p{font-size:14px;line-height:1.45;margin:8px 0}#app.atlas .combat-retry button{min-height:48px;background:#587b64;color:white;border:2px solid #355840;border-radius:14px;padding:8px 18px;font-weight:800}
+#app.atlas .map-combat-river{position:absolute;width:144px;height:144px;transform:translate(-50%,-87.890625%) scaleX(var(--facing,1));z-index:700;background:url('/assets/art/river-combat.webp') 0 0/400% 100% no-repeat;pointer-events:none;filter:drop-shadow(0 4px 3px #193c2c40)}
+#app.atlas .combat-wave{position:absolute;width:170px;height:85px;border-radius:50%;border:6px solid #d8fff0;box-shadow:0 0 10px #5cb7a7,inset 0 0 10px #91dec7;transform:translate(-50%,-65%) scale(.2);opacity:0;pointer-events:none;z-index:700}
+#app.atlas .combat-wave.strike{animation:combat-wave .43s ease-out}
+#app.atlas .map-overview .map-villain{width:68px;height:72px}#app.atlas .map-overview .villain-art{width:68px;height:68px}#app.atlas .map-overview .villain-hp{font-size:10px;letter-spacing:1px;min-height:14px;line-height:12px}
+#app.atlas .map-overview .map-combat-hud{visibility:hidden}
+@keyframes combat-spark{0%{transform:scale(.3);opacity:0}30%{transform:scale(1.3) rotate(20deg);opacity:1}100%{transform:scale(1.7) rotate(40deg);opacity:0}}
+@keyframes combat-retreat{0%{transform:scaleX(var(--facing,1)) scale(1)}65%{transform:scaleX(var(--facing,1)) translateY(-20px) scale(.9);opacity:1}100%{transform:scaleX(var(--facing,1)) translateY(-32px) scale(.2);opacity:0}}
+@keyframes combat-wave{0%{transform:translate(-50%,-65%) scale(.2);opacity:1}100%{transform:translate(-50%,-65%) scale(1.4);opacity:0}}
+@media(max-height:500px){#app.atlas .map-combat-hud{right:12px;bottom:calc(var(--atlas-footer-h,80px) + 10px);gap:5px}#app.atlas #map-attack{width:68px;height:62px;font-size:16px;border-radius:20px}#app.atlas #map-attack>span{font-size:23px}#app.atlas .combat-health{font-size:16px;padding:6px}#app.atlas .combat-retry{bottom:74px;width:235px;padding:10px}#app.atlas .combat-retry strong{font-size:17px}#app.atlas .combat-retry p{margin:4px 0;font-size:13px}#app.atlas .map-combat-river{width:122px;height:122px}}
+@media(prefers-reduced-motion:reduce){#app.atlas .map-villain.defeated .villain-art{animation:none}#app.atlas .map-villain.hit .villain-impact{animation:none;opacity:1}#app.atlas .combat-wave.strike{animation:none;opacity:.7;transform:translate(-50%,-65%) scale(1)}}

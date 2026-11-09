@@ -1,0 +1,185 @@
+{
+  "name": "geo-rubble-sprites",
+  "file": "geo-rubble-sprites.webp",
+  "width": 768,
+  "height": 512,
+  "bytes": 102638,
+  "alpha": true,
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "columns": 3,
+  "rows": 2,
+  "anchor": [
+    0.5,
+    0.87890625
+  ],
+  "source": ".work/combat-art/geo-rubble-raw.png",
+  "created": "2026-11-09",
+  "generator": "OpenAI built-in image generation",
+  "method": "Distinct generated poses; Sharp only extracts, uniformly rescales, feet-registers and encodes frames.",
+  "sha256": "b3a0d9fc229a0166369072a288a08cabadf665b2c6d0e762edce878ffc96ec42",
+  "frames": [
+    {
+      "index": 0,
+      "name": "idle",
+      "column": 0,
+      "row": 0,
+      "sourceRect": {
+        "left": 54,
+        "top": 22,
+        "width": 410,
+        "height": 455
+      },
+      "sourceFoot": {
+        "x": 256,
+        "y": 472
+      },
+      "bbox": {
+        "left": 41,
+        "top": 33,
+        "right": 215,
+        "bottom": 226,
+        "width": 175,
+        "height": 194
+      },
+      "pixels": 21676,
+      "edgePixels": 0,
+      "sha256": "75249d771eded6bcb320838fa9a2d38f0f9705d52eccf5dd9df4507d6a391f63"
+    },
+    {
+      "index": 1,
+      "name": "walk1",
+      "column": 1,
+      "row": 0,
+      "sourceRect": {
+        "left": 515,
+        "top": 27,
+        "width": 480,
+        "height": 452
+      },
+      "sourceFoot": {
+        "x": 768,
+        "y": 474
+      },
+      "bbox": {
+        "left": 20,
+        "top": 34,
+        "right": 223,
+        "bottom": 225,
+        "width": 204,
+        "height": 192
+      },
+      "pixels": 22133,
+      "edgePixels": 0,
+      "sha256": "a09ea8b11ece05c478d2db7fa641fc44cf2d84a66df6bb34d3487e5e31faac46"
+    },
+    {
+      "index": 2,
+      "name": "walk2",
+      "column": 2,
+      "row": 0,
+      "sourceRect": {
+        "left": 1041,
+        "top": 32,
+        "width": 450,
+        "height": 450
+      },
+      "sourceFoot": {
+        "x": 1280,
+        "y": 477
+      },
+      "bbox": {
+        "left": 26,
+        "top": 35,
+        "right": 217,
+        "bottom": 226,
+        "width": 192,
+        "height": 192
+      },
+      "pixels": 20900,
+      "edgePixels": 0,
+      "sha256": "471748c9d15ad2685d3780d942829533d339f5f6ebf0ac13cee459c11940fb26"
+    },
+    {
+      "index": 3,
+      "name": "attack",
+      "column": 0,
+      "row": 1,
+      "sourceRect": {
+        "left": 0,
+        "top": 549,
+        "width": 524,
+        "height": 428
+      },
+      "sourceFoot": {
+        "x": 256,
+        "y": 956
+      },
+      "bbox": {
+        "left": 19,
+        "top": 51,
+        "right": 241,
+        "bottom": 232,
+        "width": 223,
+        "height": 182
+      },
+      "pixels": 23417,
+      "edgePixels": 0,
+      "sha256": "6df7096e386704f91424abd1422520fb41c44cd2e48ee25d644db045affe8854"
+    },
+    {
+      "index": 4,
+      "name": "hurt",
+      "column": 1,
+      "row": 1,
+      "sourceRect": {
+        "left": 525,
+        "top": 535,
+        "width": 476,
+        "height": 428
+      },
+      "sourceFoot": {
+        "x": 768,
+        "y": 956
+      },
+      "bbox": {
+        "left": 25,
+        "top": 45,
+        "right": 227,
+        "bottom": 226,
+        "width": 203,
+        "height": 182
+      },
+      "pixels": 22559,
+      "edgePixels": 0,
+      "sha256": "f73d9c7a97b53fb6d7cfdf00a33fd53d35246b4c230debb1966ac6db9b91f10f"
+    },
+    {
+      "index": 5,
+      "name": "defeat",
+      "column": 2,
+      "row": 1,
+      "sourceRect": {
+        "left": 1009,
+        "top": 574,
+        "width": 515,
+        "height": 396
+      },
+      "sourceFoot": {
+        "x": 1280,
+        "y": 962
+      },
+      "bbox": {
+        "left": 12,
+        "top": 59,
+        "right": 230,
+        "bottom": 226,
+        "width": 219,
+        "height": 168
+      },
+      "pixels": 18483,
+      "edgePixels": 0,
+      "sha256": "2be2a9332277e0627ed40f6f55aedbe3f26b783154d2a374b2fd2e08f1a590bf"
+    }
+  ]
+}

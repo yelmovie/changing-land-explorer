@@ -179,6 +179,50 @@
       "source": "assets/raw-png/record-tower-20261105/record-tower-restored-v1.png",
       "created": "2026-11-05",
       "prompt": "docs/design/record-tower-restored-prompt.md"
+    },
+    {
+      "name": "geo-rubble-sprites",
+      "file": "geo-rubble-sprites.webp",
+      "width": 768,
+      "height": 512,
+      "bytes": 102638,
+      "alpha": true,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "columns": 3,
+      "rows": 2,
+      "anchor": [
+        0.5,
+        0.87890625
+      ],
+      "source": ".work/combat-art/geo-rubble-raw.png",
+      "created": "2026-11-09",
+      "generator": "OpenAI built-in image generation",
+      "method": "Distinct generated poses; Sharp only extracts, uniformly rescales, feet-registers and encodes frames.",
+      "sha256": "b3a0d9fc229a0166369072a288a08cabadf665b2c6d0e762edce878ffc96ec42",
+      "metadata": "geo-rubble-sprites.json"
+    },
+    {
+      "name": "river-combat",
+      "file": "river-combat.webp",
+      "width": 1024,
+      "height": 256,
+      "bytes": 55090,
+      "alpha": true,
+      "frameWidth": 256,
+      "frameHeight": 256,
+      "columns": 4,
+      "rows": 1,
+      "anchor": [
+        0.5,
+        0.87890625
+      ],
+      "source": ".work/combat-art/river-combat-raw.png",
+      "created": "2026-11-09",
+      "generator": "OpenAI built-in image generation",
+      "method": "Distinct generated poses; Sharp only extracts, uniformly rescales, feet-registers and encodes frames.",
+      "sha256": "47551f1363b6eb6b7d2d8946616c80fb5f8d7868e98a8da534cdfbb78f4bf85f",
+      "metadata": "river-combat.json"
     }
   ]
 }

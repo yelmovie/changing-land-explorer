@@ -1,3 +1,4 @@
+import {mountMapVillains} from './map-villains.js';
 import {RIVER_WALK,createRiverWalker} from './river-walk.js';
 import {STAGES,canEnter} from './model.js';
 import {villageLights} from './village-lights.js';
@@ -32,7 +33,7 @@ export function renderMap({welcome=false,arrival}={}){
     $('#start').onclick=()=>s.started?start():showFilm('intro',{onFinish:start});
     return()=>{};
   }
-  let game,mapScene,current=POINTS[s.mapNode]?s.mapNode:0,moving=false,queue=[],destination=null,hero,walker,routeArt,pendingTravel=null,closed=false,fallback=false,bootTimer;
+  let game,mapScene,current=POINTS[s.mapNode]?s.mapNode:0,moving=false,queue=[],destination=null,hero,walker,routeArt,pendingTravel=null,combat=null,closed=false,fallback=false,bootTimer;
   const residents=STAGES.filter(st=>isAdmin()||s.completed.includes(st.id));
   const newcomer=residents.find(st=>st.id===arrival);
   shell('움직이는 지오밸리',`<main class="atlas-page ${welcome?'atlas-welcome':''}">
@@ -169,7 +170,7 @@ export function renderMap({welcome=false,arrival}={}){
   function updateDpad(){const center=$('#dpad-center'),stage=doorHere();if(!center)return;center.classList.toggle('enter',stage!==null);center.setAttribute('aria-label',stage===null?'리버가 있는 곳 보기':`${stage==='core'?'기록탑':STAGES[stage].place} 들어가기`);center.innerHTML=stage===null?'<img src="/assets/hero-lens.webp" alt="">':`${icon('flag',22)}<span>들어가기</span>`;}
   function arrive(){moving=false;travelControls(false);updateDpad();$('#travel-skip').hidden=true;s.mapNode=current;save();routeArt?.clear();walker?.stop();if(destination!==null){const target=destination;destination=null;if(target==='core')navigate('final');else missionCard(target);}}
   function go(node,target){
-    if(closed||moving)return;
+    if(closed||moving||combat?.blocked())return;
     leaveOverview();follow=true;
     if(fallback){current=node;place(...cameraFor(...XY[node]));const river=$('.atlas-fallback-river');river.style.left=`${XY[node][0]*100}%`;river.style.top=`${XY[node][1]*100}%`;destination=target;arrive();return;}
     if(!mapScene){pendingTravel={node,target};travelControls(true);return;}
@@ -285,5 +286,14 @@ export function renderMap({welcome=false,arrival}={}){
         const round=['river','rocks','safety'].indexOf(target);
         if(round>=0){s.final.assembled=true;s.final.round=round;}
         navigate('final',round>=0?'assembly':target==='ending'?'celebration':target);});});
-  return()=>{closed=true;clearTimeout(arrivalTimer);cueStops.forEach(stop=>stop());cancelAnimationFrame(glide);clearTimeout(hintTimer);clearTimeout(bootTimer);resize.disconnect();destroyGame(game);window.removeEventListener('keydown',key);};
+  combat=mountMapVillains({world,page,tools:$('.map-view-tools',page),state:s,save,reduced,
+    paused:()=>closed||destination!==null,
+    getHero:()=>hero?{x:hero.x,y:hero.y}:fallback?POINTS[current]:null,
+    heroPose:pose=>{hero?.setVisible(pose<0);if(fallback)$('.atlas-fallback-river').style.visibility=pose<0?'':'hidden';},
+    stopTravel:()=>{moving=false;queue=[];destination=null;travelControls(false);$('#travel-skip').hidden=true;routeArt?.clear();walker?.stop();},
+    respawn:()=>{current=0;s.mapNode=0;hero?.setPosition(POINTS[0].x,POINTS[0].y);if(fallback){const el=$('.atlas-fallback-river');el.style.left=XY[0][0]*100+'%';el.style.top=XY[0][1]*100+'%';}leaveOverview();follow=true;place(...cameraFor(...XY[0]));updateDpad();},
+    go:node=>go(node,null),say:text=>$('#map-speech').textContent=text,
+    reveal:(x,y)=>{leaveOverview();follow=false;panTo(cameraFor(x,y));}
+  });
+  return()=>{closed=true;combat.destroy();clearTimeout(arrivalTimer);cueStops.forEach(stop=>stop());cancelAnimationFrame(glide);clearTimeout(hintTimer);clearTimeout(bootTimer);resize.disconnect();destroyGame(game);window.removeEventListener('keydown',key);};
 }
