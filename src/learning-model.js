@@ -14,7 +14,7 @@ export const FIELD_POINTS=[
  {id:'upper-rock',x:160,y:295,label:'상류의 바위',side:'upper',feature:'바위',claim:'large',text:'크고 각진 바위가 보여.'},
  {id:'upper-slope',x:140,y:215,label:'상류의 물길',side:'upper',feature:'물길',claim:'steep',text:'좁고 경사가 급한 물길이야.'},
  {id:'lower-channel',x:625,y:400,label:'하류의 물길',side:'lower',feature:'물길',claim:'wide',text:'넓고 완만한 물길이야.'},
- {id:'lower-sand',x:810,y:475,label:'하류의 모래',side:'lower',feature:'모래',claim:'sand',text:'모래와 고운 흙이 쌓여 있어.'}
+ {id:'lower-sand',x:740,y:440,label:'하류의 모래',side:'lower',feature:'모래',claim:'sand',text:'모래와 고운 흙이 쌓여 있어.'}
 ];
 export const CITY_SITES=[
  {id:'airport',name:'공항',x:180,y:310,claim:'flight',now:'화산재 때문에 비행이 멈췄어.',later:'안전을 확인한 뒤 다시 운항해.',notice:'화산재가 날릴 때는 비행 안내를 확인해요.',reply:'운항 안내를 확인하고 일정을 바꿀게요.'},

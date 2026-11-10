@@ -1,0 +1,10 @@
+{
+  "generated_for": "GeoValley upper and lower river observations",
+  "created": "2026-11-10",
+  "source": "AI-generated original educational landscapes, not photographs of an identified real location",
+  "files": [
+    {"file":"river-upper-photo-v1.webp","width":1200,"height":640,"features":["narrow steep channel","angular boulders","small natural cascades"]},
+    {"file":"river-lower-photo-v1.webp","width":1200,"height":640,"features":["wide low-gradient channel","flat floodplain","sand bar with rounded gravel"]}
+  ],
+  "processing": "Resized to the activity canvas aspect ratio and encoded as WebP. UI and observation targets are rendered separately."
+}

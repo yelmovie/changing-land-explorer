@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {setup} from '../src/adventure/river.js';
 import {riverScene,sceneSVG} from '../src/observation-scenes.js';
-import {riverFlowPoint,riverSurface,riverDeposit} from '../src/river-water.js';
+import {riverFlowPoint,riverSurface,riverDeposit,riverFlowProfile,depositedGrains} from '../src/river-water.js';
 
 function experiment({prediction=true,completed=false,phase=0}={}){
   const drags=[],records=[],actions={},heroes=[];let auto,finishCount=0,saves=0,stops=0;
@@ -154,4 +154,18 @@ test('observation labels snap only to their matching empty circle and require a 
   assert.equal(e.records.length,3);assert.equal(e.counts().finishCount,0);
   e.actions['river-reflect-top']();assert.equal(e.counts().finishCount,0);
   e.actions['river-reflect-foot']();assert.equal(e.counts().finishCount,1);assert.equal(e.data.reflection,'foot');
+});
+
+test('water amounts have unmistakably different spray density and ground-flow widths',()=>{
+ const small=riverFlowProfile(1),large=riverFlowProfile(2);
+ assert.ok(large.jets>=small.jets*2);assert.ok(large.width>=small.width*2);
+ assert.ok(large.channel>=small.channel*2);assert.ok(large.splash>small.splash);
+});
+test('granular sediment grows gradually, remains deterministic, and retains more material with more water',()=>{
+ assert.deepEqual(depositedGrains(.5,2),[]);
+ const n=t=>depositedGrains(t,2).filter(p=>p.role==='deposited-grain').length;
+ assert.ok(n(.6)<n(.8)&&n(.8)<n(1));
+ assert.ok(depositedGrains(1,2).length>depositedGrains(1,1).length*2);
+ assert.deepEqual(depositedGrains(.8,2),depositedGrains(.8,2));
+ assert.ok(riverSurface(1,2).some(p=>p.role==='deposited-grain'));
 });

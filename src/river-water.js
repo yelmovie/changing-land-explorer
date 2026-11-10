@@ -39,6 +39,7 @@ const patch=(x,y,w,h,n)=>inside(Array.from({length:10},(_,i)=>{
   const a=i/10*Math.PI*2,r=.68+seed(n+i*3)*.4;
   return {x:x+Math.cos(a)*w/2*r,y:y+Math.sin(a)*h/2*r};
 }));
+export const riverFlowProfile=water=>water===2?{jets:18,spread:3.6,width:4.6,alpha:.48,speed:.00165,splash:1.25,channel:10.4}:{jets:6,spread:3.2,width:2.1,alpha:.28,speed:.0011,splash:.62,channel:3.6};
 const PILE={1:{height:42,left:45,right:120},2:{height:80,left:60,right:150}};
 const pileCentre=()=>{const p=riverFlowPoint(1);return {x:p.x+8,y:p.y+18};};
 export function riverDeposit(time,water=1){
@@ -63,7 +64,7 @@ function waterSheets(layers,path,width,motion,strength=1){
 // Their positions depend on experiment time, so pause and notebook replay agree.
 function soilClods(time,water){
   const scars=[],moving=[],settled=[],fan=riverDeposit(time,water),base=pileCentre();
-  const count=water===1?5:8,big=water===1?1:1.3;
+  const count=water===1?5:12,big=water===1?1:1.3;
   for(let i=0;i<count;i++){
     const from=.08+seed(i+690)*.58,birth=reachedAt(from)+.07+seed(i+700)*.08;
     if(time<birth)continue;
@@ -91,7 +92,7 @@ function soilClods(time,water){
 
 export function riverSurface(time,water=1,motion=0,flowing=false){
   const t=clamp(time),layers=[];if(t<=0)return layers;
-  const front=reach(t),settled=settledAt(t),big=water===1?1:1.48,clock=flowing?motion:0;
+  const front=reach(t),settled=settledAt(t),big=water===1?1:1.8,clock=flowing?motion:0;
   const clods=soilClods(t,water);
   const count=water===1?15:25;
   // Each removed clump leaves an individual bite, rather than a pair of rails.
@@ -111,7 +112,7 @@ export function riverSurface(time,water=1,motion=0,flowing=false){
       layers.push(ellipse(p.x,p.y+2,(20+seed(i+140)*20)*big,(5+seed(i+150)*5)*big,'#756749',age*.16));
     }
     const main=sample(course,0,front,52);
-    waterSheets(layers,main,5.2*big,clock);
+    waterSheets(layers,main,riverFlowProfile(water).channel,clock);
     if(water===2){
       const grow=clamp((t-.2)/.36);
       if(grow>0){
@@ -121,7 +122,7 @@ export function riverSurface(time,water=1,motion=0,flowing=false){
     }
     if(flowing){
       // A clump first falls from a cut bank, travels downhill, then joins the fan.
-      for(let i=0;i<34+water*18;i++){
+      for(let i=0;i<(water===1?30:100);i++){
         const from=.03+seed(i+200)*.62,birth=reachedAt(from)+.035+seed(i+220)*.2,travel=(t-birth)/(.35+seed(i+240)*.12);
         if(travel<0||travel>=1)continue;
         const f=from+(1-from)*travel**.8,p=course(f),side=i%2?1:-1;
@@ -131,7 +132,7 @@ export function riverSurface(time,water=1,motion=0,flowing=false){
         layers.push({...ellipse(x,y,size,size*.66,i%2?'#b48b56':'#85603e',.95),role:'transported-soil'});
         layers.push(ellipse(x-size*.15,y-size*.1,size*.35,size*.17,'#dfc28e',.8));
       }
-      for(let i=0;i<19+water*6;i++){
+      for(let i=0;i<(water===1?16:48);i++){
         const f=(motion*.00015+seed(i+400))%1;if(f>front)continue;
         const a=course(f),b=course(Math.min(front,f+.009+seed(i+420)*.012)),off=(seed(i+440)-.5)*5;
         layers.push(line([{x:a.x,y:a.y+off},{x:b.x,y:b.y+off}],.7+seed(i+460)*.6,'#edf3df',.35));
@@ -142,6 +143,7 @@ export function riverSurface(time,water=1,motion=0,flowing=false){
   if(settled>0){
     const fan=riverDeposit(t,water),c=pileCentre();
     layers.push(ellipse(fan.x,c.y+2,fan.w*.92,6+fan.h*.08,'#5b3c22',.16),fan);
+    layers.push(...depositedGrains(t,water));
     if(flowing&&t<1){
       for(let i=0;i<12+water*6;i++){
         const k=(clock*.0007+seed(i+520))%1,x=riverFlowPoint(1).x+4+k*fan.w*.6,y=c.y-fan.h*(.5-.23*k);
@@ -153,26 +155,43 @@ export function riverSurface(time,water=1,motion=0,flowing=false){
   return layers;
 }
 
+// A seeded granular fan is shared by live views and saved observations.
+export function depositedGrains(time,water=1){
+  const amount=settledAt(clamp(time));if(!amount)return [];
+  const fan=riverDeposit(time,water),layers=[],count=Math.floor(amount*(water===1?100:240));
+  for(let i=0;i<count;i++){
+    const u=seed(i+1200),v=seed(i+1600),x=fan.x-fan.w*.43+u*fan.w*.86;
+    const dome=Math.sin(u*Math.PI)**.7;
+    const y=fan.y+fan.h*.46-v*fan.h*.84*dome;
+    const r=(.7+seed(i+1900)*1.5)*(1.25-u*.55);
+    layers.push({...ellipse(x+.6,y+.7,r*1.9,r*.75,'#62462c',.28),role:'deposited-grain'});
+    layers.push({...ellipse(x,y,r*1.7,r*.85,['#a68351','#c4a06c','#d6b985','#90724a'][i%4],.86),role:'deposited-grain'});
+    if(i%5===0)layers.push(ellipse(x-r*.2,y-r*.17,r*.65,r*.25,'#eee0ba',.62));
+  }
+  return layers;
+}
+
+
 // Fine separated jets fall from the tilted spout, then splash against the soil.
 export function drawRiverSpray(g,can,time,water=1){
   g.clear();
-  const from={x:can.x-70,y:can.y+1},hit=riverFlowPoint(0),jets=10+water*4;
+  const from={x:can.x-70,y:can.y+1},hit=riverFlowPoint(0),profile=riverFlowProfile(water),jets=profile.jets;
   for(let i=0;i<jets;i++){
-    const end={x:hit.x+(i-(jets-1)/2)*2.6,y:hit.y+Math.sin(i)*3};
+    const end={x:hit.x+(i-(jets-1)/2)*profile.spread,y:hit.y+Math.sin(i)*3};
     const at=f=>({x:from.x+(end.x-from.x)*f,y:from.y+(end.y-from.y)*f*f});
     const points=Array.from({length:9},(_,j)=>at(j/8));
-    for(const [width,color,alpha] of [[3.8,0x77b7bc,.34],[1.4,0xe4ffff,.72]]){
+    for(const [width,color,alpha] of [[profile.width,0x65a9b5,profile.alpha],[water===1?.8:1.6,0xe4ffff,water===1?.48:.8]]){
       g.lineStyle(width,color,alpha).beginPath().moveTo(points[0].x,points[0].y);
       for(const p of points.slice(1))g.lineTo(p.x,p.y);
       g.strokePath();
     }
-    const f=(time*.0013+i*.137)%1,p=at(f);
-    g.fillStyle(0xe0ffff,.85).fillEllipse(p.x,p.y,2.4,4.5+f*3);
-    const splash=(time*.002+i*.19)%1,side=i%2?1:-1,reach=14+seed(i+980)*22;
-    g.fillStyle(0xd2f1ed,(1-splash)*.7).fillEllipse(end.x+side*splash*reach,end.y-Math.sin(splash*Math.PI)*(12+seed(i+990)*10),2.6,3.2);
+    const f=(time*profile.speed+i*.137)%1,p=at(f);
+    g.fillStyle(0xe0ffff,.85).fillEllipse(p.x,p.y,water===1?1.7:3.1,(4.5+f*3)*(water===1?.75:1.25));
+    const splash=(time*.002+i*.19)%1,side=i%2?1:-1,reach=(14+seed(i+980)*22)*profile.splash;
+    g.fillStyle(0xd2f1ed,(1-splash)*.7).fillEllipse(end.x+side*splash*reach,end.y-Math.sin(splash*Math.PI)*(12+seed(i+990)*10)*profile.splash,water===1?1.6:3.2,water===1?2:4);
   }
   for(let i=0;i<3;i++){
     const ring=(time*.0016+i/3)%1;
-    g.lineStyle(1.6,0xd4efeb,(1-ring)*.7).strokeEllipse(hit.x,hit.y+1,(18+ring*46)*(water===1?1:1.3),(6+ring*15)*(water===1?1:1.3));
+    g.lineStyle(1.6,0xd4efeb,(1-ring)*.7).strokeEllipse(hit.x,hit.y+1,(18+ring*46)*profile.splash,(6+ring*15)*profile.splash);
   }
 }

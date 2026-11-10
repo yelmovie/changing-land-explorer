@@ -19,7 +19,7 @@ test('malformed map combat fields cannot introduce unknown IDs or invalid hit co
  assert.deepEqual(p.hits,{river:3,volcano:0,rocks:0,city:0,safety:0});assert.equal(Object.keys(p.hits).length,5);
 });
 
-import {createCombat,stepCombat,attackCombat,restartCombat,COMBAT} from '../src/map-combat-engine.js';
+import {createCombat,stepCombat,attackCombat,restartCombat,COMBAT,villainCellSize,riverCombatFrame} from '../src/map-combat-engine.js';
 test('contact costs one heart with invulnerability; knockout and restart preserve defeats',()=>{
  const g=createCombat({hits:{river:3}},0),e=g.enemies[1],h={x:e.x,y:e.y};
  assert.equal(stepCombat(g,h,33,1201)[0].health,2);assert.deepEqual(stepCombat(g,h,33,1300),[]);
@@ -42,4 +42,18 @@ test('starting camp and learning doorways are safe while children read',()=>{
  for(const [x,y]of [[.18,.75],[.16,.38],[.29,.205],[.65,.205],[.77,.46],[.70,.70]]){
   const g=createCombat(null,0),h={x:x*1200,y:y*675};for(let t=0;t<30000;t+=40)stepCombat(g,h,40,t);assert.equal(g.progress.health,3,`safe reading point ${x},${y}`);
  }
+});
+
+test('villain artwork is exactly half size while combat frame choices are valid',()=>{
+ for(const s of [.2,.5,1,2,4])assert.equal(villainCellSize(s),Math.max(64,Math.min(190,112*s))/2);
+ for(const pose of [1,2,3])for(const elapsed of [0,100,200,350,600])assert.ok(riverCombatFrame(pose,elapsed)>=0&&riverCombatFrame(pose,elapsed)<=7);
+ assert.deepEqual([0,100,200,350].map(t=>riverCombatFrame(1,t)),[0,1,2,3]);
+});
+test('targeted strikes hit only that nearby enemy and give brief contact protection',()=>{
+ const g=createCombat(null,0),e=g.enemies[0],h={x:e.x-50,y:e.y};
+ assert.equal(attackCombat(g,h,2000,'volcano').type,'miss');
+ assert.equal(g.progress.hits.river,0);
+ assert.equal(attackCombat(g,h,2600,'river').type,'hit');
+ const before=g.progress.health;e.x=h.x;e.y=h.y;
+ assert.deepEqual(stepCombat(g,h,16,2700),[]);assert.equal(g.progress.health,before);
 });
