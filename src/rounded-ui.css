@@ -24,7 +24,7 @@
 #app.atlas .map-resident{z-index:12;transform:translate(-50%,-100%) translateY(32px);isolation:isolate}
 #app.atlas .map-resident img{height:clamp(80px,calc(var(--map-unit,1.33px)*84),160px);width:auto;filter:drop-shadow(0 0 2px #fffbe7) drop-shadow(2px 0 1px #fffbe7) drop-shadow(-2px 0 1px #fffbe7) drop-shadow(0 5px 3px #18382cb3)}
 #app.atlas .map-resident::before{width:88%;height:18px;margin-bottom:-5px;background:#fff2b985;border:2px solid #ffe7a2;box-shadow:0 2px 5px #19392c80;z-index:-1}
-#app.atlas .map-resident .resident-tag{height:32px;min-width:74px;padding:4px 10px;background:#fff9e8;color:#244d3e;border:2px solid #8e6d37;font:normal 18px/1.1 GeoDisplay,system-ui,sans-serif;box-shadow:0 3px 0 #5d482a66}
+#app.atlas .map-resident .resident-tag{height:32px;min-width:74px;padding:4px 10px;background:#fff9e8;color:#244d3e;border:2px solid #8e6d37;font:normal 18px/1.1 NanumSquareNeo,system-ui,sans-serif;box-shadow:0 3px 0 #5d482a66}
 #app.adventure .volcano-observation .river-narrator{flex:1 1 620px}
 @media(max-width:800px){#app.adventure .adventure-heading{padding-inline-start:16px}#app.adventure .river-narrator{padding-inline-end:14px}}
 
@@ -105,7 +105,7 @@
 #app.adventure #observation-auto{width:auto;min-width:120px;font-size:18px;min-height:48px;padding:8px 12px;white-space:nowrap}
 #app.adventure #observation-speed{
  width:92px;min-width:76px;height:48px;border:2px solid #a98a52;border-radius:999px;
- background:#fff9eb;color:#294f41;font:18px GeoDisplay,system-ui,sans-serif;padding:4px 8px;cursor:pointer;
+ background:#fff9eb;color:#294f41;font:18px NanumSquareNeo,system-ui,sans-serif;padding:4px 8px;cursor:pointer;
 }
 #app.adventure :is(button,select,summary):focus-visible{outline:3px solid #ffe0a0;outline-offset:3px}
 #app.adventure .adventure-toolbar .suggested{background:#f7d680;color:#43331a;border:2px solid #956d2b;box-shadow:0 3px 0 #936c33,0 0 0 3px #ffedb4}

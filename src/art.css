@@ -62,7 +62,7 @@
 #app.adventure .adventure-toolbar #next{font-size:clamp(19px,1.4vw,23px);min-height:56px;min-width:150px}
 #app.adventure .adventure-toolbar #next.ready{animation:next-ready .45s ease-out 1}
 /* 교사 시연 전용: 조작 없이 다음 단계로 넘기기 (우측 하단, 학생 화면에는 없음) */
-#app.adventure .teacher-skip{position:absolute;z-index:22;right:var(--hud-pad);bottom:calc(var(--hud-bottom) + 10px);display:flex;align-items:center;gap:8px;min-height:56px;padding:6px 14px 6px 16px;background:#7f4c24;color:#fff7d4;border:2px solid #f3d99a;border-radius:var(--radius-md);box-shadow:0 4px 0 #4f2e14,0 10px 20px #10231b55;font:700 var(--fs-label)/1.1 GeoDisplay,system-ui,sans-serif;cursor:pointer}
+#app.adventure .teacher-skip{position:absolute;z-index:22;right:var(--hud-pad);bottom:calc(var(--hud-bottom) + 10px);display:flex;align-items:center;gap:8px;min-height:56px;padding:6px 14px 6px 16px;background:#7f4c24;color:#fff7d4;border:2px solid #f3d99a;border-radius:var(--radius-md);box-shadow:0 4px 0 #4f2e14,0 10px 20px #10231b55;font:700 var(--fs-label)/1.1 NanumSquareNeo,system-ui,sans-serif;cursor:pointer}
 #app.adventure .teacher-skip small{font-size:12px;font-weight:600;padding:3px 7px;border-radius:999px;background:#fff7d42e;color:#ffe6a8;white-space:nowrap}
 #app.adventure .teacher-skip span{white-space:nowrap}
 #app.adventure .teacher-skip:hover{background:#94592b}
@@ -118,7 +118,7 @@
 @keyframes next-pin{0%,100%{box-shadow:0 0 0 0 #ffd36bcc}60%{box-shadow:0 0 0 12px #ffd36b00}}
 #app.atlas:not(.welcome) .atlas-core.next{animation:next-pin 1.8s ease-in-out infinite}
 #app.atlas .atlas-core:active:enabled{transform:translate(-50%,calc(-50% + 2px))}
-#app.atlas:not(.welcome) .next-guide{position:absolute;z-index:23;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;min-height:48px;padding:6px 14px;background:#ffe7a7;color:#55472c;border:2px solid #9a752f;border-radius:999px;box-shadow:var(--hud-shadow);font:700 var(--fs-label)/1.1 GeoDisplay,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+#app.atlas:not(.welcome) .next-guide{position:absolute;z-index:23;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;min-height:48px;padding:6px 14px;background:#ffe7a7;color:#55472c;border:2px solid #9a752f;border-radius:999px;box-shadow:var(--hud-shadow);font:700 var(--fs-label)/1.1 NanumSquareNeo,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
 #app.atlas:not(.welcome) .next-guide[hidden]{display:none}
 #app.atlas:not(.welcome) .next-guide svg{rotate:var(--turn,0rad);flex:none}
 @media(prefers-reduced-motion:reduce){#app.atlas:not(.welcome) .atlas-pin.next .pin-medallion,#app.atlas:not(.welcome) .atlas-core.next{animation:none}}
@@ -339,20 +339,20 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 /* 리버 걷기 그림의 몸 높이(지도 좌표 73칸)에 주민 키를 맞춘다. */
 .map-resident img{grid-area:1/1;width:auto;height:calc(var(--map-unit,1.33px)*73);object-fit:contain;filter:drop-shadow(0 0 1.5px #fff6d6) drop-shadow(0 3px 2px #45331d96);pointer-events:none}
 .map-resident::before{content:"";grid-area:1/1;align-self:end;width:65%;height:11%;margin-bottom:1px;border-radius:50%;background:#543e226e}
-.map-resident .resident-tag{grid-area:2/1;display:inline-flex;gap:3px;align-items:center;justify-content:center;min-width:52px;padding:3px 7px;border:1.5px solid #ffeab5;border-radius:12px;background:#28574c;box-shadow:0 2px 4px #34291288;font:normal clamp(13px,1.05vw,17px)/1.1 GeoDisplay,system-ui,sans-serif;white-space:nowrap}
+.map-resident .resident-tag{grid-area:2/1;display:inline-flex;gap:3px;align-items:center;justify-content:center;min-width:52px;padding:3px 7px;border:1.5px solid #ffeab5;border-radius:12px;background:#28574c;box-shadow:0 2px 4px #34291288;font:normal clamp(13px,1.05vw,17px)/1.1 NanumSquareNeo,system-ui,sans-serif;white-space:nowrap}
 .map-resident:is(:hover,:focus-visible) .resident-tag,.map-resident.arrived .resident-tag{color:#3b321e;background:#ffdf89;border-color:#624c2b}
 .map-resident:focus-visible{outline:3px solid #ffde77;outline-offset:3px;border-radius:14px}
 .map-resident:active:enabled{transform:translate(-50%,-100%)}
 @media(prefers-reduced-motion:no-preference){.map-resident.arrived img{animation:villager-greeting .58s ease-out 2}@keyframes villager-greeting{45%{transform:translateY(-5px) rotate(-4deg)}}}
 .restored-landmark{position:absolute;transform:translate(-50%,-70%);width:clamp(22px,2.1vw,38px);height:auto;pointer-events:none;filter:drop-shadow(0 2px 1px #382a1d80)}
 .restored-landmark.lamp{filter:drop-shadow(0 0 5px #ffd351) drop-shadow(0 0 11px #ffbb4d)}
-#app.atlas .resident-directory{position:absolute;z-index:23;top:var(--hud-pad);left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--hud-icon);padding:6px 14px;color:var(--hud-ink);background:var(--hud-paper);border:2px solid var(--hud-line);border-radius:26px;box-shadow:var(--hud-shadow);font:normal clamp(15px,1.4vw,22px)/1.1 GeoDisplay,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+#app.atlas .resident-directory{position:absolute;z-index:23;top:var(--hud-pad);left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--hud-icon);padding:6px 14px;color:var(--hud-ink);background:var(--hud-paper);border:2px solid var(--hud-line);border-radius:26px;box-shadow:var(--hud-shadow);font:normal clamp(15px,1.4vw,22px)/1.1 NanumSquareNeo,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
 .resident-directory b{padding:3px 7px;background:#e6ebcd;border-radius:12px;font:inherit}
 .resident-dialog{width:min(660px,calc(100vw - 24px))}
 .resident-roster{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:8px}
 .resident-entry{display:grid;justify-items:center;align-content:end;gap:3px;min-height:86px;padding:8px 5px;border:1px solid #b99b68;border-radius:14px;color:var(--hud-ink);background:#fbf0d6;cursor:pointer}
 .resident-entry img{width:100%;height:75px;object-fit:contain}
-.resident-entry strong{font:normal 21px/1.15 GeoDisplay,system-ui,sans-serif}
+.resident-entry strong{font:normal 21px/1.15 NanumSquareNeo,system-ui,sans-serif}
 .resident-entry small{font-size:14px}
 .resident-conversation{display:grid;grid-template-columns:minmax(92px,30%) 1fr;align-items:center;gap:clamp(10px,2vw,22px)}
 .resident-portrait{display:grid;place-items:center;align-self:stretch;border-radius:16px;background:radial-gradient(ellipse at 50% 60%,#e7d096 2%,#f3e7c7 53%,transparent 74%)}
@@ -381,7 +381,7 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 .relit-counter .lit{background:#ffcd64;border-color:#af742c;box-shadow:0 0 6px #eaa3429e}
 .relit-counter span{margin-right:4px}
 .friend-stamps{justify-content:space-between;flex-wrap:wrap;margin:0 0 12px;padding:8px 13px;background:#f1e6cd;border:1px solid #c6ae7f;border-radius:12px}
-.friend-stamps strong{font:normal 20px GeoDisplay,system-ui,sans-serif;color:#55513c}
+.friend-stamps strong{font:normal 20px NanumSquareNeo,system-ui,sans-serif;color:#55513c}
 .friend-stamps b{color:#356756;font:inherit}
 .stamp-slot,.entry-stamp{display:inline-grid;place-items:center;border-radius:50%}
 .stamp-slot{width:30px;height:30px;color:#736d5f;border:1.5px dashed #99886a}
@@ -389,7 +389,7 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 .resident-entry{position:relative}
 .entry-stamp{position:absolute;top:4px;right:4px;width:24px;height:24px}
 .resident-dialog .stamp-hint{color:#535d48;font-size:16px;margin:12px 0 0;line-height:1.4}
-.resident-exit .stamp-press{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-right:auto;background:#e3efda;border:2px solid #578266;border-radius:14px;color:#254f3d;box-shadow:0 3px 0 #47735850;padding:7px 12px;font:normal clamp(16px,1.32vw,20px) GeoDisplay,system-ui,sans-serif;cursor:pointer}
+.resident-exit .stamp-press{display:inline-flex;align-items:center;justify-content:center;gap:7px;margin-right:auto;background:#e3efda;border:2px solid #578266;border-radius:14px;color:#254f3d;box-shadow:0 3px 0 #47735850;padding:7px 12px;font:normal clamp(16px,1.32vw,20px) NanumSquareNeo,system-ui,sans-serif;cursor:pointer}
 .resident-exit .stamp-press:disabled{color:#44644f;background:#e4eadb;border:2px dashed #83977e;opacity:1;box-shadow:none;cursor:default}
 @media(prefers-reduced-motion:no-preference){
  .awake .mill-rotor{animation:village-mill 11s linear infinite}
@@ -426,7 +426,7 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 /* Next unfinished place opens directly from the lower-right corner. */
 #app.atlas .atlas-quick-actions{position:absolute;z-index:23;top:var(--hud-pad);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;max-width:calc(100% - 260px)}
 #app.atlas .atlas-quick-actions>.resident-directory{position:static;transform:none;flex:none}
-#app.atlas .stage-shortcuts{display:inline-flex;flex:none;align-items:center;justify-content:center;gap:16px;min-height:64px;margin-left:auto;padding:10px 18px;color:var(--hud-ink);background:var(--hud-paper);border:2px solid var(--hud-line);border-radius:var(--radius-lg);box-shadow:var(--hud-shadow);font:normal 22px/1.15 GeoDisplay,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+#app.atlas .stage-shortcuts{display:inline-flex;flex:none;align-items:center;justify-content:center;gap:16px;min-height:64px;margin-left:auto;padding:10px 18px;color:var(--hud-ink);background:var(--hud-paper);border:2px solid var(--hud-line);border-radius:var(--radius-lg);box-shadow:var(--hud-shadow);font:normal 22px/1.15 NanumSquareNeo,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
 #app.atlas .stage-shortcuts>.shortcut-copy{display:grid;gap:4px;text-align:left}
 #app.atlas .stage-shortcuts strong{font:inherit;font-size:clamp(21px,1.6vw,27px)}
 #app.atlas .stage-shortcuts small{font:normal var(--fs-label)/1.2 system-ui,sans-serif;color:#596d55}
@@ -511,12 +511,12 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 .reward-thanks strong{margin-right:4px;color:#2f6150}
 @media(max-height:600px) and (min-width:600px){.reward-thanks::before{top:14px;left:-8px;transform:rotate(-45deg)}}
 .village-progress{position:absolute;z-index:24;top:calc(var(--hud-top) + 6px);left:50%;transform:translateX(-50%);display:grid;justify-items:center;gap:3px;max-width:calc(100% - 32px);padding:8px 22px 9px;color:#4a3916;background:linear-gradient(#fff6d8,#f6e2a8);border:2px solid #b98b3d;border-radius:18px;box-shadow:0 4px 0 #8c6b3659,0 10px 22px #10231b40;text-align:center;pointer-events:none}
-.village-progress strong{font:normal clamp(19px,1.7vw,26px)/1.15 GeoDisplay,system-ui,sans-serif;color:#2f5546}
+.village-progress strong{font:normal clamp(19px,1.7vw,26px)/1.15 NanumSquareNeo,system-ui,sans-serif;color:#2f5546}
 .village-progress small{font-size:clamp(14px,1.1vw,16px);font-weight:700;color:#6b5428}
 .village-lamps{display:flex;align-items:center;gap:7px}
 .village-lamps i{display:block;width:14px;height:19px;border:2px solid #988665;border-radius:7px 7px 4px 4px;background:#e7e1d2}
 .village-lamps i.lit{background:#ffcd64;border-color:#af742c;box-shadow:0 0 7px #eaa342b8}
-.village-lamps b{margin-left:3px;font:normal 18px GeoDisplay,system-ui,sans-serif;color:#725221}
+.village-lamps b{margin-left:3px;font:normal 18px NanumSquareNeo,system-ui,sans-serif;color:#725221}
 .village-progress.low{top:auto;bottom:calc(var(--hud-bottom) + 8px)}
 @media(max-width:580px),(max-height:480px){.village-progress{padding:5px 14px 6px;gap:1px}.village-progress small{display:none}}
 @media(prefers-reduced-motion:no-preference){

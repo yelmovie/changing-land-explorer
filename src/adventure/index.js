@@ -303,7 +303,7 @@ export function mount(ctx) {
         text(text,x,y,size=24,color='#294239',wrapWidth){
           const rect=ctx.root.getBoundingClientRect(),scale=Math.min(rect.width/1200,rect.height/640);
           if(size>=18)size=Math.max(size,Math.min(29,19/Math.max(.5,scale)));
-          const label=scene.add.text(x,y,String(text),{fontFamily:'GeoDisplay, Malgun Gothic, sans-serif',fontSize:size+'px',color,align:'center',padding:{x:3,y:3},...(wrapWidth?{wordWrap:{width:wrapWidth,useAdvancedWrap:true}}:{})}).setOrigin(.5);
+          const label=scene.add.text(x,y,String(text),{fontFamily:'NanumSquareNeo, Malgun Gothic, sans-serif',fontSize:size+'px',color,align:'center',padding:{x:3,y:3},...(wrapWidth?{wordWrap:{width:wrapWidth,useAdvancedWrap:true}}:{})}).setOrigin(.5);
           const context=label.context,fillRect=context.fillRect;
           // Phaser paints its text background with fillRect before uploading it.
           context.fillRect=function(left,top,width,height){

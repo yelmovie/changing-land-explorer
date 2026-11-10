@@ -16,8 +16,8 @@
   --science-focus: #247787;
   --science-white: #ffffff;
   --science-shadow: #142d2533;
-  --science-display: GeoDisplay, 'Malgun Gothic', sans-serif;
-  --science-body: 'Malgun Gothic', system-ui, sans-serif;
+  --science-display: NanumSquareNeo, 'Malgun Gothic', sans-serif;
+  --science-body: NanumSquareNeo, 'Malgun Gothic', system-ui, sans-serif;
 }
 /* Every rule stays on the explainer. Maps, activities and the global dialog system are unchanged. */
 dialog.learning-dialog.concept-dialog.science-focus-player {
@@ -78,7 +78,7 @@ dialog.science-focus-player .concept-caption.concept-fallback-cues { font-size: 
   dialog.science-focus-player .concept-actions button:hover:enabled { transform: translateY(-1px); }
 }
 .science-focus-player .science-focus-rail button:active:enabled, dialog.science-focus-player .concept-actions button:active:enabled { transform: translateY(1px); }
-@media(max-height:700px) and (min-width:701px) {
+@media(max-height:800px) and (min-width:701px) {
   dialog.science-focus-player .dialog-heading { padding: 14px 20px; }
   dialog.science-focus-player .dialog-heading h2 { font-size: 25px; }
   dialog.science-focus-player .dialog-body { padding: 14px 20px; }

@@ -1,0 +1,10 @@
+{
+  "font": "NanumSquareNeo",
+  "source": "https://campaign.naver.com/nanumsquare_neo/download/NaverNanumSquareNeo.zip",
+  "license": "SIL Open Font License 1.1",
+  "licenseSource": "https://help.naver.com/support/contents/contents.help?serviceNo=1074&categoryNo=3497",
+  "files": {
+    "NanumSquareNeoTTF-bRg.woff2": "d13846b612acc829078aff4f91c272c637c08441b409d46bb1a4c802eb2967c3",
+    "NanumSquareNeoTTF-cBd.woff2": "97dfe9720fbed813fc988fcedbcf741e97eef9353515b2043717484ec0b90aa1"
+  }
+}

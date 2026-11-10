@@ -9,7 +9,7 @@ export const imageCache=new Map();
 export function getImage(src){if(!imageCache.has(src)){const im=new Image();im.src=src;imageCache.set(src,im);}return imageCache.get(src);}
 export function fitImage(c,src,x,y,w,h,cover=false){const im=getImage(src);if(!im.complete||!im.naturalWidth)return;const scale=cover?Math.max(w/im.width,h/im.height):Math.min(w/im.width,h/im.height);const dw=im.width*scale,dh=im.height*scale;c.save();c.beginPath();c.rect(x,y,w,h);c.clip();c.drawImage(im,x+(w-dw)/2,y+(h-dh)/2,dw,dh);c.restore();}
 export function roundRect(c,x,y,w,h,r=14,fill='#fff',stroke){c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}}
-export function text(c,value,x,y,size=24,color='#203e38',align='left'){c.font=`700 ${size}px "GeoSans", "Malgun Gothic", sans-serif`;c.fillStyle=color;c.textAlign=align;c.textBaseline='middle';c.fillText(value,x,y);}
+export function text(c,value,x,y,size=24,color='#203e38',align='left'){c.font=`700 ${size}px "NanumSquareNeo", "Malgun Gothic", sans-serif`;c.fillStyle=color;c.textAlign=align;c.textBaseline='middle';c.fillText(value,x,y);}
 export function circle(c,x,y,r,fill,stroke){c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fillStyle=fill;c.fill();if(stroke){c.strokeStyle=stroke;c.lineWidth=3;c.stroke();}}
 export function line(c,points,color='#4daba1',width=8){if(!points.length)return;c.beginPath();points.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.strokeStyle=color;c.lineWidth=width;c.lineCap=c.lineJoin='round';c.stroke();}
 export function makeCanvas(root,label,draw,handlers={}){
