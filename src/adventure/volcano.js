@@ -8,7 +8,7 @@ import {MODEL_MOUTH as MOUTH,MODEL_FLOW as FLOW,modelScene,paintScene,drawShapes
 const OUTPUTS=[
   {id:'lava',label:'용암',x:385,y:395,text:'땅속의 마그마가 땅 위로 나온 것을 용암이라고 해.'},
   {id:'gas',label:'화산 기체',x:610,y:80,text:'수증기 같은 기체도 나와. 보이지 않는 기체는 설명 표시로 나타냈어.'},
-  {id:'ash',label:'화산재',x:260,y:115,text:'분출할 때 잘게 부서진 암석과 화산 유리 같은 작은 고체 알갱이야.'},
+  {id:'ash',label:'화산재',x:260,y:115,text:'화산이 분출할 때 나오는 아주 작은 고체 알갱이야. 바람을 타고 멀리 날아가기도 해.'},
   {id:'rock',label:'암석 조각',x:670,y:245,text:'큰 고체 암석 조각도 밖으로 나올 수 있어.'}
 ];
 
@@ -212,7 +212,7 @@ function observeOutputs(scene,api){
   api.task('분출물을 눌러 직접 살펴보자','숫자가 있는 곳을 누르면 설명을 읽고 관찰 수첩에 바로 기록해.');
   const markers=new Map(),world=p=>({x:p.x*1.2,y:p.y*640/560});
   const recorded=p=>w.found.includes(p.id)&&d.evidence['output-'+p.id]?.kind==='volcano'&&d.evidence['output-'+p.id]?.claim===p.id;
-  function check(){if(!finished&&OUTPUTS.every(recorded)){finished=true;api.finish('네 가지 분출물을 찾았어. 이제 모형과 비교해 보자!');}}
+  function check(){if(!finished&&OUTPUTS.every(recorded)){finished=true;api.finish(selected.label+' · '+selected.text+' 네 가지 분출물을 모두 찾았어!');}}
   function redraw(){for(const p of OUTPUTS)markers.get(p.id)?.(recorded(p));api.counter(OUTPUTS.filter(recorded).length,4,'분출물 기록');}
   function inspect(p,record=false){
     selected=p;motion.play(p.id);api.say(p.label+' · '+p.text);

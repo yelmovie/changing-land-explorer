@@ -312,8 +312,10 @@ function connectField(scene,api){
   api.hero(1150,560,100,'hero-lens');
   // A hand-drawn map river: sandy banks, water, a light ripple line, then the sand bar.
   const g=scene.add.graphics(),bend=[[250,190],[420,255],[660,300],[950,365]];
-  const stroke=(w,c,a=1)=>{g.lineStyle(w,c,a).beginPath().moveTo(...bend[0]);bend.slice(1).forEach(p=>g.lineTo(...p));g.strokePath();};
-  stroke(74,0xcfb57e,.85);stroke(48,0x4fa9c4);stroke(22,0x7fcbe0);stroke(5,0xd9f3fa,.9);
+  // The channel widens downstream: narrow upper river, wide lower river (as observed in the field).
+  const widths=[.55,.8,1.08];
+  const stroke=(w,c,a=1)=>bend.slice(1).forEach((p,k)=>{const q=bend[k],lw=w*widths[k];g.lineStyle(lw,c,a).lineBetween(q[0],q[1],p[0],p[1]);if(k)g.fillStyle(c,a).fillCircle(q[0],q[1],lw/2);});
+  stroke(74,0xcfb57e);stroke(48,0x4fa9c4);stroke(22,0x7fcbe0);stroke(5,0xd9f3fa,.9);
   g.fillStyle(0xd8b877).fillEllipse(943,378,150,74).fillStyle(0xead29a).fillEllipse(938,372,118,52);
   for(let i=0;i<14;i++)g.fillStyle(0xb8955a,.8).fillCircle(895+(i*29)%100,360+(i*13)%30,2.5);
   api.text('상류',300,135,30);api.text('하류',910,260,30);
@@ -330,7 +332,7 @@ function connectField(scene,api){
       api.counter(w.connected.length+(w.deposition?1:0),5,'지도 연결');api.say('관찰 카드를 연결했어. 남은 카드와 모래 쌓임 깃발을 이어 줘.');api.save();check();return true;
     }
     placements[p.id]=place;
-    api.drag(card,{onDrop(obj,x,y){if(distance({x,y},zones[p.side])>160){api.say(p.side==='upper'?'산 가까이의 좁고 가파른 물길을 찾아 줘.':'넓고 완만한 아래쪽 물길을 찾아 줘.');return false;}return place();}});
+    api.drag(card,{onDrop(obj,x,y){if(distance({x,y},zones[p.side])>160){api.say({바위:'크고 각진 바위는 산 가까이 상류에서 봤어. 상류 쪽에 놓아 줘.',물길:p.side==='upper'?'좁고 경사가 급한 물길은 산 가까이 상류야.':'넓고 완만한 물길은 아래쪽 하류야.',모래:'모래와 고운 흙은 아래쪽 하류에서 봤어. 하류 쪽에 놓아 줘.'}[p.feature]);return false;}return place();}});
     if(w.connected.includes(p.id)){const j=FIELD_POINTS.filter(q=>q.side===p.side).indexOf(p);card.setPosition(zones[p.side].x,zones[p.side].y+j*70).setScale(.8);}
   }
   const flag=tool(scene,api,'flag',1068,500,'모래가 쌓여요').setScale(.8);

@@ -192,7 +192,7 @@ export function setup(scene,api){
    api.drag(c.obj,{onDrop:(o,x,y)=>{const slot=Object.keys(slots).find(k=>inBox(x,y,slots[k].x,slots[k].y,SW+40,SH+8));return slot?add(c,slot):false;}});
    if(w.board[c.kind]&&c.good){c.obj.setAlpha(.35);show(c.kind,c.text);}
   });
-  function progress(){const n=Object.keys(w.board).filter(k=>w.board[k]).length;api.counter(n,3,'안내판 조각');if(n===3){d.notices[s.id]=s.claim;api.record({id:'notice-'+s.id,kind:'notice',...cityEvidence(index),label:s.name+' 주민 안내',claim:s.claim,text:s.notice,site:s.id});api.save();api.say('주민: '+s.reply,true);if(index===0)ashSafety();else api.finish(s.reply);}}
+  function progress(){const n=Object.keys(w.board).filter(k=>w.board[k]).length;api.counter(n,3,'안내판 조각');if(n===3){d.notices[s.id]=s.claim;api.record({id:'notice-'+s.id,kind:'notice',...cityEvidence(index),label:s.name+' 주민 안내',claim:s.claim,text:s.notice,site:s.id});api.save();api.say('주민: '+s.reply,true);if(index===0)ashSafety();else api.finish(s.name+' 주민: '+s.reply);}}
   function ashSafety(){
    if(ashShown)return;ashShown=true;
    // The city remains visible through an indoor window. These actions happen

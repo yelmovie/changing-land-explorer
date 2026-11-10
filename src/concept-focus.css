@@ -94,7 +94,7 @@ dialog.science-focus-player .concept-caption.concept-fallback-cues { font-size: 
   dialog.science-focus-player .concept-actions button { min-height: 48px; font-size: 18px; padding: 7px 14px; }
 }
 /* Phone landscape and other short screens: every control stays on screen without scrolling. */
-@media(max-height:480px) and (min-width:701px) {
+@media(max-height:480px) and (min-width:701px), (max-height:480px) and (orientation:landscape) {
   dialog.learning-dialog.concept-dialog.science-focus-player { max-height: calc(100dvh - 16px); border-radius: 18px; }
   dialog.science-focus-player .dialog-heading { padding: 8px 16px; }
   dialog.science-focus-player .dialog-heading h2 { font-size: 22px; }
@@ -114,7 +114,16 @@ dialog.science-focus-player .concept-caption.concept-fallback-cues { font-size: 
   dialog.science-focus-player .concept-actions { padding-top: 0; border-top: 0; }
   dialog.science-focus-player .concept-actions button { min-height: 48px; font-size: 18px; padding: 6px 14px; }
 }
-@media(max-width:700px) {
+@media(max-height:400px) and (orientation:landscape) {
+  dialog.science-focus-player .dialog-heading { padding: 4px 14px; }
+  dialog.science-focus-player .dialog-heading h2 { font-size: 20px; }
+  dialog.science-focus-player .dialog-body { padding: 6px 14px; }
+  dialog.science-focus-player .concept-player { grid-template-columns: min(27vw, 300px) minmax(0, 1fr); gap: 6px 12px; }
+  dialog.science-focus-player .concept-caption { line-height: 1.25; }
+  dialog.science-focus-player .concept-summary { line-height: 1.25; }
+  .science-focus-player .concept-takeaway { margin-top: 4px; padding-top: 4px; }
+}
+@media(max-width:700px) and (min-height:481px), (max-width:700px) and (orientation:portrait) {
   dialog.learning-dialog.concept-dialog.science-focus-player { width: calc(100% - 20px); max-height: calc(100dvh - 20px); border-radius: 18px; }
   dialog.science-focus-player .dialog-heading { padding: 17px 18px; }
   dialog.science-focus-player .dialog-heading h2 { font-size: 24px; }

@@ -178,7 +178,7 @@ export function setup(scene,api){
    if(r.type!==current()){api.say('주문 이름과 앞에서 관찰한 특징을 비교해 봐.');return;}
    d.rockNames[id]=r.type;d.rockProofs[id]=[r.color,r.grain];w.sorted.push(id);
    const stone=stones[id];scene.tweens.add({targets:stone,x:TRAY[r.type],y:TRAY_Y-8,displayWidth:140,displayHeight:140,duration:reduced?0:500,ease:'Sine.easeInOut'});
-   api.spark(TRAY[r.type],TRAY_Y);api.save();progress();
+   api.spark(TRAY[r.type],TRAY_Y);api.save();api.say(`${r.name}를 ${names[r.type]} 주문으로 보냈어!`);api.sound?.('place',{force:true});progress();
   }
   [0,1].forEach(id=>{
    const r=ROCKS[id],cx=id?780:420,panel=api.panel(cx,280,330,430,0xfff7df,.9);

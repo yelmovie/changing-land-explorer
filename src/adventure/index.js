@@ -69,7 +69,8 @@ export function mount(ctx) {
   const playback=createPlayback({onChange:paintAuto});playback.setSpeed(playbackSpeed);
   speed.onchange=()=>{playbackSpeed=Number(speed.value);playback.setSpeed(playbackSpeed);};
   function guideAction(){
-    const candidates=[...ctx.controls.querySelectorAll('.action-buttons button:not(:disabled)')];
+    // Direction pads are free choices; never highlight one direction as the next step.
+    const candidates=[...ctx.controls.querySelectorAll('.action-buttons button:not(:disabled):not([id^="route-"])')];
     const suggested=phaseDone?next:auto&&playback.ready&&!auto.observed?autoButton:candidates.find(b=>b.classList.contains('primary'))||candidates[0];
     for(const button of [autoButton,next,...ctx.controls.querySelectorAll('.action-buttons button')]){
       const on=button===suggested; if(button.classList.contains('suggested')!==on)button.classList.toggle('suggested',on);
@@ -171,7 +172,7 @@ export function mount(ctx) {
   }
   next.onclick=event=>{
     if(!phaseDone||restarting||document.querySelector('dialog[open]'))return;
-    ctx.chime();
+    // The success chime already played when the phase was solved; moving on keeps the plain click.
     if(chapter.phase<2){chapter.phase++;ctx.save();restart(event.detail===0);}
     else ctx.finishActivity();
   };
@@ -367,6 +368,19 @@ export function mount(ctx) {
           if(!object.input)object.setInteractive({useHandCursor:true});
           scene.input.setDraggable(object);
           draggables.set(object,{onDrop,onMove,onStart,onTap,onPick});
+          // Small phones shrink the canvas; keep every draggable at least 48 CSS px wide and tall.
+          const area=object.input?.hitArea;
+          if(area instanceof window.Phaser.Geom.Rectangle){
+            const {x:x0,y:y0,width:w0,height:h0}=area;
+            const fitDragArea=()=>{
+              const width=scene.game.canvas.getBoundingClientRect().width;
+              if(!width||!object.input)return;
+              const need=48*scene.scale.gameSize.width/width,W=Math.max(w0,need/(Math.abs(object.scaleX)||1)),H=Math.max(h0,need/(Math.abs(object.scaleY)||1));
+              area.setTo(x0+(w0-W)/2,y0+(h0-H)/2,W,H);
+            };
+            const resizeDragArea=new ResizeObserver(fitDragArea);
+            resizeDragArea.observe(scene.game.canvas);fitDragArea();sceneCleanups.push(()=>resizeDragArea.disconnect());
+          }
           object.on('pointerdown',()=>{if(!document.querySelector('dialog[open]'))pressed=object;});
           object.on('dragstart',()=>{if(document.querySelector('dialog[open]'))return;scene.tweens.killTweensOf(object);dragging=true;home={x:object.x,y:object.y};clearSelection();gestureMoved=true;ctx.sound('pickup');object.setDepth(200);onStart?.(object);});
           object.on('drag',(_pointer,x,y)=>{object.setPosition(x,y);onMove?.(object,x,y);});
