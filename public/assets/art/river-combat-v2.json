@@ -1,0 +1,125 @@
+{
+  "name": "River exploration pulse",
+  "file": "river-combat-v2.webp",
+  "width": 1024,
+  "height": 512,
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "columns": 4,
+  "rows": 2,
+  "anchor": [
+    0.5,
+    0.87890625
+  ],
+  "alpha": true,
+  "generator": "OpenAI built-in image generation",
+  "created": "2026-11-10",
+  "method": "Eight generated poses, cropped and feet-registered with one shared scale. No synthetic intermediate poses.",
+  "sourceSha256": "554a5edd2cde774127267304cd851779e9ebbab129682b0ecf5d5dccc26e172e",
+  "frames": [
+    {
+      "index": 0,
+      "name": "ready",
+      "column": 0,
+      "row": 0,
+      "sourceRect": {
+        "left": 98,
+        "top": 42,
+        "width": 236,
+        "height": 365
+      },
+      "sourceFootX": 240
+    },
+    {
+      "index": 1,
+      "name": "windup",
+      "column": 1,
+      "row": 0,
+      "sourceRect": {
+        "left": 504,
+        "top": 43,
+        "width": 281,
+        "height": 364
+      },
+      "sourceFootX": 668
+    },
+    {
+      "index": 2,
+      "name": "pulse",
+      "column": 2,
+      "row": 0,
+      "sourceRect": {
+        "left": 936,
+        "top": 44,
+        "width": 398,
+        "height": 363
+      },
+      "sourceFootX": 1104
+    },
+    {
+      "index": 3,
+      "name": "follow-through",
+      "column": 3,
+      "row": 0,
+      "sourceRect": {
+        "left": 1413,
+        "top": 42,
+        "width": 262,
+        "height": 365
+      },
+      "sourceFootX": 1575
+    },
+    {
+      "index": 4,
+      "name": "hurt",
+      "column": 0,
+      "row": 1,
+      "sourceRect": {
+        "left": 106,
+        "top": 480,
+        "width": 289,
+        "height": 371
+      },
+      "sourceFootX": 249
+    },
+    {
+      "index": 5,
+      "name": "recover",
+      "column": 1,
+      "row": 1,
+      "sourceRect": {
+        "left": 538,
+        "top": 484,
+        "width": 245,
+        "height": 368
+      },
+      "sourceFootX": 683
+    },
+    {
+      "index": 6,
+      "name": "cheer",
+      "column": 2,
+      "row": 1,
+      "sourceRect": {
+        "left": 977,
+        "top": 479,
+        "width": 253,
+        "height": 373
+      },
+      "sourceFootX": 1121
+    },
+    {
+      "index": 7,
+      "name": "victory",
+      "column": 3,
+      "row": 1,
+      "sourceRect": {
+        "left": 1416,
+        "top": 474,
+        "width": 264,
+        "height": 378
+      },
+      "sourceFootX": 1560
+    }
+  ]
+}

@@ -31,3 +31,30 @@
 @keyframes combat-wave{0%{transform:translate(-50%,-65%) scale(.2);opacity:1}100%{transform:translate(-50%,-65%) scale(1.4);opacity:0}}
 @media(max-height:500px){#app.atlas .map-combat-hud{right:12px;bottom:calc(var(--atlas-footer-h,80px) + 10px);gap:5px}#app.atlas #map-attack{width:68px;height:62px;font-size:16px;border-radius:20px}#app.atlas #map-attack>span{font-size:23px}#app.atlas .combat-health{font-size:16px;padding:6px}#app.atlas .combat-retry{bottom:74px;width:235px;padding:10px}#app.atlas .combat-retry strong{font-size:17px}#app.atlas .combat-retry p{margin:4px 0;font-size:13px}#app.atlas .map-combat-river{width:122px;height:122px}}
 @media(prefers-reduced-motion:reduce){#app.atlas .map-villain.defeated .villain-art{animation:none}#app.atlas .map-villain.hit .villain-impact{animation:none;opacity:1}#app.atlas .combat-wave.strike{animation:none;opacity:.7;transform:translate(-50%,-65%) scale(1)}}
+/* 2026-11-10: half-size art, generous touch target, visible three-hit pulse combat. */
+#app.atlas .map-villain{width:max(48px,var(--foe-cell,57px));height:max(48px,calc(var(--foe-cell,57px) + 8px));min-width:48px;min-height:48px;transform:translate(-50%,-88%)}
+#app.atlas .villain-art{width:var(--foe-cell,57px);height:var(--foe-cell,57px);left:50%;margin-left:calc(var(--foe-cell,57px) / -2)}
+#app.atlas .villain-shadow{height:7px;bottom:10px}
+#app.atlas .villain-hp{font-size:10px;line-height:12px;letter-spacing:1px;min-height:14px;padding:0 4px}
+#app.atlas .map-overview .map-villain{width:48px;height:48px}
+#app.atlas .map-overview .villain-art{width:34px;height:34px;margin-left:-17px}
+#app.atlas .map-overview .villain-target{display:none}
+#app.atlas .map-villain.in-range .villain-hp{background:#e9ffcf;border-color:#407a41;color:#326638;box-shadow:0 0 0 3px #c0ee8b66}
+#app.atlas .villain-target{position:absolute;left:50%;bottom:calc(100% - 6px);transform:translateX(-50%);border-radius:8px;padding:3px 7px;background:#345f37;color:#fff8d8;font:800 11px/1.1 system-ui;white-space:nowrap;opacity:0;pointer-events:none}
+#app.atlas .in-range .villain-target{opacity:1}
+#app.atlas .villain-result{position:absolute;left:50%;top:-15px;white-space:nowrap;transform:translateX(-50%);color:#fff6bc;text-shadow:0 2px 2px #3b3d20,1px 0 #3b3d20,-1px 0 #3b3d20;font:900 18px/1 system-ui;opacity:0;pointer-events:none;z-index:4}
+#app.atlas .map-villain.hit .villain-result{animation:combat-result .43s ease-out}
+#app.atlas .map-villain.hit:not(.defeated) .villain-art{animation:combat-recoil .35s ease-out}
+#app.atlas .map-villain.hit .villain-target{opacity:0}
+#app.atlas .villain-impact{font-size:48px}
+#app.atlas .map-combat-river{background-image:url('/assets/art/river-combat-v2.webp');background-size:400% 200%}
+#app.atlas .combat-guide{position:absolute;right:0;bottom:calc(100% + 10px);margin:0;min-width:235px;padding:9px 12px;border:2px solid #8e7951;border-radius:14px;background:#fff9e8ed;box-shadow:0 3px 0 #54483133;color:#4d402d;text-align:center;font:700 14px/1.4 system-ui}
+#app.atlas .combat-guide small{display:block;font-size:11px;font-weight:600;margin-top:3px;white-space:nowrap}
+#app.atlas #map-attack[data-in-range=true]{background:linear-gradient(#fff5bd,#aade88);border-color:#4b7045}
+#app.atlas #map-attack:active{transform:translateY(3px);box-shadow:0 1px 0 #7f592b}
+#app.atlas .combat-cleared .combat-guide{border-color:#558255;background:#f0ffdf}
+#app.atlas .combat-knockout .combat-guide{display:none}
+@keyframes combat-recoil{0%,100%{transform:scaleX(var(--facing,1)) translateX(0)}25%{transform:scaleX(var(--facing,1)) translateX(6px) rotate(7deg);filter:brightness(1.8)}60%{transform:scaleX(var(--facing,1)) translateX(-3px)}}
+@keyframes combat-result{0%{opacity:0;transform:translate(-50%,8px)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-24px)}}
+@media(max-height:500px){#app.atlas .combat-guide{padding:5px 8px;min-width:215px;font-size:12px;bottom:calc(100% + 5px)}#app.atlas .combat-guide small{font-size:10px;margin-top:1px}}
+@media(prefers-reduced-motion:reduce){#app.atlas .map-villain.hit .villain-result{animation:none;opacity:1}#app.atlas .map-villain.hit:not(.defeated) .villain-art{animation:none}#app.atlas #map-attack:active{transform:none}}
