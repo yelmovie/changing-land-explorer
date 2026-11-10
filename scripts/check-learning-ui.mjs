@@ -88,7 +88,7 @@ try{
    await record(page,key,'#app',{shot:width===1280&&height===800});
    await page.locator('.activity-tools>summary').click();await page.locator('#river-hint').click();await record(page,key+'-hint','dialog');await page.locator('.dialog-close').click();
    if(phase===0){
-    await page.locator('.activity-tools>summary').click();await page.locator('#concept-review').click();await record(page,key+'-concept','dialog',{shot:width===1280&&height===800});
+    await page.locator('.activity-tools>summary').click();await page.locator('#concept-review').click();await page.locator('video').evaluate(async v=>{const poster=new Image();poster.src=v.poster;await poster.decode();});await record(page,key+'-concept','dialog',{shot:width===1280&&height===800});
     await page.locator('video').evaluate(v=>{if(!v.paused)throw Error('Reduced-motion video autoplayed');});
     // The scene rail's play toggle replaced the overlay play button (concept-focus.js).
     await page.locator('.science-focus-toggle').click();await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=2&&v.currentTime>0;});

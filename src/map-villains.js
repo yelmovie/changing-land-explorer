@@ -6,7 +6,7 @@ export function mountMapVillains({world,page,tools,state,save,reveal,go,getHero,
  const layer=document.createElement('div');layer.className='map-villains';world.append(layer);
  const meter=document.createElement('button');meter.id='map-villain-focus';meter.type='button';meter.innerHTML='<span class="combat-mini" aria-hidden="true"></span><span></span>';tools.append(meter);
  const hud=document.createElement('section');hud.className='map-combat-hud';hud.setAttribute('aria-label','리버의 지도 모험');
- hud.innerHTML='<p class="combat-guide" id="combat-guide">악당에게 다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small></p><div class="combat-health" role="status" aria-live="polite"><span aria-hidden="true"></span><b></b></div><button type="button" id="map-attack" aria-label="주변 돌먼지 대장 공격, J 또는 Space" aria-keyshortcuts="J Space" aria-describedby="combat-guide"><span aria-hidden="true">✦</span>공격 <small>J / Space</small></button><div class="combat-retry" hidden><strong>잠깐 쉬었다 가자!</strong><p>물리친 악당과 탐험 기록은 그대로야.</p><button type="button" id="map-combat-retry">다시 도전</button></div>';
+ hud.innerHTML='<p class="combat-guide" id="combat-guide">다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small></p><div class="combat-health" role="status" aria-live="polite"><span aria-hidden="true"></span><b></b></div><button type="button" id="map-attack" aria-label="주변 돌먼지 대장 공격, J 또는 Space" aria-keyshortcuts="J Space" aria-describedby="combat-guide"><span aria-hidden="true">✦</span>공격 <small>J / Space</small></button><div class="combat-retry" hidden><strong>잠깐 쉬었다 가자!</strong><p>물리친 악당과 탐험 기록은 그대로야.</p><button type="button" id="map-combat-retry">다시 도전</button></div>';
  page.append(hud);
  const actor=document.createElement('div');actor.className='map-combat-river';actor.hidden=true;actor.setAttribute('aria-hidden','true');layer.append(actor);
  const wave=document.createElement('div');wave.className='combat-wave';wave.setAttribute('aria-hidden','true');layer.append(wave);
@@ -73,7 +73,7 @@ export function mountMapVillains({world,page,tools,state,save,reveal,go,getHero,
    if(now>Number(el.dataset.flashUntil||0))el.classList.remove('hit');
   }
   const n=defeatedVillains(game.progress),guideKey=n===5?'clear':!game.progress.health?'rest':nearby?'near':'far';
-  if(lastNear!==guideKey){lastNear=guideKey;hud.querySelector('.combat-guide').innerHTML=guideKey==='clear'?'<b>5마리 모두 퇴치! ✦</b><small>관찰 기록을 계속 모아 보자</small>':guideKey==='rest'?'<b>탐험 기록은 안전해!</b><small>다시 도전하면 하트가 채워져</small>':guideKey==='near'?'<b>지금 공격할 수 있어!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>':'악당에게 다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>';}
+  if(lastNear!==guideKey){lastNear=guideKey;hud.querySelector('.combat-guide').innerHTML=guideKey==='clear'?'<b>5마리 모두 퇴치! ✦</b><small>관찰 기록을 계속 모아 보자</small>':guideKey==='rest'?'<b>탐험 기록은 안전해!</b><small>다시 도전하면 하트가 채워져</small>':guideKey==='near'?'<b>지금 공격할 수 있어!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>':'다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>';}
   const ready=now-game.attackAt>=COMBAT.attackCooldown;attack.dataset.ready=String(ready);attack.dataset.inRange=String(nearby>0);attack.setAttribute('aria-disabled',String(attack.disabled||!ready));
  }
  function tick(now){

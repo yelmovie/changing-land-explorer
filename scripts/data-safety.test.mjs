@@ -73,3 +73,31 @@ test('damaged intermediate work repairs its own fields without completing discov
  chapterState(data,0);assert.equal(JSON.stringify(data),once,'valid repaired progress is stable on the next visit');
  assert.equal(chapter.work[1].scanned,scanned,'active scene references to valid work remain usable');assert.equal(chapter.work[0].dust,dust);
 });
+
+import {preserveRecoveryOriginal,RECOVERY_KEY} from '../src/storage-recovery.js';
+const recoveryStorage=()=>{const data=new Map();return {data,getItem:key=>data.get(key)??null,setItem:(key,value)=>data.set(key,value)};};
+test('field recovery preserves exact original bytes before the repaired state can save',()=>{
+ const source=fresh();source.drafts.volcano={step:0,passed:[],data:{assembly:['tray','bad-part'],evidence:{bad:null}}};
+ const raw=JSON.stringify(source,null,2),storage=recoveryStorage();storage.setItem(SAVE_KEY,raw);
+ const repaired=loadProgress(storage);
+ assert.equal(preserveRecoveryOriginal(storage,raw,repaired),'preserved');
+ assert.equal(storage.getItem(RECOVERY_KEY),raw);
+ storage.setItem(SAVE_KEY,JSON.stringify(repaired));
+ assert.equal(storage.getItem(RECOVERY_KEY),raw,'autosave cannot replace the recovery original');
+ assert.equal(preserveRecoveryOriginal(storage,JSON.stringify(repaired),repaired),'unchanged');
+});
+test('valid state and added defaults do not consume a recovery slot',()=>{
+ const source=fresh();source.drafts.river={step:0,passed:[],data:{}};
+ const raw=JSON.stringify(source),storage=recoveryStorage();storage.setItem(SAVE_KEY,raw);
+ assert.equal(preserveRecoveryOriginal(storage,raw,loadProgress(storage)),'unchanged');
+ assert.equal(storage.getItem(RECOVERY_KEY),null);
+});
+test('unavailable backup space or an earlier distinct original blocks destructive autosave',()=>{
+ const raw=JSON.stringify({...fresh(),sound:'broken'}),repaired=fresh(),storage=recoveryStorage();
+ assert.equal(preserveRecoveryOriginal({...storage,setItem:()=>{throw Error('quota');}},raw,repaired),'blocked');
+ storage.setItem(RECOVERY_KEY,'earlier original');
+ assert.equal(preserveRecoveryOriginal(storage,raw,repaired),'blocked');
+ assert.equal(storage.getItem(RECOVERY_KEY),'earlier original');
+ storage.setItem(RECOVERY_KEY,raw);
+ assert.equal(preserveRecoveryOriginal(storage,raw,repaired),'preserved');
+});
