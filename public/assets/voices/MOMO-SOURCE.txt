@@ -1,0 +1,4 @@
+Generated for this project using local Momo and Qwen3-TTS.
+Model license: Apache-2.0. https://github.com/QwenLM/Qwen3-TTS
+Fictional character presets; no real-person voice cloning.
+Character direction, source IDs, chosen seeds, transcripts, audio metrics and checksums: momo-manifest-20261110.json.

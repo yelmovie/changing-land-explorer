@@ -1,3 +1,4 @@
+import {playGuideText,watchGuideText} from './guide-voice.js';
 import {audioSettingsHTML,bindAudioSettings} from "./audio-settings.js";
 import {learningGuideHTML} from "./learning-guide.js";
 import {openStory,stopStory} from './story.js';
@@ -11,6 +12,7 @@ import {activityComplete} from './learning-model.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
 import {showEvidence,evidenceCard} from './explore-ui.js';
 import {$,$$,icon,escapeHTML} from './ui.js';
+let stopGuideText=()=>{};
 let student,storageReadOnly=false,storageProblem='',storageWarning='',lastRaw=null,conflict=false;
 const plainObject=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
 function readableProgress(raw){
@@ -65,6 +67,7 @@ export function modal(title,content,setup){
  const list=$('.evidence-list',dialog);
  if(list)paginateRecords(list);
  setup?.(dialog,close);
+ const mission=dialog.querySelector('.mission-preview+p');if(mission)playGuideText(mission.textContent);
 }
 function paginateRecords(list){
  const cards=Array.from(list.children).filter(el=>el.classList.contains('saved-evidence'));
@@ -119,11 +122,11 @@ function saveSound(){persistStudent();$('#sound')?.setAttribute('aria-label',stu
 const conceptOpen=(id,step)=>admin||state().completed.includes(id)||activityComplete(id,step,state().drafts[id]?.data||{});
 function conceptList(){modal('개념 영상 다시 보기',`<div class="preview-links">${STAGES.map((s,i)=>`<strong>${s.place}</strong>${CONCEPTS[s.id].map((c,j)=>conceptOpen(s.id,j)?`<button class="secondary" data-concept="${i},${j}">${escapeHTML(c.title)}</button>`:`<button class="secondary" disabled>${escapeHTML(c.title)}<br><small>${s.place} 활동을 마치면 열려요</small></button>`).join('')}`).join('')}</div>`,d=>$$('[data-concept]',d).forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.concept.split(',').map(Number);showConcept({s:STAGES[i],step:j,modal},null,{replay:true});}));}
 function help(){modal('리버와 이렇게 탐험해요',SETTINGS_CONTENT.student);}
-export function shell(title,body,cls=''){app.className=cls;app.innerHTML=`<header class="topbar"><div class="nav-group"><button class="icon-button" id="home" aria-label="홈">${icon('home')}</button><button class="icon-button" id="back" aria-label="이전 화면">${icon('back')}</button></div><div class="brand"><strong>${title}</strong></div><div class="nav-group"><button class="icon-button" id="sound" aria-pressed="${student.sound}" aria-label="${student.sound?'소리 끄기':'소리 켜기'}">${icon(student.sound?'sound':'mute')}</button><button class="icon-button" id="settings" aria-label="설정">${icon('settings')}</button></div></header>${admin?'<div class="preview-banner"><span>관리자 미리보기 · 학생 기록에는 저장되지 않아요</span><button class="secondary" id="exit-preview">시연 종료</button></div>':''}${body}`;$('#home').onclick=()=>navigate('home');$('#back').onclick=back;$('#settings').onclick=settings;$('#sound').onclick=()=>{student.sound=!student.sound;saveSound();};$('#exit-preview')?.addEventListener('click',()=>setPreview(false));if(screen.type==='home'){$('#home').disabled=true;$('#back').disabled=true;}}
+export function shell(title,body,cls=''){stopGuideText();app.className=cls;app.innerHTML=`<header class="topbar"><div class="nav-group"><button class="icon-button" id="home" aria-label="홈">${icon('home')}</button><button class="icon-button" id="back" aria-label="이전 화면">${icon('back')}</button></div><div class="brand"><strong>${title}</strong></div><div class="nav-group"><button class="icon-button" id="sound" aria-pressed="${student.sound}" aria-label="${student.sound?'소리 끄기':'소리 켜기'}">${icon(student.sound?'sound':'mute')}</button><button class="icon-button" id="settings" aria-label="설정">${icon('settings')}</button></div></header>${admin?'<div class="preview-banner"><span>관리자 미리보기 · 학생 기록에는 저장되지 않아요</span><button class="secondary" id="exit-preview">시연 종료</button></div>':''}${body}`;$('#home').onclick=()=>navigate('home');$('#back').onclick=back;$('#settings').onclick=settings;$('#sound').onclick=()=>{student.sound=!student.sound;saveSound();};$('#exit-preview')?.addEventListener('click',()=>setPreview(false));if(screen.type==='home'){$('#home').disabled=true;$('#back').disabled=true;}stopGuideText=watchGuideText(app);}
 function bag(){modal('내 탐험 가방',`<div class="bag-grid">${STAGES.map(s=>`<article class="${state().completed.includes(s.id)?'earned':''}">${icon(s.tool,32)}<h3>${state().completed.includes(s.id)?s.reward:'아직 빈 자리'}</h3><p>${escapeHTML(state().records[s.id]?.summary||s.name+'에서 관찰 기록을 모아 봐.')}</p><button class="secondary" data-bag-record="${s.id}">관찰 펼치기</button></article>`).join('')}</div>`,(dialog,close)=>{$$('[data-bag-record]',dialog).forEach(b=>b.onclick=()=>{const data=state().drafts[b.dataset.bagRecord]?.data||state().records[b.dataset.bagRecord]?.data;close();modal('내가 남긴 관찰','<div class="evidence-list">'+(Object.values(data?.evidence||{}).map(e=>evidenceCard(e)).join('')||'<p>아직 관찰 장면이 없어. 해당 장소에서 기록을 남겨 줘.</p>')+'</div>');});});}
 function home(){shell('움직이는 지오밸리',`<main class="home-scene"><div class="home-art"></div><div class="home-copy"><span class="eyebrow">초등 4학년 과학 · 땅의 변화</span><h1>움직이는<br><em>지오밸리</em></h1><p>사라진 다섯 관찰 기록.<br>너와 리버의 발견으로 다시 연결해 줘!</p><button class="primary large" id="start">${state().started?'탐험 이어 하기':'리버와 탐험 시작'} ${icon('arrow')}</button><button class="home-help" id="home-help">어떤 탐험이 기다릴까?</button><span class="save-note">강 · 화산 · 암석 · 도시 · 안전길</span></div><img class="home-hero" src="/assets/river-hero.webp" alt="탐험 수첩을 든 수달 리버"><div class="home-message">“네가 찾은 단서가<br>우리의 다음 도구가 될 거야!”</div></main>`,'home');$('#start').onclick=()=>{state().started=true;save();chime();navigate('map');};$('#home-help').onclick=help;}
 export async function navigate(type,arg,fromHistory=false){
- const revision=++navRevision;stopStory();document.querySelectorAll('#overlay dialog').forEach(d=>d.close());stopAllSounds();dispose();dispose=()=>{};screen={type,arg};
+ const revision=++navRevision;stopGuideText();stopStory();document.querySelectorAll('#overlay dialog').forEach(d=>d.close());stopAllSounds();dispose();dispose=()=>{};screen={type,arg};
  musicScene(type==='final'&&['ending','certificate','celebration'].includes(arg)?'final':'main');
  if(type!=='home')app.innerHTML='<main class="loading-card" role="status">탐험 도구를 준비하고 있어…</main>';
  try{
