@@ -21,7 +21,7 @@ try{
   await p.waitForFunction(k=>JSON.parse(localStorage.getItem(k)).mapNode===1,SAVE_KEY);assert.equal((await state(p)).mapVillains.hits.river,0,'clicking villain only moves River');
   await p.locator('#map-attack').focus();await p.keyboard.press('KeyJ');await p.waitForTimeout(60);assert.equal((await state(p)).mapVillains.hits.river,1);assert.equal(await p.locator('.map-combat-river').isVisible(),true);assert.equal(await foe.getAttribute('data-frame'),'4');
   await p.keyboard.press('KeyJ');assert.equal((await state(p)).mapVillains.hits.river,1,'cooldown rejects repeat');await p.screenshot({path:out+'/'+width+'-attack.png'});
-  for(let n=2;n<=3;n++){await p.waitForTimeout(610);await p.locator('#map-attack').tap();assert.equal((await state(p)).mapVillains.hits.river,n);}
+  for(let n=2;n<=3;n++){await p.waitForTimeout(610);if(n===2)await foe.tap();else{await p.evaluate(()=>document.activeElement?.blur());await p.keyboard.press('Space');}assert.equal((await state(p)).mapVillains.hits.river,n);}
   await p.waitForTimeout(650);assert.equal(await foe.isVisible(),false);assert.equal(await p.evaluate(()=>window.__audioPlays),0);assert.deepEqual((await state(p)).completed,[]);
   await p.reload();await p.waitForSelector('.map-ready');assert.equal(await p.locator('[data-villain="river"]').isVisible(),false);assert.match(await p.locator('#map-villain-focus').textContent(),/1\/5/);
   // Every foe can be approached with a native button and defeated through attack, not click removal.
@@ -35,7 +35,7 @@ try{
   await p.locator('#map-overview').tap();assert.equal(await p.locator('#map-overview').getAttribute('aria-pressed'),'true');await p.locator('#map-hand').tap();
   await p.screenshot({path:out+'/'+width+'-clear.png'});await p.reload();await p.waitForSelector('.map-ready');assert.equal(await p.locator('.map-villain:not([hidden])').count(),0);
   await p.locator('#stage-shortcuts').tap();await p.waitForSelector('#activity canvas');assert.equal((await state(p)).location.type,'stage');
-  results.push({width,height,attack:'touch + J',proximity:true,cooldown:true,approach:true,dragGuard:true,allFiveDefeated:true,persistence:true,mute:true,learningGate:true,stageEntry:true});await context.close();
+  results.push({width,height,attack:'touch + J + Space + nearby enemy tap',proximity:true,cooldown:true,approach:true,dragGuard:true,allFiveDefeated:true,persistence:true,mute:true,learningGate:true,stageEntry:true});await context.close();
  }
  for(const fallback of [false,true]){
   const {context,p}=await setup(667,375,{node:2,fallback});await p.waitForFunction(k=>JSON.parse(localStorage.getItem(k)).mapVillains.health===0,SAVE_KEY,{timeout:15000});

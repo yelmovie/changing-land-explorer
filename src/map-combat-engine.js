@@ -1,6 +1,14 @@
 import {MAP_VILLAINS,HERO_HEALTH,VILLAIN_HITS,normalizeVillains,hitVillain} from './map-villain-rules.js';
 const REST_POINTS=[[.18,.75],[.16,.38],[.29,.205],[.65,.205],[.77,.46],[.70,.70]].map(([x,y])=>({x:x*1200,y:y*675}));
 export const COMBAT={attackRange:128,collisionRadius:31,attackCooldown:560,invulnerable:1800,speed:38};
+// Visuals are exactly half the previous size; touch targets remain at least 48 px.
+export const villainCellSize=scale=>Math.max(64,Math.min(190,112*scale))/2;
+export function riverCombatFrame(pose,elapsed,reduced=false){
+ if(pose===1)return reduced?2:elapsed<90?0:elapsed<170?1:elapsed<320?2:3;
+ if(pose===2)return reduced||elapsed<300?4:5;
+ if(pose===3)return reduced||elapsed>350?7:6;
+ return 0;
+}
 export function createCombat(progress,now=0){const p=normalizeVillains(progress);return {progress:p,invulnerableUntil:now+1200,attackAt:-Infinity,heroPoseUntil:0,heroPose:0,heroFacing:1,enemies:MAP_VILLAINS.map((v,i)=>({...v,x:v.x*1200,y:v.y*675,home:{x:v.x*1200,y:v.y*675},phase:i*1.4,frame:0,facing:1,poseUntil:0,deadAt:p.hits[v.id]===3?-Infinity:null}))};}
 export function stepCombat(game,hero,delta,now){
  if(!hero||game.progress.health===0)return [];
@@ -12,7 +20,7 @@ export function stepCombat(game,hero,delta,now){
   const target=chase?hero:{x:e.home.x+Math.sin(now/1200+e.phase)*18,y:e.home.y+Math.cos(now/1600+e.phase)*10};
   const dx=target.x-e.x,dy=target.y-e.y,d=Math.hypot(dx,dy),step=Math.min(d,COMBAT.speed*(chase?1:.35)*dt);
   if(now>=e.poseUntil&&d>2){e.facing=dx<0?-1:1;e.x+=dx/d*step;e.y+=dy/d*step;e.frame=1+Math.floor(now/230)%2;}else if(now>=e.poseUntil)e.frame=0;
-  if(!resting&&Math.hypot(hero.x-e.x,hero.y-e.y)<COMBAT.collisionRadius&&now>=game.invulnerableUntil){
+  if(!resting&&now>=e.poseUntil&&Math.hypot(hero.x-e.x,hero.y-e.y)<COMBAT.collisionRadius&&now>=game.invulnerableUntil){
    game.progress.health--;game.invulnerableUntil=now+COMBAT.invulnerable;game.heroFacing=e.x<hero.x?-1:1;game.heroPose=2;game.heroPoseUntil=now+600;e.frame=3;e.poseUntil=now+400;
    // Separate bodies after contact, with a grace period instead of per-frame damage.
    const n=Math.hypot(e.x-hero.x,e.y-hero.y)||1;e.x+=(e.x-hero.x||1)/n*24;e.y+=(e.y-hero.y)/n*24;
@@ -22,13 +30,18 @@ export function stepCombat(game,hero,delta,now){
  }
  return events;
 }
-export function attackCombat(game,hero,now){
+export function attackCombat(game,hero,now,targetId=null){
  if(!hero||!game.progress.health||now-game.attackAt<COMBAT.attackCooldown)return null;
  game.attackAt=now;game.heroPose=1;game.heroPoseUntil=now+430;
- const enemy=game.enemies.filter(e=>game.progress.hits[e.id]<VILLAIN_HITS).map(e=>({e,d:Math.hypot(e.x-hero.x,e.y-hero.y)})).filter(v=>v.d<=COMBAT.attackRange).sort((a,b)=>a.d-b.d)[0]?.e;
+ const enemy=game.enemies.filter(e=>game.progress.hits[e.id]<VILLAIN_HITS&&(!targetId||e.id===targetId)).map(e=>({e,d:Math.hypot(e.x-hero.x,e.y-hero.y)})).filter(v=>v.d<=COMBAT.attackRange).sort((a,b)=>a.d-b.d)[0]?.e;
  if(!enemy)return {type:'miss'};
  game.heroFacing=enemy.x<hero.x?-1:1;
  const hit=hitVillain(game.progress,enemy.id);game.progress=hit.progress;enemy.frame=hit.defeated?5:4;enemy.poseUntil=now+430;if(hit.defeated)enemy.deadAt=now;
+ // A successful pulse gives feedback and room to breathe, never a contact hit on the same frame.
+ game.invulnerableUntil=Math.max(game.invulnerableUntil,now+650);
+ const distance=Math.hypot(enemy.x-hero.x,enemy.y-hero.y)||1;
+ enemy.x+=((enemy.x-hero.x)||game.heroFacing)/distance*12;enemy.y+=(enemy.y-hero.y)/distance*12;
+ if(hit.defeated){game.celebrateAt=now+430;game.celebrateUntil=now+1130;}
  return {type:hit.defeated?'defeat':'hit',id:enemy.id,remaining:hit.remaining};
 }
 export function restartCombat(game,now){

@@ -253,8 +253,10 @@ function markResults(scene,api) {
 
 function field(scene,api) {
   const d=api.data,w=api.work;
-  api.image('river-field',600,320,1200,640);
+  const fieldAsset=api.phase===0?'art/river-upper-photo-v1':api.phase===1?'art/river-lower-photo-v1':'river-field';
+  api.image(fieldAsset,600,320,1200,640);
   if(api.phase===2)return connectField(scene,api);
+  api.text('학습용 실사형 생성 이미지',212,620,16,'#ffffff').setBackgroundColor('#173c35').setPadding(8,4);
   // A subtle scrim separates interactive objects from the detailed landscape.
   scene.add.rectangle(600,320,1200,640,0x173c35,.14);
   const region=api.phase===0?{x:218,y:284,w:302,h:264,label:'상류',lx:218,ly:126}:{x:824,y:505,w:444,h:206,label:'하류',lx:824,ly:602};
@@ -276,7 +278,7 @@ function field(scene,api) {
   api.panel(preview.x,216,656,408,0xfff8e8,1).setName('field-preview-panel');
   const mask=scene.make.graphics({x:0,y:0,add:false});
   mask.fillStyle(0xffffff).fillRoundedRect(preview.x-preview.width/2,preview.y-preview.height/2,preview.width,preview.height,14);
-  const zoom=api.image('river-field',preview.x,preview.y,1800,960).setMask(mask.createGeometryMask());
+  const zoom=api.image(fieldAsset,preview.x,preview.y,1800,960).setMask(mask.createGeometryMask());
   const name=api.text('가까이 들여다보자',preview.x,292,28).setName('field-preview-title');
   const caption=api.text('물길과 알갱이 모양이 단서야.',preview.x,350,25,'#294239',552).setName('field-preview-caption');
   const recorded=p=>w.found.includes(p.id)&&d.evidence[p.id]?.kind==='field'&&d.evidence[p.id]?.claim===p.claim;
@@ -288,7 +290,7 @@ function field(scene,api) {
     name.setText(p.label);caption.setText(p.text);
     if(recorded(p)){api.say(p.text);check();return true;}
     if(!w.found.includes(p.id))w.found.push(p.id);markers.get(p.id)(true);api.say(p.text+' 남은 숫자도 눌러 봐.');
-    api.record({id:p.id,kind:'field',label:p.label,asset:'river-field',point:{x:p.x/1000,y:p.y/560},zoom:2.5,claim:p.claim,text:p.text});
+    api.record({id:p.id,kind:'field',label:p.label,asset:fieldAsset,point:{x:p.x/1000,y:p.y/560},zoom:2.5,claim:p.claim,text:p.text});
     api.counter(points.filter(recorded).length,2,'관찰 단서');api.spark(lens.x,lens.y);api.save();check();
     return true;
   }
