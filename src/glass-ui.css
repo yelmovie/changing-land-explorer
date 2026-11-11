@@ -1,0 +1,69 @@
+/* Scenic glass UI: translucency on chrome, never opacity on content.
+   Interaction geometry stays in rounded-ui.css; this layer controls material. */
+:root {
+ --hud-paper:rgba(250,255,246,.74);
+ --hud-line:rgba(255,255,255,.7);
+ --hud-ink:#173e35;
+ --hud-shadow:0 6px 20px #102f2924,inset 0 1px 0 #ffffffa6;
+ --glass-control:rgba(250,255,246,.78);
+ --glass-panel:rgba(250,255,246,.76);
+ --glass-border:1px solid rgba(255,255,255,.76);
+ --glass-shadow:0 4px 16px #102f292b,inset 0 1px 0 #ffffffb3;
+}
+#app .topbar .icon-button,
+#app.adventure .activity-tools>summary,
+#app :is(.secondary,.home-help,.home-settings,.atlas-overview,.atlas-route-help,.map-dpad button),
+#app.adventure .adventure-toolbar :is(.secondary,.compact-tool),
+#app.adventure #observation-speed {
+ background:var(--glass-control);color:var(--hud-ink);
+ border:var(--glass-border);box-shadow:var(--glass-shadow);
+ backdrop-filter:blur(6px) saturate(1.12);-webkit-backdrop-filter:blur(6px) saturate(1.12);
+}
+#app .topbar .icon-button,
+#app.adventure .activity-tools>summary {border-radius:18px}
+#app :is(.primary,.secondary,.icon-button,.compact-tool,.home-help){transition:background-color .16s ease,box-shadow .16s ease}
+#app :is(.secondary,.icon-button,.compact-tool):hover:enabled,
+#app.adventure .activity-tools>summary:hover {background:rgba(255,255,250,.94);box-shadow:0 7px 20px #102f2938,inset 0 1px 0 white}
+#app :is(.primary,.secondary,.icon-button,.compact-tool):active:enabled {box-shadow:0 2px 6px #102f2929}
+#app :is(.primary),#app.adventure .adventure-toolbar .primary {
+ background:rgba(30,99,78,.9);color:#fffef3;border:1px solid #b4dec5b3;
+ box-shadow:0 5px 18px #102f293b,inset 0 1px 0 #ffffff38;
+ backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+#app .primary:hover:enabled {background:rgba(27,88,69,.98)}
+#app.adventure .adventure-heading,
+#app.adventure .adventure-page .river-narrator,
+#app.adventure .activity-tools .adventure-side-tools,
+#app.atlas:not(.welcome) .atlas-footer>p,
+#app.atlas:not(.welcome) .atlas-footer>div:has(>p),
+#app.atlas:not(.welcome) .atlas-route-help {
+ background:var(--glass-panel);border:var(--glass-border);box-shadow:var(--hud-shadow);
+ backdrop-filter:blur(5px) saturate(1.08);-webkit-backdrop-filter:blur(5px) saturate(1.08);
+}
+#app.adventure .adventure-heading {border-inline-start:3px solid var(--stage-accent,#498977);border-radius:20px}
+#app.adventure .adventure-page .river-narrator {border-radius:18px}
+#app.adventure .phase-path {border-left:1px solid #355d3d30}
+#app.adventure .phase-node>span {border-width:1px;box-shadow:none;background:#ffffff75}
+#app.adventure .phase-node.current>span {background:#f7d788de;color:#3e472e}
+#app.atlas:not(.welcome) .map-dpad {background:transparent;border:0;box-shadow:none}
+#app.atlas .map-resident .resident-tag {background:#f8fff1c7;border:var(--glass-border);box-shadow:var(--glass-shadow);color:#173e35}
+#app.atlas:not(.welcome) :is(.next-guide,.travel-skip) {background:#fff2c8da;border:1px solid #fff9df;box-shadow:var(--glass-shadow);color:#3f4b30}
+#app .preview-banner {background:#335548e6;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#app.adventure .teacher-skip {background:#335548e6;border:1px solid #d0e9ca;box-shadow:var(--glass-shadow)}
+/* Dialogs retain a stronger reading surface, while the surrounding scene stays visible. */
+#overlay dialog {background:rgba(250,255,246,.9);border:1px solid #ffffffe0;box-shadow:0 22px 64px #102c2945;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#overlay dialog::backdrop {background:#153b3538;backdrop-filter:none}
+#overlay :is(.dialog-header,.dialog-footer){background:transparent}
+#overlay :is(.secondary,.icon-button,.dialog-close){background:#ffffffa8;border:1px solid #bad0bb;box-shadow:0 2px 8px #102f2912}
+#overlay :is(.setting-row,.learning-guide details){background:#edf7e878}
+#app :is(button,summary,input,select):focus-visible,#overlay :is(button,summary,input,select):focus-visible {outline:3px solid #145a4a;outline-offset:3px}
+@media(prefers-reduced-transparency:reduce){:root{--glass-control:#f7fbed;--glass-panel:#f7fbed}#overlay dialog{background:#f7fbed}}
+@media(prefers-reduced-motion:reduce){#app :is(.primary,.secondary,.icon-button,.compact-tool,.home-help){transition:none}}
+@media print {#app.final .certificate{backdrop-filter:none;background-color:white}}
+#overlay .dialog-heading {background:transparent;border-bottom-color:#40644b29}
+#overlay .primary {background:#236b55eb;color:#fffef3;border:1px solid #b4dec5b3;box-shadow:0 4px 14px #102f2929}
+#app.adventure .adventure-toolbar #observation-auto {background:#fff1bfd9;color:#344b30;border:1px solid #fff9df;box-shadow:var(--glass-shadow)}
+#app .pin-sign {background:#f7ffedcf;border:1px solid #ffffffd9;box-shadow:var(--glass-shadow);color:#173e35}
+#app.final .final-panel {background:#f8fff1d9;border:var(--glass-border);box-shadow:var(--glass-shadow)}
+/* Long certificate is a reading page: actions follow it, never cover the name field. */
+#app.final .certificate-tools {position:static;flex:none;flex-wrap:wrap;margin-top:12px;padding:10px 0 8px}

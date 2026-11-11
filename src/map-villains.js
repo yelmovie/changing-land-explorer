@@ -1,3 +1,4 @@
+import {syncMapHitLayout} from './map-hit-layout.js';
 import {MAP_VILLAINS,VILLAIN_HITS,HERO_HEALTH,defeatedVillains} from './map-villain-rules.js';
 import {createCombat,stepCombat,attackCombat,restartCombat,COMBAT,villainCellSize,riverCombatFrame} from './map-combat-engine.js';
 import {playSound} from './sound.js';
@@ -75,6 +76,7 @@ export function mountMapVillains({world,page,tools,state,save,reveal,go,getHero,
   const n=defeatedVillains(game.progress),guideKey=n===5?'clear':!game.progress.health?'rest':nearby?'near':'far';
   if(lastNear!==guideKey){lastNear=guideKey;hud.querySelector('.combat-guide').innerHTML=guideKey==='clear'?'<b>5마리 모두 퇴치! ✦</b><small>관찰 기록을 계속 모아 보자</small>':guideKey==='rest'?'<b>탐험 기록은 안전해!</b><small>다시 도전하면 하트가 채워져</small>':guideKey==='near'?'<b>지금 공격할 수 있어!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>':'다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>';}
   const ready=now-game.attackAt>=COMBAT.attackCooldown;attack.dataset.ready=String(ready);attack.dataset.inRange=String(nearby>0);attack.setAttribute('aria-disabled',String(attack.disabled||!ready));
+  syncMapHitLayout(page,world);
  }
  function tick(now){
   if(closed)return;raf=requestAnimationFrame(tick);if(now-lastPaint<33)return;const dt=last?now-last:0;last=now;lastPaint=now;

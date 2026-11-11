@@ -162,7 +162,7 @@ export function setup(scene,api){
   w.sorted??=[];let finished=!!api.completed;
   const orders=['granite','basalt'],names={basalt:'현무암',granite:'화강암'},stones=[],glow=scene.add.graphics();
   tray(TRAY.basalt,TRAY_Y,'현무암');tray(TRAY.granite,TRAY_Y,'화강암');
-  const orderText=api.text('',600,65,26).setBackgroundColor('#fff8e8').setPadding(18,8);
+  const orderText=api.text('',600,34,26).setBackgroundColor('#fff8e8').setPadding(18,8);
   const current=()=>orders.find(type=>!w.sorted.some(id=>ROCKS[id].type===type));
   function actions(){api.actions([0,1].map(id=>({id:'rock-ship-'+id,label:'표본 '+(id?'B':'A')+' 보내기',disabled:w.sorted.includes(id),onClick:()=>ship(id)})));}
   function progress(){

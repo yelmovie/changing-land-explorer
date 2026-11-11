@@ -1,0 +1,38 @@
+/* HUD occupies deliberate lanes; scenery remains full bleed. */
+#app.atlas:not(.welcome) .atlas-footer {align-items:center;gap:10px}
+#app.atlas:not(.welcome) .atlas-footer #map-speech {max-height:80px;overflow:auto;margin:0}
+#app.atlas:not(.welcome) .atlas-footer .map-river {height:76px;width:52px}
+#app.atlas:not(.welcome) .map-resident {width:88px;height:48px;min-height:48px;min-width:88px;display:block;transform:translate(-50%,0);overflow:visible}
+#app.atlas:not(.welcome) .map-resident img {position:absolute;left:50%;bottom:48px;transform:translateX(-50%);pointer-events:none}
+#app.atlas:not(.welcome) .map-resident .resident-tag {position:absolute;inset:0;min-height:48px;height:48px;min-width:0;padding:4px;pointer-events:none}
+#app.atlas:not(.welcome) .map-resident::before {display:none}
+#app.atlas:not(.welcome) .map-target-obscured {visibility:hidden;pointer-events:none}
+#app.atlas:not(.welcome) .next-guide {left:50%!important;top:auto!important;bottom:calc(var(--atlas-footer-h,96px) + 12px);transform:translateX(-50%);max-width:calc(100% - 360px);white-space:normal;justify-content:center;text-align:center}
+#app.atlas:not(.welcome) .map-view-tools {top:calc(var(--atlas-safe-top,64px) + 10px)}
+#app.atlas:not(.welcome) .map-combat-hud {bottom:calc(var(--atlas-footer-h,96px) + 12px)}
+@media(max-height:620px){
+ #app.atlas:not(.welcome) .atlas-footer {flex-wrap:nowrap;bottom:8px;gap:8px}
+ #app.atlas:not(.welcome) .atlas-footer .map-river {display:none}
+ #app.atlas:not(.welcome) .atlas-footer #map-speech {flex:1;max-height:64px;min-width:0;padding:6px 10px;font-size:20px;line-height:1.25}
+ #app.atlas:not(.welcome) .atlas-footer .stage-shortcuts {min-width:168px;max-width:210px;min-height:54px;padding:6px 10px}
+ #app.atlas:not(.welcome) .atlas-footer .stage-shortcuts small {display:none}
+ #app.atlas:not(.welcome) .atlas-footer .stage-shortcuts strong {font-size:20px}
+ #app.atlas:not(.welcome) .map-dpad {bottom:calc(var(--atlas-footer-h,80px) + 10px)}
+ #app.atlas:not(.welcome) .combat-guide {display:none}
+ #app.atlas:not(.welcome) .map-combat-hud {bottom:calc(var(--atlas-footer-h,80px) + 10px)}
+ #app.atlas:not(.welcome) .next-guide {font-size:17px;padding:5px 8px;max-width:calc(100% - 360px)}
+}
+
+#app.atlas:not(.welcome) .map-overview .map-resident img {display:none}
+/* Labels can shift into clear space without being clipped by the map image box. */
+#app.atlas:not(.welcome) .atlas-world {overflow:visible}
+
+#app.atlas:not(.welcome) .map-view-tools #resident-directory {display:flex;gap:2px}
+#app.atlas:not(.welcome) .map-view-tools #resident-directory span {font-size:12px}
+#app.atlas:not(.welcome) .map-villain.map-target-obscured {visibility:visible;opacity:0;pointer-events:none}
+
+#app.atlas:not(.welcome) .map-overview .map-villain {visibility:hidden;pointer-events:none}
+/* Labels have already been moved out of the HUD; remove legacy ghost dimming. */
+#app.atlas:not(.welcome) .under-hud {opacity:1}
+/* The safety mascot sits beside its sign, never on the destination text. */
+#app.atlas:not(.welcome) .map-resident[data-resident="safety"] img {max-height:80px;transform:translateX(-30%)}
