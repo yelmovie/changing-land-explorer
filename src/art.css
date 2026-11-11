@@ -230,7 +230,7 @@
 /* 세로 화면에서도 안내를 읽거나 설정을 열고 화면을 돌릴 수 있다. */
 #rotation-note{display:none}
 @media screen and (max-width:599px) and (max-aspect-ratio:3/4){
- #rotation-note{display:block;padding:8px 16px;text-align:center;font:700 15px/1.35 system-ui,sans-serif;color:#fff6d8;background:#193f35}
+ #rotation-note{display:block;padding:8px 16px;text-align:center;font:700 15px/1.35 NanumSquareNeo,system-ui,sans-serif;color:#fff6d8;background:#193f35}
  #app.adventure .adventure-page .adventure-heading{top:var(--hud-top);left:8px;right:8px;width:auto;max-width:none}
 }
 @media(prefers-reduced-motion:reduce){#app.adventure .adventure-toolbar #next.ready{animation:none}}
@@ -429,7 +429,7 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 #app.atlas .stage-shortcuts{display:inline-flex;flex:none;align-items:center;justify-content:center;gap:16px;min-height:64px;margin-left:auto;padding:10px 18px;color:var(--hud-ink);background:var(--hud-paper);border:2px solid var(--hud-line);border-radius:var(--radius-lg);box-shadow:var(--hud-shadow);font:normal 22px/1.15 NanumSquareNeo,system-ui,sans-serif;white-space:nowrap;cursor:pointer}
 #app.atlas .stage-shortcuts>.shortcut-copy{display:grid;gap:4px;text-align:left}
 #app.atlas .stage-shortcuts strong{font:inherit;font-size:clamp(21px,1.6vw,27px)}
-#app.atlas .stage-shortcuts small{font:normal var(--fs-label)/1.2 system-ui,sans-serif;color:#596d55}
+#app.atlas .stage-shortcuts small{font:normal var(--fs-label)/1.2 NanumSquareNeo,system-ui,sans-serif;color:#596d55}
 #app.atlas .stage-shortcuts>svg{flex:none}
 #app.atlas .stage-shortcuts:hover{background:#fff0c5}
 #app.atlas .stage-shortcuts:focus-visible{outline:3px solid #2e7358;outline-offset:3px}
@@ -503,7 +503,7 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 .village-life .smoke-puff,.village-life .life-twinkle,.village-life .lighthouse-beam,.village-life .gull,.wake-burst circle,.wake-burst .burst-spark,.tower-lamp.lamp-new circle{transform-box:fill-box;transform-origin:center}
 .village-life .life-twinkle{opacity:.85}
 .village-life .sky-birds,.village-life .gull{opacity:.9}
-.voice-replay{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin:-6px 0 12px;padding:5px 14px 5px 10px;color:var(--hud-ink);background:#f3ead2;border:1.5px solid #b99b68;border-radius:22px;box-shadow:0 2px 0 #9c7f4c40;font:700 clamp(15px,1.15vw,17px)/1.1 system-ui,sans-serif;cursor:pointer}
+.voice-replay{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin:-6px 0 12px;padding:5px 14px 5px 10px;color:var(--hud-ink);background:#f3ead2;border:1.5px solid #b99b68;border-radius:22px;box-shadow:0 2px 0 #9c7f4c40;font:700 clamp(15px,1.15vw,17px)/1.1 NanumSquareNeo,system-ui,sans-serif;cursor:pointer}
 .voice-replay:hover{background:#ece0bd}
 .voice-replay:focus-visible{outline:3px solid #e0a93d;outline-offset:2px}
 .reward-thanks{position:relative;margin:4px auto 10px;padding:9px 14px;max-width:34em;color:#3b3824;background:#fff6dd;border:1.5px solid #d8b878;border-radius:14px;box-shadow:0 2px 0 #c7a5662e;font-size:clamp(17px,1.4vw,20px);line-height:1.45;word-break:keep-all;text-align:left}

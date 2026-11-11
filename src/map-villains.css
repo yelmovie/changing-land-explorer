@@ -7,17 +7,17 @@
 #app.atlas .villain-art,#app.atlas .combat-mini{background-image:url('/assets/art/geo-rubble-sprites.webp');background-size:300% 200%;background-repeat:no-repeat}
 #app.atlas .villain-art{position:absolute;width:var(--foe-cell,114px);height:var(--foe-cell,114px);left:0;bottom:8px;filter:drop-shadow(0 2px 1px #fff0c9) drop-shadow(0 5px 3px #182b3966);pointer-events:none;transform-origin:50% 82%;transform:scaleX(var(--facing,1))}
 #app.atlas .villain-shadow{position:absolute;width:68%;height:14px;left:16%;bottom:13px;border-radius:50%;background:#251b314a;pointer-events:none}
-#app.atlas .villain-hp{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font:900 13px/16px system-ui;letter-spacing:3px;color:#e58538;background:#fff7df;border:2px solid #765b42;border-radius:10px;padding:0 4px 0 7px;white-space:nowrap;min-height:20px}
+#app.atlas .villain-hp{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font:900 13px/16px NanumSquareNeo,system-ui;letter-spacing:3px;color:#e58538;background:#fff7df;border:2px solid #765b42;border-radius:10px;padding:0 4px 0 7px;white-space:nowrap;min-height:20px}
 #app.atlas .villain-impact{position:absolute;inset:0;display:grid;place-items:center;color:#fff8c2;text-shadow:0 0 10px #ffa94d;font-size:82px;opacity:0;pointer-events:none}
 #app.atlas .map-villain.hit .villain-impact{animation:combat-spark .35s ease-out}
 #app.atlas .map-villain.defeated .villain-art{animation:combat-retreat .55s ease-in forwards}
 #app.atlas .map-villain.defeated .villain-hp{visibility:hidden}
-#app.atlas .map-view-tools #map-villain-focus{width:auto;min-width:80px;gap:5px;display:flex;padding:4px 8px;font:bold 16px/1 system-ui}
+#app.atlas .map-view-tools #map-villain-focus{width:auto;min-width:80px;gap:5px;display:flex;padding:4px 8px;font:bold 16px/1 NanumSquareNeo,system-ui}
 #app.atlas .combat-mini{display:block;width:30px;height:30px}
 #app.atlas .map-combat-hud{position:absolute;z-index:35;right:16px;bottom:calc(var(--atlas-footer-h,100px) + 18px);display:flex;align-items:center;gap:8px;pointer-events:none}
-#app.atlas .combat-health{border:2px solid #827147;border-radius:15px;background:#fff9e8;box-shadow:0 3px 0 #54483144;padding:7px 12px;color:#9c392d;text-align:center;font:800 20px/1.15 system-ui}
+#app.atlas .combat-health{border:2px solid #827147;border-radius:15px;background:#fff9e8;box-shadow:0 3px 0 #54483144;padding:7px 12px;color:#9c392d;text-align:center;font:800 20px/1.15 NanumSquareNeo,system-ui}
 #app.atlas .combat-health span{display:block;letter-spacing:3px}#app.atlas .combat-health b{display:block;font-size:12px;color:#574b35}
-#app.atlas #map-attack{pointer-events:auto;width:88px;height:78px;border:3px solid #6c542c;border-radius:24px;background:linear-gradient(#ffedb4,#efbd64);box-shadow:0 4px 0 #7f592b;color:#4b351b;font:900 19px/1 system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;touch-action:manipulation}
+#app.atlas #map-attack{pointer-events:auto;width:88px;height:78px;border:3px solid #6c542c;border-radius:24px;background:linear-gradient(#ffedb4,#efbd64);box-shadow:0 4px 0 #7f592b;color:#4b351b;font:900 19px/1 NanumSquareNeo,system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;touch-action:manipulation}
 #app.atlas #map-attack>span{font-size:30px;color:#f9fff8;text-shadow:0 0 3px #688e7c,0 0 8px #688e7c}#app.atlas #map-attack small{font-size:11px}#app.atlas #map-attack[data-ready=false]{filter:saturate(.5)}
 #app.atlas .combat-retry{pointer-events:auto;position:absolute;right:0;bottom:95px;width:260px;padding:16px;border:3px solid #866b47;border-radius:20px;background:#fff9e8;box-shadow:0 6px 20px #192d3644;color:#4d402d;text-align:center}
 #app.atlas .combat-retry strong{font-size:20px}#app.atlas .combat-retry p{font-size:20px;line-height:1.45;margin:8px 0}#app.atlas .combat-retry button{min-height:48px;background:#587b64;color:white;border:2px solid #355840;border-radius:14px;padding:8px 18px;font-weight:800}
@@ -40,15 +40,15 @@
 #app.atlas .map-overview .villain-art{width:34px;height:34px;margin-left:-17px}
 #app.atlas .map-overview .villain-target{display:none}
 #app.atlas .map-villain.in-range .villain-hp{background:#e9ffcf;border-color:#407a41;color:#326638;box-shadow:0 0 0 3px #c0ee8b66}
-#app.atlas .villain-target{position:absolute;left:50%;bottom:calc(100% - 6px);transform:translateX(-50%);border-radius:8px;padding:3px 7px;background:#345f37;color:#fff8d8;font:800 11px/1.1 system-ui;white-space:nowrap;opacity:0;pointer-events:none}
+#app.atlas .villain-target{position:absolute;left:50%;bottom:calc(100% - 6px);transform:translateX(-50%);border-radius:8px;padding:3px 7px;background:#345f37;color:#fff8d8;font:800 11px/1.1 NanumSquareNeo,system-ui;white-space:nowrap;opacity:0;pointer-events:none}
 #app.atlas .in-range .villain-target{opacity:1}
-#app.atlas .villain-result{position:absolute;left:50%;top:-15px;white-space:nowrap;transform:translateX(-50%);color:#fff6bc;text-shadow:0 2px 2px #3b3d20,1px 0 #3b3d20,-1px 0 #3b3d20;font:900 18px/1 system-ui;opacity:0;pointer-events:none;z-index:4}
+#app.atlas .villain-result{position:absolute;left:50%;top:-15px;white-space:nowrap;transform:translateX(-50%);color:#fff6bc;text-shadow:0 2px 2px #3b3d20,1px 0 #3b3d20,-1px 0 #3b3d20;font:900 18px/1 NanumSquareNeo,system-ui;opacity:0;pointer-events:none;z-index:4}
 #app.atlas .map-villain.hit .villain-result{animation:combat-result .43s ease-out}
 #app.atlas .map-villain.hit:not(.defeated) .villain-art{animation:combat-recoil .35s ease-out}
 #app.atlas .map-villain.hit .villain-target{opacity:0}
 #app.atlas .villain-impact{font-size:48px}
 #app.atlas .map-combat-river{background-image:url('/assets/art/river-combat-v2.webp');background-size:400% 200%}
-#app.atlas .combat-guide{position:absolute;right:0;bottom:calc(100% + 10px);margin:0;min-width:235px;padding:9px 12px;border:2px solid #8e7951;border-radius:14px;background:#fff9e8ed;box-shadow:0 3px 0 #54483133;color:#4d402d;text-align:center;font:700 20px/1.4 system-ui}
+#app.atlas .combat-guide{position:absolute;right:0;bottom:calc(100% + 10px);margin:0;min-width:235px;padding:9px 12px;border:2px solid #8e7951;border-radius:14px;background:#fff9e8ed;box-shadow:0 3px 0 #54483133;color:#4d402d;text-align:center;font:700 20px/1.4 NanumSquareNeo,system-ui}
 #app.atlas .combat-guide small{display:block;font-size:16px;font-weight:600;margin-top:3px;white-space:nowrap}
 #app.atlas #map-attack[data-in-range=true]{background:linear-gradient(#fff5bd,#aade88);border-color:#4b7045}
 #app.atlas #map-attack:active{transform:translateY(3px);box-shadow:0 1px 0 #7f592b}
