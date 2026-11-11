@@ -1,0 +1,4136 @@
+{
+  "commit": "1c6f7c95612bd14637be906e1d181a2934ef712b",
+  "deploymentId": "82d83669-d333-4a62-a435-e88368dda4f9",
+  "url": "https://geovalley.pages.dev",
+  "immutableUrl": "https://82d83669.geovalley.pages.dev",
+  "deploymentStatus": "success",
+  "files": {
+    "base": "https://geovalley.pages.dev",
+    "commit": "1c6f7c95612bd14637be906e1d181a2934ef712b",
+    "checked": 320,
+    "matched": 320,
+    "failed": [],
+    "results": [
+      {
+        "path": "assets/CREDITS.md",
+        "status": 200,
+        "bytes": 10785,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ash-classroom-v3.webp",
+        "status": 200,
+        "bytes": 148498,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/discovery-observatory.webp",
+        "status": 200,
+        "bytes": 384006,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/city-message-square-v2.webp",
+        "status": 200,
+        "bytes": 312490,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/city-harbor-v2.webp",
+        "status": 200,
+        "bytes": 515214,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/field-workbench.webp",
+        "status": 200,
+        "bytes": 230544,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/geo-rubble-sprites.json",
+        "status": 200,
+        "bytes": 3916,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/expedition-base.webp",
+        "status": 200,
+        "bytes": 480478,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/geologist-brush.webp",
+        "status": 200,
+        "bytes": 37844,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/expedition-medallion.webp",
+        "status": 200,
+        "bytes": 218568,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/manifest.json",
+        "status": 200,
+        "bytes": 6699,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/hero-hold-leg-v1.webp",
+        "status": 200,
+        "bytes": 129676,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/geo-rubble-sprites.webp",
+        "status": 200,
+        "bytes": 102638,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/record-tower-restored-v1.webp",
+        "status": 200,
+        "bytes": 324762,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-canyon-v2.webp",
+        "status": 200,
+        "bytes": 533834,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-combat-v2.webp",
+        "status": 200,
+        "bytes": 120004,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-combat-v2.json",
+        "status": 200,
+        "bytes": 2398,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-combat.webp",
+        "status": 200,
+        "bytes": 55090,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-combat.json",
+        "status": 200,
+        "bytes": 2803,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-photo-v1.json",
+        "status": 200,
+        "bytes": 664,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-lower-photo-v1.webp",
+        "status": 200,
+        "bytes": 219344,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-observatory-v2.webp",
+        "status": 200,
+        "bytes": 323420,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-sand-model.webp",
+        "status": 200,
+        "bytes": 165142,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-sand-wet-v1.webp",
+        "status": 200,
+        "bytes": 138688,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-sediment-bank-v2.webp",
+        "status": 200,
+        "bytes": 141418,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-sediment-fan-v1.webp",
+        "status": 200,
+        "bytes": 20330,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-upper-photo-v1.webp",
+        "status": 200,
+        "bytes": 364642,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-water-current-v2.webp",
+        "status": 200,
+        "bytes": 67008,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/rock-basalt-study-v1.webp",
+        "status": 200,
+        "bytes": 217712,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/rock-granite-study-v1.webp",
+        "status": 200,
+        "bytes": 267706,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/rocks-quarry-atelier-v2.webp",
+        "status": 200,
+        "bytes": 362190,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/safety-cushion.webp",
+        "status": 200,
+        "bytes": 115786,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/rocks-crystal-cave-v2.webp",
+        "status": 200,
+        "bytes": 453238,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/safety-evacuation-garden-v2.webp",
+        "status": 200,
+        "bytes": 510344,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/safety-island-classroom-v2.webp",
+        "status": 200,
+        "bytes": 191860,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/broken-glass.webp",
+        "status": 200,
+        "bytes": 30926,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/brick-wall.webp",
+        "status": 200,
+        "bytes": 10768,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/stage-backgrounds.json",
+        "status": 200,
+        "bytes": 2602,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/exit-mat.webp",
+        "status": 200,
+        "bytes": 18240,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/certificate-frame.webp",
+        "status": 200,
+        "bytes": 205024,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/dust-crust.webp",
+        "status": 200,
+        "bytes": 63768,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/dust-mask.webp",
+        "status": 200,
+        "bytes": 30402,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/fallen-shelf.webp",
+        "status": 200,
+        "bytes": 15094,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/flowerbed.webp",
+        "status": 200,
+        "bytes": 26370,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/glass-pane.webp",
+        "status": 200,
+        "bytes": 13668,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/house-roof.webp",
+        "status": 200,
+        "bytes": 42112,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/indoor-wall.webp",
+        "status": 200,
+        "bytes": 43122,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/notice-board.webp",
+        "status": 200,
+        "bytes": 111832,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/paper-card.webp",
+        "status": 200,
+        "bytes": 33454,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/parchment-panel.webp",
+        "status": 200,
+        "bytes": 108652,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/playground.webp",
+        "status": 200,
+        "bytes": 21396,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/school-floor.webp",
+        "status": 200,
+        "bytes": 28686,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/specimen-tray.webp",
+        "status": 200,
+        "bytes": 39944,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/school-desk.webp",
+        "status": 200,
+        "bytes": 36554,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/time-knob.webp",
+        "status": 200,
+        "bytes": 18400,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/utility-pole.webp",
+        "status": 200,
+        "bytes": 10866,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/town-ground.webp",
+        "status": 200,
+        "bytes": 76950,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/manifest.json",
+        "status": 200,
+        "bytes": 5405,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/warning-sign.webp",
+        "status": 200,
+        "bytes": 8756,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/ui/window-frame.webp",
+        "status": 200,
+        "bytes": 45560,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/volcano-ash-puff-0-v1.webp",
+        "status": 200,
+        "bytes": 27582,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/volcano-ash-puff-1-v1.webp",
+        "status": 200,
+        "bytes": 29132,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/volcano-mountain.webp",
+        "status": 200,
+        "bytes": 102144,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/volcano-ash-puff-2-v1.webp",
+        "status": 200,
+        "bytes": 28614,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/volcano-caldera-v2.webp",
+        "status": 200,
+        "bytes": 422686,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/CREDITS.md",
+        "status": 200,
+        "bytes": 4282,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/volcano-syringe.webp",
+        "status": 200,
+        "bytes": 72840,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/volcano-tray.webp",
+        "status": 200,
+        "bytes": 24652,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/volcano-workshop-v2.webp",
+        "status": 200,
+        "bytes": 308184,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/complete.mp3",
+        "status": 200,
+        "bytes": 4000,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/click.mp3",
+        "status": 200,
+        "bytes": 1061,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/brush.mp3",
+        "status": 200,
+        "bytes": 2939,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/Kenney-CC0.txt",
+        "status": 200,
+        "bytes": 551,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/festival.ogg",
+        "status": 200,
+        "bytes": 30900,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/lamp-light.ogg",
+        "status": 200,
+        "bytes": 4917,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/final-theme.mp3",
+        "status": 200,
+        "bytes": 542204,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/hint.mp3",
+        "status": 200,
+        "bytes": 4503,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/letter-open.ogg",
+        "status": 200,
+        "bytes": 18248,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/move.mp3",
+        "status": 200,
+        "bytes": 3975,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/notebook-page.ogg",
+        "status": 200,
+        "bytes": 10546,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/notebook-open.ogg",
+        "status": 200,
+        "bytes": 7366,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/observe.mp3",
+        "status": 200,
+        "bytes": 1738,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/pickup.mp3",
+        "status": 200,
+        "bytes": 1556,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/resident-pop.ogg",
+        "status": 200,
+        "bytes": 11618,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/place.mp3",
+        "status": 200,
+        "bytes": 1789,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/stamp.ogg",
+        "status": 200,
+        "bytes": 9901,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/trail-step.ogg",
+        "status": 200,
+        "bytes": 9900,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/tool-reward.ogg",
+        "status": 200,
+        "bytes": 16981,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/village-wake.ogg",
+        "status": 200,
+        "bytes": 19137,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/main-theme.mp3",
+        "status": 200,
+        "bytes": 3649388,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/characters/river-walk.json",
+        "status": 200,
+        "bytes": 509,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/workplace-open.ogg",
+        "status": 200,
+        "bytes": 22848,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/audio/water.mp3",
+        "status": 200,
+        "bytes": 3805,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/characters/river-walk.webp",
+        "status": 200,
+        "bytes": 234824,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/city-before.webp",
+        "status": 200,
+        "bytes": 333840,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/city-calm.webp",
+        "status": 200,
+        "bytes": 322582,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/classroom.webp",
+        "status": 200,
+        "bytes": 134646,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/city-0.webm",
+        "status": 200,
+        "bytes": 1252389,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/city-0.mp4",
+        "status": 200,
+        "bytes": 1213140,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/city-0.webp",
+        "status": 200,
+        "bytes": 128768,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/city-1.webp",
+        "status": 200,
+        "bytes": 127002,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/city-1.webm",
+        "status": 200,
+        "bytes": 1087497,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/city-1.mp4",
+        "status": 200,
+        "bytes": 951802,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/river-0.mp4",
+        "status": 200,
+        "bytes": 546078,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/manifest.json",
+        "status": 200,
+        "bytes": 1067,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/river-0.webm",
+        "status": 200,
+        "bytes": 626749,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/river-0.webp",
+        "status": 200,
+        "bytes": 73376,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/river-1.webm",
+        "status": 200,
+        "bytes": 1056833,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/river-1.webp",
+        "status": 200,
+        "bytes": 126764,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/river-1.mp4",
+        "status": 200,
+        "bytes": 994400,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/rocks-0.mp4",
+        "status": 200,
+        "bytes": 388752,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/rocks-0.webp",
+        "status": 200,
+        "bytes": 74698,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/rocks-0.webm",
+        "status": 200,
+        "bytes": 553986,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/rocks-1.mp4",
+        "status": 200,
+        "bytes": 183741,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/rocks-1.webm",
+        "status": 200,
+        "bytes": 261063,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/rocks-1.webp",
+        "status": 200,
+        "bytes": 46636,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/safety-0.mp4",
+        "status": 200,
+        "bytes": 588553,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/safety-0.webp",
+        "status": 200,
+        "bytes": 72840,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/safety-0.webm",
+        "status": 200,
+        "bytes": 606309,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/art/river-field-clues-v3.webp",
+        "status": 200,
+        "bytes": 270860,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/city-eruption.webp",
+        "status": 200,
+        "bytes": 239378,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/safety-1.mp4",
+        "status": 200,
+        "bytes": 825422,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/safety-1.webm",
+        "status": 200,
+        "bytes": 920911,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/safety-1.webp",
+        "status": 200,
+        "bytes": 116132,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/volcano-0.webm",
+        "status": 200,
+        "bytes": 417723,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/volcano-0.mp4",
+        "status": 200,
+        "bytes": 378994,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/volcano-1.webp",
+        "status": 200,
+        "bytes": 106608,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/volcano-0.webp",
+        "status": 200,
+        "bytes": 57934,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/volcano-1.webm",
+        "status": 200,
+        "bytes": 794545,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/concepts/volcano-1.mp4",
+        "status": 200,
+        "bytes": 778440,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/fonts/NanumSquareNeo-SOURCE.json",
+        "status": 200,
+        "bytes": 494,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/fonts/NanumSquareNeo-OFL.txt",
+        "status": 200,
+        "bytes": 11638,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/fonts/jua-latin-400.woff2",
+        "status": 200,
+        "bytes": 16620,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/fonts/NanumSquareNeoTTF-bRg.woff2",
+        "status": 200,
+        "bytes": 387104,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/fonts/NanumSquareNeoTTF-cBd.woff2",
+        "status": 200,
+        "bytes": 384992,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/fonts/jua-korean-400.woff2",
+        "status": 200,
+        "bytes": 368172,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/fonts/Jua-OFL.txt",
+        "status": 200,
+        "bytes": 4474,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/hero-brush.webp",
+        "status": 200,
+        "bytes": 71302,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/hero-lens.webp",
+        "status": 200,
+        "bytes": 59120,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/hero-cheer.webp",
+        "status": 200,
+        "bytes": 63314,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/generated-manifest.json",
+        "status": 200,
+        "bytes": 1315,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/hero-protect-mask.webp",
+        "status": 200,
+        "bytes": 243720,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/hero-protect.webp",
+        "status": 200,
+        "bytes": 76000,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/models/README.md",
+        "status": 200,
+        "bytes": 690,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/map-adventure.webp",
+        "status": 200,
+        "bytes": 668218,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/map.webp",
+        "status": 200,
+        "bytes": 719252,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/models/rock-basalt-porous.glb",
+        "status": 200,
+        "bytes": 1212560,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/og-image.jpg",
+        "status": 200,
+        "bytes": 240915,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/models/rock-granite-white.glb",
+        "status": 200,
+        "bytes": 1334976,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/models/volcano-exterior.glb",
+        "status": 200,
+        "bytes": 1020868,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/residents/city.webp",
+        "status": 200,
+        "bytes": 55258,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/residents/river.webp",
+        "status": 200,
+        "bytes": 76560,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/models/terrain-soil-block.glb",
+        "status": 200,
+        "bytes": 700140,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/residents/safety.webp",
+        "status": 200,
+        "bytes": 71590,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/residents/rocks.webp",
+        "status": 200,
+        "bytes": 76534,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/river-hero.webp",
+        "status": 200,
+        "bytes": 111004,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/residents/volcano.webp",
+        "status": 200,
+        "bytes": 61898,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/river-field.webp",
+        "status": 200,
+        "bytes": 332358,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/river-pose-1.webp",
+        "status": 200,
+        "bytes": 13322,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/river-lab.webp",
+        "status": 200,
+        "bytes": 181764,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/river-pose-0.webp",
+        "status": 200,
+        "bytes": 15310,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/river-pose-2.webp",
+        "status": 200,
+        "bytes": 14484,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/river-pose-3.webp",
+        "status": 200,
+        "bytes": 15442,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/river-sprite.webp",
+        "status": 200,
+        "bytes": 9210,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/rock-0.webp",
+        "status": 200,
+        "bytes": 125058,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/rock-2.webp",
+        "status": 200,
+        "bytes": 124410,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/rock-1.webp",
+        "status": 200,
+        "bytes": 129658,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/rock-3.webp",
+        "status": 200,
+        "bytes": 139916,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/rocks-lab.webp",
+        "status": 200,
+        "bytes": 159082,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/rocks-table.webp",
+        "status": 200,
+        "bytes": 206706,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/school.webp",
+        "status": 200,
+        "bytes": 302262,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/story/final.webp",
+        "status": 200,
+        "bytes": 32250,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/story/intro.webp",
+        "status": 200,
+        "bytes": 76112,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/title-logo.webp",
+        "status": 200,
+        "bytes": 85282,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/tool-box.webp",
+        "status": 200,
+        "bytes": 75382,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/tool-flag.webp",
+        "status": 200,
+        "bytes": 55080,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/tool-camera.webp",
+        "status": 200,
+        "bytes": 65168,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/tool-compass.webp",
+        "status": 200,
+        "bytes": 55512,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/tool-water.webp",
+        "status": 200,
+        "bytes": 60764,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/tool-lens.webp",
+        "status": 200,
+        "bytes": 44830,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/vendor/Phaser-LICENSE.md",
+        "status": 200,
+        "bytes": 1120,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/vendor/three/addons/utils/BufferGeometryUtils.js",
+        "status": 200,
+        "bytes": 37621,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/vendor/three/addons/loaders/GLTFLoader.js",
+        "status": 200,
+        "bytes": 114959,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/vendor/three/three-LICENSE.txt",
+        "status": 200,
+        "bytes": 1081,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/vendor/phaser-3.90.0.min.js",
+        "status": 200,
+        "bytes": 1196122,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/vendor/three/addons/utils/SkeletonUtils.js",
+        "status": 200,
+        "bytes": 11535,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/story/final.mp4",
+        "status": 200,
+        "bytes": 4560131,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/vendor/three/three.core.min.js",
+        "status": 200,
+        "bytes": 385386,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/story/intro.mp4",
+        "status": 200,
+        "bytes": 4587884,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/vendor/three/three.module.min.js",
+        "status": 200,
+        "bytes": 365552,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/MOMO-SOURCE.txt",
+        "status": 200,
+        "bytes": 299,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/city-chat1.m4a",
+        "status": 200,
+        "bytes": 52251,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/city-chat0.m4a",
+        "status": 200,
+        "bytes": 73195,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/city-stamp.m4a",
+        "status": 200,
+        "bytes": 39616,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/city-thanks.m4a",
+        "status": 200,
+        "bytes": 47903,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/city-hello.m4a",
+        "status": 200,
+        "bytes": 56702,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-final-river.mp3",
+        "status": 200,
+        "bytes": 57096,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-city-ash-done.mp3",
+        "status": 200,
+        "bytes": 80606,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-final-rock.mp3",
+        "status": 200,
+        "bytes": 55215,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-final-route.mp3",
+        "status": 200,
+        "bytes": 30138,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-intro-river.mp3",
+        "status": 200,
+        "bytes": 79666,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-intro-city.mp3",
+        "status": 200,
+        "bytes": 86249,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-intro-rocks.mp3",
+        "status": 200,
+        "bytes": 91578,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-intro-safety.mp3",
+        "status": 200,
+        "bytes": 123551,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-map-festival.mp3",
+        "status": 200,
+        "bytes": 72143,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-intro-volcano.mp3",
+        "status": 200,
+        "bytes": 120730,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-map-first.mp3",
+        "status": 200,
+        "bytes": 35780,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-retry-river-mark.mp3",
+        "status": 200,
+        "bytes": 46438,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-retry-river-reflect.mp3",
+        "status": 200,
+        "bytes": 38601,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-retry-rocks-name.mp3",
+        "status": 200,
+        "bytes": 54902,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-retry-city-period.mp3",
+        "status": 200,
+        "bytes": 66814,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-retry-volcano-order.mp3",
+        "status": 200,
+        "bytes": 49259,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-retry-safety-shaking.mp3",
+        "status": 200,
+        "bytes": 55529,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-retry-rocks-order.mp3",
+        "status": 200,
+        "bytes": 41423,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-river-a1-done.mp3",
+        "status": 200,
+        "bytes": 59604,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-river-a2-done.mp3",
+        "status": 200,
+        "bytes": 82174,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-rocks-granite.mp3",
+        "status": 200,
+        "bytes": 44557,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-safety-a2-done.mp3",
+        "status": 200,
+        "bytes": 50200,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-rocks-a2-done.mp3",
+        "status": 200,
+        "bytes": 34526,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-rocks-basalt.mp3",
+        "status": 200,
+        "bytes": 44871,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-volcano-a1-done.mp3",
+        "status": 200,
+        "bytes": 68067,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-volcano-a2-done.mp3",
+        "status": 200,
+        "bytes": 74650,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/momo-manifest-20261110.json",
+        "status": 200,
+        "bytes": 34233,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/river-chat0.m4a",
+        "status": 200,
+        "bytes": 69311,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/river-chat1.m4a",
+        "status": 200,
+        "bytes": 43435,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/river-hello.m4a",
+        "status": 200,
+        "bytes": 51104,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/river-stamp.m4a",
+        "status": 200,
+        "bytes": 40440,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/river-thanks.m4a",
+        "status": 200,
+        "bytes": 43889,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/rocks-stamp.m4a",
+        "status": 200,
+        "bytes": 63168,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/rocks-chat1.m4a",
+        "status": 200,
+        "bytes": 59157,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/rocks-hello.m4a",
+        "status": 200,
+        "bytes": 73913,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/rocks-chat0.m4a",
+        "status": 200,
+        "bytes": 90922,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/rocks-thanks.m4a",
+        "status": 200,
+        "bytes": 52138,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/safety-chat0.m4a",
+        "status": 200,
+        "bytes": 74095,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/safety-chat1.m4a",
+        "status": 200,
+        "bytes": 47295,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/safety-hello.m4a",
+        "status": 200,
+        "bytes": 70460,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/safety-thanks.m4a",
+        "status": 200,
+        "bytes": 46972,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/safety-stamp.m4a",
+        "status": 200,
+        "bytes": 41915,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/volcano-chat0.m4a",
+        "status": 200,
+        "bytes": 72743,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/volcano-chat1.m4a",
+        "status": 200,
+        "bytes": 48900,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/volcano-hello.m4a",
+        "status": 200,
+        "bytes": 45013,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/volcano-stamp.m4a",
+        "status": 200,
+        "bytes": 48032,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/volcano-thanks.m4a",
+        "status": 200,
+        "bytes": 42223,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/volcano-eruption.webp",
+        "status": 200,
+        "bytes": 411762,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/volcano-lab.webp",
+        "status": 200,
+        "bytes": 127902,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/volcano-field.webp",
+        "status": 200,
+        "bytes": 170254,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/city.js",
+        "status": 200,
+        "bytes": 21190,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "index.html",
+        "status": 200,
+        "bytes": 3139,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/evacuation.js",
+        "status": 200,
+        "bytes": 10464,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/hints.js",
+        "status": 200,
+        "bytes": 7170,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/observation-tour.js",
+        "status": 200,
+        "bytes": 583,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/index.js",
+        "status": 200,
+        "bytes": 35327,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/playback.js",
+        "status": 200,
+        "bytes": 1310,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/river.js",
+        "status": 200,
+        "bytes": 26083,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/rocks.js",
+        "status": 200,
+        "bytes": 16998,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/rules.js",
+        "status": 200,
+        "bytes": 4902,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/safety.js",
+        "status": 200,
+        "bytes": 11070,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/volcano.js",
+        "status": 200,
+        "bytes": 22467,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure.css",
+        "status": 200,
+        "bytes": 15340,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/adventure/shelter.js",
+        "status": 200,
+        "bytes": 2327,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/art.css",
+        "status": 200,
+        "bytes": 53312,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/audio-settings.js",
+        "status": 200,
+        "bytes": 1268,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/city.js",
+        "status": 200,
+        "bytes": 7073,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/concept-focus.css",
+        "status": 200,
+        "bytes": 15296,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/concept-focus.js",
+        "status": 200,
+        "bytes": 8609,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/concepts.js",
+        "status": 200,
+        "bytes": 10509,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/ending.js",
+        "status": 200,
+        "bytes": 14577,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/explore-ui.js",
+        "status": 200,
+        "bytes": 6916,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/field-operation-model.js",
+        "status": 200,
+        "bytes": 7511,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/field-operation.css",
+        "status": 200,
+        "bytes": 8381,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/glass-ui.css",
+        "status": 200,
+        "bytes": 7198,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/guide-recordings.js",
+        "status": 200,
+        "bytes": 6175,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/guide-voice.js",
+        "status": 200,
+        "bytes": 1581,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/layout-fixes.css",
+        "status": 200,
+        "bytes": 3729,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/learning-guide.js",
+        "status": 200,
+        "bytes": 5120,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/learning-model.js",
+        "status": 200,
+        "bytes": 8042,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/learning.css",
+        "status": 200,
+        "bytes": 13269,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/main.js",
+        "status": 200,
+        "bytes": 27378,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/map-adventure.js",
+        "status": 200,
+        "bytes": 32070,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/map-camera.js",
+        "status": 200,
+        "bytes": 499,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/map-combat-engine.js",
+        "status": 200,
+        "bytes": 3880,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/map-hit-layout.js",
+        "status": 200,
+        "bytes": 2626,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/map-villains.css",
+        "status": 200,
+        "bytes": 9366,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/map-villain-rules.js",
+        "status": 200,
+        "bytes": 1249,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/map.js",
+        "status": 200,
+        "bytes": 7186,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/map-villains.js",
+        "status": 200,
+        "bytes": 11336,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/music.js",
+        "status": 200,
+        "bytes": 2667,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/model.js",
+        "status": 200,
+        "bytes": 16989,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/nature.js",
+        "status": 200,
+        "bytes": 16797,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/observation-scenes.js",
+        "status": 200,
+        "bytes": 10268,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/phaser-lifecycle.js",
+        "status": 200,
+        "bytes": 397,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/observations.js",
+        "status": 200,
+        "bytes": 13821,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/polish.css",
+        "status": 200,
+        "bytes": 13740,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/residents.js",
+        "status": 200,
+        "bytes": 9820,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/river-grain-guide.js",
+        "status": 200,
+        "bytes": 9657,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/river-walk.js",
+        "status": 200,
+        "bytes": 1792,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/river-water.js",
+        "status": 200,
+        "bytes": 11540,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/river.js",
+        "status": 200,
+        "bytes": 10011,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/rock3d.js",
+        "status": 200,
+        "bytes": 6655,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/rocks.js",
+        "status": 200,
+        "bytes": 7636,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/route-points.js",
+        "status": 200,
+        "bytes": 807,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/rounded-ui.css",
+        "status": 200,
+        "bytes": 17143,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/safety.js",
+        "status": 200,
+        "bytes": 14221,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/science-learning.js",
+        "status": 200,
+        "bytes": 2961,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/settings-content.js",
+        "status": 200,
+        "bytes": 7366,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/sound.js",
+        "status": 200,
+        "bytes": 5478,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/stage-art.js",
+        "status": 200,
+        "bytes": 2480,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/storage-recovery.js",
+        "status": 200,
+        "bytes": 1230,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/story.css",
+        "status": 200,
+        "bytes": 3003,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/story.js",
+        "status": 200,
+        "bytes": 5361,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/style.css",
+        "status": 200,
+        "bytes": 28872,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/ui.js",
+        "status": 200,
+        "bytes": 7641,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/village-lights.js",
+        "status": 200,
+        "bytes": 8139,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/visuals.js",
+        "status": 200,
+        "bytes": 6506,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/volcano-motion.js",
+        "status": 200,
+        "bytes": 5019,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/volcano.js",
+        "status": 200,
+        "bytes": 10680,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/field-operation.js",
+        "status": 200,
+        "bytes": 12331,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "assets/voices/guide-safety-a1-done.mp3",
+        "status": 200,
+        "bytes": 56783,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "src/activity-helpers.js",
+        "status": 200,
+        "bytes": 2088,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      },
+      {
+        "path": "sw.js",
+        "status": 200,
+        "bytes": 6547,
+        "exact": true,
+        "lineEndingsOnly": false,
+        "match": true
+      }
+    ]
+  },
+  "fullFlow": {
+    "completed": [
+      "river",
+      "volcano",
+      "rocks",
+      "city",
+      "safety"
+    ],
+    "errors": [],
+    "httpErrors": [],
+    "discoveries": 30,
+    "concepts": 10,
+    "rewards": 5,
+    "resumedStageState": false,
+    "stageEvidenceSource": null,
+    "finalRounds": 3,
+    "finished": true,
+    "certificate": true,
+    "reloaded": true,
+    "interaction": "Real pointer input for every stage activity and route; the script knows each target, so a pass shows the activities can be finished, not independent learner performance."
+  },
+  "operations": {
+    "results": [
+      {
+        "label": "667x375-river-start",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-0",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-1",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-2",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-3",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-4",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-5",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-6",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-7",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-8",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-9",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-10",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-done",
+        "issues": []
+      },
+      {
+        "label": "667x375-river-auto-handoff",
+        "issues": []
+      },
+      {
+        "label": "667x375-volcano-start",
+        "issues": []
+      },
+      {
+        "label": "667x375-volcano-0",
+        "issues": []
+      },
+      {
+        "label": "667x375-volcano-1",
+        "issues": []
+      },
+      {
+        "label": "667x375-volcano-2",
+        "issues": []
+      },
+      {
+        "label": "667x375-volcano-3",
+        "issues": []
+      },
+      {
+        "label": "667x375-volcano-done",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-start",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-0",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-1",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-2",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-3",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-4",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-5",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-6",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-7",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-done",
+        "issues": []
+      },
+      {
+        "label": "667x375-rocks-auto-handoff",
+        "issues": []
+      },
+      {
+        "label": "667x375-city-start",
+        "issues": []
+      },
+      {
+        "label": "667x375-city-0",
+        "issues": []
+      },
+      {
+        "label": "667x375-city-1",
+        "issues": []
+      },
+      {
+        "label": "667x375-city-2",
+        "issues": []
+      },
+      {
+        "label": "667x375-city-3",
+        "issues": []
+      },
+      {
+        "label": "667x375-city-done",
+        "issues": []
+      },
+      {
+        "label": "667x375-safety-start",
+        "issues": []
+      },
+      {
+        "label": "667x375-safety-0",
+        "issues": []
+      },
+      {
+        "label": "667x375-safety-1",
+        "issues": []
+      },
+      {
+        "label": "667x375-safety-2",
+        "issues": []
+      },
+      {
+        "label": "667x375-safety-3",
+        "issues": []
+      },
+      {
+        "label": "667x375-safety-4",
+        "issues": []
+      },
+      {
+        "label": "667x375-safety-done",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-start",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-0",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-1",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-2",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-3",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-4",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-5",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-6",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-7",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-8",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-9",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-10",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-done",
+        "issues": []
+      },
+      {
+        "label": "1024x768-river-auto-handoff",
+        "issues": []
+      },
+      {
+        "label": "1024x768-volcano-start",
+        "issues": []
+      },
+      {
+        "label": "1024x768-volcano-0",
+        "issues": []
+      },
+      {
+        "label": "1024x768-volcano-1",
+        "issues": []
+      },
+      {
+        "label": "1024x768-volcano-2",
+        "issues": []
+      },
+      {
+        "label": "1024x768-volcano-3",
+        "issues": []
+      },
+      {
+        "label": "1024x768-volcano-done",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-start",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-0",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-1",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-2",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-3",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-4",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-5",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-6",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-7",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-done",
+        "issues": []
+      },
+      {
+        "label": "1024x768-rocks-auto-handoff",
+        "issues": []
+      },
+      {
+        "label": "1024x768-city-start",
+        "issues": []
+      },
+      {
+        "label": "1024x768-city-0",
+        "issues": []
+      },
+      {
+        "label": "1024x768-city-1",
+        "issues": []
+      },
+      {
+        "label": "1024x768-city-2",
+        "issues": []
+      },
+      {
+        "label": "1024x768-city-3",
+        "issues": []
+      },
+      {
+        "label": "1024x768-city-done",
+        "issues": []
+      },
+      {
+        "label": "1024x768-safety-start",
+        "issues": []
+      },
+      {
+        "label": "1024x768-safety-0",
+        "issues": []
+      },
+      {
+        "label": "1024x768-safety-1",
+        "issues": []
+      },
+      {
+        "label": "1024x768-safety-2",
+        "issues": []
+      },
+      {
+        "label": "1024x768-safety-3",
+        "issues": []
+      },
+      {
+        "label": "1024x768-safety-4",
+        "issues": []
+      },
+      {
+        "label": "1024x768-safety-done",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-start",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-0",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-1",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-2",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-3",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-4",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-5",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-6",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-7",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-8",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-9",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-10",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-done",
+        "issues": []
+      },
+      {
+        "label": "768x1024-river-auto-handoff",
+        "issues": []
+      },
+      {
+        "label": "768x1024-volcano-start",
+        "issues": []
+      },
+      {
+        "label": "768x1024-volcano-0",
+        "issues": []
+      },
+      {
+        "label": "768x1024-volcano-1",
+        "issues": []
+      },
+      {
+        "label": "768x1024-volcano-2",
+        "issues": []
+      },
+      {
+        "label": "768x1024-volcano-3",
+        "issues": []
+      },
+      {
+        "label": "768x1024-volcano-done",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-start",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-0",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-1",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-2",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-3",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-4",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-5",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-6",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-7",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-done",
+        "issues": []
+      },
+      {
+        "label": "768x1024-rocks-auto-handoff",
+        "issues": []
+      },
+      {
+        "label": "768x1024-city-start",
+        "issues": []
+      },
+      {
+        "label": "768x1024-city-0",
+        "issues": []
+      },
+      {
+        "label": "768x1024-city-1",
+        "issues": []
+      },
+      {
+        "label": "768x1024-city-2",
+        "issues": []
+      },
+      {
+        "label": "768x1024-city-3",
+        "issues": []
+      },
+      {
+        "label": "768x1024-city-done",
+        "issues": []
+      },
+      {
+        "label": "768x1024-safety-start",
+        "issues": []
+      },
+      {
+        "label": "768x1024-safety-0",
+        "issues": []
+      },
+      {
+        "label": "768x1024-safety-1",
+        "issues": []
+      },
+      {
+        "label": "768x1024-safety-2",
+        "issues": []
+      },
+      {
+        "label": "768x1024-safety-3",
+        "issues": []
+      },
+      {
+        "label": "768x1024-safety-4",
+        "issues": []
+      },
+      {
+        "label": "768x1024-safety-done",
+        "issues": []
+      }
+    ],
+    "errors": [],
+    "httpErrors": []
+  },
+  "concepts": {
+    "results": [
+      {
+        "width": 667,
+        "height": 375,
+        "id": "river",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "river",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "river",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "river",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "river",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "river",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "volcano",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "volcano",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "volcano",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "volcano",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "volcano",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "volcano",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "rocks",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "rocks",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "rocks",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "rocks",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "rocks",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "rocks",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "city",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "city",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "city",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "city",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "city",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "city",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "safety",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "safety",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "safety",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "safety",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "safety",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 667,
+        "height": 375,
+        "id": "safety",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "river",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "river",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "river",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "river",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "river",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "river",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "volcano",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "volcano",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "volcano",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "volcano",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "volcano",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "volcano",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "rocks",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "rocks",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "rocks",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "rocks",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "rocks",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "rocks",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "city",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "city",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "city",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "city",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "city",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "city",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "safety",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "safety",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "safety",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "safety",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "safety",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1024,
+        "height": 768,
+        "id": "safety",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "river",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "river",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "river",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "river",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "river",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "river",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "volcano",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "volcano",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "volcano",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "volcano",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "volcano",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "volcano",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "rocks",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "rocks",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "rocks",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "rocks",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "rocks",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "rocks",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "city",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "city",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "city",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "city",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "city",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "city",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "safety",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "safety",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "safety",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "safety",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "safety",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 768,
+        "height": 1024,
+        "id": "safety",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "river",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "river",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "river",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "river",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "river",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "river",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "volcano",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "volcano",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "volcano",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "volcano",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "volcano",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "volcano",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "rocks",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "rocks",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "rocks",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "rocks",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "rocks",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "rocks",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "city",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "city",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "city",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "city",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "city",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "city",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "safety",
+        "step": 0,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "safety",
+        "step": 0,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "safety",
+        "step": 0,
+        "cue": 2,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "safety",
+        "step": 1,
+        "cue": 0,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "safety",
+        "step": 1,
+        "cue": 1,
+        "issues": []
+      },
+      {
+        "width": 1920,
+        "height": 1080,
+        "id": "safety",
+        "step": 1,
+        "cue": 2,
+        "issues": []
+      }
+    ],
+    "errors": []
+  },
+  "cache": {
+    "base": "https://geovalley.pages.dev",
+    "cache": "geovalley-v3-1794413925713",
+    "seededOldCommit": "91fd74f",
+    "oldCachedFilesRefreshed": [
+      "/src/field-operation.css",
+      "/src/adventure/index.js"
+    ],
+    "newArtPrecachedBeforeFirstVisit": true,
+    "offlineReload": true,
+    "newAutoplayStopsBeforeAnswer": true,
+    "compactFits": true,
+    "errors": []
+  },
+  "performance": {
+    "base": "https://geovalley.pages.dev",
+    "loading": [
+      {
+        "readyMs": 1675.7999999970198,
+        "bytes": 1272113,
+        "requests": 50,
+        "external": []
+      },
+      {
+        "readyMs": 1598.7000000029802,
+        "bytes": 1272200,
+        "requests": 50,
+        "external": []
+      },
+      {
+        "readyMs": 1561.7000000029802,
+        "bytes": 1272182,
+        "requests": 50,
+        "external": []
+      }
+    ],
+    "offline": [],
+    "keyboard": [],
+    "errors": []
+  }
+}
