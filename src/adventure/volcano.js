@@ -239,7 +239,7 @@ function compare(scene,api){
   const d=api.data,w=api.work;w.links??=[];let finished=false;
   const same=api.phase===1;
   api.image('volcano-field',600,320,1200,640);
-  api.panel(600,295,1060,530,0xfff8e6,.68);
+  api.panel(600,289,1060,542,0xfff8e6,.68);
   api.hero(1140,525,100,'hero-cheer');
   api.task(same?'모형과 실제 화산의 같은 모습을 연결해 봐':'모형으로 모두 나타낼 수 없는 점을 찾아 봐',same?'네 모형 기록과 화산 설명을 알맞은 관찰 자리에 끌어 놓아 줘.':'붉은 물과 실제 분출물은 어떻게 다른지, 카드 두 쌍을 완성해 줘.');
   const rows=same?[
@@ -270,10 +270,11 @@ function compare(scene,api){
   order.forEach((cell,i)=>{
     const text=cell.row[cell.side];
     const card=api.card(text,165+i*290,584,270,104,20,{color:cell.side==='left'?'#2d5a49':'#6b4423'});
+    const fitScale=Math.min(1,108/card.height);card.setScale(fitScale);
     function place(){
       if(!d.evidence[cell.row.source]){api.say('모형 활동에서 네 관찰 기록을 먼저 남겨 줘.');return false;}
       if(!w.links.includes(cell.id))w.links.push(cell.id);
-      card.setPosition(cell.x,cell.y).setScale(1);
+      card.setPosition(cell.x,cell.y).setScale(fitScale);
       const both=['left','right'].every(side=>w.links.includes(cell.row.id+'-'+side));
       if(both){
         d.comparisons[cell.row.id]=same?'same':'different';
@@ -286,7 +287,7 @@ function compare(scene,api){
       if(!near(x,y,cell,125)){api.say(cell.side==='left'?'내 모형에서 직접 본 모습을 알맞은 줄에 놓아 줘.':'실제 화산의 설명을 같은 주제의 줄에 놓아 줘.');return false;}
       return place();
     }});
-    if(w.links.includes(cell.id))card.setPosition(cell.x,cell.y).setScale(1);
+    if(w.links.includes(cell.id))card.setPosition(cell.x,cell.y).setScale(fitScale);
   });
   function check(){if(!finished&&w.links.length===4){finished=true;api.finish(same?'모형과 실제 화산은 구멍으로 물질이 나오고, 경사면을 따라 흐르는 모습이 닮았어.':'붉은 물은 용암이 아니야. 실제 화산에서는 뜨거운 용암과 여러 분출물이 나와.');}}
   api.counter(w.links.length,4,same?'같은 점 연결':'다른 점 연결');
