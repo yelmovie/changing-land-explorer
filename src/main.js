@@ -10,6 +10,7 @@ import {showConcept,CONCEPTS} from './concepts.js';
 import {STAGES,SAVE_KEY,LEGACY_SAVE_KEY,fresh,loadProgress,award,canEnter,saveDecision,seedPreview} from './model.js';
 import {SETTINGS_CONTENT} from './settings-content.js';
 import {activityComplete} from './learning-model.js';
+import {mountOperation} from './field-operation.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
 import {showEvidence,evidenceCard} from './explore-ui.js';
 import {$,$$,icon,escapeHTML} from './ui.js';
@@ -138,6 +139,11 @@ export async function navigate(type,arg,fromHistory=false){
  try{
   if(type==='home'){const m=await import('./map-adventure.js');if(revision!==navRevision)return;dispose=m.renderMap({welcome:true});}
   else if(type==='map'){const m=await import('./map-adventure.js');if(revision!==navRevision)return;dispose=m.renderMap({arrival:arg?.arrival});screen.arg=undefined;}
+  else if(type==='operation'){
+   const index=arg?.index,s=STAGES[index],draft=s&&state().drafts[s.id];
+   if(!draft||!canEnter(index,state(),admin)||(!admin&&!activityComplete(s.id,1,draft.data))){navigate('map');return;}
+   dispose=mountOperation({id:s.id,data:draft.data,save,shell,sound:playSound,onBack:()=>navigate('stage',{index,step:1}),onComplete:()=>complete(index,true)});
+  }
   else if(type==='stage'){
    const index=arg?.index,s=STAGES[index],draft=s&&state().drafts[s.id];
    if(!draft||!canEnter(index,state(),admin)){navigate('map');return;}
@@ -169,7 +175,8 @@ function renderStage(index,mount){
  $('#notebook').onclick=()=>{showEvidence(ctx);playSound('notebook-open',{force:true,inDialog:true});};$('#concept-review').onclick=()=>conceptOpen(s.id,step)?showConcept(ctx,null,{replay:true}):toast('이 활동을 마치면 개념 영상을 다시 볼 수 있어요');ctx.update();
 }
 
-function complete(index){
+function complete(index,fieldReady=false){
+ if(!fieldReady){navigate('operation',{index});return;}
  const stage=STAGES[index],draft=state().drafts[stage.id],newArrival=!state().completed.includes(stage.id);
  const record={summary:`${stage.name}에서 내 관찰 ${Object.keys(draft.data.evidence||{}).length}개를 남겼어.`,data:structuredClone(draft.data)};
  if(admin)preview=award(preview,stage.id,record);else student=award(student,stage.id,record);

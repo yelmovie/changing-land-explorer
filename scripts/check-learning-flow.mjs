@@ -63,7 +63,10 @@ async function shelter(){await stroke({x:950,y:465},{x:700,y:482});await stroke(
 async function next(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await settle();}
 async function concept(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await page.waitForSelector('.concept-dialog');concepts++;await page.locator('#concept-continue').click();}
 async function doneStage(index){
- await concept();await page.waitForSelector('#return-map');rewards++;
+ await concept();await page.waitForSelector('#operation-board');
+ const actions=[['observe:erosion','observe:transport','observe:deposit','bridge:checked','test','move:east','move:east','move:east','move:east'],['signed','shelter','station'],['inspect:color','inspect:grain','ship:granite','inspect:color','inspect:grain','ship:basalt'],['close','inside','notice'],['cover','hold','stopped','assembly']][index];
+ for(const action of actions)await page.locator(`[data-operation="${action}"]`).click();
+ await page.locator('#operation-finish').click();await page.waitForSelector('#return-map');rewards++;
  if(index===0){
   const original=page.viewportSize();
   await page.setViewportSize({width:850,height:420});

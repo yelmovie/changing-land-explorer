@@ -43,13 +43,13 @@ export function setupEvacuation(scene,api){
   const hearts=api.text('',225,610,22,'#fff1e8'),status=api.text('',780,610,20,'#ffffff');
   let current={...config.start},points=[{...config.start}],target=null,lives=3,blockedUntil=0,clock=0,steps=0,complete=!!api.completed,won=false,paused=false;
   const gates=new Set(),trail=[];
-  function hud(){hearts.setText('♥'.repeat(lives)+'♡'.repeat(3-lives)+'  연습 기회');status.setText(won?'안전 도착!':lives===0?'다시 도전하면 하트 3개로 시작해요':outside?'건물 · 담장 · 전신주와 거리 두기':gates.size?'출구 통과! 운동장으로 걸어요':'위험을 피해 출구 → 운동장');api.counter(won?1:0,1,'안전 도착');}
+  function hud(){hearts.setText('천천히 · 다시 시도 가능');status.setText(won?'안전 도착!':lives===0?'다시 도전하면 하트 3개로 시작해요':outside?'건물 · 담장 · 전신주와 거리 두기':gates.size?'출구 통과! 운동장으로 걸어요':'위험을 피해 출구 → 운동장');api.counter(won?1:0,1,'안전 도착');}
   function stop(){target=null;marker.clear();hero.setAngle(0);paused=true;draw(false);}
   function reset(){current={...config.start};points=[{...config.start}];target=null;lives=3;blockedUntil=0;won=false;paused=false;gates.clear();trail.length=0;prints.clear();marker.clear();hero.setAlpha(1).setAngle(0);hud();draw(false);api.say('다시 출발! 급하게 가지 않아도 괜찮아. 위험 구역 바깥의 통로를 골라 줘.');}
   function aim(p){if(lives===0||won||globalThis.document?.hidden||globalThis.document?.querySelector('dialog[open]'))return;paused=false;target=p;marker.clear().lineStyle(3,0xffe28a,1).strokeCircle(ox+p.x,oy+p.y,15);}
   function moveBy(x,y){aim({x:current.x+x,y:current.y+y});}
   api.actions([{id:'route-left',label:'← 왼쪽',onClick:()=>moveBy(-55,0)},{id:'route-up',label:'↑ 위',onClick:()=>moveBy(0,-55)},{id:'route-down',label:'↓ 아래',onClick:()=>moveBy(0,55)},{id:'route-right',label:'→ 오른쪽',onClick:()=>moveBy(55,0)},{id:'route-stop',label:'멈추기',onClick:stop},{id:'route-reset',label:'다시 도전',onClick:reset}]);
-  api.task(outside?'공터까지 안전하게 대피하자':playback?'한 번 더! 출구를 지나 운동장으로':'리버를 움직여 안전한 길을 찾아보자','가까운 통로를 누르면 리버가 걸어가. 방향 버튼도 써 봐. 주황 위험 구역에 닿으면 하트가 줄어들어.');
+  api.task(outside?'공터까지 안전하게 대피하자':playback?'한 번 더! 출구를 지나 운동장으로':'리버를 움직여 안전한 길을 찾아보자','가까운 통로를 누르면 리버가 걸어가. 방향 버튼도 써 봐. 주황 위험 구역 앞에서는 멈춰. 다른 길로 다시 갈 수 있어.');
   const down=p=>{const q=toMap(p);if(q.x>=40&&q.x<=960&&q.y>=40&&q.y<=490)aim(q);};
   const keydown=e=>{if(e.repeat||e.target?.matches?.('input,textarea,select')||globalThis.document?.querySelector('dialog[open]'))return;const v={ArrowLeft:[-55,0],ArrowRight:[55,0],ArrowUp:[0,-55],ArrowDown:[0,55]}[e.key];if(v){e.preventDefault();moveBy(...v);}else if(e.key==='Escape')stop();};
   scene.input.on('pointerdown',down);globalThis.window?.addEventListener('keydown',keydown);globalThis.window?.addEventListener('blur',stop);
@@ -74,7 +74,7 @@ export function setupEvacuation(scene,api){
    const dx=target.x-current.x,dy=target.y-current.y,dist=Math.hypot(dx,dy),travel=Math.min(dist,Math.min(delta,50)*.17);
    if(dist<.1){target=null;marker.clear();draw(false);return;}
    const next={x:current.x+dx/dist*travel,y:current.y+dy/dist*travel},hit=evacuationCollision(current,next,config);
-   if(hit){target=null;marker.clear();blockedUntil=clock+900;lives=Math.max(0,lives-1);api.say(lives?hit+' 멈췄어. 다른 길로 돌아가자.':'연습 기회를 다 썼어. 위험 구역을 살펴보고 ‘다시 도전’을 눌러 줘.');hud();draw(false);return;}
+   if(hit){target=null;marker.clear();blockedUntil=clock+900;api.say(hit+' 멈췄어. 기록은 그대로야. 다른 길로 천천히 돌아가자.');hud();draw(false);return;}
    current=next;const a=points.at(-2),b=points.at(-1);
    if(a&&Math.abs((b.x-a.x)*(current.y-b.y)-(b.y-a.y)*(current.x-b.x))<1e-7&&(b.x-a.x)*(current.x-b.x)+(b.y-a.y)*(current.y-b.y)>0)points[points.length-1]={...current};
    else if(points.length<4096)points.push({...current});else{stop();api.say('많이 걸었네! 다시 도전해서 더 짧은 안전길을 찾아보자.');return;}

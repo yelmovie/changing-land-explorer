@@ -1,5 +1,27 @@
 {
-  "name": "moving-geovalley", "version": "0.2.0", "private": true, "type": "module",
-  "scripts": {"check:recovery": "node scripts/check-recovery-original.mjs", "check:concepts": "node scripts/check-concept-screen.mjs", "check:activity": "node scripts/check-activity-fit.mjs", "check:playback": "node scripts/check-activity-playback.mjs", "check:layout": "node scripts/check-learning-ui.mjs", "check:flow": "node scripts/check-learning-flow.mjs", "check:residents": "node scripts/check-map-residents.mjs", "check:keyboard": "node scripts/check-map-keyboard.mjs", "check:combat": "node scripts/check-map-villains.mjs", "check:requested": "node scripts/check-requested-fixes.mjs", "concepts:render": "node scripts/concepts/render.mjs", "dev": "node scripts/serve.mjs", "preview": "node scripts/serve.mjs --dist", "build": "node scripts/build.mjs", "test": "node --test scripts/model.test.mjs scripts/map-camera.test.mjs scripts/adventure.test.mjs scripts/request-fixes.test.mjs scripts/data-safety.test.mjs scripts/river-water.test.mjs scripts/autoplay.test.mjs scripts/learning-guidance.test.mjs scripts/audio-settings.test.mjs scripts/city-redesign.test.mjs scripts/map-villains.test.mjs scripts/concept-focus.test.mjs scripts/font-consistency.test.mjs scripts/guide-voice.test.mjs scripts/glass-ui.test.mjs", "check": "node scripts/check.mjs"},
-  "engines": {"node": ">=20"}
+  "name": "moving-geovalley",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:recovery": "node scripts/check-recovery-original.mjs",
+    "check:concepts": "node scripts/check-concept-screen.mjs",
+    "check:activity": "node scripts/check-activity-fit.mjs",
+    "check:playback": "node scripts/check-activity-playback.mjs",
+    "check:layout": "node scripts/check-learning-ui.mjs",
+    "check:flow": "node scripts/check-learning-flow.mjs",
+    "check:residents": "node scripts/check-map-residents.mjs",
+    "check:keyboard": "node scripts/check-map-keyboard.mjs",
+    "check:combat": "node scripts/check-map-villains.mjs",
+    "check:requested": "node scripts/check-requested-fixes.mjs",
+    "concepts:render": "node scripts/concepts/render.mjs",
+    "dev": "node scripts/serve.mjs",
+    "preview": "node scripts/serve.mjs --dist",
+    "build": "node scripts/build.mjs",
+    "test": "node --test scripts/model.test.mjs scripts/map-camera.test.mjs scripts/adventure.test.mjs scripts/request-fixes.test.mjs scripts/data-safety.test.mjs scripts/river-water.test.mjs scripts/autoplay.test.mjs scripts/learning-guidance.test.mjs scripts/audio-settings.test.mjs scripts/city-redesign.test.mjs scripts/map-villains.test.mjs scripts/concept-focus.test.mjs scripts/font-consistency.test.mjs scripts/guide-voice.test.mjs scripts/glass-ui.test.mjs scripts/field-operation.test.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
 }

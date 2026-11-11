@@ -17,8 +17,8 @@ for(const phase of [0,1,2])test('direct movement reaches the valid destination i
  assert.equal(h.finishes(),1);const key=phase===2?'outsideRoute':'schoolRoute';assert.ok(inspectRoute(h.data[key],phase===2?OUTSIDE_CONFIG:SCHOOL_CONFIG).ok);if(phase)assert.equal(h.data[key+'Done'],true);
  const before=JSON.stringify(h.data);h.actions['route-reset']();for(const p of path.slice(1))h.walk(p);assert.equal(h.finishes(),1);assert.equal(JSON.stringify(h.data),before);
 });
-test('hazards stop movement, consume three hearts, and reset permits retry',()=>{
- const h=activity();for(let i=0;i<3;i++)h.walk({x:140,y:230});assert.ok(h.objects.some(o=>typeof o.text==='string'&&o.text.startsWith('♡♡♡')));assert.equal(h.finishes(),0);for(const p of SCHOOL_PATH.slice(1))h.walk(p);assert.equal(h.finishes(),0);h.actions['route-reset']();assert.ok(h.objects.some(o=>typeof o.text==='string'&&o.text.startsWith('♥♥♥')));for(const p of SCHOOL_PATH.slice(1))h.walk(p);assert.equal(h.finishes(),1);
+test('hazards stop movement without exhausting safety practice attempts',()=>{
+ const h=activity();for(let i=0;i<4;i++)h.walk({x:140,y:230});assert.ok(h.objects.some(o=>typeof o.text==='string'&&o.text.includes('다시 시도 가능')));assert.equal(h.finishes(),0);h.actions['route-reset']();for(const p of SCHOOL_PATH.slice(1))h.walk(p);assert.equal(h.finishes(),1);
 });
 test('pause cancels pending movement until a new learner action',()=>{
  const h=activity();h.walk({x:280,y:100},100);h.hooks.pause();const before=h.objects.map(o=>[o.x,o.y]);h.tick(3000);assert.deepEqual(h.objects.map(o=>[o.x,o.y]),before);assert.equal(h.finishes(),0);
