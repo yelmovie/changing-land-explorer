@@ -1,0 +1,1590 @@
+{
+  "commit": "91fd74f2a406496959abb05c9abd9b7098cf3efa",
+  "files": [
+    {
+      "path": "assets/art/city-harbor-v2.webp",
+      "bytes": 515214,
+      "sha256": "dc5e2b31ecd0b27d12710d3c7c0ac73a946f58a14b364cd76074730572903e46"
+    },
+    {
+      "path": "assets/art/city-message-square-v2.webp",
+      "bytes": 312490,
+      "sha256": "9e0d0617cb062aa78b61c93f4f50fdf5f412c0b74e98c2f106f145f85ae2eb8b"
+    },
+    {
+      "path": "assets/art/discovery-observatory.webp",
+      "bytes": 384006,
+      "sha256": "cf451bd9acf14ad56e2d4eef38aedb9a385eb9ee1b233651676683322d236481"
+    },
+    {
+      "path": "assets/art/expedition-base.webp",
+      "bytes": 480478,
+      "sha256": "da4d329e31a992419a0a85b9cfa4fbbdd53969eee3907ee0be588f124a385234"
+    },
+    {
+      "path": "assets/art/expedition-medallion.webp",
+      "bytes": 218568,
+      "sha256": "8fda1018e3d84f2a994bde43e2e38f45248ac07231f612ac8de06a48cd47cf54"
+    },
+    {
+      "path": "assets/art/field-workbench.webp",
+      "bytes": 230544,
+      "sha256": "3bb9eb49d162edda161d72aba03196bd5b4d2b23a8d0e2ae1fadbc847bfea803"
+    },
+    {
+      "path": "assets/art/geo-rubble-sprites.json",
+      "bytes": 3916,
+      "sha256": "135f626cbe89ede6b971d2298f1809aa3d764ea4ba4285be5d97b530bbc842b1"
+    },
+    {
+      "path": "assets/art/geo-rubble-sprites.webp",
+      "bytes": 102638,
+      "sha256": "b3a0d9fc229a0166369072a288a08cabadf665b2c6d0e762edce878ffc96ec42"
+    },
+    {
+      "path": "assets/art/geologist-brush.webp",
+      "bytes": 37844,
+      "sha256": "12fae2189ba1df16d7b6eba2a07b83b8aaf8d5700b7a57023f11d2ff82313421"
+    },
+    {
+      "path": "assets/art/hero-hold-leg-v1.webp",
+      "bytes": 129676,
+      "sha256": "ea0f0df57723094cc33a8d7d20cc2598657cfe056560afe8e5b18d6528f6c69b"
+    },
+    {
+      "path": "assets/art/manifest.json",
+      "bytes": 6699,
+      "sha256": "6fb823e81a23724b4d0f06539452037cd91efac206dfa340532a79f37426a21d"
+    },
+    {
+      "path": "assets/art/record-tower-restored-v1.webp",
+      "bytes": 324762,
+      "sha256": "3b8dc0e7ad22d41f2b0cca4691bfadf7c468f22a42eb67ab5bd573bc1ed467e7"
+    },
+    {
+      "path": "assets/art/river-canyon-v2.webp",
+      "bytes": 533834,
+      "sha256": "492ad920be045355aebf921a70e6edd0fb9a7363e2e72c39812c9f0caccd0ff3"
+    },
+    {
+      "path": "assets/art/river-combat-v2.json",
+      "bytes": 2398,
+      "sha256": "401322e629ad7fd6ae7873d15afd39305f2b6c7c5070d8b5fda93543bb3feecc"
+    },
+    {
+      "path": "assets/art/river-combat-v2.webp",
+      "bytes": 120004,
+      "sha256": "1eccc9706c42d8256619f06c73fab87dc08c5f7f35c232358c368e84cfb663e6"
+    },
+    {
+      "path": "assets/art/river-combat.json",
+      "bytes": 2803,
+      "sha256": "10c44c578dc1742e083be189ca7380cdad4ce22a5ae910b4d98d5de8feb82255"
+    },
+    {
+      "path": "assets/art/river-combat.webp",
+      "bytes": 55090,
+      "sha256": "47551f1363b6eb6b7d2d8946616c80fb5f8d7868e98a8da534cdfbb78f4bf85f"
+    },
+    {
+      "path": "assets/art/river-lower-photo-v1.webp",
+      "bytes": 219344,
+      "sha256": "4c771e15b23aa9e5ec704d7bce843ee00c070c93cebfc2123d3bbccad6a6e4e0"
+    },
+    {
+      "path": "assets/art/river-observatory-v2.webp",
+      "bytes": 323420,
+      "sha256": "8aa6e9e09cc056d41411e6c66eab29a9e364d64054a93a451f09df83dc2a1d12"
+    },
+    {
+      "path": "assets/art/river-photo-v1.json",
+      "bytes": 664,
+      "sha256": "76e297b71b2a9d03e1a4560db539f1ffc2e75a8ddfcb7018bdcf0d0c017e4ed8"
+    },
+    {
+      "path": "assets/art/river-sand-model.webp",
+      "bytes": 165142,
+      "sha256": "2fa80b0738bf32ce5d64848e18455d897e8a5df59172d4b5b1be3951b8616917"
+    },
+    {
+      "path": "assets/art/river-sand-wet-v1.webp",
+      "bytes": 138688,
+      "sha256": "64775ff000fed1b528b8651dd075b90cfadfcc65d17fd15657a8cedaac949e7a"
+    },
+    {
+      "path": "assets/art/river-sediment-bank-v2.webp",
+      "bytes": 141418,
+      "sha256": "4c7cc4319f9ea453804abc15817af970437ee4e87eb791e2af9f94ab11b7dd80"
+    },
+    {
+      "path": "assets/art/river-sediment-fan-v1.webp",
+      "bytes": 20330,
+      "sha256": "242f703c6ddc13a7a7f276b4e3e9b522b2b6e634c0bdf55d2793b2fde4088a09"
+    },
+    {
+      "path": "assets/art/river-upper-photo-v1.webp",
+      "bytes": 364642,
+      "sha256": "3135335270bf978c7864ef9685b95bc927e20a15f234a91927615eb7eb30207d"
+    },
+    {
+      "path": "assets/art/river-water-current-v2.webp",
+      "bytes": 67008,
+      "sha256": "0a7bbd925241b6e44dd638290e592561bd4b0173f872e56be16f04050eb30a61"
+    },
+    {
+      "path": "assets/art/rock-basalt-study-v1.webp",
+      "bytes": 217712,
+      "sha256": "a338e26f4b7869f0b1e5fe3025103e73715ecf46854d441145477435cd85522b"
+    },
+    {
+      "path": "assets/art/rock-granite-study-v1.webp",
+      "bytes": 267706,
+      "sha256": "ce20b4e24586f72fd6b0dde95e0309a4283d9c60ab5c6a02223727da40efa514"
+    },
+    {
+      "path": "assets/art/rocks-crystal-cave-v2.webp",
+      "bytes": 453238,
+      "sha256": "29dfafc3f3d0f4e5ba384204c1884947af6d7c7d18a56ac2c49150f465287469"
+    },
+    {
+      "path": "assets/art/rocks-quarry-atelier-v2.webp",
+      "bytes": 362190,
+      "sha256": "1f5cd0b948ac2d192d7190a6b7f4cc219aff8a3789427ce015170af817dc7775"
+    },
+    {
+      "path": "assets/art/safety-cushion.webp",
+      "bytes": 115786,
+      "sha256": "42ae5f3f0f32affe53ec311d7e737c354397f26788213ba82d5f31645d729660"
+    },
+    {
+      "path": "assets/art/safety-evacuation-garden-v2.webp",
+      "bytes": 510344,
+      "sha256": "d9881bc94f9164a10ef565a4611391b09f579f0c5df347416b34066538246b0a"
+    },
+    {
+      "path": "assets/art/safety-island-classroom-v2.webp",
+      "bytes": 191860,
+      "sha256": "a113999c037589e905e72d549b19a0ea89235c369d79a76e0e68b90a7859bfeb"
+    },
+    {
+      "path": "assets/art/stage-backgrounds.json",
+      "bytes": 2602,
+      "sha256": "3e1f96ff75b43276425382f17488cf88546a7fc4f8bd0659e68bc8863313d9b8"
+    },
+    {
+      "path": "assets/art/ui/brick-wall.webp",
+      "bytes": 10768,
+      "sha256": "c8d2a0371389b9f851039a8de67d2a686942e3530a6cc6f0dbfbfab4535f193f"
+    },
+    {
+      "path": "assets/art/ui/broken-glass.webp",
+      "bytes": 30926,
+      "sha256": "3dc1a303e595698e65e646d922d6bc48dcf19af3289fb3a1a71f9c321964bd94"
+    },
+    {
+      "path": "assets/art/ui/certificate-frame.webp",
+      "bytes": 205024,
+      "sha256": "830a6592580ad54b28255c5505829c8e9bb608b4705a9d2e44d26f3278a9ec5f"
+    },
+    {
+      "path": "assets/art/ui/dust-crust.webp",
+      "bytes": 63768,
+      "sha256": "d14e447270093425de5de781621ea88a6cc5b7c72810022c93405d2205e08106"
+    },
+    {
+      "path": "assets/art/ui/dust-mask.webp",
+      "bytes": 30402,
+      "sha256": "f18a9baca87c82a0e4e4ca9fd31fdf60f79120ea1fc07d359c040f2e035f103f"
+    },
+    {
+      "path": "assets/art/ui/exit-mat.webp",
+      "bytes": 18240,
+      "sha256": "01501dd225d4ee9b4c2f68739abc5b2a1d86cd9014ba5e978fb6942b5de3e749"
+    },
+    {
+      "path": "assets/art/ui/fallen-shelf.webp",
+      "bytes": 15094,
+      "sha256": "ec7b44bd4adabdc1fb5f106d4a7f4e66fd51baaf1f59a825a7e15a66ac2787ca"
+    },
+    {
+      "path": "assets/art/ui/flowerbed.webp",
+      "bytes": 26370,
+      "sha256": "c94ccb21dbaab1117897fd638f12c51edee5e0d938c9d305eeae1bbf32f6d16a"
+    },
+    {
+      "path": "assets/art/ui/glass-pane.webp",
+      "bytes": 13668,
+      "sha256": "73cb823a3ed5aac5dd8b994e9b34ff39ff2a643d33d1ebf14741f92b8483c6e3"
+    },
+    {
+      "path": "assets/art/ui/house-roof.webp",
+      "bytes": 42112,
+      "sha256": "f737f7695c4a9662bfc86ce83b036355f6d1d8f5842bc061f7a5e766d1ed2d47"
+    },
+    {
+      "path": "assets/art/ui/indoor-wall.webp",
+      "bytes": 43122,
+      "sha256": "8355dff0b28d442fc427fdfe5f9d8f8bb9d1ad1717795189e8d0aee9ff9439eb"
+    },
+    {
+      "path": "assets/art/ui/manifest.json",
+      "bytes": 5405,
+      "sha256": "7ccaf8191ac7a0c7f576073b38cbe3765eb0359c26f16c6924f7178ca8f0ef9a"
+    },
+    {
+      "path": "assets/art/ui/notice-board.webp",
+      "bytes": 111832,
+      "sha256": "1b976eadbf35ff16bac64a01e923d9685936c294e1e2e94e20d7e8c33f090be2"
+    },
+    {
+      "path": "assets/art/ui/paper-card.webp",
+      "bytes": 33454,
+      "sha256": "e5f5bed37a0fcfa3f0964147285ef7e92b042932213b78b7a21a24ad0cab9fc3"
+    },
+    {
+      "path": "assets/art/ui/parchment-panel.webp",
+      "bytes": 108652,
+      "sha256": "73efdbe537fb27fd1a7647c619ee20e0c4a7146bb36aa35964d4c07843f2542f"
+    },
+    {
+      "path": "assets/art/ui/playground.webp",
+      "bytes": 21396,
+      "sha256": "7e780be1c5780cc9b36ceb91f30e04a488bcc2a217f251b1a1d2a4fb52d93fc6"
+    },
+    {
+      "path": "assets/art/ui/school-desk.webp",
+      "bytes": 36554,
+      "sha256": "cc96e118baa50d7147aa155c29009e322237c9592eb7f14a6ceb904835ccc65d"
+    },
+    {
+      "path": "assets/art/ui/school-floor.webp",
+      "bytes": 28686,
+      "sha256": "a43134c9a6cd25fb32bde16bc2a2c4cf4f7089359063d79d026195dbb5b5be65"
+    },
+    {
+      "path": "assets/art/ui/specimen-tray.webp",
+      "bytes": 39944,
+      "sha256": "52f32f216274d0b3e29bb75ef26d3ee4994a0bd8ef63dbe2b4666d30df1d4646"
+    },
+    {
+      "path": "assets/art/ui/time-knob.webp",
+      "bytes": 18400,
+      "sha256": "dfa2ae9a3823fe756c99c9e059390b7e496ed536d289dca64dc775856725c15c"
+    },
+    {
+      "path": "assets/art/ui/town-ground.webp",
+      "bytes": 76950,
+      "sha256": "58f5189bc9ab38afdfabd828c08a648fcf24144e9978e956651791baed125916"
+    },
+    {
+      "path": "assets/art/ui/utility-pole.webp",
+      "bytes": 10866,
+      "sha256": "029205f0b34a77b0eb0be8d950a2bbe945c489557c7db186a830b9a05920aff6"
+    },
+    {
+      "path": "assets/art/ui/warning-sign.webp",
+      "bytes": 8756,
+      "sha256": "41e1f8dde9aeac89ac3e5a452ea294640cf797a128e93067eee6289baf00eb4c"
+    },
+    {
+      "path": "assets/art/ui/window-frame.webp",
+      "bytes": 45560,
+      "sha256": "a5d58401c560a7bdb1fa5f7cb0cd3995672ec655e8f61fd7245ebb9db17c5e46"
+    },
+    {
+      "path": "assets/art/volcano-ash-puff-0-v1.webp",
+      "bytes": 27582,
+      "sha256": "25c8ef4c1d8674a36362025db4843d2ea030989063ceadd31a6dd9825bf7cc03"
+    },
+    {
+      "path": "assets/art/volcano-ash-puff-1-v1.webp",
+      "bytes": 29132,
+      "sha256": "24296613b096ff5c9fc4cb927b7423da07f95f1477335bf4d2567eb8f8183670"
+    },
+    {
+      "path": "assets/art/volcano-ash-puff-2-v1.webp",
+      "bytes": 28614,
+      "sha256": "9f72faed320c80df094f8ae81800e45b293a128ff55e19212ab0b3a0511d830a"
+    },
+    {
+      "path": "assets/art/volcano-caldera-v2.webp",
+      "bytes": 422686,
+      "sha256": "4b4c62fb481b863229f0359e5420ba695d6dd9f10fba01e612b1171c2f6e3a6f"
+    },
+    {
+      "path": "assets/art/volcano-mountain.webp",
+      "bytes": 102144,
+      "sha256": "d7b93523fd53d23c5726a7ae0ec4c96bdc0013191318f050dcd8a0265666e7df"
+    },
+    {
+      "path": "assets/art/volcano-syringe.webp",
+      "bytes": 72840,
+      "sha256": "f27d0739dc26ab0346cce3e450ff3d44b7e5e4949fc571be358aef8710629eb9"
+    },
+    {
+      "path": "assets/art/volcano-tray.webp",
+      "bytes": 24652,
+      "sha256": "dc7d1b901824e6c299bf5ef70816f4f679a73b3cb156b2d6cb8bc22eb755bd68"
+    },
+    {
+      "path": "assets/art/volcano-workshop-v2.webp",
+      "bytes": 308184,
+      "sha256": "0b48e6718eb0375405fb30d05a6dc7eb37bbd434c55858b77450f7d3aaff69a9"
+    },
+    {
+      "path": "assets/audio/brush.mp3",
+      "bytes": 2939,
+      "sha256": "da248c3c93c73e683fc2db80d526c26124a20e621d99e69a5f575b66a87602f5"
+    },
+    {
+      "path": "assets/audio/click.mp3",
+      "bytes": 1061,
+      "sha256": "f56f7d9a7aa43e4b867bc96b6f4275d98811f4d48d08119ab453aeed308e2383"
+    },
+    {
+      "path": "assets/audio/complete.mp3",
+      "bytes": 4000,
+      "sha256": "e4d84e8e25b99c208acaa92d1987bdf18bbd6ce3fdbb949c554e270621099ae9"
+    },
+    {
+      "path": "assets/audio/CREDITS.md",
+      "bytes": 4282,
+      "sha256": "9ecf3190dea27d5cef4aad7b58d7d9dae159cfbcc7f792e9b473bef059451f44"
+    },
+    {
+      "path": "assets/audio/festival.ogg",
+      "bytes": 30900,
+      "sha256": "241c8570fbded819ee0205e4be3efa80aeb834a70df89318da88f9e219798b11"
+    },
+    {
+      "path": "assets/audio/final-theme.mp3",
+      "bytes": 542204,
+      "sha256": "b6efe0858b45e6b8f34ce6e9d03a240859d9104c9572236a5a280d9b905d1a67"
+    },
+    {
+      "path": "assets/audio/hint.mp3",
+      "bytes": 4503,
+      "sha256": "58579d2eb618b6763f67eb9b2c76dfa60a2a22b879f52a8d85346d4f53691add"
+    },
+    {
+      "path": "assets/audio/Kenney-CC0.txt",
+      "bytes": 551,
+      "sha256": "26ff07d4d3131581e54cee2c199b220e8366fc9bc6edeb884a21d7e1076146e1"
+    },
+    {
+      "path": "assets/audio/lamp-light.ogg",
+      "bytes": 4917,
+      "sha256": "08e972c73e53c91d6d310e107e80db60edce78ae47225889a028e628a6f3da49"
+    },
+    {
+      "path": "assets/audio/letter-open.ogg",
+      "bytes": 18248,
+      "sha256": "fa81ac2fedc8c641661b87e349630a36c9800e795e0c800e029214efdbe26a7d"
+    },
+    {
+      "path": "assets/audio/main-theme.mp3",
+      "bytes": 3649388,
+      "sha256": "1111f41ea354708eb29943f71c6de93d73ee055df40571e0258075da0bc9ff8a"
+    },
+    {
+      "path": "assets/audio/move.mp3",
+      "bytes": 3975,
+      "sha256": "12b9a8e7e3658fd72a07d7a814b97e97519df78ba46493c8f35359db670ca1db"
+    },
+    {
+      "path": "assets/audio/notebook-open.ogg",
+      "bytes": 7366,
+      "sha256": "590a0efeb9869247e3d4e9bcfa4043ab80c073ddfa52120df5085e9d570b55ad"
+    },
+    {
+      "path": "assets/audio/notebook-page.ogg",
+      "bytes": 10546,
+      "sha256": "033f6811aec49e37e71c544fee627d4b387b21ad2a73fb0b085fb34c70da7743"
+    },
+    {
+      "path": "assets/audio/observe.mp3",
+      "bytes": 1738,
+      "sha256": "6d5678e1fd3dddb60241d79cb00dd529cad9dd4a116f9e80feaaf4dde0fb9a15"
+    },
+    {
+      "path": "assets/audio/pickup.mp3",
+      "bytes": 1556,
+      "sha256": "9bd94b0d6ccef4d2d9a4aa30791a61ba38c7f86ba812e72e8c6e08f68e205815"
+    },
+    {
+      "path": "assets/audio/place.mp3",
+      "bytes": 1789,
+      "sha256": "69bb5c8d1588d2d8239a29fd8e759fe3882ee580e48beeb4cd2b617f7ef78c1b"
+    },
+    {
+      "path": "assets/audio/resident-pop.ogg",
+      "bytes": 11618,
+      "sha256": "f050b3bb77cb0b901bc8df43d2cc1872c353aebae10b4030cf8ae681726ad343"
+    },
+    {
+      "path": "assets/audio/stamp.ogg",
+      "bytes": 9901,
+      "sha256": "26f3ce60fbde85b678b0ad7f6624d80535fe540d88232ad1e38e47a96662d977"
+    },
+    {
+      "path": "assets/audio/tool-reward.ogg",
+      "bytes": 16981,
+      "sha256": "88da900ec74a79fb845f2dcf2068383998833a9ee1b87a23f074924781af5700"
+    },
+    {
+      "path": "assets/audio/trail-step.ogg",
+      "bytes": 9900,
+      "sha256": "313472dba31fd0c855376069fa368bb5a198c27251cc8398ef464578b7047a4c"
+    },
+    {
+      "path": "assets/audio/village-wake.ogg",
+      "bytes": 19137,
+      "sha256": "91870588924e0e498c6eb8d4f4ccf8595c9e7dc51fb553797b551062e642ce7c"
+    },
+    {
+      "path": "assets/audio/water.mp3",
+      "bytes": 3805,
+      "sha256": "919245fea47aa747269968a901e1308c8126f4e86cfc39f147efccae697e95b3"
+    },
+    {
+      "path": "assets/audio/workplace-open.ogg",
+      "bytes": 22848,
+      "sha256": "4ab93bab96522d8eb109ff96dc57cb6765deb02448fe14c10472084be5bb2a0b"
+    },
+    {
+      "path": "assets/characters/river-walk.json",
+      "bytes": 509,
+      "sha256": "182d75bb24b084466516be28c7ba69ae0e5058e2c4c0d37bb678d3b445001ca4"
+    },
+    {
+      "path": "assets/characters/river-walk.webp",
+      "bytes": 234824,
+      "sha256": "56410f3691d04045f333998ed9afbafc8a743bdfb164bbd0881b59ff9cca224a"
+    },
+    {
+      "path": "assets/city-before.webp",
+      "bytes": 333840,
+      "sha256": "a8d25bf62c0a34fe07a109bf126fcafa96aaab0c8263b35ec75bffae23b9f7f8"
+    },
+    {
+      "path": "assets/city-calm.webp",
+      "bytes": 322582,
+      "sha256": "61029096eb1d887f3d9e9649eba92ed7f3811b27656b6682b2f9aef798d689b5"
+    },
+    {
+      "path": "assets/city-eruption.webp",
+      "bytes": 239378,
+      "sha256": "4782903e699bb7e5be6b5683e9764cc611b0562aff3fe792e9e8ceb81de4ccc9"
+    },
+    {
+      "path": "assets/classroom.webp",
+      "bytes": 134646,
+      "sha256": "c3eced7d669f730e57efbdeca48922a052150197ed262dede8502bc73418d545"
+    },
+    {
+      "path": "assets/concepts/city-0.mp4",
+      "bytes": 1213140,
+      "sha256": "9aaeaa7895d802826bd1fed964676e561edb4e00a4005ee6d96f91e863880122"
+    },
+    {
+      "path": "assets/concepts/city-0.webm",
+      "bytes": 1252389,
+      "sha256": "f744408c44a6d46a359be1d72eb8fbea24f7e5f815cf486401c689fcc3ae3d58"
+    },
+    {
+      "path": "assets/concepts/city-0.webp",
+      "bytes": 128768,
+      "sha256": "3eeeb3b7d4611423d1cab1b8931fd6d8aa154a397ade7c59ab074ef55528a612"
+    },
+    {
+      "path": "assets/concepts/city-1.mp4",
+      "bytes": 951802,
+      "sha256": "0ca19b65f6738be2f39e64fa1b8cc738ea1df2173fa5a020a7e29fed00913428"
+    },
+    {
+      "path": "assets/concepts/city-1.webm",
+      "bytes": 1087497,
+      "sha256": "f5bdd32ba74cbc878d260c3d156fd078d8c99c9646bec060062e95e4ae5bbfc3"
+    },
+    {
+      "path": "assets/concepts/city-1.webp",
+      "bytes": 127002,
+      "sha256": "11f652b437fbcb1bfa6d5897e0eed9ab367a32125eff54e28f740017f9f59891"
+    },
+    {
+      "path": "assets/concepts/manifest.json",
+      "bytes": 1067,
+      "sha256": "6449dda808d128e4c771ceae453a674704228ae5c08964cd05e089938ec1a42a"
+    },
+    {
+      "path": "assets/concepts/river-0.mp4",
+      "bytes": 546078,
+      "sha256": "586eb7ab039713b6c56195dc045eb16191e489996a132b91f39a7e0a94fd7830"
+    },
+    {
+      "path": "assets/concepts/river-0.webm",
+      "bytes": 626749,
+      "sha256": "67ab0ae7a8c6575ce5aae2abf7ca53d7fa013f7cc54e0102f0edfe6515df89b7"
+    },
+    {
+      "path": "assets/concepts/river-0.webp",
+      "bytes": 73376,
+      "sha256": "725c66bbd30cc7021df1bdc8318aa17dd499c4f3e7c210e44f5a1af0cbe54503"
+    },
+    {
+      "path": "assets/concepts/river-1.mp4",
+      "bytes": 906214,
+      "sha256": "b73ba08f8199075415fc5e7e456936981be07ce21d77ab0a86bb3759a2b5711d"
+    },
+    {
+      "path": "assets/concepts/river-1.webm",
+      "bytes": 1053752,
+      "sha256": "770c8edc95e2ef901697dbb097b64ba90f06712dc7561c6085e21314dc8ae439"
+    },
+    {
+      "path": "assets/concepts/river-1.webp",
+      "bytes": 126500,
+      "sha256": "e610b9281903f31b4cee7c76f7ce10b43c79b1f7ba27b6abcc652867206d087d"
+    },
+    {
+      "path": "assets/concepts/rocks-0.mp4",
+      "bytes": 388752,
+      "sha256": "1830adb7ecdecc0bd8413b60a7b6fa2f1f6836a7dcebe0c618c580acb5efce3d"
+    },
+    {
+      "path": "assets/concepts/rocks-0.webm",
+      "bytes": 553986,
+      "sha256": "4fc9352c7d39be326b9bc0afb5257fee7f3219c477a8ea10f01670c76102b719"
+    },
+    {
+      "path": "assets/concepts/rocks-0.webp",
+      "bytes": 74698,
+      "sha256": "3085f9cb122df85936b68007fe0fa22475c299dac7677746f9a13ffcf2d1ddac"
+    },
+    {
+      "path": "assets/concepts/rocks-1.mp4",
+      "bytes": 183741,
+      "sha256": "cc6c75118a4ac6d5194d577e156bb9651be3f27509afa002964e21583078521a"
+    },
+    {
+      "path": "assets/concepts/rocks-1.webm",
+      "bytes": 261063,
+      "sha256": "29ac538e498195a43d85014df2d4fa4e76923af122a2688baf1040cd849ace8d"
+    },
+    {
+      "path": "assets/concepts/rocks-1.webp",
+      "bytes": 46636,
+      "sha256": "ba2a7175b140348a2978c8aa543bd7d337d49492b3af9a1cb74374f3012df39b"
+    },
+    {
+      "path": "assets/concepts/safety-0.mp4",
+      "bytes": 622079,
+      "sha256": "1a17ff6e5a0cab6a85d3df489da91f270b6521d1a924b9a457e828a2ab5ab0e7"
+    },
+    {
+      "path": "assets/concepts/safety-0.webm",
+      "bytes": 608700,
+      "sha256": "f0e5bb59eda1e4f054ad33ce00f24a2f10c5f5d99699c4e5d7e26b50053331e9"
+    },
+    {
+      "path": "assets/concepts/safety-0.webp",
+      "bytes": 72836,
+      "sha256": "6d06557396a55de0bed365656e82be62cb1fda8e1b14c9be25e29a6257bfd2f1"
+    },
+    {
+      "path": "assets/concepts/safety-1.mp4",
+      "bytes": 825422,
+      "sha256": "f50a6ba39b2f120ede5313d9a626dfda0dda21474cc3d25e98b3cbf8eff61dc4"
+    },
+    {
+      "path": "assets/concepts/safety-1.webm",
+      "bytes": 920911,
+      "sha256": "b73bbfadccedb8b9e75ae818b471cbf44c609cdb8690354960e3ef420f2e6c2b"
+    },
+    {
+      "path": "assets/concepts/safety-1.webp",
+      "bytes": 116132,
+      "sha256": "77ee5efe8f44338196b459f1804eb73c8e5c9df21805227f6137fc2bb4a43425"
+    },
+    {
+      "path": "assets/concepts/volcano-0.mp4",
+      "bytes": 378994,
+      "sha256": "f23f7abdd405386fe41bf82630dcb7ffde6759ccbf4428d8695239aac2e6c3a3"
+    },
+    {
+      "path": "assets/concepts/volcano-0.webm",
+      "bytes": 417723,
+      "sha256": "e97109dbf93ab8f85c6d81420da05757e97834b2de7e5fcc7c921f519565c908"
+    },
+    {
+      "path": "assets/concepts/volcano-0.webp",
+      "bytes": 57934,
+      "sha256": "c5a243d6b953c46561583b03fa4c59733c80090e6dc19695841b7b8ecb2e7630"
+    },
+    {
+      "path": "assets/concepts/volcano-1.mp4",
+      "bytes": 769083,
+      "sha256": "10e73aef58ffe252573f1aac13b2eca14e8bf593dbd772042dc9cc983fd583f3"
+    },
+    {
+      "path": "assets/concepts/volcano-1.webm",
+      "bytes": 782801,
+      "sha256": "44d072c4617253d59805ded1832091648c7ecc3d63cdc609a2a2a5bd9948df7e"
+    },
+    {
+      "path": "assets/concepts/volcano-1.webp",
+      "bytes": 105778,
+      "sha256": "83aa68fe28fa928bacf21fa9cd354b825428784f56eb6e30a98659733d0194d6"
+    },
+    {
+      "path": "assets/CREDITS.md",
+      "bytes": 10785,
+      "sha256": "bab2a743781f3562fc736f8d3fe0877d0ebea202f56e5459b6de6b341787e693"
+    },
+    {
+      "path": "assets/fonts/jua-korean-400.woff2",
+      "bytes": 368172,
+      "sha256": "b5c280f7c75d6634c3011682ab7787b73b8cfc4acaee4b70fa7aad228adf7d70"
+    },
+    {
+      "path": "assets/fonts/jua-latin-400.woff2",
+      "bytes": 16620,
+      "sha256": "a317499f46a11810207ace4e5fdf04c9949250abeb914a1e713c391e4606c4f2"
+    },
+    {
+      "path": "assets/fonts/Jua-OFL.txt",
+      "bytes": 4474,
+      "sha256": "75de1deee2759c8ab2c576ae9233078552ad2c02dda3a07822042ad402d4f86a"
+    },
+    {
+      "path": "assets/fonts/NanumSquareNeo-OFL.txt",
+      "bytes": 11638,
+      "sha256": "3e61e61df5e43d5fb20de7e51181b471b2120dc85de35258ece2ba02afb22f44"
+    },
+    {
+      "path": "assets/fonts/NanumSquareNeo-SOURCE.json",
+      "bytes": 494,
+      "sha256": "28f747ab4f1f80451f0178817985f55c9925b766e18c1817d2ecda0ff458c9fb"
+    },
+    {
+      "path": "assets/fonts/NanumSquareNeoTTF-bRg.woff2",
+      "bytes": 387104,
+      "sha256": "d13846b612acc829078aff4f91c272c637c08441b409d46bb1a4c802eb2967c3"
+    },
+    {
+      "path": "assets/fonts/NanumSquareNeoTTF-cBd.woff2",
+      "bytes": 384992,
+      "sha256": "97dfe9720fbed813fc988fcedbcf741e97eef9353515b2043717484ec0b90aa1"
+    },
+    {
+      "path": "assets/generated-manifest.json",
+      "bytes": 1315,
+      "sha256": "6c9b00185798e8824571d89364d6413d9232c164da2fe1a28ad7d1d3dc19da38"
+    },
+    {
+      "path": "assets/hero-brush.webp",
+      "bytes": 71302,
+      "sha256": "133d147e0bd30b78b14091e6ac101ced88422f4697f11107b81bfd2d6cecd87d"
+    },
+    {
+      "path": "assets/hero-cheer.webp",
+      "bytes": 63314,
+      "sha256": "cabfa9035ff6feb0c8b05cdfd7f6d7e4a7fe3a1f04fcaaef0a57fbc2210e74af"
+    },
+    {
+      "path": "assets/hero-lens.webp",
+      "bytes": 59120,
+      "sha256": "a2070936daed5d60b28120cd1b467228d44eb2654055e90638b29b5cabe8c03f"
+    },
+    {
+      "path": "assets/hero-protect-mask.webp",
+      "bytes": 243720,
+      "sha256": "f5236a968acb81aff274282039765000627157d4ecd3ff16eea3d6ac81b35eea"
+    },
+    {
+      "path": "assets/hero-protect.webp",
+      "bytes": 76000,
+      "sha256": "e41a9253f78b8c664ea8e87e1eba6e6ba6f678cac8c6d5df37168f4fd13156e1"
+    },
+    {
+      "path": "assets/map-adventure.webp",
+      "bytes": 668218,
+      "sha256": "9d0208615e8044094038d5d024439e1e71b392907df33956cd2f9e86cb6600bd"
+    },
+    {
+      "path": "assets/map.webp",
+      "bytes": 719252,
+      "sha256": "50d01bfea8d711655ca746b8ee7328df7e94f4013f353f599e75b3460d18a191"
+    },
+    {
+      "path": "assets/models/README.md",
+      "bytes": 690,
+      "sha256": "03dfa273c610d9c3607888809d85689bad0cee88224289963dc4221f4240d84a"
+    },
+    {
+      "path": "assets/models/rock-basalt-porous.glb",
+      "bytes": 1212560,
+      "sha256": "f2875da509785875680d6a294749a95d47cf6d67726da46b5b00108494bc1ee4"
+    },
+    {
+      "path": "assets/models/rock-granite-white.glb",
+      "bytes": 1334976,
+      "sha256": "f7d1644dec3629215af8b2008366237de6dc7d8fd8f2b3fcb66040a4206c9764"
+    },
+    {
+      "path": "assets/models/terrain-soil-block.glb",
+      "bytes": 700140,
+      "sha256": "ca5425001d7103220d8f781fe300fbad06c60ee2026d27284a389ece2c2fb626"
+    },
+    {
+      "path": "assets/models/volcano-exterior.glb",
+      "bytes": 1020868,
+      "sha256": "a0cb6ee5479d71e6a93385ba9962a75c6b7e59201bf2b6e5481b3b680ed075cb"
+    },
+    {
+      "path": "assets/og-image.jpg",
+      "bytes": 240915,
+      "sha256": "cf142252a0bd9d709c25cc8ce8141eb838dde2e15523f081052be1df36146718"
+    },
+    {
+      "path": "assets/residents/city.webp",
+      "bytes": 55258,
+      "sha256": "bd0e76b71bc74ae87d91616453edbbccea6074685e88e9b0eeef017c7c5c4f8c"
+    },
+    {
+      "path": "assets/residents/river.webp",
+      "bytes": 76560,
+      "sha256": "a796e3464c986de03d04b1f3447c326ebaa9c25ff80e9b7aef6c7339bc028d4a"
+    },
+    {
+      "path": "assets/residents/rocks.webp",
+      "bytes": 76534,
+      "sha256": "b50bcab1f80757bf9cb2d0cce1b68ea13d14e156ed7c2e8d137903d6035dadfd"
+    },
+    {
+      "path": "assets/residents/safety.webp",
+      "bytes": 71590,
+      "sha256": "d52f1629f662ee2333ada8bfe63875fea2f3d8f09af204a31f1057d46ffecec3"
+    },
+    {
+      "path": "assets/residents/volcano.webp",
+      "bytes": 61898,
+      "sha256": "f8313146afdea6753e32ad7036d79eda577cb8b4c0a510c1797fa21f885f9347"
+    },
+    {
+      "path": "assets/river-field.webp",
+      "bytes": 332358,
+      "sha256": "15bbb2a64c014c71e1dd06226bd346cf6a2379ccfcaae4340074e3642d455bc0"
+    },
+    {
+      "path": "assets/river-hero.webp",
+      "bytes": 111004,
+      "sha256": "7958da3fe6b2bd949e24b13a59d1a46f660d410831f7782b6293deddb9a88595"
+    },
+    {
+      "path": "assets/river-lab.webp",
+      "bytes": 181764,
+      "sha256": "c6aa29a27d020b6b9bd50a7c4456cd584193b1368decd566c7f816535ccb057d"
+    },
+    {
+      "path": "assets/river-pose-0.webp",
+      "bytes": 15310,
+      "sha256": "95e6db26b88a0fa5019403ea89206ad688bd0dca3e49a5d359c0c73ee7dcd709"
+    },
+    {
+      "path": "assets/river-pose-1.webp",
+      "bytes": 13322,
+      "sha256": "9d30e93efe8a05bcd599b71560a0790d1dcf28d211bd843901db4de7942e0be8"
+    },
+    {
+      "path": "assets/river-pose-2.webp",
+      "bytes": 14484,
+      "sha256": "729b0918d2904d5103ac1d8af38beb1db948847a3dcd86defebd2b8c0ba8f5df"
+    },
+    {
+      "path": "assets/river-pose-3.webp",
+      "bytes": 15442,
+      "sha256": "7df0f7fd4aa3d69660cc6099778e444fd8adf094419b7905d70d6214b7f3be26"
+    },
+    {
+      "path": "assets/river-sprite.webp",
+      "bytes": 9210,
+      "sha256": "8ef81b5399e02b4c17f26159a1dd8af91c2cb62535cb855f59edab14be0f74cd"
+    },
+    {
+      "path": "assets/rock-0.webp",
+      "bytes": 125058,
+      "sha256": "ede34bc6d87855ff259cbaab1cca95ea8772c9877c66b0d814a73568f690c3b8"
+    },
+    {
+      "path": "assets/rock-1.webp",
+      "bytes": 129658,
+      "sha256": "704eecb9e9a981c025de4103e5b9a40fc489df2366a8f1b6d10c6d314bcfc8dc"
+    },
+    {
+      "path": "assets/rock-2.webp",
+      "bytes": 124410,
+      "sha256": "abb09a491f2f0ae65777dd7cada4dfa0e0d5f81d7e49eab4c12e1a83312790a0"
+    },
+    {
+      "path": "assets/rock-3.webp",
+      "bytes": 139916,
+      "sha256": "90f4f10755751356c0d238d8183bdd74193eddf9f378e1633d8a8390303a69d8"
+    },
+    {
+      "path": "assets/rocks-lab.webp",
+      "bytes": 159082,
+      "sha256": "2e30a40a379a43f5bae5d95e59c55c48c01b761e65be6e84137a02a4fd2f3d62"
+    },
+    {
+      "path": "assets/rocks-table.webp",
+      "bytes": 206706,
+      "sha256": "3e917e01eb2ac1d1d131980b0dbc514c5215e809cd3e2a70da2091800468f830"
+    },
+    {
+      "path": "assets/school.webp",
+      "bytes": 302262,
+      "sha256": "56a4a64414d8cedafb7986e703a13f7a47aff02bd30f8c47a5e3a4316a288cb9"
+    },
+    {
+      "path": "assets/story/final.mp4",
+      "bytes": 4560131,
+      "sha256": "1fd2402cc8d659f45523148d243efa5ffdffb11c1d160e6c532645abab412883"
+    },
+    {
+      "path": "assets/story/final.webp",
+      "bytes": 32250,
+      "sha256": "673beda094659a9eaf2bf27ffc746b5e92f2d304cc7082469866cf95393f8390"
+    },
+    {
+      "path": "assets/story/intro.mp4",
+      "bytes": 4587884,
+      "sha256": "2d01134731a8accf66a7a0f5dc960969ca18ef187910ff790b32966da0f63a59"
+    },
+    {
+      "path": "assets/story/intro.webp",
+      "bytes": 76112,
+      "sha256": "89cacebb1be8eaada28ab7c38ca549442c37777b0b1a9db0059b776d5b9214d0"
+    },
+    {
+      "path": "assets/title-logo.webp",
+      "bytes": 85282,
+      "sha256": "e55d8a3aeebeddbe174eb1f4a543ab990bc4b754c0967035a3001383e321766c"
+    },
+    {
+      "path": "assets/tool-box.webp",
+      "bytes": 75382,
+      "sha256": "9344de05a1ac6f4b0311420d67e8a3d8724ae541c24fbefbc95a3a8d26f9655e"
+    },
+    {
+      "path": "assets/tool-camera.webp",
+      "bytes": 65168,
+      "sha256": "f9ec0ee26531a901664ca5bb24c1d77df2c5e13ce645fcb49a217e1d3eec5e23"
+    },
+    {
+      "path": "assets/tool-compass.webp",
+      "bytes": 55512,
+      "sha256": "57873bf9cca868955d5dd5e90a394490af4cf637817938c8ff3ef0d95b134f97"
+    },
+    {
+      "path": "assets/tool-flag.webp",
+      "bytes": 55080,
+      "sha256": "58ee26a26bcf4318865e4d9251fe39ab4be954e87823da7916da046a11115f23"
+    },
+    {
+      "path": "assets/tool-lens.webp",
+      "bytes": 44830,
+      "sha256": "0efbffb459225bfc5d9ab64568b1a01bbf0247e8b2c928dfec251bd76651ef19"
+    },
+    {
+      "path": "assets/tool-water.webp",
+      "bytes": 60764,
+      "sha256": "fb7483e30f15dac120cf453bf32c85bc7c4a1efb5ac6bd6a8ddd9efc8c91cd02"
+    },
+    {
+      "path": "assets/vendor/phaser-3.90.0.min.js",
+      "bytes": 1196122,
+      "sha256": "e92ddef111ba42e92d316979c732311757093688ea1810591cb7aa2858eba7a7"
+    },
+    {
+      "path": "assets/vendor/Phaser-LICENSE.md",
+      "bytes": 1120,
+      "sha256": "080f3d5539e766bb556df5b8e86c4f5d581ece35c692b80956ca352b84d29134"
+    },
+    {
+      "path": "assets/vendor/three/addons/loaders/GLTFLoader.js",
+      "bytes": 114959,
+      "sha256": "97642d720f16cc9a0c9844934198e4d0c023bea8e89576d0f7545d03b2d103d2"
+    },
+    {
+      "path": "assets/vendor/three/addons/utils/BufferGeometryUtils.js",
+      "bytes": 37621,
+      "sha256": "5c552223a9309883743b80538d6e9cdb45e3227f30d3ec56fb2c39b46e78d595"
+    },
+    {
+      "path": "assets/vendor/three/addons/utils/SkeletonUtils.js",
+      "bytes": 11535,
+      "sha256": "b1632a703206c3d830de9fcbe515696770d04b71a15ee6b50afa6d2c3298c86f"
+    },
+    {
+      "path": "assets/vendor/three/three-LICENSE.txt",
+      "bytes": 1081,
+      "sha256": "8b378ebe60e2fe500158cb0ac71cb5e8b7d92953c2abcc63a0eb90499653b5bc"
+    },
+    {
+      "path": "assets/vendor/three/three.core.min.js",
+      "bytes": 385386,
+      "sha256": "05b2609338c76cd65daf74f3ac515bc9a5045e1b3b33edc07d8c9bd55250fa90"
+    },
+    {
+      "path": "assets/vendor/three/three.module.min.js",
+      "bytes": 365552,
+      "sha256": "86bcee248b64f44bcfc23c331ae74619061957d59cab040171dcb6fb5900beb6"
+    },
+    {
+      "path": "assets/voices/city-chat0.m4a",
+      "bytes": 73195,
+      "sha256": "22a6ea1e73283012f64057c00534c9aaa2fdc0390199d477711898f135865ac5"
+    },
+    {
+      "path": "assets/voices/city-chat1.m4a",
+      "bytes": 52251,
+      "sha256": "451c200e8034c424dd82bf8bf3a1d10fc70ad44cbc21009dcfe4dd84e881ff2f"
+    },
+    {
+      "path": "assets/voices/city-hello.m4a",
+      "bytes": 56702,
+      "sha256": "bac75039f9aad3ffef34e266c71c77b1d146addf227189c3f17b8fbced1b47da"
+    },
+    {
+      "path": "assets/voices/city-stamp.m4a",
+      "bytes": 39616,
+      "sha256": "8bfe205d58a08cf63297919831225c1e206b3d5e9516c1c529fd89fb3e760c98"
+    },
+    {
+      "path": "assets/voices/city-thanks.m4a",
+      "bytes": 47903,
+      "sha256": "4a58a5a48d1ae8e5ba37b05adcca9cc8356848ebe9ea37ca39c3dfb262b0762e"
+    },
+    {
+      "path": "assets/voices/guide-city-ash-done.mp3",
+      "bytes": 80606,
+      "sha256": "1a792348fdd77f0452f62ec178e05d98669dae50b3ce8c408674655241753c70"
+    },
+    {
+      "path": "assets/voices/guide-final-river.mp3",
+      "bytes": 57096,
+      "sha256": "999fdf87abd9a11061bf4c8d5661f569025143c802d927e2588256184161a9db"
+    },
+    {
+      "path": "assets/voices/guide-final-rock.mp3",
+      "bytes": 55215,
+      "sha256": "2fcf2b18a6f15d360f19f9d5ee4a0babddc85a1d577c6953d682b07bc1f134bd"
+    },
+    {
+      "path": "assets/voices/guide-final-route.mp3",
+      "bytes": 30138,
+      "sha256": "30a12ca44f2992dc1ce6daa5edd111dd055e0605dcd133964a0d7faf458cab74"
+    },
+    {
+      "path": "assets/voices/guide-intro-city.mp3",
+      "bytes": 86249,
+      "sha256": "5a0c945bf45e005ae32f69cfab02894d8443bf6c3ea59b5e01ef57efc435d7db"
+    },
+    {
+      "path": "assets/voices/guide-intro-river.mp3",
+      "bytes": 79666,
+      "sha256": "5485ce024cc2a681364db763a87aee0bd74b0333e810c21d15b02d7e15f33cea"
+    },
+    {
+      "path": "assets/voices/guide-intro-rocks.mp3",
+      "bytes": 91578,
+      "sha256": "aaa92f846b55b0776d1f1c75e32ae6490ede5d4a42fa4eca8bc306a56194ba27"
+    },
+    {
+      "path": "assets/voices/guide-intro-safety.mp3",
+      "bytes": 123551,
+      "sha256": "ef8e575e68e4e66e786064e3e871da9b5ed54bf9a3af59484230332793fc97e5"
+    },
+    {
+      "path": "assets/voices/guide-intro-volcano.mp3",
+      "bytes": 120730,
+      "sha256": "ab6ab06c9e507f4ea40c7ebebe5b9376a7f038e78b9ff46fe057c9ffd4fe32f8"
+    },
+    {
+      "path": "assets/voices/guide-map-festival.mp3",
+      "bytes": 72143,
+      "sha256": "27c3c9db15ea36d429823e156d591d6c6a4514835c93e56a47d43b863b98046e"
+    },
+    {
+      "path": "assets/voices/guide-map-first.mp3",
+      "bytes": 35780,
+      "sha256": "3e6f24a2e2944ea5389b29873f89d938d2c296490f47da6781cd60a1ef8b0702"
+    },
+    {
+      "path": "assets/voices/guide-retry-city-period.mp3",
+      "bytes": 66814,
+      "sha256": "2749aa30e481a634d07bdca01c25bb6399288a858308b41f515f4c8ef1c0a48d"
+    },
+    {
+      "path": "assets/voices/guide-retry-river-mark.mp3",
+      "bytes": 46438,
+      "sha256": "f03c508dba5f37a29888b5e0cadc5548f81d4b1606c2a5107f8638e0ab1933b2"
+    },
+    {
+      "path": "assets/voices/guide-retry-river-reflect.mp3",
+      "bytes": 38601,
+      "sha256": "e260dc28c7ba8d3803262e650c8d66d8493c48fa7146e0724b6b5634f4fbd69c"
+    },
+    {
+      "path": "assets/voices/guide-retry-rocks-name.mp3",
+      "bytes": 54902,
+      "sha256": "8a7f1791af864b654afd686456053ac6367b3ab81165f6d64ef5a9818d6185a5"
+    },
+    {
+      "path": "assets/voices/guide-retry-rocks-order.mp3",
+      "bytes": 41423,
+      "sha256": "b8e6b8c3c97ec1881deb52a15b201cdcb42395df2556b7a7e9336e59843d7a4e"
+    },
+    {
+      "path": "assets/voices/guide-retry-safety-shaking.mp3",
+      "bytes": 55529,
+      "sha256": "def28f5711feba48ddf89553aac9ba44f3fb1be3db6fad5a4289c2f543ea5b70"
+    },
+    {
+      "path": "assets/voices/guide-retry-volcano-order.mp3",
+      "bytes": 49259,
+      "sha256": "88ea0e8fe0b7062b3086a9b71e6f5bc7df224afb2285a9a5235562f5229b3e19"
+    },
+    {
+      "path": "assets/voices/guide-river-a1-done.mp3",
+      "bytes": 59604,
+      "sha256": "cec85eefc9f0606b2f6e3011c4818f5cc519fe92d1e45ce22aee4e0e40cac66b"
+    },
+    {
+      "path": "assets/voices/guide-river-a2-done.mp3",
+      "bytes": 82174,
+      "sha256": "ae60c8a4604629e87a2df64e235188edf7526e6815aaab36742cf75ddc0f923e"
+    },
+    {
+      "path": "assets/voices/guide-rocks-a2-done.mp3",
+      "bytes": 34526,
+      "sha256": "f924385b26f3866237cbbff36ff99446c7637377aed908489b4118ca30ed8770"
+    },
+    {
+      "path": "assets/voices/guide-rocks-basalt.mp3",
+      "bytes": 44871,
+      "sha256": "9277b4b0d86b004c6c2a5802f98c01b487c8dc8c084073c3e9f9271f55b50f27"
+    },
+    {
+      "path": "assets/voices/guide-rocks-granite.mp3",
+      "bytes": 44557,
+      "sha256": "dbaf3088b81b939b6d797e6705a05a1868c85128a68db51c28404e3bbc8b14ab"
+    },
+    {
+      "path": "assets/voices/guide-safety-a1-done.mp3",
+      "bytes": 56783,
+      "sha256": "43d1a1222cb8c3c8f2f6348440506ef5015f85d2144e8a641ffe1db575bdbfa4"
+    },
+    {
+      "path": "assets/voices/guide-safety-a2-done.mp3",
+      "bytes": 50200,
+      "sha256": "6c0f0c10a090ddb692fa75e23184a8c67560e45a03e68654731c64341e599a5d"
+    },
+    {
+      "path": "assets/voices/guide-volcano-a1-done.mp3",
+      "bytes": 68067,
+      "sha256": "b4c1ee3cbdc7908ae98770190cc5b7618ab499ecafe2b005fb77b581c0bc2144"
+    },
+    {
+      "path": "assets/voices/guide-volcano-a2-done.mp3",
+      "bytes": 74650,
+      "sha256": "4effe0fdb9d245fb77a4cc7e1e08cf412c6a0bedb183de4a5f2e06418e3ff97c"
+    },
+    {
+      "path": "assets/voices/momo-manifest-20261110.json",
+      "bytes": 34233,
+      "sha256": "33015fab5f97ae639d8d77d44d332906fecf038d19d55974c8e0f7579dbdef60"
+    },
+    {
+      "path": "assets/voices/MOMO-SOURCE.txt",
+      "bytes": 299,
+      "sha256": "fd4d41780ea4f0363a817985f21d7be6843381b74cad31a9ad215f42b2d43b56"
+    },
+    {
+      "path": "assets/voices/river-chat0.m4a",
+      "bytes": 69311,
+      "sha256": "936ca0ca2d307fe5fb6126c45d2d811b243191b6fd79e1b3b75cb03f2eea2d6e"
+    },
+    {
+      "path": "assets/voices/river-chat1.m4a",
+      "bytes": 43435,
+      "sha256": "84fc6cb421192374344b00e42ab31ab077de8fc888c8badb62ceec9d19da13ad"
+    },
+    {
+      "path": "assets/voices/river-hello.m4a",
+      "bytes": 51104,
+      "sha256": "b0c5a29f25115251ea7b9e46f122c07a9488411f03ad670b3953efbaf3997859"
+    },
+    {
+      "path": "assets/voices/river-stamp.m4a",
+      "bytes": 40440,
+      "sha256": "783b0a359d643278029d47705dfaad6ce9aeeb3ea770e584e10195892a257e0c"
+    },
+    {
+      "path": "assets/voices/river-thanks.m4a",
+      "bytes": 43889,
+      "sha256": "05bab2aac7e9fe244aec37dc83b2ed63056e3944e2e81d52642d4fcc5f17b9e3"
+    },
+    {
+      "path": "assets/voices/rocks-chat0.m4a",
+      "bytes": 90922,
+      "sha256": "db4505a6b336ead3e4d575466d1350d81e604093638637e1bfe28d9bcc5c29b5"
+    },
+    {
+      "path": "assets/voices/rocks-chat1.m4a",
+      "bytes": 59157,
+      "sha256": "3f734ba854a8e4f266b8298079c53cbf6dbcdc1ecf52a1bdd152ec4b7c197bb6"
+    },
+    {
+      "path": "assets/voices/rocks-hello.m4a",
+      "bytes": 73913,
+      "sha256": "d7a6ef39a6bd111b1d13839b8c61b83133dd9facdbb97373df4268c3e9b75ddb"
+    },
+    {
+      "path": "assets/voices/rocks-stamp.m4a",
+      "bytes": 63168,
+      "sha256": "88c263131f225d718e716e27808ad1f81e6331053565be47d72cb79b34c81272"
+    },
+    {
+      "path": "assets/voices/rocks-thanks.m4a",
+      "bytes": 52138,
+      "sha256": "352f835a9bec107b40047819f5a5aafd6a80ed71128d4e63ea56d3a99dace980"
+    },
+    {
+      "path": "assets/voices/safety-chat0.m4a",
+      "bytes": 74095,
+      "sha256": "28234858bcb9cea7d37ffd0aec0d338f718356d58a2439675a0190b91844d3a0"
+    },
+    {
+      "path": "assets/voices/safety-chat1.m4a",
+      "bytes": 47295,
+      "sha256": "27a89f44316d5874a942e64287e9e72258d286126bdf722a11f9c3fc989dcb91"
+    },
+    {
+      "path": "assets/voices/safety-hello.m4a",
+      "bytes": 70460,
+      "sha256": "98127bcb98c45cffc82e1071c36534a1df00a449759178784291b29f63ba054c"
+    },
+    {
+      "path": "assets/voices/safety-stamp.m4a",
+      "bytes": 41915,
+      "sha256": "350cf9beb0b6f0603a7951ee0f277b8a76acb5012d6963d3ff77241d4946dc4f"
+    },
+    {
+      "path": "assets/voices/safety-thanks.m4a",
+      "bytes": 46972,
+      "sha256": "c95de6e09b3b188d7ce0e104ca3574c8f6733301405c45f982c3c80c7d419b25"
+    },
+    {
+      "path": "assets/voices/volcano-chat0.m4a",
+      "bytes": 72743,
+      "sha256": "7847e1a470a6070bc7970d978db653f8468e36658b6d4cd63577ca55fc70a597"
+    },
+    {
+      "path": "assets/voices/volcano-chat1.m4a",
+      "bytes": 48900,
+      "sha256": "ae6e5ed56ebdfc6b1c4816c44be1f822c7b757e9580abcad159a70cd84ede59e"
+    },
+    {
+      "path": "assets/voices/volcano-hello.m4a",
+      "bytes": 45013,
+      "sha256": "bfce774d436e65c84906dc1378d9b0e7956039551adc6092bd7e998cc1f92368"
+    },
+    {
+      "path": "assets/voices/volcano-stamp.m4a",
+      "bytes": 48032,
+      "sha256": "fb8e1d324562b3ddd62994562cefbd79816431891453550d882bd302339d0768"
+    },
+    {
+      "path": "assets/voices/volcano-thanks.m4a",
+      "bytes": 42223,
+      "sha256": "cf0b87a811b7d6e5754b2de1cb5f6f11387a9632d5dad9d9a8af480661359ccf"
+    },
+    {
+      "path": "assets/volcano-eruption.webp",
+      "bytes": 411762,
+      "sha256": "03256bec1ed072360506ca8506502368e53c4d6ada845689d8625ef57aa0aa48"
+    },
+    {
+      "path": "assets/volcano-field.webp",
+      "bytes": 170254,
+      "sha256": "5a9fc4f3226a431bdcf20f99053a652be50f616b00c49e926b01bdfc1397bc94"
+    },
+    {
+      "path": "assets/volcano-lab.webp",
+      "bytes": 127902,
+      "sha256": "dec175c68bc8223f93831cc36a1c4bee91e19a8c835b33c96f77a69b00e43247"
+    },
+    {
+      "path": "index.html",
+      "bytes": 3139,
+      "sha256": "49f2dc9eae03f01db5360463f4e43812118575dcca8ddd62069c29bd26b275e0"
+    },
+    {
+      "path": "src/activity-helpers.js",
+      "bytes": 2088,
+      "sha256": "2e9bc4944b56b4ccd6554c2c3f684dd47362d4d392762aeaf19588c0579af6a5"
+    },
+    {
+      "path": "src/adventure.css",
+      "bytes": 15340,
+      "sha256": "a851af69af7156b4f8d65e062ba6c55ba1fcc762bbd7de3a0db849741a2a84ad"
+    },
+    {
+      "path": "src/adventure/city.js",
+      "bytes": 21190,
+      "sha256": "949220974f08c413bb5a183656da5e71219a5183d8317396911ed6125f94f6b4"
+    },
+    {
+      "path": "src/adventure/evacuation.js",
+      "bytes": 10464,
+      "sha256": "a0ffdb7e8e401c6363c92e088f9474060c2a4d529677c0e237dcc81cead466f7"
+    },
+    {
+      "path": "src/adventure/hints.js",
+      "bytes": 7170,
+      "sha256": "84b51bf2227d2df1984a7071e403d0e8aaeed54d44ebaa89aabaeb2eb02e5b4b"
+    },
+    {
+      "path": "src/adventure/index.js",
+      "bytes": 35109,
+      "sha256": "028274d2459134b7916c90b785dab028079fa66828f17ee33315d95423b8d4f8"
+    },
+    {
+      "path": "src/adventure/observation-tour.js",
+      "bytes": 583,
+      "sha256": "8812f5035cb03c22cb0f1ad1ffc9ee3c8fc8e01824c9ca6c53f2fa82ad6163f3"
+    },
+    {
+      "path": "src/adventure/playback.js",
+      "bytes": 1310,
+      "sha256": "98f4137b118d29d91c705ae28e0c4f76766d79de170a37aa16b46a1e8e5cc5a4"
+    },
+    {
+      "path": "src/adventure/river.js",
+      "bytes": 26083,
+      "sha256": "c0c7b92d402c92b6e89e4112bcfa70f2f43e3b602d8e6c5c9d45f6073acba6f7"
+    },
+    {
+      "path": "src/adventure/rocks.js",
+      "bytes": 16998,
+      "sha256": "866b078d068486dd5f8c0a63e2e335e9c02d9b26d63d549f7631cb9c6a2933cf"
+    },
+    {
+      "path": "src/adventure/rules.js",
+      "bytes": 4898,
+      "sha256": "29e5664f99662c12adbf32af500f08f9a1a854147df95c0710a12a5e86c08ffa"
+    },
+    {
+      "path": "src/adventure/safety.js",
+      "bytes": 11070,
+      "sha256": "451f987d0b45e2460faa0eba775e77c95dff37ad16d3137990bd57b190679d76"
+    },
+    {
+      "path": "src/adventure/shelter.js",
+      "bytes": 2327,
+      "sha256": "e84c7b8dae3f2d8aa0919527ed9067ad195b9783aca3b86731bf6f06dad27a7a"
+    },
+    {
+      "path": "src/adventure/volcano.js",
+      "bytes": 22467,
+      "sha256": "62c44001c3bfdb324753790d8d339942f6f9d01ac67e38f2547502253cbb4f59"
+    },
+    {
+      "path": "src/art.css",
+      "bytes": 53312,
+      "sha256": "db2127a0f20c303d691e38e271f4dcfbfa7beb71a69868b057e16fa2a734e86e"
+    },
+    {
+      "path": "src/audio-settings.js",
+      "bytes": 1268,
+      "sha256": "da5632a92d284493988afa9d0572f2f3880ec2e8a2d05c9b8defd5272b1ec401"
+    },
+    {
+      "path": "src/city.js",
+      "bytes": 7073,
+      "sha256": "e920877fd0f975abd4ba437966fc2c245bc52a741dffbe7406e3b53cee80d3e3"
+    },
+    {
+      "path": "src/concept-focus.css",
+      "bytes": 15309,
+      "sha256": "3fd4a5615a016c421cd786457691655dfd6ff9f806f4ab3c0f027f8ef44b7d0a"
+    },
+    {
+      "path": "src/concept-focus.js",
+      "bytes": 8609,
+      "sha256": "c291bc7e7597060751c4ac6e49b3a8cc2dc050a9e681276f99c3ad46f6c1aef5"
+    },
+    {
+      "path": "src/concepts.js",
+      "bytes": 10445,
+      "sha256": "1e13da88f13aebff8701630601516b127bf896a39956d1576c414443018d461f"
+    },
+    {
+      "path": "src/ending.js",
+      "bytes": 14577,
+      "sha256": "a6ba82914ef52a4bc9bc0ac173fae8b501bf49a403ec43934ce5e1d2f3ad9baa"
+    },
+    {
+      "path": "src/explore-ui.js",
+      "bytes": 6857,
+      "sha256": "a980c6f27b5465dc1decdcbe56a8d13d5414dc3b19ec72e4497e739633cd5f17"
+    },
+    {
+      "path": "src/field-operation-model.js",
+      "bytes": 7094,
+      "sha256": "60b372a28be5df72d3d98a4d47c2d7e1410e5c0dd7b3e2e91a1ee66ed143ec56"
+    },
+    {
+      "path": "src/field-operation.css",
+      "bytes": 8758,
+      "sha256": "16622cb5a05ef9ebe7701ee9990e8fb5896bdea981b8f31ac890215bfd84b0f3"
+    },
+    {
+      "path": "src/field-operation.js",
+      "bytes": 11442,
+      "sha256": "59f0d42f7280ac7651a6a2399677c99564470de5138ffd3785dd4f7e8a626b0f"
+    },
+    {
+      "path": "src/glass-ui.css",
+      "bytes": 7198,
+      "sha256": "6534c826c17b563652044d8f995b49e05efa4b45b4f9cec62622e4d68c339803"
+    },
+    {
+      "path": "src/guide-recordings.js",
+      "bytes": 6175,
+      "sha256": "ed50782b7e7df3c0514dcdc71e2ec991f0da1053a2d5680a2edd85c6e3242541"
+    },
+    {
+      "path": "src/guide-voice.js",
+      "bytes": 1581,
+      "sha256": "3cd1261073208a38b93f4318f2cb59b40e7ccfeae8ed08f08c83e14dfc679df7"
+    },
+    {
+      "path": "src/layout-fixes.css",
+      "bytes": 3131,
+      "sha256": "c9fa31aaf1a7fe8bcca3d2dad42a78b6feef4fc40cf89baef76e6e2c9fefe2e1"
+    },
+    {
+      "path": "src/learning-guide.js",
+      "bytes": 5062,
+      "sha256": "2735b0ef3e981ae94b2fc7b3b182946b77d1a028cf6656b5588b5e2e8ef10117"
+    },
+    {
+      "path": "src/learning-model.js",
+      "bytes": 8042,
+      "sha256": "27e145d37e628c81f434b1ad6df193b98f1a049fa44354357137f3d985e5e958"
+    },
+    {
+      "path": "src/learning.css",
+      "bytes": 13269,
+      "sha256": "b0bb016d72ed1c9789dd64de8f47f57ab115274da5f58b9c7197f47c427185f4"
+    },
+    {
+      "path": "src/main.js",
+      "bytes": 27295,
+      "sha256": "d1ab0d8e40199632a783ca3631a7d43720a3aff33872fd5205fe6f23e087027f"
+    },
+    {
+      "path": "src/map-adventure.js",
+      "bytes": 32070,
+      "sha256": "6d5a8dba394e71edf508383635a1247e41eb7b581f3c2da429826c35114b266e"
+    },
+    {
+      "path": "src/map-camera.js",
+      "bytes": 499,
+      "sha256": "a659f2b02dac2a0b626f2e6ce1e5be53600a0fc5a5c6fddf0a50330098e184c9"
+    },
+    {
+      "path": "src/map-combat-engine.js",
+      "bytes": 3880,
+      "sha256": "746bc30bfc1169f050ae589ccae351e60c99f6a10b45151af5700911aa383436"
+    },
+    {
+      "path": "src/map-hit-layout.js",
+      "bytes": 2626,
+      "sha256": "eab9b193e59eb320a430fc59aafd93815c3af772ae9e5032f5168e5e1e6b6ee5"
+    },
+    {
+      "path": "src/map-villain-rules.js",
+      "bytes": 1249,
+      "sha256": "d84999b2fbb475580a5f2a4455c99eff37b19d7859892a29b57eaaaeeddde479"
+    },
+    {
+      "path": "src/map-villains.css",
+      "bytes": 9366,
+      "sha256": "023477d6b5aa830a45c96266813bfd00774e8b1fa09fd84b4ac3c0ef23fb8985"
+    },
+    {
+      "path": "src/map-villains.js",
+      "bytes": 11336,
+      "sha256": "9480491b06cd153707f699c119dd52f04a481b2b8192e358511ebcf1ba7e4ba2"
+    },
+    {
+      "path": "src/map.js",
+      "bytes": 7186,
+      "sha256": "5696c7fda1d07b459311a9a0cf16e79d45be577bbcd3df067eeaf4d90db9924e"
+    },
+    {
+      "path": "src/model.js",
+      "bytes": 16989,
+      "sha256": "e8e46177508c50f11dcfd29ab2d3e6cbe78f18cd51fbb713e27fcadad63df347"
+    },
+    {
+      "path": "src/music.js",
+      "bytes": 2667,
+      "sha256": "6c626d413257320af5afc77b66ebd98452f8801adf988d9de58d51d4373e3006"
+    },
+    {
+      "path": "src/nature.js",
+      "bytes": 16797,
+      "sha256": "ab4a77bd38d7ecf2f48b39729f78e793243878c0ea09ac9dcda9c1c633c1ee20"
+    },
+    {
+      "path": "src/observation-scenes.js",
+      "bytes": 10268,
+      "sha256": "2baadc10a8a4316e087436452830e2eec43346c2f458216f656cf4844efd96ba"
+    },
+    {
+      "path": "src/observations.js",
+      "bytes": 13821,
+      "sha256": "a9ecef4953112aa2559c827d72a886fa19b8fadbb65a54be58c7edee2b09bdd9"
+    },
+    {
+      "path": "src/phaser-lifecycle.js",
+      "bytes": 397,
+      "sha256": "1dda7af92eee14a0d02742b5a7dd886a4638598f533601df988770fb4978a051"
+    },
+    {
+      "path": "src/polish.css",
+      "bytes": 13740,
+      "sha256": "3c045329695065f53308faea023e43c17a97a3702140f35576cdf67d7326f6e2"
+    },
+    {
+      "path": "src/residents.js",
+      "bytes": 9820,
+      "sha256": "09a3f19d622412424301d9e6cb00f653caf35d3022d40c07056c84cf04f8e21a"
+    },
+    {
+      "path": "src/river-grain-guide.js",
+      "bytes": 9657,
+      "sha256": "3a1f6eccd8382eeda97ea6b3b187fe04373766f1c057daad56d87e9e81914a30"
+    },
+    {
+      "path": "src/river-walk.js",
+      "bytes": 1792,
+      "sha256": "10c59375eb9f6aadac64c62ccb9839eb63ba424d35686f1137d903d25eeffa2c"
+    },
+    {
+      "path": "src/river-water.js",
+      "bytes": 11540,
+      "sha256": "9215c8e21f78dac3d2825d1d24b06979bce45655e21044b09690484f048b79e7"
+    },
+    {
+      "path": "src/river.js",
+      "bytes": 10011,
+      "sha256": "33ce43ec783eb30ace355c2f0d076cbb075be356a848b4070d0dfb4aee783716"
+    },
+    {
+      "path": "src/rock3d.js",
+      "bytes": 6655,
+      "sha256": "35865ca38c969a1b451cf1df13b7596d225cfda5d968bbdcf87cc2a70abe2d6c"
+    },
+    {
+      "path": "src/rocks.js",
+      "bytes": 7636,
+      "sha256": "38812a6ef2e7153efc1d6c1f234f28087a09a5657d18d53b89589e1094fae12c"
+    },
+    {
+      "path": "src/rounded-ui.css",
+      "bytes": 17143,
+      "sha256": "17ddc3cc21aa1b3fd5e4b99706cca905e04185639983b96eef3a77b5f90708a6"
+    },
+    {
+      "path": "src/route-points.js",
+      "bytes": 807,
+      "sha256": "53c1eedb59e7d4783942e5f379c0836b17d203d921027c595d2f3ac1730f8749"
+    },
+    {
+      "path": "src/safety.js",
+      "bytes": 14221,
+      "sha256": "134e3b2c0abeef274c402ec139a73f74eb81f188f199e426c5333be417b61d62"
+    },
+    {
+      "path": "src/settings-content.js",
+      "bytes": 7366,
+      "sha256": "ff27dd2d6e6478dc5f306ec9fde9d71bd0b78ba546941f802b2a9a6dd77594d7"
+    },
+    {
+      "path": "src/sound.js",
+      "bytes": 5478,
+      "sha256": "dd52d8d2616e28ba50175f324364c6e46b4d8badaadee09f55d91067382fbec7"
+    },
+    {
+      "path": "src/stage-art.js",
+      "bytes": 2403,
+      "sha256": "02590c379190db3acb6fc728fca30e79a4cce48c771b2a46024cf2f66abd0eb2"
+    },
+    {
+      "path": "src/storage-recovery.js",
+      "bytes": 1230,
+      "sha256": "e4d07e213cb23723b2c8c9911206d1268e4d3f555d2519c6583c932a47541ae6"
+    },
+    {
+      "path": "src/story.css",
+      "bytes": 3003,
+      "sha256": "5052c66d07e8a24c89e809df93f3654c305e787ab313da38816e5591680c1ef6"
+    },
+    {
+      "path": "src/story.js",
+      "bytes": 5361,
+      "sha256": "e391f37c124921709323fbc032de99d5ddf5159f6b9243f7b769b0fb04055c95"
+    },
+    {
+      "path": "src/style.css",
+      "bytes": 28872,
+      "sha256": "93463b70d29057efa4b813be3244d8918a79a3e06a68d2746c88c94300007fb7"
+    },
+    {
+      "path": "src/ui.js",
+      "bytes": 7641,
+      "sha256": "d1112caf404d40dfe061e3b0eca183a00369b371f12edf069755f85bfc41e399"
+    },
+    {
+      "path": "src/village-lights.js",
+      "bytes": 8139,
+      "sha256": "b854a3a5877e38208cb99856c0910670b5641939065d9aa332f9ac72cca4b4cb"
+    },
+    {
+      "path": "src/visuals.js",
+      "bytes": 6506,
+      "sha256": "045e3527e14a564598c913d049e49d5710da726b54fbbf444f04ef8dbdcdafff"
+    },
+    {
+      "path": "src/volcano-motion.js",
+      "bytes": 5019,
+      "sha256": "043483f6b9fe48e31b7723e82078153f9a563f3189fe28d7c33caebc7534829d"
+    },
+    {
+      "path": "src/volcano.js",
+      "bytes": 10680,
+      "sha256": "08404464780a218d0c165f6bfa62dbaeaa7f8f46e1c77f7947e28837c777107d"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 6444,
+      "sha256": "9394af45e5bde41e257baed40ffad5f217515efb620a3a903ed2b5cfec0aecee"
+    }
+  ]
+}

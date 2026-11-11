@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_PATH).href);
-const out='.work/river-visuals-20261110';await fs.mkdir(out,{recursive:true});
+const out=process.env.CHECK_OUT||'.work/river-visuals-20261110';await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true}),errors=[],results=[];
 try{
  for(const [width,height]of [[1280,800],[667,375]]){

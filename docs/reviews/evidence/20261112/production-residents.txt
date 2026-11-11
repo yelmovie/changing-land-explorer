@@ -1,0 +1,5 @@
+PASS 1280 720 legacy, 5 teacher NPCs, replies, focus, save
+PASS 768 1024 legacy, 5 teacher NPCs, replies, focus, save
+PASS 850 420 legacy, 5 teacher NPCs, replies, focus, save
+PASS 390 844 legacy, 5 teacher NPCs, replies, focus, save
+PASS fresh, fallback

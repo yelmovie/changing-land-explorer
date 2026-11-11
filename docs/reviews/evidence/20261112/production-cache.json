@@ -1,0 +1,13 @@
+{
+  "base": "https://geovalley.pages.dev",
+  "cache": "geovalley-v3-1794409652398",
+  "seededOldCommit": "d269f52",
+  "oldCachedFilesRefreshed": [
+    "/src/field-operation.css",
+    "/src/map-adventure.js"
+  ],
+  "offlineReload": true,
+  "newAutoplayStopsBeforeAnswer": true,
+  "compactFits": true,
+  "errors": []
+}

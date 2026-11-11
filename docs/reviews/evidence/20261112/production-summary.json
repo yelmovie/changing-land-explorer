@@ -1,0 +1,118 @@
+{
+  "base": "https://geovalley.pages.dev",
+  "codeCommit": "91fd74f2a406496959abb05c9abd9b7098cf3efa",
+  "deployment": "6989f83e-365d-4027-9eae-91bb81b485bf",
+  "environment": "Mac Chrome headless, emulated viewport/touch; real tablet untested",
+  "checks": {
+    "ui": {
+      "checked": 270,
+      "failed": 0,
+      "errors": [],
+      "httpErrors": []
+    },
+    "operations": {
+      "checked": 132,
+      "failed": 0,
+      "errors": [],
+      "httpErrors": []
+    },
+    "concepts": {
+      "checked": 120,
+      "failed": 0,
+      "errors": [],
+      "httpErrors": []
+    },
+    "arrivals": {
+      "checked": 20,
+      "failed": 0,
+      "errors": [],
+      "httpErrors": []
+    },
+    "combat": {
+      "checked": 7,
+      "failed": 0,
+      "errors": [],
+      "httpErrors": []
+    },
+    "keyboard": {
+      "checked": 7,
+      "failed": 0,
+      "errors": [],
+      "httpErrors": []
+    },
+    "river": {
+      "checked": 2,
+      "failed": 0,
+      "errors": [],
+      "httpErrors": []
+    },
+    "flow": {
+      "completed": [
+        "river",
+        "volcano",
+        "rocks",
+        "city",
+        "safety"
+      ],
+      "errors": [],
+      "httpErrors": [],
+      "discoveries": 30,
+      "concepts": 10,
+      "rewards": 5,
+      "resumedStageState": false,
+      "stageEvidenceSource": null,
+      "finalRounds": 3,
+      "finished": true,
+      "certificate": true,
+      "reloaded": true,
+      "interaction": "Real pointer input for every stage activity and route; the script knows each target, so a pass shows the activities can be finished, not independent learner performance."
+    },
+    "playback": {
+      "results": {
+        "pauseFreezesWork": true,
+        "measuredSpeedRatio": 2.998954840395423,
+        "speedChangesWithoutPausing": true,
+        "toolsAndHintPauseAndRestoreFocus": true,
+        "completionWaitsForNextClick": true,
+        "replayDoesNotRewriteEvidence": true,
+        "reloadPreservesCompletionWithoutRestartingPlayback": true,
+        "observationHandsOffToLearnerChoice": true,
+        "wrongAnswerStillRejected": true
+      },
+      "errors": []
+    },
+    "recovery": {
+      "checks": [
+        "preserve",
+        "quota",
+        "existing"
+      ],
+      "errors": []
+    },
+    "cacheRefresh": {
+      "base": "https://geovalley.pages.dev",
+      "cache": "geovalley-v3-1794409652398",
+      "seededOldCommit": "d269f52",
+      "oldCachedFilesRefreshed": [
+        "/src/field-operation.css",
+        "/src/map-adventure.js"
+      ],
+      "offlineReload": true,
+      "newAutoplayStopsBeforeAnswer": true,
+      "compactFits": true,
+      "errors": []
+    },
+    "residents": {
+      "checked": 5,
+      "failed": 0,
+      "scenarios": [
+        "PASS 1280 720 legacy, 5 teacher NPCs, replies, focus, save",
+        "PASS 768 1024 legacy, 5 teacher NPCs, replies, focus, save",
+        "PASS 850 420 legacy, 5 teacher NPCs, replies, focus, save",
+        "PASS 390 844 legacy, 5 teacher NPCs, replies, focus, save",
+        "PASS fresh, fallback"
+      ],
+      "errors": []
+    }
+  }
+}
