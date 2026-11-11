@@ -67,3 +67,7 @@
 #app.final .final-panel {background:#f8fff1d9;border:var(--glass-border);box-shadow:var(--glass-shadow)}
 /* Long certificate is a reading page: actions follow it, never cover the name field. */
 #app.final .certificate-tools {position:static;flex:none;flex-wrap:wrap;margin-top:12px;padding:10px 0 8px}
+
+:root{--scenic-card-radius:20px;--scenic-card-gap:12px;}
+#app :is(.drop-zone,.drag-item,.final-panel,.ending-records>*,.activity-surface),#overlay :is(.setting-row,.learning-guide details){border-radius:var(--scenic-card-radius);}
+#app :is(.board-zones,.ending-records,.scene-tools,.scene-toolbar),#overlay .settings-grid{gap:var(--scenic-card-gap);}

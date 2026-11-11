@@ -317,9 +317,9 @@ export function mount(ctx) {
         paper(name,x,y,w,h){
           if(name==='parchment-panel'||name==='paper-card'){
             const r=Math.min(24,h/3),surface=scene.add.graphics();
-            surface.fillStyle(0x163e38,.24).fillRoundedRect(-w/2+2,-h/2+6,w,h,r);
-            surface.fillStyle(0xfffbef,1).fillRoundedRect(-w/2,-h/2,w,h,r);
-            surface.lineStyle(2,0xa59161,.85).strokeRoundedRect(-w/2+1,-h/2+1,w-2,h-2,r);
+            surface.fillStyle(0x163e38,.14).fillRoundedRect(-w/2+2,-h/2+6,w,h,r);
+            surface.fillStyle(0xfffbef,.82).fillRoundedRect(-w/2,-h/2,w,h,r);
+            surface.lineStyle(1.5,0x8ca894,.72).strokeRoundedRect(-w/2+1,-h/2+1,w-2,h-2,r);
             return scene.add.container(x,y,[surface]).setSize(w,h).setData('readingSurface',{width:w,height:h,padding:18});
           }
           const key=UI(name),[l,r,t,b]=SLICES[name];
@@ -329,7 +329,10 @@ export function mount(ctx) {
         },
         panel(x,y,w,h,color=0xfff7df,alpha=.94){
           if(PAPER_COLORS.has(color))return api.paper('parchment-panel',x,y,w,h).setAlpha(Math.max(alpha,.92));
-          return scene.add.rectangle(x,y,w,h,color,alpha).setStrokeStyle(2,0xcdbb8c,.6);
+          const surface=scene.add.graphics({x,y}),radius=Math.min(24,h/3);
+          surface.width=w;surface.height=h;
+          surface.setStrokeStyle=(width=1.5,stroke=0x8ca894,opacity=.7)=>{surface.clear().fillStyle(color,alpha).fillRoundedRect(-w/2,-h/2,w,h,radius).lineStyle(width,stroke,opacity).strokeRoundedRect(-w/2,-h/2,w,h,radius);return surface;};
+          return surface.setStrokeStyle();
         },
         marker(x,y,number,onPick){
           const ring=scene.add.circle(0,0,25,0x164c49,.94).setStrokeStyle(4,0xffe5a0);

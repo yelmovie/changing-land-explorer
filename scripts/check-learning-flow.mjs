@@ -43,7 +43,7 @@ async function riverLinks(){
 async function assemble(){for(const [i,to]of [{x:580,y:485},{x:560,y:315},{x:957,y:350}].entries())await stroke({x:135,y:170+i*175},to);}
 async function trace(){await stroke({x:175,y:260},MODEL_MOUTH);await stroke({x:180,y:480},...MODEL_FLOW);}
 async function volcanoOutputs(){for(const [x,y]of [[385,395],[610,80],[260,115],[670,245]]){await tap(x*1.2,y*640/560);}}
-async function volcanoLinks(){for(const [i,to]of [{x:835,y:400},{x:400,y:255},{x:400,y:400},{x:835,y:255}].entries())await stroke({x:235+i*247,y:545},to);}
+async function volcanoLinks(){for(const [i,to]of [{x:835,y:470},{x:400,y:335},{x:400,y:470},{x:835,y:335}].entries())await stroke({x:165+i*290,y:584},to);}
 async function rub(){for(const cx of [440,840])await stroke(...[170,250,330,410].flatMap((y,row)=>(row%2?[120,-120]:[-120,120]).map(dx=>({x:cx+dx,y}))));}
 async function sortRocks(){
  await page.locator('#rock-ship-1').click();await page.locator('#rock-ship-0').click();
