@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "check:voices": "node scripts/check-guide-arrivals.mjs",
+    "check:operations": "node scripts/check-field-operations.mjs",
     "check:recovery": "node scripts/check-recovery-original.mjs",
     "check:concepts": "node scripts/check-concept-screen.mjs",
     "check:activity": "node scripts/check-activity-fit.mjs",
@@ -14,7 +16,7 @@
     "check:keyboard": "node scripts/check-map-keyboard.mjs",
     "check:combat": "node scripts/check-map-villains.mjs",
     "check:requested": "node scripts/check-requested-fixes.mjs",
-    "concepts:render": "node scripts/concepts/render.mjs",
+    "concepts:render": "node films/concepts/render.mjs",
     "dev": "node scripts/serve.mjs",
     "preview": "node scripts/serve.mjs --dist",
     "build": "node scripts/build.mjs",

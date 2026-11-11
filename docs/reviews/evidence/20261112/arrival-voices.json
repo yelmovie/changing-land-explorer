@@ -1,0 +1,370 @@
+{
+  "base": "http://localhost:5199",
+  "results": [
+    {
+      "width": 667,
+      "height": 375,
+      "id": "river",
+      "caption": "강가의 조사 기록이 물에 젖었어. 직접 물을 흘려 보고, 달라진 곳을 찾아 줄래?",
+      "file": "guide-intro-river.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "id": "volcano",
+      "caption": "용암과 화산재 같은 분출물이 쌓여 만들어진 지형을 화산이라고 해. 마그와 모형을 만들고, 실제 화산의 모습과 비교해 보자.",
+      "file": "guide-intro-volcano.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "id": "rocks",
+      "caption": "지오가 모은 현무암과 화강암의 이름표가 떨어졌어. 이 두 종류의 화성암을 색과 알갱이로 비교해 보자.",
+      "file": "guide-intro-rocks.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "id": "city",
+      "caption": "타임의 사진첩이 뒤섞였어. 같은 장소의 시간을 움직이며 주민들에게 필요한 소식을 찾아보자.",
+      "file": "guide-intro-city.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 667,
+      "height": 375,
+      "id": "safety",
+      "caption": "2017년 포항 지진 때 학교 벽이 갈라지고 대학 입학 시험이 미뤄졌어. 실제 피해를 살펴보고, 흔들릴 때와 멈춘 뒤에 할 일을 연습해 보자.",
+      "file": "guide-intro-safety.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 915,
+      "height": 412,
+      "id": "river",
+      "caption": "강가의 조사 기록이 물에 젖었어. 직접 물을 흘려 보고, 달라진 곳을 찾아 줄래?",
+      "file": "guide-intro-river.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 915,
+      "height": 412,
+      "id": "volcano",
+      "caption": "용암과 화산재 같은 분출물이 쌓여 만들어진 지형을 화산이라고 해. 마그와 모형을 만들고, 실제 화산의 모습과 비교해 보자.",
+      "file": "guide-intro-volcano.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 915,
+      "height": 412,
+      "id": "rocks",
+      "caption": "지오가 모은 현무암과 화강암의 이름표가 떨어졌어. 이 두 종류의 화성암을 색과 알갱이로 비교해 보자.",
+      "file": "guide-intro-rocks.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 915,
+      "height": 412,
+      "id": "city",
+      "caption": "타임의 사진첩이 뒤섞였어. 같은 장소의 시간을 움직이며 주민들에게 필요한 소식을 찾아보자.",
+      "file": "guide-intro-city.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 915,
+      "height": 412,
+      "id": "safety",
+      "caption": "2017년 포항 지진 때 학교 벽이 갈라지고 대학 입학 시험이 미뤄졌어. 실제 피해를 살펴보고, 흔들릴 때와 멈춘 뒤에 할 일을 연습해 보자.",
+      "file": "guide-intro-safety.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "id": "river",
+      "caption": "강가의 조사 기록이 물에 젖었어. 직접 물을 흘려 보고, 달라진 곳을 찾아 줄래?",
+      "file": "guide-intro-river.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "id": "volcano",
+      "caption": "용암과 화산재 같은 분출물이 쌓여 만들어진 지형을 화산이라고 해. 마그와 모형을 만들고, 실제 화산의 모습과 비교해 보자.",
+      "file": "guide-intro-volcano.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "id": "rocks",
+      "caption": "지오가 모은 현무암과 화강암의 이름표가 떨어졌어. 이 두 종류의 화성암을 색과 알갱이로 비교해 보자.",
+      "file": "guide-intro-rocks.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "id": "city",
+      "caption": "타임의 사진첩이 뒤섞였어. 같은 장소의 시간을 움직이며 주민들에게 필요한 소식을 찾아보자.",
+      "file": "guide-intro-city.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "id": "safety",
+      "caption": "2017년 포항 지진 때 학교 벽이 갈라지고 대학 입학 시험이 미뤄졌어. 실제 피해를 살펴보고, 흔들릴 때와 멈춘 뒤에 할 일을 연습해 보자.",
+      "file": "guide-intro-safety.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "id": "river",
+      "caption": "강가의 조사 기록이 물에 젖었어. 직접 물을 흘려 보고, 달라진 곳을 찾아 줄래?",
+      "file": "guide-intro-river.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "id": "volcano",
+      "caption": "용암과 화산재 같은 분출물이 쌓여 만들어진 지형을 화산이라고 해. 마그와 모형을 만들고, 실제 화산의 모습과 비교해 보자.",
+      "file": "guide-intro-volcano.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "id": "rocks",
+      "caption": "지오가 모은 현무암과 화강암의 이름표가 떨어졌어. 이 두 종류의 화성암을 색과 알갱이로 비교해 보자.",
+      "file": "guide-intro-rocks.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "id": "city",
+      "caption": "타임의 사진첩이 뒤섞였어. 같은 장소의 시간을 움직이며 주민들에게 필요한 소식을 찾아보자.",
+      "file": "guide-intro-city.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "id": "safety",
+      "caption": "2017년 포항 지진 때 학교 벽이 갈라지고 대학 입학 시험이 미뤄졌어. 실제 피해를 살펴보고, 흔들릴 때와 멈춘 뒤에 할 일을 연습해 보자.",
+      "file": "guide-intro-safety.mp3",
+      "issues": [],
+      "played": true,
+      "stoppedOnClose": true
+    }
+  ],
+  "decoded": [
+    {
+      "id": "guide-map-first",
+      "ok": true,
+      "duration": 2.911,
+      "expected": 2.95
+    },
+    {
+      "id": "guide-intro-river",
+      "ok": true,
+      "duration": 6.56,
+      "expected": 6.61
+    },
+    {
+      "id": "guide-intro-volcano",
+      "ok": true,
+      "duration": 9.993708333333334,
+      "expected": 10.03
+    },
+    {
+      "id": "guide-intro-rocks",
+      "ok": true,
+      "duration": 7.57225,
+      "expected": 7.6
+    },
+    {
+      "id": "guide-intro-city",
+      "ok": true,
+      "duration": 7.124583333333334,
+      "expected": 7.16
+    },
+    {
+      "id": "guide-intro-safety",
+      "ok": true,
+      "duration": 10.24,
+      "expected": 10.27
+    },
+    {
+      "id": "guide-river-a1-done",
+      "ok": true,
+      "duration": 4.910666666666667,
+      "expected": 4.94
+    },
+    {
+      "id": "guide-river-a2-done",
+      "ok": true,
+      "duration": 6.782125,
+      "expected": 6.82
+    },
+    {
+      "id": "guide-volcano-a1-done",
+      "ok": true,
+      "duration": 5.592625,
+      "expected": 5.64
+    },
+    {
+      "id": "guide-volcano-a2-done",
+      "ok": true,
+      "duration": 6.16,
+      "expected": 6.19
+    },
+    {
+      "id": "guide-rocks-basalt",
+      "ok": true,
+      "duration": 3.667125,
+      "expected": 3.71
+    },
+    {
+      "id": "guide-rocks-granite",
+      "ok": true,
+      "duration": 3.6555833333333334,
+      "expected": 3.68
+    },
+    {
+      "id": "guide-rocks-a2-done",
+      "ok": true,
+      "duration": 2.7982916666666666,
+      "expected": 2.85
+    },
+    {
+      "id": "guide-city-ash-done",
+      "ok": true,
+      "duration": 6.643125,
+      "expected": 6.69
+    },
+    {
+      "id": "guide-safety-a1-done",
+      "ok": true,
+      "duration": 4.663854166666667,
+      "expected": 4.7
+    },
+    {
+      "id": "guide-safety-a2-done",
+      "ok": true,
+      "duration": 4.121666666666667,
+      "expected": 4.15
+    },
+    {
+      "id": "guide-retry-river-mark",
+      "ok": true,
+      "duration": 3.7964583333333333,
+      "expected": 3.84
+    },
+    {
+      "id": "guide-retry-river-reflect",
+      "ok": true,
+      "duration": 3.1414583333333335,
+      "expected": 3.19
+    },
+    {
+      "id": "guide-retry-volcano-order",
+      "ok": true,
+      "duration": 4.02525,
+      "expected": 4.08
+    },
+    {
+      "id": "guide-retry-rocks-order",
+      "ok": true,
+      "duration": 3.375208333333333,
+      "expected": 3.42
+    },
+    {
+      "id": "guide-retry-rocks-name",
+      "ok": true,
+      "duration": 4.5175,
+      "expected": 4.55
+    },
+    {
+      "id": "guide-retry-city-period",
+      "ok": true,
+      "duration": 5.495333333333333,
+      "expected": 5.54
+    },
+    {
+      "id": "guide-retry-safety-shaking",
+      "ok": true,
+      "duration": 4.557916666666666,
+      "expected": 4.6
+    },
+    {
+      "id": "guide-final-river",
+      "ok": true,
+      "duration": 4.695083333333334,
+      "expected": 4.73
+    },
+    {
+      "id": "guide-final-rock",
+      "ok": true,
+      "duration": 4.52675,
+      "expected": 4.57
+    },
+    {
+      "id": "guide-final-route",
+      "ok": true,
+      "duration": 2.449333333333333,
+      "expected": 2.48
+    },
+    {
+      "id": "guide-map-festival",
+      "ok": true,
+      "duration": 5.940458333333333,
+      "expected": 5.98
+    }
+  ],
+  "errors": []
+}

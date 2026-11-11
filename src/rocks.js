@@ -1,5 +1,5 @@
 import {$,$$} from './ui.js';
-import {A,btn,pill,pointerSurface,svgFrame,capture,ensureData,bindChoices,evidenceCard} from './explore-ui.js';
+import {A,btn,pill,pointerSurface,svgFrame,capture,ensureData,bindChoices} from './explore-ui.js';
 import {ROCKS,FEATURES,hasRockEvidence,unit} from './learning-model.js';
 export function mount(ctx){
  const d=ensureData(ctx.data,{evidence:{},rockNames:{},rockProofs:{},rockSample:ctx.step===0?0:2,rockView:{x:.5,y:.5,zoom:1.8}});

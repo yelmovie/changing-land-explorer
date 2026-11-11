@@ -40,7 +40,7 @@
 
 ## 효과음
 
-음원 파일은 `public/assets/audio/`에 로컬 보관한다. 배경 음악은 사용하지 않는다. 외부 요청 없이 효과음을 재생하며, 동시 1개·음소거·배경 탭 정지를 적용한다.
+음원 파일은 `public/assets/audio/`에 로컬 보관한다. 제작자가 제공한 메인·엔딩 테마와 효과음을 사용하며, 상세 출처와 사용 구분은 해당 폴더의 `CREDITS.md`에 기록한다. 외부 요청 없이 재생하고, 음소거·채널별 음량·배경 탭 정지를 적용한다.
 
 | 앱 파일 | 원본 | 제작자·출처 | 라이선스 |
 |---|---|---|---|
@@ -58,7 +58,7 @@
 
 ## 개념 영상·프로그램·글꼴
 
-- 개념 영상: 자체 작성 SVG를 프레임으로 렌더하고 FFmpeg로 인코딩한 무음 학습 클립. 도구와 자막: `scripts/concepts/`, `src/concepts.js`, `docs/CONCEPT_MOTION.md`.
+- 현재 개념 영상은 `films/concepts/`의 HyperFrames 장면을 FFmpeg로 인코딩한 15초 무음 학습 클립 10개다. 재생성 명령은 `npm run concepts:render`이며 화면 자막은 `src/concepts.js`, 길이·크기 기록은 `public/assets/concepts/manifest.json`에 있다. 초기 SVG 제작 이력은 `scripts/concepts/`와 `docs/CONCEPT_MOTION.md`에 남아 있다.
 - Phaser 3.90.0: Copyright (c) 2024 Richard Davey, Phaser Studio Inc. · MIT License.
 - Jua: Copyright (c) 2017 Woowahan Brothers Corp., Reserved Font Name Jua. Google Fonts 제공 OFL 글꼴. 한국어·라틴 WOFF2를 동봉했다.
 - 게임 조작 아이콘은 프로젝트의 `src/ui.js`에 작성한 SVG 경로다.
@@ -85,3 +85,10 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 ## 스테이지 전용 배경 재생성 — 2026-10-24
 
 초기 지도 map-adventure.webp를 그림체·팔레트 기준으로 OpenAI 내장 이미지 도구에서 배경 10장을 개별 생성했어요. 물길 관측소/강 협곡, 현무암 화산 연구실/분화구, 결정 동굴/채석장 표본 공방, 해안 마을/주민 광장, 섬 학교 교실/대피 정원이에요. 배포용 WebP와 원본·규격 기록은 public/assets/art/stage-backgrounds.json, 원본 PNG는 assets/raw-png/stage-backgrounds-20261024/에 있어요. 모두 학습용 재현이며 UI·조작·판정은 코드로 처리해요. 기존 배경은 덮어쓰지 않고 보존했어요.
+
+
+## 현재 글꼴과 안내 음성 · 2026-11-11 확인
+
+- 화면·Canvas·SVG의 현재 글꼴은 NanumSquare Neo Regular/Bold다. 배포 글꼴과 OFL 원문, 공급처·해시는 `public/assets/fonts/NanumSquareNeo-SOURCE.json`과 `NanumSquareNeo-OFL.txt`에 보관한다. 위 Jua 기록은 이전 화면의 제작 이력이다.
+- 현재 안내 음성의 생성 기록과 파일 출처는 `public/assets/voices/momo-manifest-20261110.json`과 `public/assets/voices/MOMO-SOURCE.txt`에서 확인한다.
+- 기존 제공 이미지·음악의 최종 이용 조건 확인 항목은 계속 유지한다.

@@ -65,6 +65,7 @@ export function modal(title,content,setup){
  document.querySelectorAll('#overlay dialog').forEach(d=>d.close());
  $('#overlay').innerHTML=`<dialog class="learning-dialog" aria-labelledby="dialog-title"><header class="dialog-heading"><h2 id="dialog-title">${title}</h2><button class="icon-button dialog-close" aria-label="닫기">${icon('close')}</button></header><div class="dialog-body">${content}</div></dialog>`;
  const dialog=$('dialog');
+ if(dialog.querySelector('.mission-preview'))dialog.classList.add('mission-dialog');
  if(dialog.querySelector('.evidence-list,.bag-grid,.preview-links,.tool-comparison'))dialog.classList.add('wide-dialog');
  const close=()=>{if(dialog.open)dialog.close();};
  $('.dialog-close',dialog).onclick=close;

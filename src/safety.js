@@ -1,7 +1,7 @@
-import {$,$$} from './ui.js';
+import {$} from './ui.js';
 import {A,btn,pill,svgFrame,svgText,pointerSurface,ticker,capture,ensureData,bindChoices} from './explore-ui.js';
 import {inspectRoute,replaceRouteSection,routeSignature} from './learning-model.js';
-import {SCHOOL_CONFIG,OUTSIDE_CONFIG,safetyRouteConfig} from './learning-model.js';
+import {safetyRouteConfig} from './learning-model.js';
 import {appendRoutePoint} from './route-points.js';
 export function mount(ctx){return ctx.step===0?protect(ctx):mountRoute(ctx);}
 function protect(ctx){const d=ensureData(ctx.data,{evidence:{},protect:{under:false,head:false,leg:false,stopped:false,confirmed:false}});let shaking=false,elapsed=0,hero={x:760,y:390},drag=false;const points=[{id:'window',name:'창문',x:170,y:175,text:'유리나 화분이 떨어질 수 있어.'},{id:'shelf',name:'책장',x:350,y:230,text:'책과 책장이 넘어질 수 있어.'},{id:'desk',name:'책상',x:580,y:340,text:'튼튼한 책상 아래에서 몸을 보호해.'}];

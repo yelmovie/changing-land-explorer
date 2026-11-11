@@ -22,3 +22,5 @@ references/previews/
 Thumbs.db
 .DS_Store
 ._*
+
+/output/

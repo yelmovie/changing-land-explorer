@@ -1,0 +1,211 @@
+{
+  "baseline-ui": {
+    "checked": 631,
+    "failed": 4,
+    "errors": [],
+    "httpErrors": []
+  },
+  "baseline-operations": {
+    "checked": 84,
+    "failed": 42,
+    "errors": [],
+    "httpErrors": []
+  },
+  "final-ui": {
+    "checked": 631,
+    "failed": 0,
+    "errors": [],
+    "httpErrors": []
+  },
+  "portrait-ui": {
+    "checked": 180,
+    "failed": 0,
+    "errors": [],
+    "httpErrors": []
+  },
+  "final-fit": {
+    "checked": 210,
+    "failed": 0,
+    "errors": [],
+    "httpErrors": []
+  },
+  "portrait-fit": {
+    "checked": 60,
+    "failed": 0,
+    "errors": [],
+    "httpErrors": []
+  },
+  "final-operations": {
+    "checked": 352,
+    "failed": 0,
+    "errors": [],
+    "httpErrors": []
+  },
+  "reading": {
+    "checked": 120,
+    "failed": 0,
+    "errors": [],
+    "httpErrors": []
+  },
+  "requested-final": {
+    "checked": 8,
+    "failed": 0,
+    "errors": [],
+    "httpErrors": []
+  },
+  "arrivals": {
+    "checked": 20,
+    "failed": 0,
+    "errors": [],
+    "httpErrors": []
+  },
+  "playback": {
+    "results": {
+      "pauseFreezesWork": true,
+      "measuredSpeedRatio": 2.8752645353569415,
+      "speedChangesWithoutPausing": true,
+      "toolsAndHintPauseAndRestoreFocus": true,
+      "completionWaitsForNextClick": true,
+      "replayDoesNotRewriteEvidence": true,
+      "reloadPreservesCompletionWithoutRestartingPlayback": true,
+      "observationHandsOffToLearnerChoice": true,
+      "wrongAnswerStillRejected": true
+    },
+    "errors": []
+  },
+  "extras": {
+    "base": "http://localhost:5198",
+    "loading": [
+      {
+        "readyMs": 4963.899999991059,
+        "bytes": 3045161,
+        "requests": 52,
+        "external": []
+      },
+      {
+        "readyMs": 3198.3999999910593,
+        "bytes": 3045161,
+        "requests": 52,
+        "external": []
+      },
+      {
+        "readyMs": 3544.5,
+        "bytes": 3045161,
+        "requests": 52,
+        "external": []
+      }
+    ],
+    "offline": [
+      {
+        "index": 0,
+        "canvas": true
+      },
+      {
+        "index": 1,
+        "canvas": true
+      },
+      {
+        "index": 2,
+        "canvas": true
+      },
+      {
+        "index": 3,
+        "canvas": true
+      },
+      {
+        "index": 4,
+        "canvas": true
+      }
+    ],
+    "keyboard": [
+      {
+        "index": 0,
+        "complete": true,
+        "offline": true
+      },
+      {
+        "index": 1,
+        "complete": true,
+        "offline": true
+      },
+      {
+        "index": 2,
+        "complete": true,
+        "offline": true
+      },
+      {
+        "index": 3,
+        "complete": true,
+        "offline": true
+      },
+      {
+        "index": 4,
+        "complete": true,
+        "offline": true
+      }
+    ],
+    "errors": [],
+    "print": {
+      "pages": 1,
+      "bytes": 2946226
+    },
+    "frames": {
+      "count": 180,
+      "meanMs": 16.666111111111114,
+      "p95Ms": 16.799999999999272,
+      "maxMs": 16.80000000000109
+    }
+  },
+  "release-performance": {
+    "base": "http://localhost:5198",
+    "loading": [
+      {
+        "readyMs": 2651.2999999970198,
+        "bytes": 2420694,
+        "requests": 49,
+        "external": []
+      },
+      {
+        "readyMs": 2693.9000000059605,
+        "bytes": 2420694,
+        "requests": 49,
+        "external": []
+      },
+      {
+        "readyMs": 2645.9000000059605,
+        "bytes": 2420694,
+        "requests": 49,
+        "external": []
+      }
+    ],
+    "offline": [],
+    "keyboard": [],
+    "errors": []
+  },
+  "flow": {
+    "completed": [
+      "river",
+      "volcano",
+      "rocks",
+      "city",
+      "safety"
+    ],
+    "errors": [],
+    "httpErrors": [],
+    "discoveries": 30,
+    "concepts": 10,
+    "rewards": 5,
+    "resumedStageState": false,
+    "stageEvidenceSource": null,
+    "finalRounds": 3,
+    "finished": true,
+    "certificate": true,
+    "reloaded": true,
+    "interaction": "Real pointer input for every stage activity and route; the script knows each target, so a pass shows the activities can be finished, not independent learner performance."
+  },
+  "unit": {
+    "passed": 165,
+    "failed": 0,
+    "additionalCityArtTestPassed": 1
+  }
+}

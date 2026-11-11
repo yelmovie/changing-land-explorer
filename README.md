@@ -111,3 +111,10 @@ PORT=5197 npm run preview  # http://localhost:5197 에서 빌드 확인
 
 추가 검증: `npm run check:activity`는 30개 장면 × 5크기의 화면·패널 스크롤, 조작 가림, 터치 크기를 확인해. `CHECK_COMPLETED_STATE`에 `check:flow`가 생성한 `flow-finished-state.json`을 지정하면 실제 완료 기록으로 재방문 화면을 검사해. `npm run check:playback`은 브라우저에서 배속·중단·재생 중 속도 변경·정답 분리·저장 복원을 확인해. 위와 같은 Playwright/개발 서버 환경을 사용하며 결과는 `.work/activity-fit-20261108/`에 저장해.
 
+
+
+### 2026-11-12 납품 검수
+
+현장 작전은 낮은 가로 화면에서 장면과 안내·조작을 좌우로 배치한다. 강의 흔적과 암석 특징은 자동 관찰의 0.5·1·2·3배 속도를 선택할 수 있으며, 판단이 필요한 단계에서 멈춘다. 인증서는 문서와 인쇄·돌아가기 조작 영역을 나눈다.
+
+`npm run check:operations`는 Playwright가 준비된 환경에서 다섯 현장 작전의 상태별 화면 맞춤과 자동 관찰의 판단 전 정지를 확인한다. `npm run check:voices`는 다섯 장소의 도착 대사·실제 음성 재생·닫기 시 정지와 안내 음성 27개의 디코딩을 검사한다. `PLAYWRIGHT_PATH`, `CHECK_URL`, `CHECK_OUT`으로 실행 환경을 지정한다. 최종 판정과 점수는 `docs/reviews/RELEASE-REVIEW-20261112.md`와 `docs/reviews/SCORE-20261112.md`를 참고한다.

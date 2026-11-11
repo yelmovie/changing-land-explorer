@@ -52,7 +52,7 @@ async function record(page,label,scope='body',{scroll=false,shot=false}={}){
 async function enter(page,index,step,phase){
  await page.evaluate(async({index,step,phase})=>{
   const m=await import('/src/main.js'),id=['river','volcano','rocks','city','safety'][index],s=m.state();
-  s.drafts[id]={step,passed:[],data:{adventure:{version:1,chapters:{[step]:{phase,tasks:Object.fromEntries(Array.from({length:phase},(_,i)=>[i,{done:true}])),work:{}}}}}};
+  s.drafts[id]={step,passed:[],data:{...s.drafts[id]?.data,adventure:{version:1,chapters:{[step]:{phase,tasks:Object.fromEntries(Array.from({length:phase},(_,i)=>[i,{done:true}])),work:{}}}}}};
   m.enter(index,step);
  },{index,step,phase});
  await page.waitForSelector('#activity canvas');await page.waitForFunction(()=>!document.querySelector('.stage-loader'));

@@ -8,3 +8,16 @@ test('legacy records stay completed; new operation progress and resume survive s
 test('corrupt progress is bounded for each operation',()=>{assert.equal(operationState({version:1,step:99},'river').step,2);assert.deepEqual(operationState(null),freshOperation());});
 
 test('river navigation blocks water and erosion without losing a built bridge',()=>{let s={...freshOperation(),step:2};s=operate('river',s,'move:north').state;const r=operate('river',s,'move:east');assert.equal(r.ok,false);assert.deepEqual(r.state.position,[0,0]);assert.equal(r.state.step,2);});
+
+
+test('malformed operation checkpoints cannot index outside a scene or fabricate observations',()=>{
+ const malformed={...freshOperation(),step:1.7,attempts:Infinity,observed:['color','color','erosion','unknown']};
+ assert.equal(operationState(malformed,'volcano').step,1);
+ assert.equal(operationState({...malformed,step:Infinity},'volcano').step,0);
+ assert.equal(operationState(malformed,'river').attempts,0);
+ assert.deepEqual(operationState(malformed,'river').observed,['erosion']);
+ assert.deepEqual(operationState(malformed,'rocks').observed,['color']);
+ const result=operate('river',{...malformed,step:0},'observe:deposit');
+ assert.equal(result.state.step,0);
+ assert.deepEqual(result.state.observed,['erosion','deposit']);
+});

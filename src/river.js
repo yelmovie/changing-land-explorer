@@ -1,4 +1,4 @@
-import {$,$$,escapeHTML} from './ui.js';
+import {$} from './ui.js';
 import {A,btn,pill,svgFrame,pointerSurface,ticker,capture,ensureData,bindChoices} from './explore-ui.js';
 import {riverArt,pin} from './visuals.js';
 import {unit,RIVER_MARKS,FIELD_POINTS,riverMarkValid} from './learning-model.js';

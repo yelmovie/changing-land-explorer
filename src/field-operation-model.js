@@ -7,7 +7,25 @@ export const OPERATIONS={
  safety:{title:'몸 보호에서 집합까지',goal:'흔들릴 때 몸을 보호하고, 멈춘 뒤 안내를 따라 이동해 줘.',background:'safety-evacuation-garden-v2',steps:4}
 };
 export function freshOperation(){return {version:1,step:0,observed:[],choice:null,position:[0,1],attempts:0,done:false};}
-export function operationState(raw,id){const s=freshOperation();if(!raw||raw.version!==1)return s;return {...s,step:Math.max(0,Math.min((OPERATIONS[id]?.steps||5)-1,Number(raw.step)||0)),observed:Array.isArray(raw.observed)?raw.observed.filter(x=>typeof x==='string').slice(0,12):[],choice:typeof raw.choice==='string'?raw.choice:null,position:Array.isArray(raw.position)&&raw.position.length===2&&raw.position.every(Number.isInteger)?[Math.max(0,Math.min(4,raw.position[0])),Math.max(0,Math.min(2,raw.position[1]))]:[0,1],attempts:Math.max(0,Number(raw.attempts)||0),done:raw.done===true};}
+export function operationState(raw,id){
+ const initial=freshOperation();
+ if(!raw||raw.version!==1)return initial;
+ const steps=OPERATIONS[id]?.steps||5;
+ const step=Number(raw.step),attempts=Number(raw.attempts);
+ const allowed=id==='river'?['erosion','transport','deposit']:id==='rocks'?['color','grain']:[];
+ const observed=Array.isArray(raw.observed)?raw.observed.filter(item=>allowed.includes(item)):[];
+ const position=Array.isArray(raw.position)&&raw.position.length===2&&raw.position.every(Number.isInteger)
+  ?[Math.max(0,Math.min(4,raw.position[0])),Math.max(0,Math.min(2,raw.position[1]))]:initial.position;
+ return {
+  ...initial,
+  step:Number.isFinite(step)?Math.max(0,Math.min(steps-1,Math.floor(step))):0,
+  observed:[...new Set(observed)],
+  choice:typeof raw.choice==='string'?raw.choice:null,
+  position,
+  attempts:Number.isFinite(attempts)?Math.max(0,Math.min(999,Math.floor(attempts))):0,
+  done:raw.done===true
+ };
+}
 export function operate(id,raw,action){
  const s=operationState(raw,id);if(!OPERATIONS[id]||s.done)return {state:s,message:'작전 기록이 완성됐어.',changed:false};
  const fail=message=>({state:{...s,attempts:s.attempts+1},message,changed:true,ok:false});

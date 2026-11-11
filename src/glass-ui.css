@@ -65,9 +65,37 @@
 #app.adventure .adventure-toolbar #observation-auto {background:#fff1bfd9;color:#344b30;border:1px solid #fff9df;box-shadow:var(--glass-shadow)}
 #app .pin-sign {background:#f7ffedcf;border:1px solid #ffffffd9;box-shadow:var(--glass-shadow);color:#173e35}
 #app.final .final-panel {background:#f8fff1d9;border:var(--glass-border);box-shadow:var(--glass-shadow)}
-/* Long certificate is a reading page: actions follow it, never cover the name field. */
-#app.final .certificate-tools {position:static;flex:none;flex-wrap:wrap;margin-top:12px;padding:10px 0 8px}
+/* Keep document scrolling separate from the print and return actions. */
+#app.final .certificate-page {display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.certificate-viewport {flex:1;min-height:0;overflow:auto;scroll-padding:12px}
+#app.final .certificate-tools {position:static;flex:none;flex-wrap:wrap;margin:0;padding:8px 0}
+@media(max-height:600px) {
+ #app.final .certificate {padding:12px 20px}
+ #app.final .certificate h1 {font-size:26px;padding:0 62px;margin:4px 0}
+ #app.final .certificate-medal {width:60px;height:60px;top:8px;right:12px}
+ #app.final .certificate input {margin:8px auto}
+ #app.final .certificate .eyebrow {font-size:14px}
+}
+@media print {
+ #app.final,#app.final .certificate-page,.certificate-viewport {height:auto!important;overflow:visible!important;display:block!important}
+ #app.final .certificate {break-inside:avoid;min-height:0}
+}
 
 :root{--scenic-card-radius:20px;--scenic-card-gap:12px;}
 #app :is(.drop-zone,.drag-item,.final-panel,.ending-records>*,.activity-surface),#overlay :is(.setting-row,.learning-guide details){border-radius:var(--scenic-card-radius);}
 #app :is(.board-zones,.ending-records,.scene-tools,.scene-toolbar),#overlay .settings-grid{gap:var(--scenic-card-gap);}
+
+@media(max-height:660px) and (min-width:560px) {
+ dialog.learning-dialog.mission-dialog {width:min(850px,calc(100vw - 24px));max-height:calc(var(--app-height) - 24px)}
+ .mission-dialog .dialog-heading {padding:8px 14px}
+ .mission-dialog .dialog-heading h2 {font-size:24px}
+ .mission-dialog .dialog-body {display:grid;grid-template-columns:minmax(120px,1fr) minmax(0,2.4fr);gap:8px 14px;padding:10px 14px;scrollbar-gutter:auto}
+ .mission-dialog .dialog-body .mission-preview {grid-row:1 / 4;height:100%;min-height:0;margin:0}
+ .mission-dialog .mission-river {width:120px;height:160px;right:0}
+ .mission-dialog .dialog-body>p {font-size:18px;line-height:1.45;margin:0;align-self:center}
+ .mission-dialog .dialog-body .mission-reward {gap:8px;padding:6px 10px}
+ .mission-dialog .dialog-body .mission-reward>img {width:44px;height:44px}
+ .mission-dialog .mission-reward b {font-size:18px;line-height:1.3}
+ .mission-dialog .mission-reward span {font-size:16px;margin-top:3px}
+ .mission-dialog .dialog-body>.primary {margin:0;min-height:48px;justify-content:center}
+}

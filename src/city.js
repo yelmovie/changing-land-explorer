@@ -1,5 +1,5 @@
-import {$,$$} from './ui.js';
-import {A,btn,pill,svgFrame,pointerSurface,capture,ensureData,bindChoices,esc} from './explore-ui.js';
+import {$} from './ui.js';
+import {btn,pill,svgFrame,pointerSurface,capture,ensureData,bindChoices,esc} from './explore-ui.js';
 import {CITY_SITES,unit} from './learning-model.js';
 import {cityArt} from './visuals.js';
 export function mount(ctx){return ctx.step===0?observe(ctx):notice(ctx);}

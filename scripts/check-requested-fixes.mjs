@@ -27,8 +27,8 @@ async function layout(label){
 try{
  for(const [width,height,mode,touch]of (process.env.CHECK_PART&&process.env.CHECK_PART!=='water'?[]:[[1280,800,'drag',false],[1024,768,'tap',true],[768,1024,'tap',true],[1280,800,'button',false]])){
   await fresh(width,height,touch);await page.evaluate(async()=>{(await import('/src/main.js')).enter(0);});await ready();
-  await click(340,515);await click(100,70);assert.equal((await data('river')).prediction,undefined,'wrong flag placement stays incomplete');
-  await click(340,515);await click(627,340);assert.ok((await data('river')).prediction,'flag returned to its original place');
+  assert.equal(await page.locator('#observation-auto').isVisible(),true,'water observation offers playback');
+  assert.equal(await page.locator('#next').isDisabled(),true,'observation must finish before continuing');
   await click(140,515);await click(1100,80);assert.equal((await data('river')).adventure.chapters[0].work[0].pour,0,'wrong watering position cannot advance');
   if(mode==='button'){await page.locator('#river-pour-start').click();}
   else if(mode==='tap'){await click(140,515);await click(400,195);}
@@ -63,14 +63,35 @@ try{
   const metrics=await layout(`${width}-${height}-safety-leg-${mode}`);await page.reload();await ready();assert.ok((await data('safety')).protect.confirmed);
   results.push({test:'safety',mode,...poseBefore,metrics});
  }
- // A real long route with over 600 turns, stored as a student record and reloaded.
+ // Walk through the current input, then verify a dense legacy record of the same safe path.
  if(!process.env.CHECK_PART||process.env.CHECK_PART==='route'){
- const earned=JSON.parse(await fs.readFile('.work/request-fixes-20261025/full-flow/flow-student-state.json','utf8')).drafts.safety.data;
+ const savedPath=process.env.CHECK_SAVED_STATE||'.work/request-fixes-20261025/full-flow/flow-student-state.json';
+ const earned=JSON.parse(await fs.readFile(savedPath,'utf8')).drafts.safety.data;
  await fresh();await page.evaluate(async earned=>{const m=await import('/src/main.js'),s=m.state();s.completed=['river','volcano','rocks','city'];earned.schoolRoute=[];earned.schoolRouteDone=false;earned.adventure.chapters[1]={phase:0,tasks:{},work:{}};s.drafts.safety={step:1,passed:[0],data:earned};m.enter(4);},earned);await ready();
- const b=await page.locator('#activity canvas').boundingBox(),screen=p=>({x:b.x+(p.x+100)*b.width/1200,y:b.y+(p.y+80)*b.height/640});
- const route=[{x:140,y:100},...Array.from({length:720},(_,i)=>({x:150+i%10*10,y:100+i%2*25})),{x:280,y:100},{x:280,y:280},{x:500,y:280},{x:500,y:370},{x:880,y:420}];
- let p=screen(route[0]);await page.mouse.move(p.x,p.y);await page.mouse.down();for(const q of route.slice(1)){p=screen(q);await page.mouse.move(p.x,p.y);}await page.mouse.up();
- const original=(await data('safety')).schoolRoute;assert.ok(original.length>600);await page.locator('#route-check').click();await page.waitForSelector('#next.ready');await page.reload();await ready();const restored=(await data('safety')).schoolRoute;assert.deepEqual(restored,original);results.push({test:'long-route',points:original.length,last:original.at(-1),identicalAfterReload:true});
+ const waypoints=[{x:140,y:100},{x:280,y:100},{x:280,y:280},{x:500,y:280},{x:500,y:370},{x:880,y:420}];
+ for(let i=1;i<waypoints.length;i++){
+  const from=waypoints[i-1],to=waypoints[i];
+  await click(to.x+100,to.y+80);
+  await page.waitForTimeout(Math.ceil(Math.hypot(to.x-from.x,to.y-from.y)/.17)+300);
  }
+ await page.waitForSelector('#next.ready',{timeout:20000});
+ const walked=(await data('safety')).schoolRoute;
+ assert.ok(walked.length>2);
+ const dense=[walked[0]],parts=Math.ceil(720/(walked.length-1));
+ for(let i=1;i<walked.length;i++)for(let j=1;j<=parts;j++){
+  const a=walked[i-1],b=walked[i],t=j/parts;
+  dense.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
+ }
+ assert.ok(dense.length>600);
+ await page.evaluate(async points=>{
+  const m=await import('/src/main.js'),{inspectRoute,SCHOOL_CONFIG}=await import('/src/learning-model.js');
+  if(!inspectRoute(points,SCHOOL_CONFIG).ok)throw new Error('Dense legacy route must remain safe');
+  m.state().drafts.safety.data.schoolRoute=points;m.save();
+ },dense);
+ await page.reload();await ready();
+ assert.deepEqual((await data('safety')).schoolRoute,dense);
+ results.push({test:'long-route-restore',walkedPoints:walked.length,legacyPoints:dense.length,identicalAfterReload:true});
+ }
+
  assert.deepEqual(errors,[]);await fs.writeFile(out+'/results.json',JSON.stringify({results,errors,realTablet:false},null,2));console.log('PASS targeted: '+results.length+' scenarios');
 }catch(e){await page?.screenshot({path:out+'/failure.png'});await fs.writeFile(out+'/failure.json',JSON.stringify({error:e.stack,errors,results},null,2));console.error(e);process.exitCode=1;}finally{await browser.close();}

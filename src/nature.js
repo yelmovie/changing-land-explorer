@@ -1,4 +1,4 @@
-import {$,$$,icon,makeCanvas,fitImage,roundRect,text,circle,line,getImage,dragBoard} from './ui.js';
+import {$,$$,icon,makeCanvas,fitImage,roundRect,text,circle,line,getImage} from './ui.js';
 import {clamp,compareFlow,distance} from './model.js';
 import {sorting} from './activity-helpers.js';
 const A='/assets/';

@@ -15,7 +15,7 @@ test('observation and gesture help do not mark a learner as receiving the answer
  recordHint(w,'rocks',0,1,1);assert.equal(w.operationHelp,true);assert.equal(w.answerHint,undefined);assert.equal(w.hintLevel,2);
 });
 test('a disclosed answer persists through later general help and save restore',()=>{
- const s=fresh(),w={};recordHint(w,'river',0,2,2);recordHint(w,'river',0,2,0);
+ const s=fresh(),w={answerHint:true};recordHint(w,'river',0,2,2);recordHint(w,'river',0,2,0);
  s.drafts.river={step:0,data:{adventure:{version:1,chapters:{0:{work:{2:w}}}}}};
  const copy=sanitize(JSON.parse(JSON.stringify(s))).drafts.river.data.adventure.chapters[0].work[2];
  assert.equal(copy.answerHint,true);assert.equal(copy.hintLevel,3);assert.equal(copy.operationHelp,true);
@@ -27,4 +27,11 @@ test('ten learning activities map to standards, evidence and distinct stage acti
  assert.deepEqual(LEARNING_GUIDE.map(s=>s.id),STAGES.map(s=>s.id));
  for(const stage of LEARNING_GUIDE){assert.equal(stage.standard,STAGES.find(s=>s.id===stage.id).standard);assert.equal(stage.activities.length,2);assert.match(stage.source,/^https:\/\//);assert.ok(stage.transfer&&stage.caution);for(const a of stage.activities)assert.ok(a.goal&&a.action&&a.evidence);}
  assert.match(learningGuideHTML(),/완료와 보상은 활동을 마쳤다는 뜻/);assert.match(learningGuideHTML(),/같은 표본의 방향/);
+});
+
+
+test('current hints guide observation and operation while preserving learner choices',()=>{
+ assert.equal(Object.values(HINT_KINDS).flat(3).includes('a'),false);
+ assert.match(HINTS.volcano[1][1][1],/비교/);
+ assert.match(HINTS.safety[0][1][1],/튼튼한 곳/);
 });

@@ -2,6 +2,8 @@ import {syncMapHitLayout} from './map-hit-layout.js';
 import {mountMapVillains} from './map-villains.js';
 import {RIVER_WALK,createRiverWalker} from './river-walk.js';
 import {STAGES,canEnter} from './model.js';
+import {guideRecordings} from './guide-recordings.js';
+import {OPERATIONS} from './field-operation-model.js';
 import {villageLights} from './village-lights.js';
 import {RESIDENTS,residentMarker,showResidents} from './residents.js';
 import {playSound,playCue} from './sound.js';
@@ -163,7 +165,7 @@ export function renderMap({welcome=false,arrival}={}){
   function missionCard(index){
     const st=STAGES[index],done=s.completed.includes(st.id);
     modal(done?'다시 발견하러 갈까?':`${index+1}. ${st.name}`,
-      `<div class="mission-preview"><img class="mission-scene" src="/assets/${backgroundForAsset(['river-field','volcano-field','rocks-lab','city-calm','classroom'][index])}.webp" alt="${st.place}"><img class="mission-river" src="/assets/hero-lens.webp" alt="리버"></div><p>${st.intro}</p><div class="mission-reward"><img src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt=""><div><b>${done?'가방에 모은 도구':'이번 탐험의 보상'} · ${st.reward}</b></div></div><button class="primary" id="mission-enter">${done?'다시 탐험':'리버와 들어가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
+      `<div class="mission-preview"><img class="mission-scene" src="/assets/${backgroundForAsset(['river-field','volcano-field','rocks-lab','city-calm','classroom'][index])}.webp" alt="${st.place}"><img class="mission-river" src="/assets/hero-lens.webp" alt="리버"></div><p>${guideRecordings[`guide-intro-${st.id}`].text}</p><div class="mission-reward"><img src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt=""><div><b>${OPERATIONS[st.id].title}</b><span>${done?'모은 도구':'완료 보상'} · ${st.reward}</span></div></div><button class="primary" id="mission-enter">${done?'다시 탐험':'리버와 들어가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
         $('#mission-enter',dialog).onclick=()=>{s.started=true;save();close();enter(index);};
       });
   }

@@ -1,5 +1,5 @@
 import {STAGES,canEnter,distance} from './model.js';
-import {$,$$,icon,makeCanvas,fitImage,circle,text,line,getImage} from './ui.js';
+import {$,$$,icon,makeCanvas,fitImage,circle,line,getImage} from './ui.js';
 import {shell,state,isAdmin,save,enter,navigate,toast,modal} from './main.js';
 // Waypoints follow the sandy paths painted into map.webp. Branches lead to doors.
 const xy=[[.18,.75],[.195,.62],[.26,.56],[.26,.49],[.245,.43],[.235,.38],[.16,.38],[.235,.31],[.265,.25],[.29,.205],[.34,.23],[.39,.25],[.43,.20],[.51,.20],[.58,.215],[.65,.205],[.677,.24],[.70,.31],[.72,.39],[.77,.46],[.72,.50],[.66,.59],[.615,.67],[.635,.75],[.70,.70],[.60,.57],[.54,.55],[.50,.48],[.50,.42]];
