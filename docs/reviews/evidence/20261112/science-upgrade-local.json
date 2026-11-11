@@ -184,5 +184,10 @@
     "observationHandsOffToLearnerChoice": true,
     "wrongAnswerStillRejected": true
   },
-  "videoCaptureFix": "HyperFrames 0.9.26 static-frame dedup disabled after reproducible bottom-band clipping; decoded 13-second frames checked."
+  "videoCaptureFix": "HyperFrames 0.9.26 static-frame dedup disabled after reproducible bottom-band clipping; decoded 13-second frames checked.",
+  "operationsWithSafetyContext": {
+    "cases": 132,
+    "failed": 0,
+    "runtimeErrors": []
+  }
 }

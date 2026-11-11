@@ -20,6 +20,11 @@ async function inspect(page,label){
  await page.waitForTimeout(80);
  const issues=await page.evaluate(()=>{
   const issues=[],app=document.querySelector('#app');
+  const scene=document.querySelector('.operation-scene');
+  if(scene.dataset.operation==='safety'){
+   const expected=Number(scene.dataset.step)<2?'safety-island-classroom-v2':'safety-evacuation-garden-v2';
+   if(!getComputedStyle(document.querySelector('.field-operation')).getPropertyValue('--operation-bg').includes(expected))issues.push('safety background does not match the action');
+  }
   const inside=r=>r.left>=-1&&r.top>=-1&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1;
   for(const e of [document.documentElement,app,document.querySelector('#operation-board')]){
    if(e.scrollHeight>e.clientHeight+2||e.scrollWidth>e.clientWidth+2)issues.push('scroll '+e.tagName+'.'+e.className);

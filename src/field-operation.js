@@ -15,6 +15,8 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
  };
  const sceneLabel=text=>`<h2 class="operation-task" tabindex="-1">${text}</h2>`;
  function render(){
+  const background=id==='safety'&&model.step<2?'safety-island-classroom-v2':spec.background;
+  $('.field-operation').style.setProperty('--operation-bg',`url('/assets/art/${background}.webp')`);
   $('.operation-progress').textContent=`현장 작전 ${Math.min(model.step+1,spec.steps)} / ${spec.steps}`;
   $('#operation-message').innerHTML=scienceText(model.done?'도구를 받고 다음 탐험을 이어 가자.':message,id);$('#operation-finish').hidden=!model.done;
   $('.operation-scene').dataset.operation=id;
