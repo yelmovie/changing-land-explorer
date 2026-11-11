@@ -92,3 +92,13 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 - 화면·Canvas·SVG의 현재 글꼴은 NanumSquare Neo Regular/Bold다. 배포 글꼴과 OFL 원문, 공급처·해시는 `public/assets/fonts/NanumSquareNeo-SOURCE.json`과 `NanumSquareNeo-OFL.txt`에 보관한다. 위 Jua 기록은 이전 화면의 제작 이력이다.
 - 현재 안내 음성의 생성 기록과 파일 출처는 `public/assets/voices/momo-manifest-20261110.json`과 `public/assets/voices/MOMO-SOURCE.txt`에서 확인한다.
 - 기존 제공 이미지·음악의 최종 이용 조건 확인 항목은 계속 유지한다.
+
+### 과학 관찰 삽화 추가 · 2026-11-12
+
+- `public/assets/art/river-field-clues-v3.webp`는 깎인 물가, 흙을 옮기는 물, 모래가 쌓인 안쪽 물가를 보여 준다.
+- `public/assets/art/ash-classroom-v3.webp`는 창문을 닫은 실내와 화산재가 날리는 바깥을 비교한다.
+- ElevenLabs 연결 도구의 `gpt-image-2.5-sunburst`로 생성하고, 각각 4안 중 과학 단서가 구별되는 1안을 선택했다. 글자와 조작 요소는 DOM으로 표시한다.
+- 프롬프트, 생성 ID, 원본 위치는 `assets/generated/science-20261112/generation.json`에 기록했다. 원본 PNG는 외장 SSD의 `image/generated-20261112/`에 보관한다.
+- 두 그림은 학습용 재현이다. 생성 서비스의 납품 조건과 기존 자산의 원권리 확인은 별도 검토 대상으로 유지한다.
+
+개념 영상의 현재 재현 소스는 `films/concepts/`의 15초 HyperFrames 구성이다. `npm run concepts:render`로 재생성한다. 과거 8초 생성기는 이전 제작 기록으로 남아 있다.

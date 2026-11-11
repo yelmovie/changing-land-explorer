@@ -9,7 +9,7 @@ export const LEARNING_GUIDE=[
    {goal:'물의 양만 바꿔 흙의 변화를 비교해요.',action:'물 흘리기·멈춤·되감기',evidence:'두 조건의 실험과 침식·운반·퇴적 표시'},
    {goal:'관찰한 흔적을 상류·하류의 특징과 연결해요.',action:'강의 네 곳 확대·관찰 카드 연결',evidence:'물길·바위·모래 기록과 퇴적 연결'}
   ],transfer:'기록탑에서는 흐르는 방향이 바뀐 물길에 적용해요.',caution:'빠른 물은 언제나 침식, 느린 물은 언제나 퇴적이라는 절대 규칙으로 일반화하지 않아요.'},
- {id:'volcano',title:'화산 연구소',standard:'4과11-02',source:'https://pubs.usgs.gov/gip/volc/text.html',
+ {id:'volcano',title:'화산 연구소',standard:'4과11-02',source:'https://www.usgs.gov/publications/volcanic-gas',
   activities:[
    {goal:'화산 모형에서 분출구와 흘러가는 길을 관찰해요.',action:'모형 조립·주사기 밀기·흐름 추적',evidence:'조립한 모형과 붉은 물의 출구·경사면 기록'},
    {goal:'실제 화산의 분출물과 모형의 한계를 비교해요.',action:'분출물 탐사·공통점과 차이 연결',evidence:'네 분출물 및 같은 점·다른 점의 비교'}
@@ -24,12 +24,12 @@ export const LEARNING_GUIDE=[
    {goal:'같은 장소의 시기별 변화를 비교해요.',action:'공항·농장·온천의 시간 이동과 기록 배치',evidence:'장소별 분출 당시·이후의 두 모습'},
    {goal:'관찰한 사실과 까닭으로 안전한 행동을 선택해요.',action:'주민 안내판·창문과 마스크 조작',evidence:'사실·까닭·할 일을 연결한 안내'}
   ],transfer:'우리 생활의 피해·이로움과 안전 확인이 필요한 때를 구분해요.',caution:'분출 직후 곧바로 땅이 비옥해지거나 위험한 온천을 이용할 수 있다는 뜻이 아니에요.'},
- {id:'safety',title:'안전 훈련소',standard:'4과11-04',source:'https://www.safekorea.go.kr/safekorea-kor/acts/nacts/action-guide.do?category=earthQuake&menuSn=4',
+ {id:'safety',title:'안전 훈련소',standard:'4과11-04',source:'https://m.safekorea.go.kr/safekorea-kor/em/emergency/emergency_eq2.html',
   activities:[
    {goal:'흔들리는 동안 머리와 몸을 보호해요.',action:'위험물 찾기·책상 아래로·다리 잡기·멈춤 확인',evidence:'몸 보호 순서와 흔들림이 멈춘 뒤 확인'},
    {goal:'위험을 피해 대피하고 경로를 점검해요.',action:'학교·야외 통로를 누르거나 방향 버튼으로 이동',evidence:'장애물을 피하고 실제로 확인한 두 경로'}
   ],transfer:'기록탑의 다른 장애물 배치에 적용한 뒤 실제 학교의 대피 안내와 연결해요.',caution:'이 가상 지도는 실제 건물의 대피 경로가 아니에요. 흔들림 중 뛰어나가지 않아요.'}
 ];
 export function learningGuideHTML(){
- return '<details class="learning-guide"><summary>장소별 학습 목표와 관찰 증거</summary><p>완료와 보상은 활동을 마쳤다는 뜻이에요. 도움 사용이나 반복 시도를 고려해 학생이 근거를 말로 설명할 수 있는지 확인해 주세요.</p>'+LEARNING_GUIDE.map(stage=>`<details><summary>${escapeHTML(stage.title)} · [${stage.standard}]</summary>${stage.activities.map((a,i)=>`<h3>활동 ${i+1} · ${escapeHTML(a.goal)}</h3><p>조작: ${escapeHTML(a.action)}<br>확인할 증거: ${escapeHTML(a.evidence)}</p>`).join('')}<p>${escapeHTML(stage.transfer)}</p><p>${escapeHTML(stage.caution)}</p><a href="${stage.source}" target="_blank" rel="noopener noreferrer">관련 원자료</a></details>`).join('')+'<p>출처 연결은 2026-11-02 교육과정 검토 기록을 바탕으로 정리했어요. 이번 작업에서 교육부 원문이나 외부 전문가 검토를 새로 수행한 것은 아니에요.</p></details>';
+ return '<details class="learning-guide"><summary>장소별 학습 목표와 관찰 증거</summary><p>완료와 보상은 활동을 마쳤다는 뜻이에요. 도움 사용이나 반복 시도를 고려해 학생이 근거를 말로 설명할 수 있는지 확인해 주세요.</p>'+LEARNING_GUIDE.map(stage=>`<details><summary>${escapeHTML(stage.title)} · [${stage.standard}]</summary>${stage.activities.map((a,i)=>`<h3>활동 ${i+1} · ${escapeHTML(a.goal)}</h3><p>조작: ${escapeHTML(a.action)}<br>확인할 증거: ${escapeHTML(a.evidence)}</p>`).join('')}<p>${escapeHTML(stage.transfer)}</p><p>${escapeHTML(stage.caution)}</p><a href="${stage.source}" target="_blank" rel="noopener noreferrer">관련 원자료</a></details>`).join('')+'<p>2026-11-12 교육부 고시 제2022-33호 별책 9의 성취기준과 지도 범위를 원문으로 다시 확인했어요. 과학·안전 설명은 NPS, USGS, 국민재난안전포털 자료와 대조했어요. 교사·전문가의 수업 검토는 별도로 필요해요.</p></details>';
 }

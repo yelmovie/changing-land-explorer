@@ -1,10 +1,10 @@
 // These are teaching models, not real-world hazard or engineering predictions.
 export const OPERATIONS={
  river:{title:'물길을 읽고 조사 다리 놓기',goal:'물의 흔적을 조사하고, 점검된 양쪽 받침에 다리를 놓아 리버를 보내 줘.',background:'river-canyon-v2',steps:3},
- volcano:{title:'대피 경로와 관측 소식 잇기',goal:'위험 표시를 살피고 안내된 대피 통로만 이어 줘.',background:'volcano-caldera-v2',steps:3},
- rocks:{title:'두 단서로 표본 배송하기',goal:'표본의 색과 알갱이를 비교해 두 주문을 완성해 줘.',background:'rocks-quarry-atelier-v2',steps:2},
+ volcano:{title:'분출물 관찰을 대피와 연결하기',goal:'용암과 화산재의 특징을 떠올려 안전하게 대피하고, 모형과 실제의 차이를 알려 줘.',background:'volcano-caldera-v2',steps:3},
+ rocks:{title:'두 단서로 알맞은 돌 보내기',goal:'표본의 색과 알갱이를 비교해 두 주문을 완성해 줘.',background:'rocks-quarry-atelier-v2',steps:2},
  city:{title:'화산재 안내소 운영하기',goal:'관측 소식을 보고 주민에게 필요한 대응을 배치해 줘.',background:'city-message-square-v2',steps:3},
- safety:{title:'몸 보호에서 집합까지',goal:'흔들릴 때 몸을 보호하고, 멈춘 뒤 안내를 따라 이동해 줘.',background:'safety-evacuation-garden-v2',steps:4}
+ safety:{title:'몸을 보호하고 넓은 곳으로',goal:'흔들릴 때 몸을 보호하고, 멈춘 뒤 안내를 따라 이동해 줘.',background:'safety-evacuation-garden-v2',steps:4}
 };
 export function freshOperation(){return {version:1,step:0,observed:[],choice:null,position:[0,1],attempts:0,done:false};}
 export function operationState(raw,id){
@@ -33,7 +33,10 @@ export function operate(id,raw,action){
  if(id==='river'){
   if(s.step===0&&action.startsWith('observe:')){const k=action.slice(8);if(!['erosion','transport','deposit'].includes(k))return fail('물길의 세 흔적을 눌러 살펴봐.');s.observed=[...new Set([...s.observed,k])];if(s.observed.length===3)return pass('깎이고 옮겨져 쌓이는 흐름을 찾았어. 이제 다리 위치를 시험하자.');return {state:s,changed:true,message:{erosion:'물가의 흙이 깎였어. 침식의 흔적이야.',transport:'깎인 흙이 물과 함께 아래쪽으로 옮겨져. 운반이야.',deposit:'흐름이 느려진 곳에 흙이 쌓였어. 퇴적의 흔적이야.'}[k]};}
   if(s.step===1&&action.startsWith('bridge:')){s.choice=action.slice(7);return {state:s,changed:true,message:'이 위치에 놓았어. 모형에 물을 흘려 확인해 봐.'};}
-  if(s.step===1&&action==='test')return s.choice==='checked'?pass('점검 표시가 있는 양쪽 받침에 연결됐어. 리버가 건널 수 있어!'):fail(s.choice==='bank'?'깎이는 물가라 받침이 남지 않았어. 관찰한 흔적과 점검 표시를 다시 살펴봐.':'쌓인 흙만으로는 안전한 받침인지 알 수 없어. 점검된 받침을 찾아봐.');
+  if(s.step===1&&action==='test'){
+   if(!['bank','checked','sand'].includes(s.choice))return fail('다리를 놓을 곳을 먼저 골라 줘.');
+   return s.choice==='checked'?pass('점검 표시가 있는 양쪽 받침에 연결됐어. 리버가 건널 수 있어!'):fail(s.choice==='bank'?'깎이는 물가라 받침이 남지 않았어. 관찰한 흔적과 점검 표시를 다시 살펴봐.':'쌓인 흙만으로는 안전한 받침인지 알 수 없어. 점검된 받침을 찾아봐.');
+  }
   if(s.step===2&&action.startsWith('move:')){
    const direction={east:[1,0],west:[-1,0],north:[0,-1],south:[0,1]}[action.slice(5)];if(!direction)return fail('방향 버튼으로 리버를 움직여 줘.');
    const [x,y]=s.position,next=[x+direction[0],y+direction[1]];
@@ -46,8 +49,8 @@ export function operate(id,raw,action){
  }
  if(id==='volcano'){
   const good=['signed','shelter','station'][s.step];
-  if(action===good)return pass(['안내 표지를 따라 위험 구역에서 멀어졌어.','지정된 대피소에 도착해 안내를 확인했어.','대피소 안에서 관측소에 소식을 전달했어. 밖으로 다시 나가지 않아.'][s.step]);
-  return fail('분화구와 화산재 구역으로 가까이 가지 않아. 안내된 통로를 따라가자. 실제로는 재난 안내와 선생님 지시를 따라.');
+  if(action===good)return pass(['용암은 땅 위로 나온 뜨거운 물질이야. 안내된 통로를 따라 멀어졌어.','화산재는 날아다니는 작은 고체 알갱이야. 지정된 대피소에서 안내를 확인하자.','모형은 붉은 물의 흐름을 보여 줘. 실제 화산에서는 뜨거운 용암과 기체, 화산재, 암석 조각도 나올 수 있어.'][s.step]);
+  return fail(s.step===2?'모형에서 본 붉은 물과 실제 화산에서 관찰한 분출물을 다시 비교해 봐.':'용암은 뜨겁고, 화산재는 숨을 쉴 때 몸에 해로울 수 있어. 위험 구역에서 멀어지는 공식 안내를 따라가자.');
  }
  if(id==='rocks'){
   if(action.startsWith('inspect:')){const k=action.slice(8);if(!['color','grain'].includes(k))return fail('색과 알갱이를 비교해 줘.');s.observed=[...new Set([...s.observed,k])];return {state:s,changed:true,message:k==='color'?'두 표본의 전체 색을 비교했어.':'두 표본의 알갱이 크기를 비교했어.'};}

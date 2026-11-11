@@ -1,3 +1,4 @@
+import {SCIENCE_LEARNING,scienceText} from '../science-learning.js';
 import {$, $$, icon, escapeHTML} from '../ui.js';
 import {capture,evidenceCard} from '../explore-ui.js';
 import {PHASES,TOOL_ASSETS,revisitPhase,completePhase} from './rules.js';
@@ -71,7 +72,7 @@ export function mount(ctx) {
   function guideAction(){
     // Direction pads are free choices; never highlight one direction as the next step.
     const candidates=[...ctx.controls.querySelectorAll('.action-buttons button:not(:disabled):not([id^="route-"])')];
-    const suggested=phaseDone?next:auto&&playback.ready&&!auto.observed?autoButton:candidates.find(b=>b.classList.contains('primary'))||candidates[0];
+    const suggested=phaseDone?next:auto&&playback.ready&&!auto.observed?autoButton:candidates.length===1?candidates[0]:candidates.find(b=>b.classList.contains('primary'));
     for(const button of [autoButton,next,...ctx.controls.querySelectorAll('.action-buttons button')]){
       const on=button===suggested; if(button.classList.contains('suggested')!==on)button.classList.toggle('suggested',on);
     }
@@ -127,10 +128,11 @@ export function mount(ctx) {
     phaseDone=chapter.tasks[phase]?.done===true;
     next.disabled=!phaseDone;
     skipLabel();
-    next.innerHTML=(phase<2?'다음 발견':ctx.step===0?'현장으로 출발':'도구 받기')+icon('arrow',22);
+    next.innerHTML=(phase<2?'다음 발견':'개념 정리')+icon('arrow',22);
     next.classList.toggle('ready',phaseDone);
     const badge=$('#river-status');
-    badge.hidden=true;
+    badge.hidden=false;
+    badge.innerHTML=scienceText(SCIENCE_LEARNING[ctx.s.id].focus[ctx.step][phase],ctx.s.id);
     page.classList.toggle('phase-complete',phaseDone);
   }
   function showPhaseChoices(){
@@ -466,7 +468,7 @@ export function mount(ctx) {
   let fitFrame=0,fitKey='';
   function fitDock(){
     fitFrame=0;if(closed)return;
-    const key=[page.clientWidth,page.clientHeight,heading.offsetHeight,$('#speech').textContent,ctx.controls.textContent,playbackBar.hidden,next.disabled].join('|');
+    const key=[page.clientWidth,page.clientHeight,heading.offsetHeight,heading.offsetTop,footer.clientHeight,$('#river-status').textContent,$('#speech').textContent,ctx.controls.textContent,playbackBar.hidden,next.disabled].join('|');
     if(key===fitKey)return;fitKey=key;
     page.classList.remove('guidance-wide');
     if(!matchMedia('(orientation:landscape) and (max-height:620px)').matches)return;

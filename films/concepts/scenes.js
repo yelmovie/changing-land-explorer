@@ -93,7 +93,7 @@
     // ── 강 2: 상류에서 하류까지 ─────────────────────────────────────
     'river-1': {
       question: '강의 위쪽과 아래쪽은 어떻게 다를까?',
-      conclusion: '상류는 좁고 급하고, 하류는 넓고 완만해.',
+      conclusion: '대체로 상류는 좁고 급해. 하류는 넓고 완만해.',
       art: frame('field', 'river-field.webp', 160, 200, 1280, 720),
       build(api) {
         grains(api, { d: 'M352 470 C360 540 380 600 442 646 S600 684 700 692 S900 676 960 662 S1080 650 1120 646', n: 14, at: 5.4, travel: 4.2, gap: 0.3, r: 6, colors: ['#7b7b74', '#9b8f7a', '#5f625c'], spread: 14 });
@@ -148,9 +148,9 @@
       cams: [{ at: 4.9, dur: 0.9, s: 1.45, c: [1310, 470] }, { at: 9.5, dur: 0.9, s: 1 }],
       tags: [
         { text: '모형: 붉은 물', at: 1.3, a: [560, 600], box: [170, 260] },
-        { text: '실제: 용암', at: 5.9, a: [1370, 610], box: [1190, 760], zbox: [1100, 860] },
+        { text: '실제: 용암', at: 5.9, a: [1140, 600], box: [1190, 760], zbox: [1100, 860] },
         { text: '화산재', at: 6.3, a: [1150, 330], box: [930, 240], zbox: [300, 230], minor: true },
-        { text: '기체', at: 6.6, a: [1500, 270], box: [1560, 140], zbox: [1440, 150], minor: true },
+        { text: '기체 나오는 곳', at: 6.6, a: [1500, 270], box: [1560, 140], zbox: [1440, 150], minor: true },
         { text: '같은 점: 아래로 흘러\n다른 점: 기체·화산재', at: 10.5, a: [800, 650], box: [430, 770], noLeader: true }
       ],
       conclusionAt: 12.2,
@@ -279,11 +279,8 @@
       question: '땅이 흔들리면 무엇부터 할까?',
       conclusion: '흔들림이 멈출 때까지 몸을 보호해.',
       art: frame('room', 'classroom.webp', 160, 200, 1280, 720) +
-        `<div id="desk" style="position:absolute;left:470px;top:520px;width:720px;height:420px">` +
-        `<div style="position:absolute;left:0;top:0;width:720px;height:46px;border-radius:12px;background:#c98d4e;box-shadow:0 10px 0 #8d5a2c"></div>` +
-        `<div id="legL" style="position:absolute;left:40px;top:50px;width:30px;height:340px;background:#8d969a;border-radius:6px"></div>` +
-        `<div id="legR" style="position:absolute;left:650px;top:50px;width:30px;height:340px;background:#8d969a;border-radius:6px"></div></div>` +
-        img('protect', 'hero-protect.webp', 770, 590, 330, 'opacity:0') + img('hold', 'hero-hold-leg-v1.webp', 805, 590, 347, 'opacity:0'),
+        img('desk', 'school-desk.webp', 470, 360, 720) +
+        img('protect', 'hero-protect.webp', 750, 600, 300, 'opacity:0') + img('hold', 'hero-hold-leg-v1.webp', 775, 600, 330, 'opacity:0'),
       build(api) {
         const { tl } = api;
         // gentle, small shake (6 px) that stops when the shaking ends
@@ -297,9 +294,9 @@
       },
       cams: [{ at: 4.9, dur: 0.9, s: 1.5, c: [930, 700] }, { at: 9.4, dur: 0.9, s: 1 }],
       tags: [
-        { text: '책상 아래', at: 2.0, a: [760, 545], box: [520, 260] },
+        { text: '책상 아래', at: 2.0, a: [700, 550], box: [520, 260] },
         { text: '머리·몸 보호', at: 6.0, a: [930, 650], box: [560, 380], zbox: [1060, 240] },
-        { text: '다리 잡고 기다리기', at: 10.6, a: [1135, 790], box: [1200, 440] }
+        { text: '다리 잡고 기다리기', at: 10.6, a: [1105, 800], box: [1200, 440] }
       ],
       conclusionAt: 11.9,
       river: null

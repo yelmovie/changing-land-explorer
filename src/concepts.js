@@ -14,14 +14,14 @@ export const CONCEPTS = {
   ],
   volcano: [
     {title:'화산 모형에서 관찰한 흐름', labels:['손잡이 밀기','꼭대기로 나옴','경사면 따라 흐름'], cues:['주사기 손잡이를 밀면 붉은 물이 관을 따라 올라가.','붉은 물이 산 모형 꼭대기로 나와.','붉은 물이 경사면을 따라 아래로 흘러.'], summary:'붉은 물로 분출물의 움직임을 나타냈어. 마그마가 분출하는 원인이나 실제 온도를 보여 주는 모형은 아니야.'},
-    {title:'모형과 실제 화산을 비교해', labels:['모형: 붉은 물','실제: 용암·기체·재','같은 점과 다른 점'], cues:['모형의 붉은 물처럼 용암도 아래로 흘러.','실제 화산에서는 뜨거운 용암과 기체, 화산재, 암석 조각이 나올 수 있어.','모형은 흐름을 보여 주지만 실제 화산의 모든 현상을 나타내지는 못해.'], summary:'화산은 땅속에서 나온 용암과 화산재 같은 물질이 쌓여 만들어진 지형이야. 꼭대기뿐 아니라 옆면의 틈에서도 분출할 수 있어.'}
+    {title:'모형과 실제 화산을 비교해', labels:['모형: 붉은 물','실제: 용암·기체·재','같은 점과 다른 점'], cues:['모형의 붉은 물처럼 용암도 아래로 흘러.','실제 화산에서는 용암과 기체, 화산재, 암석 조각이 나올 수 있어. 눈에 보이지 않는 기체는 나오는 곳을 표시했어.','모형은 흐름을 보여 주지만 실제 화산의 모든 현상을 나타내지는 못해.'], summary:'땅속의 마그마가 땅 위로 나오면 용암이라고 해. 화산은 용암과 화산재 같은 분출물이 쌓여 만들어진 지형이야.'}
   ],
   rocks: [
     {title:'돌의 색과 알갱이가 단서야', labels:['왼쪽 표본 A','오른쪽 표본 B','두 표본 비교'], cues:['왼쪽 현무암은 어두운색이고 작은 알갱이가 잘 보이지 않아.','오른쪽 화강암은 대체로 밝고 여러 색의 알갱이가 뚜렷해.','두 돌의 색과 알갱이를 함께 비교해 봐.'], summary:'현무암과 화강암은 화성암이야. 땅속의 마그마나 땅 위로 나온 용암이 식어 굳으면 화성암이 돼.'},
     {title:'이름보다 관찰 증거가 먼저', labels:['돌 관찰','두 증거 연결','분류'], cues:['이 탐험에서 고를 이름은 현무암과 화강암이야.','전체 색과 알갱이, 두 가지 증거를 모아.','기준 표본과 비교하면 알맞은 이름으로 분류할 수 있어.'], summary:'구멍이 눈에 띄지 않는 현무암도 있어. 이 표본들은 전체 색과 알갱이를 함께 보고 기준 돌과 비교해.'}
   ],
   city: [
-    {title:'화산의 영향은 시간에 따라 달라져', labels:['분출 당시','피해 복구','오랜 시간 뒤'], cues:['분출 당시 화산재는 비행과 농작물에 피해를 줄 수 있어.','피해를 복구하고 안전을 확인하는 과정이 필요해.','아주 오랜 시간이 지나 화산 물질이 변하면 비옥한 토양이 될 수 있어.'], summary:'분출 직후에 바로 풍년이 되는 건 아니야. 변화에는 오랜 시간이 걸려.'},
+    {title:'화산의 영향은 시간에 따라 달라져', labels:['분출 당시','피해 복구','오랜 시간 뒤'], cues:['분출 당시 화산재는 비행과 농작물에 피해를 줄 수 있어.','피해를 복구하고 안전을 확인하는 과정이 필요해.','아주 오랜 시간이 지나 화산 물질이 변하면 식물이 자라기 좋은 흙이 될 수 있어.'], summary:'분출 직후에 바로 풍년이 되는 건 아니야. 변화에는 오랜 시간이 걸려.'},
     {title:'관찰을 생활 속 판단으로', labels:['관찰한 사실','까닭','안전한 행동'], cues:['관찰한 사실을 먼저 확인해. 화산재가 남아 있니?','화산재는 비행과 건강에 영향을 줄 수 있어.','위험할 때는 출입을 피하고 어른과 함께 공식 안전 안내를 확인해.'], summary:'위험이 사라졌는지 확인하고, 관찰한 사실과 까닭을 연결해 행동해.'}
   ],
   safety: [
@@ -33,7 +33,7 @@ export const CONCEPTS = {
 export function showConcept(ctx, onContinue, {replay = false} = {}) {
   const concept = CONCEPTS[ctx.s.id][ctx.step], key = `${ctx.s.id}-${ctx.step}`;
   let cleanup = () => {};
-  ctx.modal(concept.title, `<section class="concept-player"><div class="concept-visual"><video playsinline muted preload="metadata" poster="/assets/concepts/${key}.webp" aria-label="${escapeHTML(concept.title)} 모션 그래픽"><source src="/assets/concepts/${key}.webm" type="video/webm"><source src="/assets/concepts/${key}.mp4" type="video/mp4"></video><div class="concept-labels">${concept.labels.map((label,i)=>`<span data-cue="${i}">${escapeHTML(label)}</span>`).join('')}</div><button class="concept-play primary" id="concept-play">${icon('arrow')} 영상 재생</button></div><div class="concept-reading"><div class="concept-scene-heading"><h3 class="concept-current-term"></h3><span class="concept-scene-count" aria-label="현재 장면"></span></div><p class="concept-caption" aria-live="polite" aria-atomic="true"></p><div class="concept-takeaway"><strong>기억해 두기</strong><p class="concept-summary">${escapeHTML(concept.summary)}</p></div></div><div class="concept-actions"><button class="secondary" id="concept-replay">다시 보기</button><button class="primary" id="concept-continue">${replay?'탐구로 돌아가기':ctx.step===0?'다음 활동으로':'도구 받기'} ${icon('arrow')}</button></div><p class="concept-error" role="status" hidden>영상을 불러오지 못했어. 아래 핵심 내용을 확인하고 계속할 수 있어.</p></section>`, (dialog, close) => {
+  ctx.modal(concept.title, `<section class="concept-player"><div class="concept-visual"><video playsinline muted preload="metadata" poster="/assets/concepts/${key}.webp" aria-label="${escapeHTML(concept.title)} 모션 그래픽"><source src="/assets/concepts/${key}.webm" type="video/webm"><source src="/assets/concepts/${key}.mp4" type="video/mp4"></video><div class="concept-labels">${concept.labels.map((label,i)=>`<span data-cue="${i}">${escapeHTML(label)}</span>`).join('')}</div><button class="concept-play primary" id="concept-play">${icon('arrow')} 영상 재생</button></div><div class="concept-reading"><div class="concept-scene-heading"><h3 class="concept-current-term"></h3><span class="concept-scene-count" aria-label="현재 장면"></span></div><p class="concept-caption" aria-live="polite" aria-atomic="true"></p><div class="concept-takeaway"><strong>기억해 두기</strong><p class="concept-summary">${escapeHTML(concept.summary)}</p></div></div><div class="concept-actions"><button class="secondary" id="concept-replay">다시 보기</button><button class="primary" id="concept-continue">${replay?'탐구로 돌아가기':ctx.step===0?'다음 활동으로':'현장 임무로'} ${icon('arrow')}</button></div><p class="concept-error" role="status" hidden>영상을 불러오지 못했어. 아래 핵심 내용을 확인하고 계속할 수 있어.</p></section>`, (dialog, close) => {
     dialog.classList.add('concept-dialog');
     const releaseMusic=holdMusic();
     const video = $('video', dialog), caption = $('.concept-caption', dialog), play = $('#concept-play', dialog);
@@ -64,7 +64,7 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     dialog.addEventListener('close', () => { cleanup(); });
     update();
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) start();
-    const terms={river:['침식','운반','퇴적','상류','하류'],volcano:['붉은 물','손잡이','모형','용암','화산재','기체'],rocks:['현무암','화강암','알갱이','화성암'],city:['화산재','오랜 시간','안전'],safety:['흔들릴 때','머리','흔들림이 멈춘','흔들림이 멈추면','선생님','계단','대피']}[ctx.s.id];
+    const terms={river:['침식','운반','퇴적','상류','하류'],volcano:['붉은 물','손잡이','모형','마그마','용암','화산재','기체'],rocks:['현무암','화강암','알갱이','화성암'],city:['화산재','오랜 시간','안전'],safety:['흔들릴 때','머리','흔들림이 멈춘','흔들림이 멈추면','선생님','계단','대피']}[ctx.s.id];
     const labels=ctx.s.id==='river'&&ctx.step===0?['침식 · 깎임','운반 · 이동','퇴적 · 쌓임']:concept.labels;
     releaseFocus=bindConceptFocus(dialog,video,{steps:labels.map((term,i)=>({at:CONCEPT_CUES[i],term})),terms,caption,anchor:$('.concept-reading',dialog)});
     $('.concept-summary',dialog).innerHTML=emphasizeConcept(concept.summary,terms);

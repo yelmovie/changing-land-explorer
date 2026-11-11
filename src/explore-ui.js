@@ -1,3 +1,4 @@
+import {scienceText} from './science-learning.js';
 import {pin,routeArt} from './visuals.js';
 import {safetyRouteConfig,CITY_SITES,FIELD_POINTS} from './learning-model.js';
 import {$,$$,escapeHTML,icon} from './ui.js';
@@ -36,7 +37,7 @@ export function evidenceCard(e,action=''){
  const recreated=['river','model','comparison','city','notice'].includes(e.kind),city=['city','notice'].includes(e.kind);
  const after=e.afterLabel||cityTimeLabel(Math.max(0,CITY_SITES.findIndex(s=>s.id===e.site)));
  const time=city?`<p class="evidence-time">분출 당시 → ${esc(after)}</p>`:'';
- return `<article class="saved-evidence">${imageEvidence(e)}<div><strong>${esc(e.label)}</strong>${time}${recreated?'<small class="evidence-caption">활동 조건과 내 표시로 재현한 그림</small>':''}<p>${esc(e.text||'')}</p>${e.answerHint?'<small>정답 힌트를 살펴본 연습</small>':e.operationHelp?'<small>조작 도움 사용 · 보상 동일</small>':e.observationHint?'<small>관찰 방향 도움 사용</small>':''}${action}</div></article>`;
+ return `<article class="saved-evidence">${imageEvidence(e)}<div><strong>${esc(e.label)}</strong>${time}${recreated?'<small class="evidence-caption">활동 조건과 내 표시로 재현한 그림</small>':''}<p>${scienceText(e.text||'')}</p>${e.answerHint?'<small>정답 힌트를 살펴본 연습</small>':e.operationHelp?'<small>조작 도움 사용 · 보상 동일</small>':e.observationHint?'<small>관찰 방향 도움 사용</small>':''}${action}</div></article>`;
 }
 export function showEvidence(ctx){const entries=Object.values(ctx.data.evidence||{}),hinted=Object.values(ctx.data.adventure?.chapters||{}).some(c=>Object.values(c.work||{}).some(w=>w.answerHint));ctx.modal('내 관찰 수첩',entries.length?`${hinted?'<p>정답 힌트를 살펴본 활동은 연습으로 남아. 기록탑의 새 상황에서는 내 판단으로 적용해 봐.</p>':''}<div class="evidence-list">${entries.map(e=>evidenceCard(e,`<button class="secondary" data-revisit="${esc(e.id)}">다시 보기</button>`)).join('')}</div>`:'<p>그림을 살펴보고 관찰 기록을 남겨 봐.</p>',(dialog,close)=>{$$('[data-revisit]',dialog).forEach(b=>b.onclick=()=>{const ev=ctx.data.evidence[b.dataset.revisit];ctx.data.revisit=ev.id;ctx.save();close();ctx.go(ev.activity);});});}
 export function pauseMessage(ctx){ctx.say('수첩을 닫으면 보던 장면에서 계속할 수 있어.');}

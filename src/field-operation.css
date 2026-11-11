@@ -37,8 +37,6 @@
 .operation-action.placed {background:#e3bb69;border-color:#765526}
 .operation-sites {position:relative;display:flex;justify-content:space-around;align-items:center;gap:16px;z-index:1;margin:16px 0}
 .operation-sites>* {flex:1;max-width:280px}
-.river-operation-stream {position:absolute;left:12%;right:12%;top:66%;height:40px;background:#2fa5b4a8;transform:rotate(-4deg);border-radius:50%;display:flex;justify-content:space-around;pointer-events:none}
-.river-operation-stream i {width:12px;height:12px;background:#ccb181;border-radius:50%;animation:drift 3s linear infinite}
 .operation-center {text-align:center;z-index:1}
 .operation-footer {display:flex;align-items:center;gap:16px;padding:12px 16px;background:#fafff2ed;border-radius:18px;min-width:0}
 .operation-footer p {flex:1;margin:0;font-size:20px;line-height:1.4;word-break:keep-all}
@@ -48,19 +46,11 @@
 .operation-model-note {background:#fffbd8ed;border-radius:10px;padding:4px 10px;font-size:14px;line-height:1.3;text-align:center;word-break:keep-all}
 .operation-choice,.operation-inspect {display:flex;justify-content:center;gap:20px;position:relative;flex:none}
 .operation-choice>* {min-width:0;flex:1;max-width:360px}
-.operation-route {display:flex;justify-content:space-around;align-items:center;padding:16px;background:#fffbd9de;border-radius:20px;max-width:850px;width:100%;align-self:center}
-.operation-route i {width:60px;height:45px;text-align:center;line-height:45px;border-bottom:5px dashed #967e5f}
-.operation-route i.linked {border-color:#2e8064;color:#2e8064}
 .operation-specimens {display:flex;justify-content:center;gap:24px;min-height:0}
 .operation-specimens figure {margin:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:8px;max-width:440px;padding:8px;background:#fff9;border-radius:18px;flex:1;min-width:0;overflow:hidden}
 .operation-specimens img {width:100%;height:clamp(100px,22vh,200px);object-fit:contain;grid-row:span 2}
 .operation-specimens.magnified img {transform:scale(1.12)}
 .operation-specimens figcaption {text-align:center;font-size:22px;font-weight:800}
-.operation-city {display:flex;justify-content:center;gap:24px}
-.operation-city>div {padding:24px;border:2px solid #7b9c82;border-radius:20px;background:#fffdf4;font-size:22px;text-align:center}
-.operation-window.closed {background:#b5dfcf}
-.operation-safety {display:flex;justify-content:center;align-items:center;gap:20px;font-size:24px}
-.operation-safety img {height:140px}
 .operation-win {max-width:650px;align-self:center;text-align:center;padding:22px;border-radius:22px;background:#fffde4ed}
 .operation-win h2 {font-size:32px;margin:8px}
 .operation-win p {font-size:22px;margin:8px 0}
@@ -77,11 +67,9 @@
 .operation-walk-grid img {height:100%;max-height:58px;width:60px;object-fit:contain}
 .operation-move {display:flex;justify-content:center;gap:8px;flex:none}
 .operation-move button {min-width:0;flex:1;max-width:150px}
-@keyframes drift {from{transform:translateX(-35px)}to{transform:translateX(35px)}}
 @media(hover:hover) and (pointer:fine) {.operation-action:hover {background:#e6f2db}}
 @media(prefers-reduced-motion:reduce) {
  .operation-hero {transition:none}
- .river-operation-stream i {animation:none}
 }
 @media(max-height:700px) and (orientation:landscape) {
  .field-operation {grid-template-columns:minmax(0,1fr) clamp(220px,26vw,300px);grid-template-rows:minmax(0,1fr) auto;gap:6px;padding:6px 10px max(4px,env(safe-area-inset-bottom))}
@@ -98,18 +86,12 @@
  .operation-task {font-size:20px;line-height:1.25}
  .operation-sites {gap:8px;margin:0}
  .operation-action {padding:7px 10px;font-size:18px}
- .operation-route {padding:6px 10px}
- .operation-route i {height:32px;line-height:32px}
  .operation-choice,.operation-inspect {gap:8px}
  .operation-specimens {gap:10px}
  .operation-specimens figure {padding:6px;gap:4px}
  .operation-specimens img {height:100px}
  .operation-specimens figcaption {font-size:20px}
  .operation-specimens .operation-action {font-size:16px;padding:6px}
- .operation-city {gap:8px}
- .operation-city>div {padding:12px 8px;font-size:18px}
- .operation-safety {gap:12px;font-size:20px}
- .operation-safety img {height:90px}
  .operation-win {padding:12px}
  .operation-win h2 {font-size:24px;margin:4px}
  .operation-win p {font-size:20px}
@@ -126,13 +108,30 @@
  .operation-specimens .operation-action {font-size:15px}
  .operation-task {font-size:18px}
  .operation-action {font-size:16px;padding:6px 8px}
- .operation-route i {height:24px;line-height:24px}
- .operation-city>div {font-size:16px;padding:8px 5px}
- .operation-safety img {height:62px}
  .operation-win {padding:8px}
  .operation-win svg {display:none}
  .operation-win p {font-size:18px}
  .operation-walk-grid {height:110px;grid-template-rows:repeat(3,minmax(24px,1fr))}
  .operation-walk-grid>div {font-size:14px}
  .bridge-sites .placed:after {display:none}
+}
+
+/* Scientific evidence is shown in illustrations, with readable DOM captions. */
+#operation-board {padding-bottom:16px;gap:12px}
+.operation-illustration {position:relative;flex:1;min-height:0;margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;overflow:hidden}
+.operation-illustration>img {display:block;min-height:0;flex:1;width:100%;object-fit:contain;border-radius:16px}
+.operation-sites {flex:none;margin:0}
+.operation-safety-shelter {position:relative;flex:1;min-height:0;max-height:330px;aspect-ratio:520/414;margin:0 auto;width:auto;max-width:100%}
+.operation-safety-shelter img {position:absolute;object-fit:contain;pointer-events:none}
+.sheltering-desk {inset:0;width:100%;height:100%;z-index:2}
+.sheltered-hero {width:38%;height:55%;left:31%;bottom:7%;z-index:1}
+.sheltered-hero.is-holding {left:47%;z-index:3}
+@media(max-height:700px) and (orientation:landscape) {
+ #operation-board {padding-bottom:10px;gap:8px}
+ .operation-choice .operation-action {font-size:17px}
+}
+@media(max-height:440px) and (orientation:landscape) {
+ #operation-board {gap:6px;padding-bottom:6px}
+ .operation-choice .operation-action {font-size:15px;padding:6px}
+ .operation-task {font-size:17px}
 }

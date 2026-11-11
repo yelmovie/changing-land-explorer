@@ -36,3 +36,11 @@
 #app.atlas:not(.welcome) .under-hud {opacity:1}
 /* The safety mascot sits beside its sign, never on the destination text. */
 #app.atlas:not(.welcome) .map-resident[data-resident="safety"] img {max-height:80px;transform:translateX(-30%)}
+
+/* Keep the science focus beside the current action, without an extra panel. */
+#app.adventure #river-status {display:block;background:none;border:0;border-radius:0;padding:0;color:#426456;font-size:16px;line-height:1.3;font-weight:700}
+#app.adventure #instruction .science-keyword {background:#f7df928c;padding:0}
+@media(max-height:440px) and (orientation:landscape) {
+ #app.adventure .action-buttons:has([id^="route-"]) {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ #app.adventure .action-buttons:has([id^="route-"])>button {min-width:0;font-size:15px;padding:5px 3px}
+}

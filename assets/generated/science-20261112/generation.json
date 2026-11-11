@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-12",
+  "purpose": "Elementary science field-operation illustrations",
+  "service": "ElevenLabs creative connector",
+  "model": "gpt-image-2.5-sunburst",
+  "review": "Educational reconstructions, visually checked for the learning clues. DOM holds all labels and controls.",
+  "licenseReview": "Account and delivery-specific commercial terms have not been independently verified.",
+  "images": [
+    {
+      "file": "public/assets/art/river-field-clues-v3.webp",
+      "original": "image/generated-20261112/river-2.png",
+      "generationId": "plPBJ8zYyydCwKTzz8U9",
+      "flowId": "95IqtIZpsWBwReczZUre",
+      "width": 1280,
+      "height": 720,
+      "prompt": "Create a single seamless landscape illustration for a Korean elementary science game about erosion, transport and deposition. The image is an observational scene, no interface. Warm hand-painted 3D storybook miniature style, sage-green grass, turquoise water, ochre earth, soft daylight. A close elevated three-quarter view of one broad river bend. On the LEFT outer bank show a clearly undercut eroding brown earth bank with exposed roots. Across the CENTER show flowing water carrying fine brown sediment with a few tiny suspended grains, not a stream of floating boulders. On the RIGHT inner bank show a broad low sandy point bar gently deposited at the water edge. Make the three distinct physical clues large and recognizable. Water flows continuously around the bend, no impossible split waterways or waterfall. Fill the frame with this river scene rather than distant scenery. Clean composition with enough unobstructed visual space for DOM labels later. No people, no text, no letters, no numbers, no arrows, no UI, no labels, no watermark, no panel borders. Landscape 16:9.",
+      "transformation": "Browser WebP encoding at quality 0.88. No compositional edits."
+    },
+    {
+      "file": "public/assets/art/ash-classroom-v3.webp",
+      "original": "image/generated-20261112/city-1.png",
+      "generationId": "NMGVcRGCrVh3UZ410PU1",
+      "flowId": "95IqtIZpsWBwReczZUre",
+      "width": 1280,
+      "height": 720,
+      "prompt": "Single landscape illustration for an elementary science adventure game, 16:9. A cozy empty school classroom seen from inside, close to a broad CLOSED glass window with sturdy wooden frame. Outside, a school courtyard with trees, a low wall and distant roofs is lightly covered by fine GRAY volcanic ash; a light veil of ash hangs outside in the air. Inside, the classroom is clear of ash. Show closed window latches visibly and the contrast between the protected indoor space and ash outdoors. A plain sturdy wooden pupil desk is in the lower left corner. No people. Warm illustrated 3D storybook miniature, softly painted surfaces, sage greens, ochre wood, muted teal window glass, gentle daylight. Match a nature exploration game. Scientific clarity: ash is a fine gray powder, NOT flames, lava, snowflakes, glowing embers or ordinary black smoke. No erupting volcano in the classroom, no broken glass, no dramatic destruction. No labels, no text, no letters, no arrows, no numbers, no UI, no panels, no watermark. One continuous scene with the window filling most of the image and quiet space around it.",
+      "transformation": "Browser WebP encoding at quality 0.88. No compositional edits."
+    }
+  ],
+  "rejected": [
+    {
+      "service": "Canva",
+      "mediaId": "MAHan8svjbA",
+      "reason": "Generated a water-heating game UI unrelated to the requested river scene. Excluded from all shipped assets.",
+      "url": "https://www.canva.com/M/MAHan8svjbA?utm_source=OC-AaBlKrqBJJNF&utm_campaign=agent_connector_create_image_asset_opened"
+    }
+  ]
+}

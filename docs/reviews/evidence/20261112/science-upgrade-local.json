@@ -1,0 +1,188 @@
+{
+  "date": "2026-11-12",
+  "environment": "macOS Chrome automated viewports, real tablet hardware not tested",
+  "unitTests": {
+    "passed": 170,
+    "failed": 0
+  },
+  "syntax": "PASS",
+  "build": {
+    "files": 320,
+    "precacheFiles": 180
+  },
+  "activityInitial": {
+    "cases": 270,
+    "failed": 1,
+    "runtimeErrors": []
+  },
+  "activity667AfterFix": {
+    "cases": 30,
+    "failed": 0,
+    "runtimeErrors": []
+  },
+  "completedActivity": {
+    "cases": 120,
+    "failed": 0,
+    "runtimeErrors": []
+  },
+  "operationsNineViewports": {
+    "cases": 396,
+    "failed": 0,
+    "runtimeErrors": []
+  },
+  "operationsLatestThreeViewports": {
+    "cases": 132,
+    "failed": 0,
+    "runtimeErrors": []
+  },
+  "generalUI": {
+    "cases": 270,
+    "failed": 0,
+    "runtimeErrors": []
+  },
+  "conceptsFinalDist": {
+    "cases": 120,
+    "failed": 0,
+    "runtimeErrors": []
+  },
+  "encoding": [
+    {
+      "file": "public/assets/concepts/river-0.mp4",
+      "seconds": 15,
+      "inkPixels": 5335
+    },
+    {
+      "file": "public/assets/concepts/river-0.webm",
+      "seconds": 15,
+      "inkPixels": 5320
+    },
+    {
+      "file": "public/assets/concepts/river-1.mp4",
+      "seconds": 15,
+      "inkPixels": 5819
+    },
+    {
+      "file": "public/assets/concepts/river-1.webm",
+      "seconds": 15,
+      "inkPixels": 5800
+    },
+    {
+      "file": "public/assets/concepts/volcano-0.mp4",
+      "seconds": 15,
+      "inkPixels": 5244
+    },
+    {
+      "file": "public/assets/concepts/volcano-0.webm",
+      "seconds": 15,
+      "inkPixels": 5256
+    },
+    {
+      "file": "public/assets/concepts/volcano-1.mp4",
+      "seconds": 15,
+      "inkPixels": 5178
+    },
+    {
+      "file": "public/assets/concepts/volcano-1.webm",
+      "seconds": 15,
+      "inkPixels": 5144
+    },
+    {
+      "file": "public/assets/concepts/rocks-0.mp4",
+      "seconds": 15,
+      "inkPixels": 7098
+    },
+    {
+      "file": "public/assets/concepts/rocks-0.webm",
+      "seconds": 15,
+      "inkPixels": 7035
+    },
+    {
+      "file": "public/assets/concepts/rocks-1.mp4",
+      "seconds": 15,
+      "inkPixels": 7015
+    },
+    {
+      "file": "public/assets/concepts/rocks-1.webm",
+      "seconds": 15,
+      "inkPixels": 6977
+    },
+    {
+      "file": "public/assets/concepts/city-0.mp4",
+      "seconds": 15,
+      "inkPixels": 5636
+    },
+    {
+      "file": "public/assets/concepts/city-0.webm",
+      "seconds": 15,
+      "inkPixels": 5581
+    },
+    {
+      "file": "public/assets/concepts/city-1.mp4",
+      "seconds": 15,
+      "inkPixels": 7378
+    },
+    {
+      "file": "public/assets/concepts/city-1.webm",
+      "seconds": 15,
+      "inkPixels": 7339
+    },
+    {
+      "file": "public/assets/concepts/safety-0.mp4",
+      "seconds": 15,
+      "inkPixels": 1829
+    },
+    {
+      "file": "public/assets/concepts/safety-0.webm",
+      "seconds": 15,
+      "inkPixels": 1831
+    },
+    {
+      "file": "public/assets/concepts/safety-1.mp4",
+      "seconds": 15,
+      "inkPixels": 6787
+    },
+    {
+      "file": "public/assets/concepts/safety-1.webm",
+      "seconds": 15,
+      "inkPixels": 6782
+    }
+  ],
+  "fullFlowSource": {
+    "completed": [
+      "river",
+      "volcano",
+      "rocks",
+      "city",
+      "safety"
+    ],
+    "errors": [],
+    "httpErrors": [],
+    "discoveries": 30,
+    "concepts": 10,
+    "rewards": 5,
+    "resumedStageState": false,
+    "stageEvidenceSource": null,
+    "finalRounds": 3,
+    "finished": true,
+    "certificate": true,
+    "reloaded": true,
+    "interaction": "Real pointer input for every stage activity and route; the script knows each target, so a pass shows the activities can be finished, not independent learner performance."
+  },
+  "voices": {
+    "dialogs": 20,
+    "decodedFiles": 27,
+    "errors": []
+  },
+  "activityPlayback": {
+    "pauseFreezesWork": true,
+    "measuredSpeedRatio": 2.9363965730361024,
+    "speedChangesWithoutPausing": true,
+    "toolsAndHintPauseAndRestoreFocus": true,
+    "completionWaitsForNextClick": true,
+    "replayDoesNotRewriteEvidence": true,
+    "reloadPreservesCompletionWithoutRestartingPlayback": true,
+    "observationHandsOffToLearnerChoice": true,
+    "wrongAnswerStillRejected": true
+  },
+  "videoCaptureFix": "HyperFrames 0.9.26 static-frame dedup disabled after reproducible bottom-band clipping; decoded 13-second frames checked."
+}
