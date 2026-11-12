@@ -1,3 +1,4 @@
+import {bindDirectionPad,mapKeyDirection} from './map-controls.js';
 import {syncMapHitLayout} from './map-hit-layout.js';
 import {mountMapVillains} from './map-villains.js';
 import {RIVER_WALK,createRiverWalker} from './river-walk.js';
@@ -262,7 +263,11 @@ export function renderMap({welcome=false,arrival}={}){
   // 방향키·WASD·화면 방향키 패드가 같은 걸음을 쓴다: 그 방향에 가장 가까운 이웃 길목으로 한 칸.
   const DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
   const KEY_DIRS={arrowup:'up',keyw:'up',w:'up',arrowdown:'down',keys:'down',s:'down',arrowleft:'left',keya:'left',a:'left',arrowright:'right',keyd:'right',d:'right'};
-  function stepToward(v){if(moving||document.querySelector('dialog[open]'))return;const neighbors=LINKS.flatMap(([a,b])=>a===current?[b]:b===current?[a]:[]);const score=n=>{const p=POINTS[n],a=POINTS[current];return((p.x-a.x)*v[0]+(p.y-a.y)*v[1])/Math.hypot(p.x-a.x,p.y-a.y);};neighbors.sort((a,b)=>score(b)-score(a));if(score(neighbors[0])>0)go(neighbors[0],null);else toast('그쪽으로는 길이 없어. 다른 방향을 눌러 봐.');}
+  function stepToward(v,quiet=false){if(moving||document.querySelector('dialog[open]'))return;const neighbors=LINKS.flatMap(([a,b])=>a===current?[b]:b===current?[a]:[]);const score=n=>{const p=POINTS[n],a=POINTS[current];return((p.x-a.x)*v[0]+(p.y-a.y)*v[1])/Math.hypot(p.x-a.x,p.y-a.y);};neighbors.sort((a,b)=>score(b)-score(a));if(score(neighbors[0])>0)go(neighbors[0],null);else if(!quiet)toast('그쪽으로는 길이 없어. 다른 방향을 눌러 봐.');}
+  const heldDirections=new Map(),inputEvents=new AbortController();
+  const clearDirections=()=>heldDirections.clear();
+  const inputBlocked=()=>closed||document.hidden||!!document.querySelector('dialog[open]')||!!combat?.blocked();
+  const repeatDirection=setInterval(()=>{if(inputBlocked()){clearDirections();return;}const d=[...heldDirections.values()].at(-1);if(d)stepToward(DIRS[d],true);},80);
   const key=e=>{
     const target=e.target instanceof Element?e.target:null;
     // Closing a dialog restores focus to its opener. Map buttons must still accept movement keys.
@@ -277,10 +282,12 @@ export function renderMap({welcome=false,arrival}={}){
     if(!dir)return;
     e.preventDefault();
     if(target?.closest('#map-hand')&&panEnabled&&!overview){cancelAnimationFrame(glide);follow=false;const [dx,dy]=DIRS[dir];place(view.x-dx*64,view.y-dy*64);return;}
-    stepToward(DIRS[dir]);
+    if(!e.repeat){heldDirections.set(e.code||e.key,dir);stepToward(DIRS[dir]);}
   };
   window.addEventListener('keydown',key);
-  $$('[data-dir]').forEach(button=>button.onclick=()=>stepToward(DIRS[button.dataset.dir]));
+  window.addEventListener('keyup',e=>heldDirections.delete(e.code||e.key),{signal:inputEvents.signal});
+  window.addEventListener('blur',clearDirections,{signal:inputEvents.signal});document.addEventListener('visibilitychange',clearDirections,{signal:inputEvents.signal});
+  bindDirectionPad(page,'[data-dir]',b=>b.dataset.dir,{signal:inputEvents.signal,blocked:inputBlocked,press:d=>{heldDirections.set('pad',d);stepToward(DIRS[d]);},release:()=>heldDirections.delete('pad'),tap:d=>stepToward(DIRS[d])});
   // 가운데 버튼: 장소 입구에 서 있으면 들어가기, 아니면 리버가 있는 곳으로 지도를 옮긴다.
   $('#dpad-center').onclick=()=>{if(moving)return;leaveOverview();const stage=doorHere();if(stage==='core'){navigate('final');return;}if(stage!==null){missionCard(stage);return;}follow=true;panTo(cameraFor(...XY[current]));};
   updateDpad();
@@ -298,5 +305,5 @@ export function renderMap({welcome=false,arrival}={}){
     go:node=>go(node,null),say:text=>$('#map-speech').textContent=text,
     reveal:(x,y)=>{leaveOverview();follow=false;panTo(cameraFor(x,y));}
   });
-  return()=>{closed=true;combat.destroy();clearTimeout(arrivalTimer);cueStops.forEach(stop=>stop());cancelAnimationFrame(glide);clearTimeout(hintTimer);clearTimeout(bootTimer);resize.disconnect();destroyGame(game);window.removeEventListener('keydown',key);};
+  return()=>{closed=true;clearInterval(repeatDirection);inputEvents.abort();combat.destroy();clearTimeout(arrivalTimer);cueStops.forEach(stop=>stop());cancelAnimationFrame(glide);clearTimeout(hintTimer);clearTimeout(bootTimer);resize.disconnect();destroyGame(game);window.removeEventListener('keydown',key);};
 }
