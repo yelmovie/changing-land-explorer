@@ -1,0 +1,205 @@
+/* The map remains the scene behind a full-viewport conversation stage. */
+#overlay dialog.resident-stage[open] {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  overflow: hidden;
+}
+#overlay dialog.resident-stage::backdrop {
+  background: #14282099;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+#overlay .resident-stage > .dialog-heading {
+  position: absolute;
+  z-index: 4;
+  top: max(18px, env(safe-area-inset-top));
+  right: 4.5vw;
+  left: 4.5vw;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#overlay .resident-stage .dialog-heading h2 {
+  flex: none;
+  padding: 8px 14px;
+  border: 1px solid #dbd3b573;
+  border-radius: 12px;
+  background: #1e3d2fc4;
+  color: #fff8df;
+  font-size: 19px;
+}
+#overlay .resident-stage .dialog-close {
+  width: 48px;
+  height: 48px;
+  margin-left: auto;
+  background: #fff8e8;
+  color: #3e593e;
+}
+#overlay .resident-stage > .dialog-body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 0 0 max(24px, env(safe-area-inset-bottom));
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+#overlay .resident-stage .resident-conversation {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  max-width: 1260px;
+  height: 100%;
+  min-height: 0;
+  padding-top: max(60px, calc(env(safe-area-inset-top) + 42px));
+}
+#overlay .resident-stage .resident-portrait {
+  position: relative;
+  z-index: 1;
+  width: min(500px, 70%);
+  max-height: 470px;
+  min-height: 0;
+  flex: 1 1 0;
+  margin: auto 8% -7px auto;
+  display: block;
+  overflow: visible;
+  border-radius: 0;
+  background: transparent;
+}
+#overlay .resident-stage .resident-actor {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 90%;
+}
+#overlay .resident-stage .resident-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 0 3px #fff3ca99) drop-shadow(0 10px 14px #09231666);
+}
+#overlay .resident-stage .resident-lines {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  padding: 28px 28px 16px;
+  border: 2px solid #ba9758;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff8e4, #f1e3bd);
+  box-shadow: 0 12px 35px #10221966, inset 0 1px #fffdf5;
+  color: #344d36;
+}
+#overlay .resident-stage .resident-name {
+  position: absolute;
+  top: -24px;
+  left: 28px;
+  min-width: 110px;
+  padding: 7px 24px;
+  border: 1px solid #c2a66e;
+  border-radius: 10px 10px 6px 6px;
+  background: #536a3c;
+  color: #fff7d7;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+#overlay .resident-stage .resident-place { display: block; margin: 0 150px 8px 0; color: #65724e; font-size: 16px; }
+#overlay .resident-stage .voice-replay { position: absolute; top: 15px; right: 20px; display: flex; align-items: center; gap: 7px; min-height: 44px; margin: 0; padding: 6px 10px; border: 1px solid #a8ac7c; border-radius: 12px; color: #385b43; background: #fffdf0; font-size: 16px; }
+#overlay .resident-stage .resident-line-advance { display: block; width: 100%; min-height: 0; position: relative; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: inherit; text-align: left; cursor: pointer; }
+#overlay .resident-stage .resident-line-advance:disabled { opacity: 1; cursor: default; }
+#overlay .resident-stage .resident-reply { display: block; min-height: 0; margin: 0; color: #34452e; font-size: 26px; font-weight: 400; line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; }
+#overlay .resident-stage .resident-choice-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; margin-top: 10px; }
+#overlay .resident-stage .resident-questions { flex: 1; visibility: hidden; gap: 10px; }
+#overlay .resident-stage .is-choosing .resident-questions { visibility: visible; }
+#overlay .resident-stage .resident-questions .secondary { min-height: 48px; padding: 8px 14px; border: 1px solid #9eae83; border-radius: 12px; background: #fffdf2; font-size: 18px; }
+#overlay .resident-stage .resident-continue { flex: none; display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 48px; min-width: 160px; padding: 8px 16px; border: 1px solid #b48d50; border-radius: 12px; background: #f7d58a; color: #5c4423; font-size: 18px; }
+#overlay .resident-stage .is-choosing .resident-continue { visibility: hidden; }
+#overlay .resident-stage .resident-exit { display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid #cbbd935e; }
+#overlay .resident-stage .resident-exit button { min-height: 48px; padding: 8px 14px; font-size: 18px; }
+#overlay .resident-stage .resident-exit .stamp-press { margin-right: auto; }
+#overlay .resident-stage .resident-transcript { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .resident-stage .resident-portrait { animation: resident-stage-enter 240ms ease-out both; }
+  .resident-stage .is-speaking .resident-actor { animation: resident-stage-speak 850ms ease-in-out infinite; }
+  .resident-stage [data-emotion="explain"] .resident-portrait { animation: resident-stage-nod 380ms ease-out both; }
+  .resident-stage [data-emotion="celebrate"] .resident-portrait { animation: resident-stage-cheer 480ms ease-out both; }
+}
+@keyframes resident-stage-enter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes resident-stage-speak { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-3px) rotate(.6deg); } 70% { transform: translateY(-1px) rotate(-.3deg); } }
+@keyframes resident-stage-nod { 0%, 100% { transform: rotate(0); } 45% { transform: rotate(-2deg) translateY(3px); } }
+@keyframes resident-stage-cheer { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-9px) rotate(2deg); } }
+@media (max-width: 800px) and (min-height: 601px) {
+  #overlay .resident-stage .resident-conversation { width: 92%; }
+  #overlay .resident-stage .resident-portrait { margin-right: 5%; }
+  #overlay .resident-stage .resident-lines { padding: 28px 20px 16px; }
+  #overlay .resident-stage .resident-reply { font-size: 24px; }
+  #overlay .resident-stage .resident-questions { display: grid; grid-template-columns: 1fr; }
+  #overlay .resident-stage .resident-choice-row { min-height: 108px; }
+  #overlay .resident-stage .resident-continue { min-width: 130px; }
+}
+@media (max-height: 600px) {
+  #overlay .resident-stage > .dialog-heading { top: 10px; }
+  #overlay .resident-stage .dialog-heading h2 { font-size: 16px; padding: 5px 10px; }
+  #overlay .resident-stage > .dialog-body { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+  #overlay .resident-stage .resident-conversation { width: 92%; }
+  #overlay .resident-stage .resident-conversation { padding-top: 40px; }
+  #overlay .resident-stage .resident-portrait { margin-right: 5%; }
+  #overlay .resident-stage .resident-lines { padding: 18px 16px 8px; }
+  #overlay .resident-stage .resident-name { left: 16px; top: -21px; padding: 5px 18px; min-width: 90px; font-size: 21px; }
+  #overlay .resident-stage .resident-place { font-size: 13px; margin-bottom: 5px; }
+  #overlay .resident-stage .voice-replay { top: 6px; right: 12px; min-height: 36px; padding: 4px 8px; font-size: 14px; }
+  #overlay .resident-stage .resident-line-advance { min-height: 0; }
+  #overlay .resident-stage .resident-reply { font-size: 19px; line-height: 1.4; }
+  #overlay .resident-stage .resident-choice-row { min-height: 48px; margin-top: 4px; gap: 8px; }
+  #overlay .resident-stage .resident-questions { gap: 6px; flex-wrap: nowrap; }
+  #overlay .resident-stage .resident-questions .secondary { padding: 5px 10px; font-size: 16px; }
+  #overlay .resident-stage .resident-continue { min-width: 140px; padding: 6px 10px; font-size: 16px; }
+  #overlay .resident-stage .resident-exit { gap: 8px; margin-top: 4px; padding-top: 4px; }
+  #overlay .resident-stage .resident-exit button { padding: 5px 12px; font-size: 16px; }
+}
+@media (max-width: 480px) and (min-height: 601px) {
+  #overlay .resident-stage .resident-portrait { width: min(100%, 370px); }
+  #overlay .resident-stage .resident-lines { padding: 25px 14px 12px; }
+  #overlay .resident-stage .resident-reply { font-size: 21px; }
+  #overlay .resident-stage .resident-place { margin-right: 40px; font-size: 13px; }
+  #overlay .resident-stage .voice-replay span { display: none; }
+  #overlay .resident-stage .resident-questions .secondary { font-size: 16px; padding: 7px; }
+  #overlay .resident-stage .resident-continue { min-width: 100px; font-size: 15px; padding: 7px; }
+  #overlay .resident-stage .resident-exit { gap: 6px; }
+  #overlay .resident-stage .resident-exit button { flex: 1; padding: 6px; font-size: 15px; }
+}
+
+#overlay .resident-stage .resident-line-layout{display:block;visibility:hidden;font-size:26px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
+#overlay .resident-stage .resident-reply{position:absolute;inset:0}
+#overlay .resident-stage .resident-place{margin-bottom:6px}
+#overlay .resident-stage .resident-choice-row{min-height:48px;margin-top:8px}
+#overlay .resident-stage .resident-exit{margin-top:8px;padding-top:8px}
+@media(max-width:800px) and (min-height:601px){#overlay .resident-stage .resident-line-layout{font-size:24px}}
+@media(max-height:600px){#overlay .resident-stage .resident-line-layout{font-size:19px;line-height:1.4}#overlay .resident-stage .resident-exit{margin-top:4px;padding-top:4px}}
+@media(max-width:480px) and (min-height:601px){#overlay .resident-stage .resident-line-layout{font-size:21px}}
+
+#overlay .resident-stage .resident-stamp-note { margin: 6px 0 0; color: #53613d; font-size: 16px; line-height: 1.35; }
+body:has(.resident-stage[open]) .map-resident { visibility: hidden; }
+@media(max-height:600px) { #overlay .resident-stage .resident-stamp-note { font-size: 14px; } }
+
+/* Flip the art only; preserve the actor's entrance and speech motion. */
+#overlay .resident-stage .resident-actor img { scale: -1 1; }

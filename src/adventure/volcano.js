@@ -87,7 +87,7 @@ function assemble(scene,api){
   }
   function place(id){
     if(finished||parts.includes(id))return true;
-    if(order[parts.length]!==id){api.say('쟁반 → 산 모형 → 붉은 물 주사기 순서로 놓아 줘.');return false;}
+    if(order[parts.length]!==id){api.say('쟁반, 산 모형, 붉은 물 주사기 순서로 놓아 줘.');return false;}
     parts.push(id);if(!completed&&!d.assembly.includes(id))d.assembly.push(id);
     objects[id].setVisible(false);api.spark(spots[id].x,spots[id].y);show();if(!completed)api.save();
     if(parts.length===3){finished=true;if(completed)api.stopAutoplay();else{completed=true;api.finish('실험 준비 완료! 주사기의 붉은 물이 어느 곳으로 나올지 살펴보자.');}}

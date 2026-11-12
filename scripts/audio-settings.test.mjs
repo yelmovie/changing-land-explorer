@@ -87,3 +87,30 @@ test('field effects duck under NPC speech and restore after it ends', async()=>{
  audio.stopVoice();assert.equal(effect.volume,.24*.5);assert.equal(cue.volume,.42*.5);
  audio.stopAllSounds();audio.setSoundEnabled(false);
 });
+
+test('resident motion follows playing events and clears on interruption', async()=>{
+ audio.setSoundEnabled(true);audio.setVoiceVolume(100);document.hidden=false;
+ const states=[];
+ audio.playVoice('first.m4a',{onState:playing=>states.push(playing)});
+ const first=players.at(-1),stalePlaying=first.onplaying;
+ assert.deepEqual(states,[],'a play request alone does not start portrait motion');
+ first.onplaying();assert.deepEqual(states,[true]);
+ first.onwaiting();assert.equal(states.at(-1),false);
+ first.onplaying();assert.equal(states.at(-1),true);
+ const nextStates=[];
+ audio.playVoice('second.m4a',{onState:playing=>nextStates.push(playing)});
+ assert.equal(states.at(-1),false);
+ stalePlaying();assert.equal(states.at(-1),false,'replaced audio cannot restart its portrait');
+ const second=players.at(-1);second.onplaying();assert.equal(nextStates.at(-1),true);
+ second.onended();assert.equal(nextStates.at(-1),false);
+ audio.playVoice('muted.m4a',{onState:playing=>nextStates.push(playing)});
+ players.at(-1).onplaying();audio.setVoiceVolume(0);assert.equal(nextStates.at(-1),false);
+ audio.setVoiceVolume(100);
+ audio.playVoice('hidden.m4a',{onState:playing=>nextStates.push(playing)});
+ players.at(-1).onplaying();document.hidden=true;events.get('visibilitychange').forEach(fn=>fn());
+ assert.equal(nextStates.at(-1),false);
+ document.hidden=false;
+ rejectNextVoice=true;audio.playVoice('rejected.m4a',{onState:playing=>nextStates.push(playing)});
+ await tick();assert.equal(nextStates.at(-1),false);
+ audio.stopAllSounds();audio.setSoundEnabled(false);
+});

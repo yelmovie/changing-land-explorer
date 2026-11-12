@@ -54,6 +54,8 @@ try{
  const browserCtx=await browser.newContext({viewport:{width:1280,height:720},hasTouch:true});const p=await browserCtx.newPage();
  await p.route('**/assets/vendor/*phaser*.js',route=>route.abort());await p.goto(base);await p.locator('#start').click();await p.locator('#story-skip').click();await p.waitForSelector('.map-fallback');
  assert.equal(await p.locator('.map-resident').count(),0);assert.equal(await p.locator('.workplace.asleep').count(),5);await p.locator('#settings').click();await p.locator('#admin-setting').click();await p.waitForSelector('.map-fallback');
- await roster(p);await p.locator('[data-talk="volcano"]').click();await p.locator('[data-ask="0"]').click();console.log('PASS fresh, fallback');
+ await roster(p);await p.locator('[data-talk="volcano"]').click();
+ await p.locator('[data-continue]').click();await p.locator('[data-continue]').click();
+ await p.locator('[data-ask="0"]').click();console.log('PASS fresh, fallback');
  assert.deepEqual(errors,[]);await browserCtx.close();
 }finally{await browser.close();}

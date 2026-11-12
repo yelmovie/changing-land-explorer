@@ -1,10 +1,11 @@
 import {scoreFilm} from './music.js';
 import {icon} from './ui.js';
+import {voiceVolume} from './sound.js';
 
 const films={
  intro:{title:'강가에 남은 단서',chapter:'탐험의 시작',theme:'main',next:'물길 탐험 시작',duration:17.252,cues:[
-  [.35,2.12,'앗, 기록탑에 무슨 일이지?'],
-  [2.13,5.78,'수첩에 있던 강가의 기록이 흐려졌어.'],
+  [0.1,2.31,'앗, 기록탑에 무슨 일이지?'],
+  [2.33,5.78,'수첩에 있던 강가의 기록이 흐려졌어.'],
   [5.82,9.22,'여기 쌓인 모래는 어디서 왔을까?'],
   [9.24,12.12,'물을 흘려 보면 단서를 찾을 수 있어.'],
   [12.18,16.80,'나랑 다리를 건너 물길을 조사하러 가자!']
@@ -12,9 +13,9 @@ const films={
  final:{title:'다시 빛나는 기록탑',chapter:'탐험의 끝',theme:'final',next:'내 탐험 기록 보기',duration:17.275,cues:[
   [.38,3.73,'물이 흙을 깎고 옮긴 흔적을 찾았어.'],
   [3.77,7.46,'두 돌은 색과 알갱이를 함께 보고 구별했지.'],
-  [7.60,11.69,'안전하게 대피할 길도 찾아냈어!'],
-  [11.75,14.14,'봐, 기록탑에 다시 불이 켜졌어!'],
-  [14.16,16.88,'이 인증서는 네 거야. 고마워, 탐험가!']
+  [7.6,10.77,'안전하게 대피할 길도 찾아냈어!'],
+  [10.84,13.9,'봐, 기록탑에 다시 불이 켜졌어!'],
+  [13.97,17.11,'이 인증서는 네 거야. 고마워, 탐험가!']
  ]}
 };
 let dismiss;
@@ -34,7 +35,7 @@ export function openStory(kind,{onFinish,replay=false,soundOn,toggleSound}){
  const play=el('#story-play'),seek=el('#story-seek'),cc=el('#story-caption-toggle'),sound=el('#story-sound'),skip=el('#story-skip');
  const events=new AbortController(),on=(target,name,fn)=>target.addEventListener(name,fn,{signal:events.signal});
  let closed=false,captions=true;
- const releaseScore=scoreFilm(video,film.theme,replay);
+ const releaseScore=scoreFilm(video,film.theme,replay,voiceVolume);
  function finish(advance){
   if(closed)return;closed=true;dismiss=undefined;events.abort();
   video.pause();releaseScore();video.removeAttribute('src');video.load();
@@ -50,7 +51,7 @@ export function openStory(kind,{onFinish,replay=false,soundOn,toggleSound}){
   play.textContent=video.paused?'재생':'일시 정지';
  }
  function volume(){
-  video.muted=!soundOn();video.volume=.67;
+  video.muted=!soundOn();video.volume=.86 * voiceVolume()/100;
   sound.innerHTML=icon(soundOn()?'sound':'mute',21);
   sound.setAttribute('aria-label',soundOn()?'전체 소리 끄기':'전체 소리 켜기');sound.setAttribute('aria-pressed',String(soundOn()));
  }

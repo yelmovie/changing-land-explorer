@@ -208,7 +208,7 @@ export function renderMap({welcome=false,arrival}={}){
     panTo([x,Math.max(y,clearOfHud-coreY)]);
     const plaza=$('.plaza-festival',world);
     plaza.classList.add('festival-visit');
-    $('#map-speech').textContent=finished?'친구 도장 다섯 개가 모였어. 기록탑 광장에서 주민들의 축제를 즐겨 봐!':'친구 도장 다섯 개가 모였어! 축제 광장 위의 기록탑을 눌러 마지막 도전을 시작해 봐.';
+    $('#map-speech').textContent=finished?'친구 도장 다섯 개가 모였어. 기록탑 광장에서 주민들의 축제를 즐겨 봐!':'친구들의 도장 다섯 개가 모였어! 축제 광장 위쪽에 있는 기록탑을 눌러 마지막 도전을 시작해 봐.';
   }
   const openResidents=id=>showResidents(modal,residents,{initial:id,onGreet:greeted,preview:isAdmin(),stamps:s.residentStamps,collect:collectStamp,visitPlaza});
   function travelControls(busy){

@@ -92,29 +92,33 @@ export function playCue(name, delay = 0) {
   return stop;
 }
 // 주민 목소리. 새 대사가 나오면 앞 대사는 멈춘다. 파일이 없으면 조용히 넘어간다.
-let voice = null, releaseVoiceMusic = null;
+let voice = null, releaseVoiceMusic = null, voiceState = null;
 export function stopVoice() {
-  const previous = voice, release = releaseVoiceMusic;
-  voice = null; releaseVoiceMusic = null;
+  const previous = voice, release = releaseVoiceMusic, notify = voiceState;
+  voice = null; releaseVoiceMusic = null; voiceState = null;
   if (previous) {
     previous.onended = null; previous.onerror = null;
+    previous.onplaying = previous.onpause = previous.onwaiting = previous.onemptied = null;
     previous.pause(); previous.currentTime = 0;
   }
   refreshEffectLevels();
   release?.();
+  notify?.(false);
 }
-export function playVoice(file) {
-  if (!enabled || !voiceLevel || document.hidden || !file) { stopVoice(); return; }
+export function playVoice(file, {onState} = {}) {
+  if (!enabled || !voiceLevel || document.hidden || !file) { stopVoice(); onState?.(false); return; }
   // Acquire the next hold before releasing the previous one to avoid a BGM blip.
   const release = holdMusic();
   stopVoice();
   const clip = new Audio('/assets/voices/'+file);
-  voice = clip; releaseVoiceMusic = release;
+  voice = clip; releaseVoiceMusic = release; voiceState = onState;
   refreshEffectLevels();
   clip.volume = .9 * voiceLevel / 100;
   const finish = () => { if (voice === clip) stopVoice(); };
   clip.onended = finish;
   clip.onerror = finish;
+  clip.onplaying = () => { if (voice === clip) onState?.(!clip.paused && !document.hidden); };
+  clip.onpause = clip.onwaiting = clip.onemptied = () => { if (voice === clip) onState?.(false); };
   try { clip.play().catch(finish); } catch { finish(); }
 }
 function stopCues() { pendingCues.forEach(stop => stop()); cues.forEach(cue => { cue.pause(); cue.currentTime = 0; }); cues.clear(); }

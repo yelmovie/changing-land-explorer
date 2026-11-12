@@ -1,4 +1,4 @@
-Generated for this project using local Momo and Qwen3-TTS.
-Model license: Apache-2.0. https://github.com/QwenLM/Qwen3-TTS
-Fictional character presets; no real-person voice cloning.
-Character direction, source IDs, chosen seeds, transcripts, audio metrics and checksums: momo-manifest-20261110.json.
+Historical local Momo/Qwen3-TTS recordings; current River guide files are ElevenLabs (river-elevenlabs-manifest.json).
+Current resident recordings are listed in npc-elevenlabs/manifest.json.
+Model license of historical recordings: Apache-2.0. https://github.com/QwenLM/Qwen3-TTS
+Historical source IDs, chosen seeds, transcripts and checksums: momo-manifest-20261110.json.

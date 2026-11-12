@@ -30,7 +30,8 @@ function sync(){
   player.addEventListener('loadedmetadata',()=>{if(film)seekTo=film.video.currentTime;seek();});
  }
  if(loaded!==theme){loaded=theme;player.src=tracks[theme];}
- player.volume=volume/100;player.loop=theme==='main'&&!film;
+ // Leave space for the narrator mixed into the story video.
+ player.volume=volume / 100 * (film?.voiceLevel() > 0 ? .45 : 1);player.loop=theme==='main'&&!film;
  if(film){seekTo=film.video.currentTime;player.playbackRate=film.video.playbackRate;}
  else player.playbackRate=1;
  seek();
@@ -42,9 +43,9 @@ document.addEventListener('keydown',unlock,true);
 document.addEventListener('visibilitychange',sync);
 
 // A settings replay temporarily borrows the music player and then restores the previous theme position.
-export function scoreFilm(video,theme,restore){
+export function scoreFilm(video,theme,restore,voiceLevel=()=>0){
  const prior=loaded===scene&&player?player.currentTime:0;
- const session={video,theme,playing:false};film=session;sync();
+ const session={video,theme,playing:false,voiceLevel};film=session;sync();
  const events=new AbortController();
  const on=(event,fn)=>video.addEventListener(event,fn,{signal:events.signal});
  for(const event of ['pause','waiting','seeking','ended'])on(event,()=>{session.playing=false;sync();});
