@@ -1,0 +1,174 @@
+{
+  "name": "River exploration pulse",
+  "file": "river-combat-v3.webp",
+  "width": 1024,
+  "height": 512,
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "columns": 4,
+  "rows": 2,
+  "anchor": [
+    0.5,
+    0.87890625
+  ],
+  "alpha": true,
+  "generated": "2026-11-14",
+  "generator": "OpenAI built-in image generation",
+  "method": "New illustrations per pose, registered to the feet and exported to transparent WebP.",
+  "sha256": "c4747ad5b19de16beafc66f508faba14ef6f92a88919a93a17e85566cd623604",
+  "sourceSha256": "74ea44c8879d802301a54114a8b32d4a9a3d881d3dc3e461de5211c39b6ac98e",
+  "frames": [
+    {
+      "index": 0,
+      "name": "ready",
+      "column": 0,
+      "row": 0,
+      "width": 118,
+      "height": 175,
+      "placement": {
+        "left": 59,
+        "top": 52
+      },
+      "sourceRect": {
+        "left": 0,
+        "top": 0,
+        "width": 444,
+        "height": 444
+      },
+      "frameSha256": "b9ce7e81abd85c981af8f5fab1f5dde8506b0b7bc069ff704dd43d50b4dfac64"
+    },
+    {
+      "index": 1,
+      "name": "windup",
+      "column": 1,
+      "row": 0,
+      "width": 129,
+      "height": 174,
+      "placement": {
+        "left": 57,
+        "top": 52
+      },
+      "sourceRect": {
+        "left": 444,
+        "top": 0,
+        "width": 443,
+        "height": 444
+      },
+      "frameSha256": "2172519af2c32ce96e0dc61fdaa732bd76146227d6c4a25616aceb2330eda2ce"
+    },
+    {
+      "index": 2,
+      "name": "pulse",
+      "column": 2,
+      "row": 0,
+      "width": 174,
+      "height": 163,
+      "placement": {
+        "left": 62,
+        "top": 64
+      },
+      "sourceRect": {
+        "left": 887,
+        "top": 0,
+        "width": 444,
+        "height": 444
+      },
+      "frameSha256": "39aa7d2c08298c814ddb75baf6f1e739ca4e69091298f092a9be188d9ce552ae"
+    },
+    {
+      "index": 3,
+      "name": "follow-through",
+      "column": 3,
+      "row": 0,
+      "width": 128,
+      "height": 170,
+      "placement": {
+        "left": 59,
+        "top": 56
+      },
+      "sourceRect": {
+        "left": 1331,
+        "top": 0,
+        "width": 443,
+        "height": 444
+      },
+      "frameSha256": "c296edd0eb0cb8cff461fdb2784d45249781fb882ac339437b85cc725a1d1fe6"
+    },
+    {
+      "index": 4,
+      "name": "hurt",
+      "column": 0,
+      "row": 1,
+      "width": 140,
+      "height": 177,
+      "placement": {
+        "left": 52,
+        "top": 49
+      },
+      "sourceRect": {
+        "left": 0,
+        "top": 444,
+        "width": 444,
+        "height": 443
+      },
+      "frameSha256": "ae793d03bee1254af0d3f26a975240a1aa66f0a70b442b282a144fbfa275963d"
+    },
+    {
+      "index": 5,
+      "name": "recover",
+      "column": 1,
+      "row": 1,
+      "width": 149,
+      "height": 157,
+      "placement": {
+        "left": 58,
+        "top": 70
+      },
+      "sourceRect": {
+        "left": 444,
+        "top": 444,
+        "width": 443,
+        "height": 443
+      },
+      "frameSha256": "469adf5c47e13f47911339cfef5eef0a16b4467b4b678782abeb9d6175d1b780"
+    },
+    {
+      "index": 6,
+      "name": "cheer",
+      "column": 2,
+      "row": 1,
+      "width": 128,
+      "height": 176,
+      "placement": {
+        "left": 55,
+        "top": 50
+      },
+      "sourceRect": {
+        "left": 887,
+        "top": 444,
+        "width": 444,
+        "height": 443
+      },
+      "frameSha256": "bdac13d9da2f81cf852860749065b8afbf278b667b3f5c53456de5b16d38ca99"
+    },
+    {
+      "index": 7,
+      "name": "victory",
+      "column": 3,
+      "row": 1,
+      "width": 130,
+      "height": 178,
+      "placement": {
+        "left": 56,
+        "top": 49
+      },
+      "sourceRect": {
+        "left": 1331,
+        "top": 444,
+        "width": 443,
+        "height": 443
+      },
+      "frameSha256": "54e31062dd9a4167c0b2a5d016310d5c4f39b3aec719aa154d3947348eeaaa8f"
+    }
+  ]
+}

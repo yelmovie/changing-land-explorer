@@ -1,10 +1,10 @@
-/* GeoValley: hand-painted basalt villains and River exploration-tool combat. */
+/* GeoValley: illustrated basalt golem and River poses for the map encounters. */
 #app.atlas .map-villains{position:absolute;inset:0;pointer-events:none;z-index:5}
 #app.atlas .map-villain{position:absolute;transform:translate(-50%,-88%);width:var(--foe-cell,114px);height:calc(var(--foe-cell,114px) + 8px);min-width:56px;min-height:64px;padding:0;border:0;background:none;box-shadow:none;pointer-events:auto;cursor:pointer;touch-action:manipulation;overflow:visible;isolation:isolate}
 #app.atlas .map-villain[hidden],#app.atlas .map-combat-river[hidden],#app.atlas .combat-retry[hidden]{display:none}
 #app.atlas .map-villain:disabled{opacity:1;cursor:default}
 #app.atlas .map-villain:focus-visible{outline:4px solid #ffdf84;outline-offset:4px;border-radius:22px}
-#app.atlas .villain-art,#app.atlas .combat-mini{background-image:url('/assets/art/geo-rubble-sprites.webp');background-size:300% 200%;background-repeat:no-repeat}
+#app.atlas .villain-art,#app.atlas .combat-mini{background-image:url('/assets/art/geo-rubble-sprites-v2.webp');background-size:300% 200%;background-repeat:no-repeat}
 #app.atlas .villain-art{position:absolute;width:var(--foe-cell,114px);height:var(--foe-cell,114px);left:0;bottom:8px;filter:drop-shadow(0 2px 1px #fff0c9) drop-shadow(0 5px 3px #182b3966);pointer-events:none;transform-origin:50% 82%;transform:scaleX(var(--facing,1))}
 #app.atlas .villain-shadow{position:absolute;width:68%;height:14px;left:16%;bottom:13px;border-radius:50%;background:#251b314a;pointer-events:none}
 #app.atlas .villain-hp{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font:900 13px/16px NanumSquareNeo,system-ui;letter-spacing:3px;color:#e58538;background:#fff7df;border:2px solid #765b42;border-radius:10px;padding:0 4px 0 7px;white-space:nowrap;min-height:20px}
@@ -21,7 +21,7 @@
 #app.atlas #map-attack>span{font-size:30px;color:#f9fff8;text-shadow:0 0 3px #688e7c,0 0 8px #688e7c}#app.atlas #map-attack small{font-size:11px}#app.atlas #map-attack[data-ready=false]{filter:saturate(.5)}
 #app.atlas .combat-retry{pointer-events:auto;position:absolute;right:0;bottom:95px;width:260px;padding:16px;border:3px solid #866b47;border-radius:20px;background:#fff9e8;box-shadow:0 6px 20px #192d3644;color:#4d402d;text-align:center}
 #app.atlas .combat-retry strong{font-size:20px}#app.atlas .combat-retry p{font-size:20px;line-height:1.45;margin:8px 0}#app.atlas .combat-retry button{min-height:48px;background:#587b64;color:white;border:2px solid #355840;border-radius:14px;padding:8px 18px;font-weight:800}
-#app.atlas .map-combat-river{position:absolute;width:144px;height:144px;transform:translate(-50%,-87.890625%) scaleX(var(--facing,1));z-index:700;background:url('/assets/art/river-combat.webp') 0 0/400% 100% no-repeat;pointer-events:none;filter:drop-shadow(0 4px 3px #193c2c40)}
+#app.atlas .map-combat-river{position:absolute;width:144px;height:144px;transform:translate(-50%,-87.890625%) scaleX(var(--facing,1));z-index:700;background:url('/assets/art/river-combat-v3.webp') 0 0/400% 200% no-repeat;pointer-events:none;filter:drop-shadow(0 4px 3px #193c2c40)}
 #app.atlas .combat-wave{position:absolute;width:170px;height:85px;border-radius:50%;border:6px solid #d8fff0;box-shadow:0 0 10px #5cb7a7,inset 0 0 10px #91dec7;transform:translate(-50%,-65%) scale(.2);opacity:0;pointer-events:none;z-index:700}
 #app.atlas .combat-wave.strike{animation:combat-wave .43s ease-out}
 #app.atlas .map-overview .map-villain{width:68px;height:72px}#app.atlas .map-overview .villain-art{width:68px;height:68px}#app.atlas .map-overview .villain-hp{font-size:10px;letter-spacing:1px;min-height:14px;line-height:12px}
@@ -47,7 +47,6 @@
 #app.atlas .map-villain.hit:not(.defeated) .villain-art{animation:combat-recoil .35s ease-out}
 #app.atlas .map-villain.hit .villain-target{opacity:0}
 #app.atlas .villain-impact{font-size:48px}
-#app.atlas .map-combat-river{background-image:url('/assets/art/river-combat-v2.webp');background-size:400% 200%}
 #app.atlas .combat-guide{position:absolute;right:0;bottom:calc(100% + 10px);margin:0;min-width:235px;padding:9px 12px;border:2px solid #8e7951;border-radius:14px;background:#fff9e8ed;box-shadow:0 3px 0 #54483133;color:#4d402d;text-align:center;font:700 20px/1.4 NanumSquareNeo,system-ui}
 #app.atlas .combat-guide small{display:block;font-size:16px;font-weight:600;margin-top:3px;white-space:nowrap}
 #app.atlas #map-attack[data-in-range=true]{background:linear-gradient(#fff5bd,#aade88);border-color:#4b7045}
