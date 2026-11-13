@@ -343,7 +343,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
         if(round>=0){s.final.assembled=true;s.final.round=round;}
         navigate('final',round>=0?'assembly':target==='ending'?'celebration':target);});});
   if(!isAdmin()&&s.completed.length)combat=mountMapVillains({world,page,tools:$('.map-view-tools',page),state:s,save,reduced,
-    eligible:s.completed,paused:()=>closed||guided||destination!==null,
+    eligible:s.completed,clearStage:arrival,paused:()=>closed||guided||destination!==null,
     getHero:()=>hero?{x:hero.x,y:hero.y}:fallback?POINTS[current]:null,
     heroPose:pose=>{hero?.setVisible(pose<0);if(fallback)$('.atlas-fallback-river').style.visibility=pose<0?'':'hidden';},
     stopTravel,
