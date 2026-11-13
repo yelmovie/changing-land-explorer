@@ -36,6 +36,16 @@ export function sanitize(value){
  for(const s of STAGES){const record=value.records?.[s.id];if(object(record)){base.records[s.id]=cleanData(record);if(object(base.records[s.id].data))base.records[s.id].data=normalizeActivityData(base.records[s.id].data);}const draft=value.drafts?.[s.id];if(object(draft)){base.drafts[s.id]={step:value.version===2?Math.min(1,Math.floor((Number(draft.step)||0)/2)):Math.min(1,Math.max(0,Number(draft.step)||0)),passed:[],data:{}};if(value.version===3){base.drafts[s.id].data=normalizeActivityData(object(draft.data)?cleanData(draft.data):{});base.drafts[s.id].passed=(Array.isArray(draft.passed)?draft.passed:[]).filter(n=>n===0||n===1);}else base.drafts[s.id].legacy=cleanData(draft);}}
  base.finished=value.finished===true;if(value.version===3&&object(value.final))base.final={...base.final,...cleanData(value.final)};
  const loc=value.location;if(object(loc)&&['home','map','stage','operation','final'].includes(loc.type)){if(!['stage','operation'].includes(loc.type)||(Number.isInteger(loc.arg?.index)&&loc.arg.index>=0&&loc.arg.index<5)){base.location=cleanData(loc);if(value.version===2&&base.location.type==='stage')base.location.arg.step=Math.min(1,Math.floor((base.location.arg.step||0)/2));}}
+ // Once stored, the activity is independent of the screen the student last left open.
+ const fallback=STAGES.findLastIndex((stage,index)=>{
+  const draft=base.drafts[stage.id],data=draft?.data;
+  return draft&&canEnter(index,base)&&!base.completed.includes(stage.id)&&
+   (draft.step===1||draft.passed.length>0||data?.runs?.length>0||
+    Object.keys(data?.evidence??{}).length>0||data?.assembly?.length>0);
+ });
+ const resume=Object.hasOwn(value,'resumeActivity')?value.resumeActivity:
+  ['stage','operation'].includes(base.location?.type)?base.location:fallback<0?null:{type:'stage',arg:{index:fallback}};
+ base.resumeActivity=activityLocation(base,resume);
  base.final.round=Math.min(3,Math.max(0,Math.floor(Number(base.final.round)||0)));for(const k of ['answers','links','selected'])if(!object(base.final[k]))base.final[k]={};base.final.assembled=base.final.assembled===true;base.final.transferSafety=normalizeActivityData(object(base.final.transferSafety)?base.final.transferSafety:{});base.final.transferRockClaims=Array.isArray(base.final.transferRockClaims)?[...new Set(base.final.transferRockClaims.filter(k=>['light','coarse'].includes(k)))]:[];if(base.final.transferRiverPoint&&(!Number.isFinite(base.final.transferRiverPoint.x)||!Number.isFinite(base.final.transferRiverPoint.y)))delete base.final.transferRiverPoint;return base;
 }
 export function loadProgress(storage){try{const current=storage.getItem(SAVE_KEY);if(current){try{return sanitize(JSON.parse(current));}catch{}}const legacy=storage.getItem(LEGACY_SAVE_KEY);return legacy?sanitize(JSON.parse(legacy)):fresh();}catch{return fresh();}}
@@ -55,6 +65,11 @@ export function seedPreview(state){
  return state;
 }
 export function canEnter(index,state,admin=false){return admin||index===0||state.completed.includes(STAGES[index-1]?.id);}
+export function activityLocation(state,location){
+ const type=location?.type,index=location?.arg?.index,stage=Number.isInteger(index)&&STAGES[index],draft=stage&&state.drafts[stage.id];
+ if(!draft||!canEnter(index,state)||!['stage','operation'].includes(type))return null;
+ return {type,arg:type==='stage'?{index,step:draft.step===1?1:0}:{index}};
+}
 export function award(state,id,record){if(!STAGES.some(s=>s.id===id))return state;return {...state,completed:[...new Set([...state.completed,id])],records:{...state.records,[id]:structuredClone(record)}};}
 export const clamp=(v,min=0,max=1)=>Math.max(min,Math.min(max,v));
 export function pointInRect(p,r,pad=0){return p.x>=r.x-pad&&p.x<=r.x+r.w+pad&&p.y>=r.y-pad&&p.y<=r.y+r.h+pad;}

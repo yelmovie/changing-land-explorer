@@ -8,7 +8,7 @@ import {musicScene,musicVolume,setMusicVolume} from './music.js';
 import {RESIDENTS,residentArt,residentVoice} from './residents.js';
 import {playSound,setSoundEnabled,stopAllSounds,playVoice,stopVoice} from './sound.js';
 import {showConcept,CONCEPTS} from './concepts.js';
-import {STAGES,SAVE_KEY,LEGACY_SAVE_KEY,fresh,loadProgress,award,canEnter,saveDecision,seedPreview} from './model.js';
+import {STAGES,SAVE_KEY,LEGACY_SAVE_KEY,fresh,loadProgress,award,canEnter,activityLocation,saveDecision,seedPreview} from './model.js';
 import {SETTINGS_CONTENT} from './settings-content.js';
 import {activityComplete} from './learning-model.js';
 import {mountOperation} from './field-operation.js';
@@ -138,7 +138,10 @@ function bag(){modal('내 탐험 가방',`<div class="bag-grid">${STAGES.map(s=>
 function home(){
  const s=state();
  shell('움직이는 지오밸리',`<main class="expedition-welcome"><div class="expedition-title"><img src="/assets/title-logo.webp" alt="움직이는 지오밸리"><p>리버와 함께, 땅의 변화를 발견하는 여행</p></div><img class="expedition-river" src="/assets/hero-lens.webp" alt="탐험 동료 리버"><div class="expedition-start"><button class="primary large" id="start">${s.started?'탐험 이어 하기':'리버와 탐험 시작'} ${icon('arrow')}</button></div></main>`,'atlas welcome');
- const start=()=>{s.started=true;save();navigate('map');};
+ const start=()=>{
+  const activity=activityLocation(s,s.resumeActivity);
+  s.started=true;save();navigate(activity?.type??'map',activity?.arg);
+ };
  $('#start').onclick=()=>s.started?start():showFilm('intro',{onFinish:start});
 }
 function sceneModule(load){
@@ -177,7 +180,7 @@ export async function navigate(type,arg,fromHistory=false){
   }else if(type==='final'){const m=await import('./ending.js');if(revision!==navRevision)return;const celebrate=arg==='celebration';if(celebrate)screen.arg='ending';dispose=m.renderFinal(celebrate?'ending':arg||'assembly');if(celebrate&&revision===navRevision&&(state().finished||isAdmin()))showFilm('final');}
   else{navigate('home');return;}
   if(revision!==navRevision)return;
-  if(!admin){student.location=structuredClone(screen);save();if(!fromHistory)history.pushState({geo:screen},'');}
+  if(!admin){student.location=structuredClone(screen);const activity=activityLocation(student,screen);if(activity)student.resumeActivity=activity;save();if(!fromHistory)history.pushState({geo:screen},'');}
   window.scrollTo(0,0);
  }catch(error){
   if(revision!==navRevision)return;
@@ -216,7 +219,7 @@ function complete(index,fieldReady=false){
  if(!fieldReady){navigate('operation',{index});return;}
  const stage=STAGES[index],draft=state().drafts[stage.id],newArrival=!state().completed.includes(stage.id);
  const record={summary:`${stage.name}에서 내 관찰 ${Object.keys(draft.data.evidence||{}).length}개를 남겼어.`,data:structuredClone(draft.data)};
- if(admin)preview=award(preview,stage.id,record);else student=award(student,stage.id,record);
+ if(admin)preview=award(preview,stage.id,record);else{student=award(student,stage.id,record);student.resumeActivity=null;}
  save();
  const resident=RESIDENTS[stage.id];
  modal(newArrival?`${stage.place} 현장 작전 성공!`:'탐험 기록을 다시 남겼어!',`<div class="reward-reveal"><img class="reward-partner" src="${newArrival?residentArt(stage.id):'/assets/hero-cheer.webp'}" alt="${newArrival?resident.name:'리버'}"><img class="reward-item" src="/assets/${TOOL_ASSETS[stage.tool]}.webp" alt=""></div>${newArrival?`<p class="reward-thanks"><strong>${resident.name}</strong> ${resident.thanks}</p>`:''}<h3>${stage.reward}</h3>${newArrival?`<div class="relit-counter" aria-label="마을 불빛 ${state().completed.length}개, 전체 5개"><span>마을 불빛</span>${STAGES.map(st=>`<i class="${state().completed.includes(st.id)?'lit':''}"></i>`).join('')}<b>${state().completed.length}/5</b></div>`:''}<p class="world-change">${stage.change}</p>${newArrival?`<p><strong>${resident.name}</strong>에게 말을 걸면 ${resident.stamp} 도장을 받을 수 있어.</p>`:''}<button class="primary" id="return-map">${newArrival?`${resident.name} 만나러 가기`:'지도로 돌아가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
