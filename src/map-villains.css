@@ -58,3 +58,12 @@
 @keyframes combat-result{0%{opacity:0;transform:translate(-50%,8px)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-24px)}}
 @media(max-height:500px){#app.atlas .combat-guide{padding:5px 8px;min-width:215px;font-size:20px;bottom:calc(100% + 5px)}#app.atlas .combat-guide small{font-size:14px;margin-top:1px}}
 @media(prefers-reduced-motion:reduce){#app.atlas .map-villain.hit .villain-result{animation:none;opacity:1}#app.atlas .map-villain.hit:not(.defeated) .villain-art{animation:none}#app.atlas #map-attack:active{transform:none}}
+#app.atlas .map-combat-hud[hidden],#app.atlas .villain-line[hidden]{display:none}
+#app.atlas .villain-line,#app.atlas .villain-prop{position:absolute;pointer-events:none;white-space:nowrap;text-align:center}
+#app.atlas .villain-line{bottom:calc(100% + 16px);left:50%;transform:translateX(-50%);padding:5px 9px;border:1px solid #5d4528;border-radius:10px;background:#fff9ea;color:#382917;font:800 14px/1.2 NanumSquareNeo,system-ui;box-shadow:0 2px 4px #22170560}
+#app.atlas .villain-prop{right:-10px;bottom:11px;background:#322518;color:var(--villain-effect);border:1px solid var(--villain-effect);border-radius:5px;padding:1px 3px;font:800 9px/1.3 NanumSquareNeo,system-ui}
+#app.atlas .map-villain[data-play="true"] .villain-prop{animation:geo-prop 1s ease-in-out infinite}
+#app.atlas .map-villain.hit .villain-impact{background:radial-gradient(circle at center,#fff8c2 0%,var(--villain-effect) 22%,transparent 48%)}
+#app.atlas .map-villain.defeated .villain-prop{opacity:0}
+@keyframes geo-prop{0%,100%{transform:translateY(0)}55%{transform:translateY(-5px) rotate(8deg)}}
+@media(prefers-reduced-motion:reduce){#app.atlas .map-villain[data-play="true"] .villain-prop{animation:none}}

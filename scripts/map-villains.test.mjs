@@ -57,3 +57,13 @@ test('targeted strikes hit only that nearby enemy and give brief contact protect
  const before=g.progress.health;e.x=h.x;e.y=h.y;
  assert.deepEqual(stepCombat(g,h,16,2700),[]);assert.equal(g.progress.health,before);
 });
+
+test('map encounter contact is visual and legacy knockout never blocks movement',()=>{
+ const g=createCombat({health:0,hits:{river:1}},0,{visualOnly:true}),e=g.enemies[0],h={x:e.x,y:e.y};
+ assert.equal(stepCombat(g,h,33,1201)[0].type,'hurt');
+ assert.equal(g.heroPose,2);
+ assert.equal(g.progress.health,3);
+ assert.equal(g.progress.hits.river,1);
+ assert.deepEqual(stepCombat(g,h,33,1300),[]);
+ assert.equal(attackCombat(g,h,2000).remaining,1);
+});
