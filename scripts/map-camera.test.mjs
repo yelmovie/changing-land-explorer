@@ -10,15 +10,15 @@ import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../src/map-adventure.js',import.meta.url),'utf8');
 // Exercise the exact pointer callbacks from renderMap without starting Phaser or touching a saved game.
 function wiredHarness(panEnabled=true,overview=false){
- const handlers={},capture=new Set();
+ const handlers={},capture=new Set();let cancels=0;
  const world={addEventListener:(type,fn)=>handlers[type]=fn,classList:{add(){},remove(){}},setPointerCapture:id=>capture.add(id),hasPointerCapture:id=>capture.has(id),releasePointerCapture:id=>capture.delete(id)};
  const snippet=source.slice(source.indexOf("  world.addEventListener('pointerdown'"),source.indexOf('  function useFallback'));
- const model=new Function('world','document','cancelAnimationFrame','panEnabled','overview',`let glide=0,grab=null,dragged=false,follow=true;const view={x:0,y:0},page={classList:{add(){}}};function place(x,y){view.x=x;view.y=y;} ${snippet};return {view,state:()=>({grab,dragged,follow})};`)(world,{querySelector:()=>null},()=>{},panEnabled,overview);
- return {...model,handlers,capture};
+ const model=new Function('world','document','cancelAnimationFrame','panEnabled','overview','cancelGuided','syncViewControls',`let glide=0,grab=null,dragged=false,follow=true;const view={x:0,y:0},page={classList:{add(){}}};function place(x,y){view.x=x;view.y=y;} ${snippet};return {view,state:()=>({grab,dragged,follow})};`)(world,{querySelector:()=>null},()=>{},panEnabled,overview,()=>cancels++,()=>{});
+ return {...model,handlers,capture,get cancels(){return cancels;}};
 }
 for(const pointerType of ['mouse','touch'])test(`${pointerType} pan moves and cancels without selecting a stage`,()=>{
  const h=wiredHarness(),event={pointerId:5,pointerType,button:0,clientX:100,clientY:100};
- h.handlers.pointerdown(event);h.handlers.pointermove({...event,clientX:160,clientY:145});assert.deepEqual(h.view,{x:60,y:45});assert.equal(h.capture.has(5),true);
+ h.handlers.pointerdown(event);assert.equal(h.cancels,0,'a tap does not cancel the route');h.handlers.pointermove({...event,clientX:160,clientY:145});assert.deepEqual(h.view,{x:60,y:45});assert.equal(h.capture.has(5),true);assert.equal(h.cancels,1,'dragging hands control back to the player');
  h.handlers.pointercancel(event);assert.equal(h.state().grab,null);assert.equal(h.capture.size,0);
  let stopped=false;h.handlers.click({preventDefault(){},stopPropagation(){stopped=true;}});assert.equal(stopped,true);
 });

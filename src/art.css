@@ -371,7 +371,7 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 /* The transparent walking canvas sits above the windows and the painted map. */
 #app.atlas .atlas-canvas{background:none}
 .village-lights{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.closed-workplace{fill:#203742;opacity:.46;stroke:#324542;stroke-width:2;stroke-linejoin:round}
+.closed-workplace{fill:#203742;opacity:.52;stroke:#324542;stroke-width:2;stroke-linejoin:round}
 .working-lights,.plaza-festival{opacity:0}
 .workplace.awake .closed-workplace{opacity:0}
 .workplace.awake .working-lights,.plaza-festival.celebrating{opacity:1}
@@ -561,7 +561,7 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 #app.atlas:not(.welcome) .map-view-tools button[aria-pressed=true]{background:#e1edbc;border-color:#527341;box-shadow:inset 0 0 0 2px #a5c47a,var(--hud-shadow)}
 #app.atlas:not(.welcome) .map-view-tools button:focus-visible{outline:3px solid #ffd36b;outline-offset:3px}
 #app.atlas:not(.welcome) .map-pan-disabled .atlas-world{cursor:default}
-#app.atlas:not(.welcome) .map-overview .map-dpad,#app.atlas:not(.welcome) .map-overview .next-guide{display:none}
+#app.atlas:not(.welcome) .map-overview .next-guide{display:none}
 #app.atlas:not(.welcome) .map-overview .under-hud{opacity:1}
 @media(max-height:620px){#app.atlas:not(.welcome) .map-view-tools button{width:48px;height:48px}}
 #app.atlas:not(.welcome) .atlas-page.map-overview{background:#285d5e}
