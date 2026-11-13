@@ -44,3 +44,8 @@
  #app.adventure .action-buttons:has([id^="route-"]) {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
  #app.adventure .action-buttons:has([id^="route-"])>button {min-width:0;font-size:15px;padding:5px 3px}
 }
+
+/* Keep the recovery action by the map tools, clear of the path and stage shortcut. */
+#app .map-engine-retry{width:auto;min-width:112px;padding:6px 10px;font-size:16px;white-space:nowrap}
+#app .map-engine-retry[hidden]{display:none!important}
+.map-engine-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}

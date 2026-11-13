@@ -15,6 +15,7 @@ import {mountOperation} from './field-operation.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
 import {showEvidence,evidenceCard} from './explore-ui.js';
 import {$,$$,icon,escapeHTML} from './ui.js';
+import {loadPhaser} from './engine-loader.js';
 let stopGuideText=()=>{};
 let recoveryNotice='',student,storageReadOnly=false,storageProblem='',storageWarning='',lastRaw=null,conflict=false;
 const plainObject=value=>value!==null&&typeof value==='object'&&!Array.isArray(value);
@@ -134,14 +135,33 @@ function operationList(){modal('리버의 현장 작전',`<p>관찰한 내용을
 function help(){modal('리버와 이렇게 탐험해요',SETTINGS_CONTENT.student);}
 export function shell(title,body,cls=''){stopGuideText();app.className=cls;app.innerHTML=`<header class="topbar"><div class="nav-group"><button class="icon-button" id="home" aria-label="홈">${icon('home')}</button><button class="icon-button" id="back" aria-label="이전 화면">${icon('back')}</button></div><div class="brand"><strong>${title}</strong></div><div class="nav-group"><button class="icon-button" id="sound" aria-pressed="${student.sound}" aria-label="${student.sound?'소리 끄기':'소리 켜기'}">${icon(student.sound?'sound':'mute')}</button><button class="icon-button" id="settings" aria-label="설정">${icon('settings')}</button></div></header>${admin?'<div class="preview-banner"><span>관리자 미리보기 · 학생 기록에는 저장되지 않아요</span><button class="secondary" id="exit-preview">시연 종료</button></div>':''}${body}`;$('#home').onclick=()=>navigate('home');$('#back').onclick=back;$('#settings').onclick=settings;$('#sound').onclick=()=>{student.sound=!student.sound;saveSound();};$('#exit-preview')?.addEventListener('click',()=>setPreview(false));if(screen.type==='home'){$('#home').disabled=true;$('#back').disabled=true;}stopGuideText=watchGuideText(app);}
 function bag(){modal('내 탐험 가방',`<div class="bag-grid">${STAGES.map(s=>`<article class="${state().completed.includes(s.id)?'earned':''}">${icon(s.tool,32)}<h3>${state().completed.includes(s.id)?s.reward:'아직 빈 자리'}</h3><p>${escapeHTML(state().records[s.id]?.summary||s.name+'에서 관찰 기록을 모아 봐.')}</p><button class="secondary" data-bag-record="${s.id}">관찰 펼치기</button></article>`).join('')}</div>`,(dialog,close)=>{$$('[data-bag-record]',dialog).forEach(b=>b.onclick=()=>{const data=state().drafts[b.dataset.bagRecord]?.data||state().records[b.dataset.bagRecord]?.data;close();modal('내가 남긴 관찰','<div class="evidence-list">'+(Object.values(data?.evidence||{}).map(e=>evidenceCard(e)).join('')||'<p>아직 관찰 장면이 없어. 해당 장소에서 기록을 남겨 줘.</p>')+'</div>');});});}
-function home(){shell('움직이는 지오밸리',`<main class="home-scene"><div class="home-art"></div><div class="home-copy"><span class="eyebrow">초등 4학년 과학 · 땅의 변화</span><h1>움직이는<br><em>지오밸리</em></h1><p>사라진 다섯 관찰 기록.<br>너와 리버의 발견으로 다시 연결해 줘!</p><button class="primary large" id="start">${state().started?'탐험 이어 하기':'리버와 탐험 시작'} ${icon('arrow')}</button><button class="home-help" id="home-help">어떤 탐험이 기다릴까?</button><span class="save-note">강 · 화산 · 암석 · 도시 · 안전길</span></div><img class="home-hero" src="/assets/river-hero.webp" alt="탐험 수첩을 든 수달 리버"><div class="home-message">“네가 찾은 단서가<br>우리의 다음 도구가 될 거야!”</div></main>`,'home');$('#start').onclick=()=>{state().started=true;save();chime();navigate('map');};$('#home-help').onclick=help;}
+function home(){
+ const s=state();
+ shell('움직이는 지오밸리',`<main class="expedition-welcome"><div class="expedition-title"><img src="/assets/title-logo.webp" alt="움직이는 지오밸리"><p>리버와 함께, 땅의 변화를 발견하는 여행</p></div><img class="expedition-river" src="/assets/hero-lens.webp" alt="탐험 동료 리버"><div class="expedition-start"><button class="primary large" id="start">${s.started?'탐험 이어 하기':'리버와 탐험 시작'} ${icon('arrow')}</button></div></main>`,'atlas welcome');
+ const start=()=>{s.started=true;save();navigate('map');};
+ $('#start').onclick=()=>s.started?start():showFilm('intro',{onFinish:start});
+}
+function sceneModule(load){
+ let timeout;
+ return Promise.race([load(),new Promise((_,reject)=>{
+  timeout=setTimeout(()=>reject(new Error('Scene module timed out')),10000);
+ })]).catch(error=>{throw new Error('Scene module could not be loaded',{cause:error});}).finally(()=>clearTimeout(timeout));
+}
 export async function navigate(type,arg,fromHistory=false){
  const revision=++navRevision;stopGuideText();stopStory();document.querySelectorAll('#overlay dialog').forEach(d=>d.close());stopAllSounds();dispose();dispose=()=>{};screen={type,arg};
  musicScene(type==='final'&&['ending','certificate','celebration'].includes(arg)?'final':'main');
- if(type!=='home')app.innerHTML='<main class="loading-card" role="status">탐험 도구를 준비하고 있어…</main>';
+ if(type!=='home'){
+  app.className='';
+  app.innerHTML='<main class="loading-card"><p role="status">탐험 도구를 준비하고 있어…</p><button class="secondary" id="load-home">홈으로</button></main>';
+  $('#load-home').onclick=()=>navigate('home');
+ }
  try{
-  if(type==='home'){const m=await import('./map-adventure.js');if(revision!==navRevision)return;dispose=m.renderMap({welcome:true});}
-  else if(type==='map'){const m=await import('./map-adventure.js');if(revision!==navRevision)return;dispose=m.renderMap({arrival:arg?.arrival});screen.arg=undefined;}
+  if(type==='home')home();
+  else if(type==='map'){
+   const engine=loadPhaser();engine.catch(()=>{}); // Map UI remains usable if the shared engine fails.
+   const m=await sceneModule(()=>import('./map-adventure.js'));if(revision!==navRevision)return;
+   dispose=m.renderMap({arrival:arg?.arrival,engine,loadEngine:loadPhaser});screen.arg=undefined;
+  }
   else if(type==='operation'){
    const index=arg?.index,s=STAGES[index];if(s&&state().completed.includes(s.id)&&!state().drafts[s.id])state().drafts[s.id]={step:1,passed:[],data:structuredClone(state().records[s.id]?.data||{})};const draft=s&&state().drafts[s.id];
    if(!draft||!canEnter(index,state(),admin)||(!admin&&!state().completed.includes(s.id)&&!activityComplete(s.id,1,draft.data))){navigate('map');return;}
@@ -152,15 +172,29 @@ export async function navigate(type,arg,fromHistory=false){
    if(!draft||!canEnter(index,state(),admin)){navigate('map');return;}
    const desired=arg.step??draft.step??0;
    draft.step=desired===1&&(admin||activityComplete(s.id,0,draft.data))?1:0;
-   const files=Object.fromEntries(STAGES.map(s=>[s.id,'./adventure/index.js']));
-   const m=await import(files[s.id]);if(revision!==navRevision)return;
+   const [m]=await Promise.all([sceneModule(()=>import('./adventure/index.js')),loadPhaser()]);if(revision!==navRevision)return;
    renderStage(index,m.mount);screen.arg={index,step:draft.step};
   }else if(type==='final'){const m=await import('./ending.js');if(revision!==navRevision)return;const celebrate=arg==='celebration';if(celebrate)screen.arg='ending';dispose=m.renderFinal(celebrate?'ending':arg||'assembly');if(celebrate&&revision===navRevision&&(state().finished||isAdmin()))showFilm('final');}
   else{navigate('home');return;}
   if(revision!==navRevision)return;
   if(!admin){student.location=structuredClone(screen);save();if(!fromHistory)history.pushState({geo:screen},'');}
   window.scrollTo(0,0);
- }catch(error){if(revision!==navRevision)return;console.error(error);app.innerHTML='<main class="loading-card"><h1>도구를 불러오지 못했어</h1><p>인터넷 연결을 확인하고 다시 눌러 줘.</p><button class="primary" id="retry-load">다시 시도</button><button class="secondary" id="load-home">홈으로</button></main>';$('#retry-load').onclick=()=>navigate(type,arg,true);$('#load-home').onclick=()=>navigate('home');}
+ }catch(error){
+  if(revision!==navRevision)return;
+  const activity=type==='stage';
+  if(error.name!=='EngineLoadError')console.error(error);
+  app.innerHTML=`<main class="loading-card"><h1 tabindex="-1" id="load-error">${activity?'활동을 열지 못했어':'도구를 불러오지 못했어'}</h1><p>연결을 확인하고 다시 열어 줘. 네가 남긴 기록은 그대로 있어.</p><button class="primary" id="retry-load">다시 열기</button><button class="secondary" id="load-home">${activity?'지도로 돌아가기':'홈으로'}</button></main>`;
+  $('#retry-load').onclick=()=>{
+   if(error.cause){
+    // Failed module imports can stay rejected in this document; keep the requested screen on reload.
+    history.replaceState({...history.state,geoRetry:{type,arg}},'');
+    location.reload();return;
+   }
+   navigate(type,arg,fromHistory);
+  };
+  $('#load-home').onclick=()=>navigate(activity?'map':'home');
+  $('#load-error').focus({preventScroll:true});
+ }
 }
 function back(){if(screen.type==='stage'){const {index}=screen.arg,d=state().drafts[STAGES[index].id];if(d.step>0){d.step--;save();navigate('stage',{index,step:d.step});}else navigate('map');}else if(screen.type==='final'&&screen.arg!=='assembly')navigate('final','assembly');else if(screen.type==='map'||screen.type==='final')navigate('home');else navigate('home');}
 export function enter(index,step){if(!canEnter(index,state(),admin)){toast('앞 장소의 관찰 기록을 먼저 완성하자.');return;}const s=STAGES[index];state().drafts[s.id]??={step:0,passed:[],data:{}};if(step!==undefined&&admin)state().drafts[s.id].step=step;navigate('stage',{index,step});}
@@ -194,7 +228,7 @@ function complete(index,fieldReady=false){
 }
 window.addEventListener('pagehide',save);
 window.addEventListener('popstate',e=>{if(e.state?.geo&&!admin)navigate(e.state.geo.type,e.state.geo.arg,true);else navigate('home',undefined,true);});
-const resume=student.started&&student.location?student.location:{type:'home'};
+const resume=history.state?.geoRetry||(student.started&&student.location?student.location:{type:'home'});
 history.replaceState({geo:resume},'');
 navigate(resume.type,resume.arg,true);
 

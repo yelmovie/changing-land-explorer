@@ -2,6 +2,7 @@ import {cp,mkdir,rm,writeFile,readFile,readdir} from 'node:fs/promises';
 import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {RESIDENTS,residentArt} from '../src/residents.js';
+import {PHASER_URL} from '../src/engine-loader.js';
 import {TOOL_ASSETS} from '../src/adventure/rules.js';
 import {backgroundForAsset,SHARED_STAGE_ASSETS,STAGE_ASSETS} from '../src/stage-art.js';
 // macOS writes ._* sidecar files on the exFAT SSD; they must not reach dist or the precache list.
@@ -16,16 +17,30 @@ const refs=(await Promise.all(['index.html',...srcFiles.map(f=>f.slice(1))].map(
 const textures=[...new Set([...SHARED_STAGE_ASSETS,...Object.values(STAGE_ASSETS).flat()])].map(n=>`/assets/${backgroundForAsset(n)}.webp`);
 for(const url of textures)if(!existsSync(path.join('dist',url)))throw new Error(`Missing stage texture: ${url}`);
 const posters=[...Object.keys(STAGE_ASSETS).flatMap(id=>[0,1].map(step=>`/assets/concepts/${id}-${step}.webp`)),'/assets/story/intro.webp','/assets/story/final.webp'];
-const core=[...new Set(['/','/index.html',...srcFiles,...refs,...textures,...posters,...Object.keys(RESIDENTS).map(residentArt),...Object.values(TOOL_ASSETS).map(n=>`/assets/${n}.webp`)])].filter(u=>existsSync(path.join('dist',u))&&u!=='/assets/og-image.jpg'); // the share card is for link previews only
+const core=[...new Set(['/','/index.html',...srcFiles,...refs,...textures,...posters,...Object.keys(RESIDENTS).map(residentArt),...Object.values(TOOL_ASSETS).map(n=>`/assets/${n}.webp`)])].filter(u=>existsSync(path.join('dist',u))&&u!=='/assets/og-image.jpg'&&u!==PHASER_URL); // the share card is for link previews only
 const name='geovalley-v3-'+Date.now();
-await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(name)},CORE=${JSON.stringify(core)};
+await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(name)},CORE=${JSON.stringify(core)},PHASER=${JSON.stringify(PHASER_URL)};
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>/^geovalley-v[23]-/.test(k)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('activate',e=>e.waitUntil((async()=>{
+ const old=(await caches.keys()).filter(k=>/^geovalley-v[23]-/.test(k)&&k!==CACHE);
+ const cache=await caches.open(CACHE);
+ for(const key of old){
+  const saved=await (await caches.open(key)).match(PHASER);
+  if(saved){await cache.put(PHASER,saved);break;}
+ }
+ await Promise.all(old.map(k=>caches.delete(k)));
+ await self.clients.claim();
+})()));
+self.addEventListener('message',e=>{
+ if(e.data==='remember-phaser')e.waitUntil(caches.open(CACHE).then(async cache=>{
+  if(!await cache.match(PHASER))await cache.add(PHASER);
+ }).catch(()=>{}));
+});
 self.addEventListener('fetch',e=>{
  const request=e.request,url=new URL(request.url);
  if(request.method!=='GET'||url.origin!==self.location.origin||request.headers.has('range')||/^\\/assets\\/(?:story\\/[^/]+\\.mp4|audio\\/(?:main|final)-theme\\.mp3)$/i.test(url.pathname))return;
- // Code and documents must refresh online; cached copies keep lessons usable offline.
- const networkFirst=request.mode==='navigate'||/\\.(?:html?|m?js|css|json)$/i.test(url.pathname);
+ // Refresh app code online; the versioned Phaser file can be reused after first use.
+ const networkFirst=url.pathname!==PHASER&&(request.mode==='navigate'||/\\.(?:html?|m?js|css|json)$/i.test(url.pathname));
  e.respondWith(caches.open(CACHE).then(async cache=>{
   const cached=()=>cache.match(request);
   const fresh=async()=>{const response=await fetch(request);if(response.ok)e.waitUntil(cache.put(request,response.clone()));return response;};
