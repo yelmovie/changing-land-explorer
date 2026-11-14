@@ -1,3 +1,4 @@
+import {dockMapAttack} from './map-attack-control.js';
 import {openMapFinale} from './map-finale.js';
 import {syncMapHitLayout} from './map-hit-layout.js';
 import {MAP_VILLAINS,VILLAIN_HITS,defeatedVillains} from './map-villain-rules.js';
@@ -48,16 +49,18 @@ export function mountMapVillains({world,page,tools,state,save,reveal,go,getHero,
  const layer=document.createElement('div');layer.className='map-villains';world.append(layer);
  const meter=document.createElement('button');meter.id='map-villain-focus';meter.type='button';meter.innerHTML='<span class="combat-mini" aria-hidden="true"></span>';tools.append(meter);
  const hud=document.createElement('section');hud.className='map-combat-hud';hud.setAttribute('aria-label','리버의 지도 모험');
- hud.innerHTML='<p class="combat-guide" id="combat-guide">다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small></p><button type="button" id="map-attack" aria-label="주변 돌먼지 대장 공격, J 또는 Space" aria-keyshortcuts="J Space" aria-describedby="combat-guide"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 9-12h-6z"/></svg>공격 <small>J / Space</small></button>';
+ hud.innerHTML='<p class="combat-guide" id="combat-guide">다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small></p><button type="button" id="map-attack" aria-label="주변 돌먼지 대장 공격, J 또는 Space" aria-keyshortcuts="J Space" aria-describedby="combat-guide" hidden></button>';
  page.append(hud);
  const callback=document.createElement('p');callback.className='map-encounter-clear';callback.hidden=true;callback.setAttribute('role','status');page.append(callback);
  let clearReady=null,clearPlayed=false,lastSpeechLayout=-Infinity,finaleAt=0;
  const clearLine=roster.find(v=>v.id===clearStage);
  const actor=document.createElement('div');actor.className='map-combat-river';actor.hidden=true;actor.setAttribute('aria-hidden','true');layer.append(actor);
  const wave=document.createElement('div');wave.className='combat-wave';wave.setAttribute('aria-hidden','true');layer.append(wave);
- const sizeSprites=()=>{const scale=world.clientWidth/1200;actor.style.width=actor.style.height=(90/(173/256))*scale+'px';layer.style.setProperty('--foe-cell',villainCellSize(scale)+'px');wave.style.width=COMBAT.attackRange*2*scale+'px';wave.style.height=COMBAT.attackRange*scale+'px';};
- const spriteResize=new ResizeObserver(sizeSprites);spriteResize.observe(world);sizeSprites();
  const attack=hud.querySelector('#map-attack'),foes=new Map();
+ const residentNodes=Array.from(world.querySelectorAll('.map-resident'));
+ attack.hidden=true;
+ const syncDock=dockMapAttack(attack,()=>tools.querySelector('#map-hand'));
+ syncDock();
  let closed=false,raf=0,last=0,lastPaint=0,lastPose=-1,flashUntil=0,lastNear=null;
  const visibility=()=>{if(!document.hidden)game.invulnerableUntil=Math.max(game.invulnerableUntil,performance.now()+1000);};document.addEventListener('visibilitychange',visibility);
  function setFrame(el,frame,cols=3,rows=2){el.style.backgroundPosition=`${(frame%cols)/(cols-1)*100}% ${Math.floor(frame/cols)/(rows-1||1)*100}%`;}
@@ -77,10 +80,44 @@ export function mountMapVillains({world,page,tools,state,save,reveal,go,getHero,
   el.onclick=e=>{e.stopPropagation();if(!available())return;const enemy=game.enemies.find(e=>e.id===v.id);if(inRange(enemy)){strike(v.id);return;}go(v.node);say('돌먼지 대장에게 다가가고 있어. 초록 표시가 뜨면 악당을 다시 누르거나 공격! 3번 맞히면 물리칠 수 있어.');};
   el.onfocus=()=>{if(el.matches(':focus-visible')){const enemy=game.enemies.find(e=>e.id===v.id);reveal(enemy.x/1200,enemy.y/675);}};
  }
+ // Measure the resident hit targets, then exclude those rectangles from the villain's actual path.
+ // Everything is in world coordinates so panning does not move the avoidance zones.
+ let clearZones=[],worldSize='';
+ function updateClearZones(){
+  const bounds=world.getBoundingClientRect();
+  const cell=villainCellSize(world.clientWidth/1200);
+  const size=`${world.clientWidth}x${world.clientHeight}|${residentNodes.map(r=>r.style.translate).join(";")}`;
+  if(size===worldSize||!bounds.width||!bounds.height)return;
+  worldSize=size;
+  actor.style.width=actor.style.height=(90/(173/256))*world.clientWidth/1200+'px';
+  layer.style.setProperty('--foe-cell',cell+'px');wave.style.width=COMBAT.attackRange*2*world.clientWidth/1200+'px';wave.style.height=COMBAT.attackRange*world.clientWidth/1200+'px';
+  const sx=1200/bounds.width,sy=675/bounds.height;
+  const padX=(Math.max(56,cell)/2+9)*sx,padY=(cell+9)*sy;
+  clearZones=residentNodes.map(resident=>{
+   const r=resident.getBoundingClientRect();
+   return {left:(r.left-bounds.left)*sx-padX,right:(r.right-bounds.left)*sx+padX,
+    top:(r.top-bounds.top)*sy-18*sy,bottom:(r.bottom-bounds.top)*sy+padY};
+  });
+  for(const enemy of game.enemies)if(game.progress.hits[enemy.id]<VILLAIN_HITS){Object.assign(enemy,clearPoint(enemy));
+   const el=foes.get(enemy.id);el.style.left=enemy.x/12+'%';el.style.top=enemy.y/6.75+'%';}
+ }
+ function clearPoint(point){
+  let {x,y}=point;
+  for(let i=0;i<clearZones.length;i++){
+   const zone=clearZones.find(z=>x>z.left&&x<z.right&&y>z.top&&y<z.bottom);
+   if(!zone)break;
+   const opts=[[x,zone.top],[zone.right,y],[x,zone.bottom],[zone.left,y]];
+   const open=opts.filter(([px,py])=>!clearZones.some(z=>px>z.left&&px<z.right&&py>z.top&&py<z.bottom));
+   const candidates=open.length?open:opts;
+   [x,y]=candidates.reduce((best,choice)=>Math.hypot(choice[0]-x,choice[1]-y)<Math.hypot(best[0]-x,best[1]-y)?choice:best);
+  }
+  return {x,y};
+ }
+ const spriteResize=new ResizeObserver(updateClearZones);spriteResize.observe(world);updateClearZones();
  meter.onclick=()=>{if(!available())return;const next=game.enemies.find(e=>game.progress.hits[e.id]<VILLAIN_HITS);if(!next){say('열린 지도 도전을 모두 마쳤어. 다른 구역의 관찰을 이어 가 보자!');return;}reveal(next.x/1200,next.y/675);foes.get(next.id).focus({preventScroll:true});say('악당을 눌러 다가간 뒤, 가까이서 3번 공격! 악당 누르기·공격 버튼·J·Space를 쓸 수 있어. 실제 돌이나 화산과 싸우는 놀이는 아니야.');};
  function strike(targetId=null){
   if(!available()||cleared()||!game.enemies.some(enemy=>game.progress.hits[enemy.id]<VILLAIN_HITS&&(!targetId||enemy.id===targetId)&&inRange(enemy)))return;
-  const now=performance.now(),hero=getHero(),event=attackCombat(game,hero,now,targetId);if(!event)return;
+  const now=performance.now(),hero=getHero(),event=attackCombat(game,hero,now,targetId,{reduced,clear:clearPoint});if(!event)return;
   stopTravel();reveal(hero.x/1200,hero.y/675);wave.style.left=hero.x/12+'%';wave.style.top=hero.y/6.75+'%';wave.classList.remove('strike');void wave.offsetWidth;wave.classList.add('strike');flashUntil=now+(reduced?150:430);
   if(event.type==='miss'){say('아직 멀어! 악당을 눌러 가까이 가면 초록색 공격 표시가 떠.');playSound('move');}
   else{
@@ -97,11 +134,11 @@ export function mountMapVillains({world,page,tools,state,save,reveal,go,getHero,
  }
  attack.onclick=()=>strike();
  const key=e=>{
-  const t=e.target;if(e.defaultPrevented||e.repeat||e.isComposing||e.ctrlKey||e.altKey||e.metaKey||t?.closest?.('input,textarea,select,[contenteditable="true"]'))return;
+  const t=e.target;if(e.defaultPrevented||e.isComposing||e.ctrlKey||e.altKey||e.metaKey||t?.closest?.('input,textarea,select,[contenteditable="true"]'))return;
   const space=e.code==='Space'||e.key===' ';
   // Space on a native button stays that button's activation, never a second attack.
-  if(space&&t?.closest?.('button,a,[role="button"]'))return;
-  if(e.code==='KeyJ'||e.key?.toLowerCase()==='j'||space){if(!available()||!game.enemies.some(enemy=>game.progress.hits[enemy.id]<VILLAIN_HITS&&inRange(enemy)))return;e.preventDefault();strike();}
+  if(space&&t!==attack&&t?.closest?.('button,a,summary,[role="button"]'))return;
+  if(e.code==='KeyJ'||e.key?.toLowerCase()==='j'||space){if(!available()||!game.enemies.some(enemy=>game.progress.hits[enemy.id]<VILLAIN_HITS&&inRange(enemy)))return;e.preventDefault();if(!e.repeat)strike();}
  };window.addEventListener('keydown',key);
  function paint(now){
   const h=getHero();if(h){actor.style.left=h.x/12+'%';actor.style.top=h.y/6.75+'%';}
@@ -135,15 +172,18 @@ export function mountMapVillains({world,page,tools,state,save,reveal,go,getHero,
   const n=defeatedVillains(game.progress),guideKey=n===5?'clear':nearby?'near':'far';
   if(lastNear!==guideKey){lastNear=guideKey;hud.querySelector('.combat-guide').innerHTML=guideKey==='clear'?'<b>5마리 모두 퇴치!</b><small>관찰 기록을 계속 모아 보자</small>':guideKey==='near'?'<b>지금 공격할 수 있어!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>':'다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>';}
   const ready=now-game.attackAt>=COMBAT.attackCooldown;attack.dataset.ready=String(ready);attack.dataset.inRange=String(nearby>0);attack.setAttribute('aria-disabled',String(attack.disabled||!ready));
-  hud.hidden=!canTalk||!nearby;
-  syncMapHitLayout(page,world);
+  const hasFocus=document.activeElement===attack;
+  attack.hidden=!(syncDock()&&canTalk&&nearby);
+  hud.hidden=attack.hidden;
+  if(attack.hidden&&hasFocus&&canTalk)tools.querySelector('#map-hand')?.focus({preventScroll:true});
+  syncMapHitLayout(page,world);updateClearZones();
   if(now-lastSpeechLayout>=110){lastSpeechLayout=now;layoutSpeech(page,[{el:callback},...Array.from(foes.values(),anchor=>({el:anchor.querySelector('.villain-line'),anchor}))]);}
  }
  function tick(now){
   if(closed)return;raf=requestAnimationFrame(tick);if(now-lastPaint<33)return;const dt=last?now-last:0;last=now;lastPaint=now;
-  if(available())for(const e of stepCombat(game,getHero(),dt,now)){playSound('move');say('돌먼지가 톡 닿았어. 떨어져서 파동을 써 봐!');}
+  if(available())for(const e of stepCombat(game,getHero(),dt,now,{reduced,clear:clearPoint})){playSound('move');say('돌먼지가 톡 닿았어. 떨어져서 파동을 써 봐!');}
   paint(now);
  }
  renderHud();paint(performance.now());raf=requestAnimationFrame(tick);
- return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);heroPose(-1);layer.remove();meter.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
+ return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);heroPose(-1);layer.remove();meter.remove();attack.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
 }

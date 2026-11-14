@@ -71,3 +71,8 @@
 #app.atlas .map-encounter-clear{position:absolute;top:65px;left:50%;transform:translateX(-50%);z-index:24;width:max-content;max-width:min(320px,calc(100% - 24px));margin:0;padding:9px 13px;border:2px solid #5dd7bc;border-radius:12px;background:#282138;color:white;box-shadow:0 2px 8px #16102477;text-align:center;font:700 14px/1.45 NanumSquareNeo,system-ui;word-break:keep-all;pointer-events:none}
 #app.atlas .villain-line{width:max-content;max-width:184px;white-space:normal;word-break:keep-all}
 #app.atlas .map-villain.villain-departed > :not(.villain-line){visibility:hidden}
+
+/* Patrol bounce belongs to the artwork; the body and the hit target stay together. */
+.map-villain[data-play="true"]:not(.hit) .villain-art{animation:map-rubble-patrol .35s ease-in-out infinite alternate}
+@keyframes map-rubble-patrol{from{translate:0 0;rotate:-4deg}to{translate:0 -6px;rotate:5deg}}
+@media(prefers-reduced-motion:reduce){.map-villain[data-play="true"]:not(.hit) .villain-art{animation:none}}

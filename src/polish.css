@@ -120,3 +120,22 @@ dialog>.dialog-footer{flex:none;margin:0;padding:16px 24px 20px;background:var(-
  .adventure-toolbar .controls{width:100%;max-width:100%;justify-content:flex-start}
  .adventure-toolbar .action-buttons{max-width:100%;flex-wrap:wrap}
 }
+
+
+/* Each audio range gets its own line inside the shared settings card. */
+.settings-dialog[data-science-settings] .science-settings-audio > :is(.science-settings-label,.settings-note){grid-column:1/-1}
+.settings-dialog[data-science-settings] .science-settings-audio .setting-row.music-setting{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:2px;font-size:clamp(16px,2vw,19px);
+}
+.settings-dialog[data-science-settings] .science-settings-audio .music-setting > span{
+ display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;min-width:0;
+}
+.settings-dialog[data-science-settings] .science-settings-audio .music-setting input[type=range]{
+ width:100%;min-width:0;min-height:24px;height:32px;margin:0;
+}
+.settings-dialog[data-science-settings] .science-settings-audio .music-setting output{
+ min-width:0;white-space:nowrap;font-size:16px;
+}
+.settings-dialog[data-science-settings] .science-settings-audio #sound-setting{
+ width:30px;min-height:32px;height:32px;flex:none;
+}
