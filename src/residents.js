@@ -27,8 +27,8 @@ export const RESIDENTS={
   chat:[['교실이 흔들리면?','먼저 튼튼한 책상 아래에서 머리와 몸을 보호하고 책상 다리를 잡아. 흔들림이 멈추면 선생님 안내를 따라 걸어가.'],['깃발은 어디에 꽂아?','오늘 연습할 운동장의 모이는 자리에! 친구들이 다 왔는지 함께 확인할 거야.']]}
 };
 export const residentArt=id=>`/assets/residents/${id}.webp`;
-// Dialogue recordings use one Korean ElevenLabs voice for each resident.
-export const residentVoice=(id,line)=>`npc-elevenlabs/${id}-${line}.mp3`;
+// Map conversations and Higgsfield gratitude clips have separate recording inventories.
+export const residentVoice=(id,line)=>line==='thanks'?`npc-reward/${id}-thanks.mp3`:`npc-elevenlabs/${id}-${line}.mp3`;
 
 const signs={
  lamp:'<path fill="#503823" d="M13 8V5a3 3 0 0 1 6 0v3h3l2 4-2 2-1 12H11l-1-12-2-2 2-4z"/><path fill="#ffe598" d="M12 13h8l-1 10h-6z"/><path fill="#fff8be" d="m16 15 2 5-2 2-2-2z"/>',

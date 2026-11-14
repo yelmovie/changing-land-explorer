@@ -1,0 +1,77 @@
+{
+  "provider": "Higgsfield",
+  "model": "Seed Audio 1.0",
+  "referenceOrigin": "Existing synthetic resident recordings",
+  "lines": [
+    {
+      "stage": "river",
+      "speaker": "나루",
+      "text": "고마워! 모래가 쌓인 곳을 알려 줘서 나루터를 다시 열 수 있게 됐어.",
+      "file": "npc-reward/river-thanks.mp3",
+      "sha256": "fb5de1cdb3c717992b650a61d7dbbb6a66ed7045ec231655069afd382d6a70a3",
+      "reference": "/assets/voices/npc-elevenlabs/river-hello.mp3",
+      "referenceSha256": "d512ca91179bbcfc5342a463d860007d4011533b4760bd914dc40331dc41d324",
+      "jobId": "8e017cd0-85ab-484e-979f-70421aa14c86",
+      "asr": "고마워. 모래가 쌓인 곳을 알려줘서 나루터를 다시 열 수 있게 됐어.",
+      "lufs": -15.9,
+      "truePeakDbtp": -2.5,
+      "durationSeconds": 5.02
+    },
+    {
+      "stage": "volcano",
+      "speaker": "마그",
+      "text": "고마워! 네 비교 기록 덕분에 관측등을 다시 켤 수 있어.",
+      "file": "npc-reward/volcano-thanks.mp3",
+      "sha256": "9b0472e564962bc53e5cc90954cb2cac0bc71c2c75c8f90d68b9983e3262bd67",
+      "reference": "/assets/voices/npc-elevenlabs/volcano-hello.mp3",
+      "referenceSha256": "c10d940c0cebbbba562d7c55159de43141fe313935dda34feaadd2a15c3d75d9",
+      "jobId": "721d9200-c7aa-4a3d-a823-2bfeaa8a5116",
+      "asr": "고마워. 네, 비교 기록 덕분에 관측 등을 다시 켤 수 있어.",
+      "lufs": -16.1,
+      "truePeakDbtp": -2.7,
+      "durationSeconds": 5.24
+    },
+    {
+      "stage": "rocks",
+      "speaker": "지오",
+      "text": "와, 고마워! 이제 공방의 돌마다 이름표를 붙일 수 있어.",
+      "file": "npc-reward/rocks-thanks.mp3",
+      "sha256": "0727e5e72ad2a0d1a0aaf8cfde67562379a49973c6941696db25e9da2ceecadd",
+      "reference": "/assets/voices/npc-elevenlabs/rocks-hello.mp3",
+      "referenceSha256": "cca8ede8b3e2f7c5ef4d3d485c1a7f92bca6d7b7e09c6dd32ea09da1d337beb3",
+      "jobId": "3a98125f-74ec-41fa-9c9a-60b91341bd73",
+      "asr": "와, 고마워. 이제 공방의 돌마다 이름표를 붙일 수 있어.",
+      "lufs": -17.3,
+      "truePeakDbtp": -3.2,
+      "durationSeconds": 4.194
+    },
+    {
+      "stage": "city",
+      "speaker": "타임",
+      "text": "고마워! 사진 속 장소와 때를 찾아 줘서 소식판을 다시 열 수 있어.",
+      "file": "npc-reward/city-thanks.mp3",
+      "sha256": "f84db73b772a31ca917b19a7c6eba414e22c98465ed15d8d6a3c288065548de8",
+      "reference": "/assets/voices/npc-elevenlabs/city-hello.mp3",
+      "referenceSha256": "9eb29704172943f09389f5ddf0552f724012065c030fd3b8cf60407b9703c356",
+      "jobId": "ce9683ef-e573-44c5-abab-e04fce65be94",
+      "asr": "고마워. 사진 속 장소와 때를 찾아줘서 소식판을 다시 열 수 있어.",
+      "lufs": -16.7,
+      "truePeakDbtp": -2.1,
+      "durationSeconds": 5.65
+    },
+    {
+      "stage": "safety",
+      "speaker": "세이프",
+      "text": "고마워! 네가 그린 대피로 덕분에 모두 안전하게 연습할 수 있어.",
+      "file": "npc-reward/safety-thanks.mp3",
+      "sha256": "c08018f96bfa90ba353e319f696606b5a834f49a939f7ff02f2a4aa288dfee99",
+      "reference": "/assets/voices/npc-elevenlabs/safety-hello.mp3",
+      "referenceSha256": "4a0cd1456e56801d1c337b29c26d658ae922f1df7bbfdea234221031fa1b1142",
+      "jobId": "cd03a44b-9e81-4be5-a443-c8a343ed4adc",
+      "asr": "고마워. 네가 그린 대피로 덕분에 모두 안전하게 연습할 수 있어.",
+      "lufs": -17.1,
+      "truePeakDbtp": -4.1,
+      "durationSeconds": 5.67
+    }
+  ]
+}

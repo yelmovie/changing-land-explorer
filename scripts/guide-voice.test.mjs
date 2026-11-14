@@ -61,3 +61,19 @@ test('each resident uses its own four complete dialogue recordings and three pre
  }
  assert.equal(voices.size,5);
 });
+
+test('each resident reward maps its visible thanks to the matching shipped recording',()=>{
+ const production=new URL('../public/assets/voices/',import.meta.url);
+ const {lines}=JSON.parse(readFileSync(new URL('npc-reward/manifest.json',production),'utf8'));
+ assert.equal(lines.length,Object.keys(RESIDENTS).length);
+ for(const[id,resident]of Object.entries(RESIDENTS)){
+  const row=lines.find(line=>line.stage===id);
+  const file=residentVoice(id,'thanks');
+  assert.equal(row.speaker,resident.name);
+  assert.equal(row.text,resident.thanks);
+  assert.equal(row.file,file);
+  const bytes=readFileSync(new URL(file,production));
+  assert.ok(bytes.length>1000);
+  assert.equal(createHash('sha256').update(bytes).digest('hex'),row.sha256);
+ }
+});
