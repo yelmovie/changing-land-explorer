@@ -4,7 +4,7 @@ const layouts=new WeakMap();
 export function syncMapHitLayout(page,world){
  const shown=e=>e&&!e.hidden&&getComputedStyle(e).display!=='none'&&getComputedStyle(e).visibility!=='hidden';
  const intersect=(a,b)=>Math.min(a.right,b.right)-Math.max(a.left,b.left)>-4&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>-4;
- const hud=[...document.querySelectorAll('.topbar button,.preview-banner,.map-view-tools,.map-dpad,.map-combat-hud,.combat-guide,.atlas-footer,.next-guide:not([hidden]),.travel-skip:not([hidden])')].filter(shown).map(e=>e.getBoundingClientRect());
+ const hud=[...document.querySelectorAll('.topbar button,.preview-banner,.map-view-tools,.map-dpad button,.map-combat-hud,.combat-guide,.atlas-footer > :not(.map-destination,[hidden]),.map-destination > #stage-shortcuts')].filter(shown).map(e=>e.getBoundingClientRect());
  const fixedHud=[...hud],activeFoe=document.activeElement?.matches('.map-villain')?document.activeElement:null;
  if(activeFoe&&!activeFoe.hidden)hud.push(activeFoe.getBoundingClientRect());
  const bounds=page.getBoundingClientRect(),overview=page.classList.contains('map-overview');

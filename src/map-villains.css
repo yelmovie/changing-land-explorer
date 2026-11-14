@@ -8,7 +8,7 @@
 #app.atlas .villain-art{position:absolute;width:var(--foe-cell,114px);height:var(--foe-cell,114px);left:0;bottom:8px;filter:drop-shadow(0 2px 1px #fff0c9) drop-shadow(0 5px 3px #182b3966);pointer-events:none;transform-origin:50% 82%;transform:scaleX(var(--facing,1))}
 #app.atlas .villain-shadow{position:absolute;width:68%;height:14px;left:16%;bottom:13px;border-radius:50%;background:#251b314a;pointer-events:none}
 #app.atlas .villain-hp{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font:900 13px/16px NanumSquareNeo,system-ui;letter-spacing:3px;color:#e58538;background:#fff7df;border:2px solid #765b42;border-radius:10px;padding:0 4px 0 7px;white-space:nowrap;min-height:20px}
-#app.atlas .villain-impact{position:absolute;inset:0;display:grid;place-items:center;color:#fff8c2;text-shadow:0 0 10px #ffa94d;font-size:82px;opacity:0;pointer-events:none}
+#app.atlas .villain-impact{position:absolute;inset:0;background:radial-gradient(circle at center,#fff8c2 0%,#ffa94d99 22%,transparent 48%);opacity:0;pointer-events:none}
 #app.atlas .map-villain.hit .villain-impact{animation:combat-spark .35s ease-out}
 #app.atlas .map-villain.defeated .villain-art{animation:combat-retreat .55s ease-in forwards}
 #app.atlas .map-villain.defeated .villain-hp{visibility:hidden}

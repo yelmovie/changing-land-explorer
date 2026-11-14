@@ -45,6 +45,129 @@
  #app.adventure .action-buttons:has([id^="route-"])>button {min-width:0;font-size:15px;padding:5px 3px}
 }
 
+/* Pulse only the next-destination arrow. The label and tap target stay still. */
+@media (prefers-reduced-motion: no-preference) {
+  .map-next-cue:not(:disabled):not([aria-disabled="true"]) > :is(svg:last-child, .map-direction-cue) {
+    animation: map-direction-pulse 1.45s ease-in-out 4;
+  }
+}
+@keyframes map-direction-pulse {
+  0%, 100% { opacity: 1; translate: 0; }
+  50% { opacity: .55; translate: 4px 0; }
+}
+.map-lock-icon { flex: none; vertical-align: middle; }
+#app.atlas:not(.welcome) .atlas-footer #map-speech:empty,
+#app.atlas:not(.welcome) .atlas-footer:has(#map-speech:empty) .map-river,
+#app.atlas:not(.welcome) .map-combat-hud[hidden] { display:none; }
+#app.atlas:not(.welcome) .map-resident:not(.is-near,.arrived,:focus-visible) .resident-tag { visibility:hidden; }
+#app.atlas:not(.welcome) .stage-shortcuts[aria-busy="true"] > svg { animation:none; }
+
+/* Map HUD: the four directions and destination use separate lower corners. */
+#app.atlas:not(.welcome) .atlas-page {
+  --map-key:52px; --map-key-gap:7px; --map-cta-h:60px;
+  --map-left:calc(16px + env(safe-area-inset-left,0px));
+  --map-right:calc(16px + env(safe-area-inset-right,0px));
+  --map-bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  --map-pad-width:calc(3 * var(--map-key) + 2 * var(--map-key-gap));
+  --map-pad-height:calc(2 * var(--map-key) + var(--map-key-gap));
+  --map-cta-font:22px;
+}
+@media (min-width:1450px) and (min-height:900px) {
+  #app.atlas:not(.welcome) .atlas-page { --map-key:64px; --map-key-gap:10px; --map-cta-font:25px; }
+}
+@media (max-width:640px), (max-height:620px) {
+  #app.atlas:not(.welcome) .atlas-page { --map-key:44px; --map-key-gap:4px; --map-cta-h:52px; --map-cta-font:18px; }
+}
+#app.atlas:not(.welcome) .atlas-page .map-dpad {
+  grid-template:repeat(2,var(--map-key)) / repeat(3,var(--map-key));
+  gap:var(--map-key-gap); padding:0; border:0; background:transparent; box-shadow:none;
+  pointer-events:none;
+}
+#app.atlas:not(.welcome) .atlas-page .map-dpad > [data-dir] {
+  display:grid; place-items:center; width:var(--map-key); height:var(--map-key);
+  min-width:var(--map-key); min-height:var(--map-key); padding:0;
+  color:#233e33; background:#fff6dc; border:2px solid #667b58;
+  border-radius:14px; box-shadow:0 3px 0 #3d5947; backdrop-filter:none;
+  -webkit-backdrop-filter:none; font-weight:800; pointer-events:auto;
+}
+#app.atlas:not(.welcome) .atlas-page .map-dpad > [data-dir]:is(:active,[data-map-held],.is-held,.is-pressed) {
+  background:#245b46; color:#fff; border-color:#123e2e;
+  box-shadow:0 1px 0 #123e2e; transform:none; translate:0 2px; filter:none;
+}
+#app.atlas:not(.welcome) .atlas-page .map-dpad > [data-dir]:focus-visible { outline:3px solid #165fba; outline-offset:2px; }
+#app.atlas:not(.welcome) .atlas-page .map-dpad { left:var(--map-left); bottom:var(--map-bottom); }
+#app.atlas:not(.welcome) .atlas-page .map-dpad [data-dir="down"] { grid-area:2 / 2; }
+#app.atlas:not(.welcome) .atlas-page .map-dpad > #dpad-center {
+  position:absolute; grid-area:auto; left:0; bottom:calc(100% + 9px); width:var(--map-key); height:var(--map-key);
+  min-width:var(--map-key); min-height:var(--map-key); pointer-events:auto;
+}
+#app.atlas:not(.welcome) .atlas-page .map-dpad > #dpad-center.enter { animation:none; }
+#app.atlas:not(.welcome) .atlas-page .atlas-footer {
+  left:var(--map-left); right:var(--map-right); bottom:var(--map-bottom); min-height:var(--map-cta-h);
+  justify-content:flex-end; gap:10px; padding:0; background:transparent; border:0; box-shadow:none;
+}
+#app.atlas:not(.welcome) .atlas-page .atlas-footer .map-river { display:none; }
+#app.atlas:not(.welcome) .atlas-page .atlas-footer #map-speech:not(:empty) {
+  position:absolute; left:0; bottom:calc(var(--map-pad-height) + var(--map-key) + 20px);
+  max-width:min(550px,100%); font-size:clamp(15px,2.3vw,18px); padding:6px 10px;
+}
+@media(max-height:620px) {
+  #app.atlas:not(.welcome) .atlas-page .atlas-footer #map-speech:not(:empty) {
+    left:auto; right:calc(2 * var(--map-key) + 20px); bottom:calc(var(--map-cta-h) + 12px);
+    max-width:min(370px,calc(100% - var(--map-pad-width) - 2 * var(--map-key) - 24px));
+  }
+}
+#app.atlas:not(.welcome) .atlas-page .atlas-footer #preview-nav { position:absolute; right:calc(2 * var(--map-key) + 20px); bottom:calc(var(--map-cta-h) + 12px); }
+#app.atlas:not(.welcome) .atlas-page .atlas-footer .map-complete-actions { max-width:calc(100% - var(--map-pad-width) - 10px); flex-wrap:wrap; justify-content:flex-end; }
+#app.atlas:not(.welcome) .atlas-page .map-combat-hud { right:calc(var(--map-right) + 2 * var(--map-key) + 20px); bottom:calc(var(--map-bottom) + var(--map-cta-h) + 12px); }
+@media(max-width:640px) {
+  #app.atlas:not(.welcome) .atlas-page .map-combat-hud { right:var(--map-right); bottom:calc(var(--map-bottom) + var(--map-cta-h) + var(--map-key) + 30px); }
+}
+#app.atlas:not(.welcome) .atlas-page #stage-shortcuts {
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  min-height:var(--map-cta-h); min-width:0; padding:8px clamp(10px,2vw,22px);
+  font-size:var(--map-cta-font); line-height:1.2; text-align:center;
+  white-space:normal; word-break:keep-all; overflow-wrap:anywhere;
+  color:#463813; background:linear-gradient(#ffe391,#f4c95f);
+  border:2px solid #a8802f; border-radius:16px; box-shadow:0 5px 0 #8c6a24;
+  backdrop-filter:none; -webkit-backdrop-filter:none;
+}
+#app.atlas:not(.welcome) .atlas-page #stage-shortcuts > svg { flex:none; width:22px; height:22px; }
+#app.atlas:not(.welcome) .atlas-page #stage-shortcuts:hover:not(:disabled,[aria-disabled="true"]) { background:linear-gradient(#ffeba9,#f9d473); }
+#app.atlas:not(.welcome) .atlas-page #stage-shortcuts:active:not(:disabled,[aria-disabled="true"]) { box-shadow:0 1px 0 #8c6a24; }
+#app.atlas:not(.welcome) .atlas-page #stage-shortcuts[aria-busy="true"] { color:#463813; background:#fff3c8; border-color:#a8802f; filter:none; opacity:1; }
+#app.atlas:not(.welcome) .atlas-page #stage-shortcuts:focus-visible { outline:3px solid #165fba; outline-offset:3px; }
+#app.atlas:not(.welcome) .atlas-page #stage-shortcuts { max-width:100%; }
+#app.atlas:not(.welcome) .atlas-page #stage-shortcuts strong { font-size:inherit; }
+
+#app.atlas:not(.welcome) .atlas-page .map-destination {
+  display:flex; flex-direction:column; align-items:flex-end; gap:12px;
+  max-width:min(480px,calc(100% - var(--map-pad-width) - 10px)); pointer-events:none;
+}
+#app.atlas:not(.welcome) .atlas-page .map-destination > * { pointer-events:auto; }
+#app.atlas:not(.welcome) .atlas-page .map-destination .map-view-tools {
+  position:static; gap:8px;
+}
+#app.atlas:not(.welcome) .atlas-page .map-view-tools:not(.map-secondary-tools) button {
+  width:var(--map-key); height:var(--map-key); min-width:var(--map-key); min-height:var(--map-key);
+}
+#app.atlas:not(.welcome) .atlas-page .map-view-tools:not(.map-secondary-tools) button[aria-pressed="true"] {
+  background:#245b46; color:#fff; border-color:#123e2e; box-shadow:0 3px 0 #123e2e;
+}
+#app.atlas:not(.welcome) .atlas-page .map-secondary-tools:empty { display:none; }
+#app.atlas:not(.welcome) .atlas-page .map-secondary-tools #map-villain-focus { width:52px; min-width:48px; padding:0; }
+@media(max-height:620px) {
+  #app.atlas:not(.welcome) .atlas-page .map-secondary-tools #map-villain-focus { width:48px; }
+}
+
+#app.atlas:not(.welcome) .atlas-fallback-river,
+#app.atlas:not(.welcome) .map-combat-river {
+  filter:drop-shadow(1.5px 0 #fff4d2) drop-shadow(-1.5px 0 #fff4d2)
+    drop-shadow(0 1.5px #fff4d2) drop-shadow(0 -1.5px #fff4d2)
+    drop-shadow(0 3px 2px #142d3f65);
+}
+
+
 /* Keep the recovery action by the map tools, clear of the path and stage shortcut. */
 #app .map-engine-retry{width:auto;min-width:112px;padding:6px 10px;font-size:16px;white-space:nowrap}
 #app .map-engine-retry[hidden]{display:none!important}

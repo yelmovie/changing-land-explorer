@@ -1,3 +1,5 @@
+import {cacheRiverOutline} from './river-outline.js';
+
 // Frames are feet-aligned by scripts/prepare-river-sprite.mjs.
 export const RIVER_WALK={
  key:'river-walk',url:'/assets/characters/river-walk.webp',
@@ -16,7 +18,12 @@ export function walkFrame(direction,distance=0,walking=false){
 }
 export function createRiverWalker(scene,x,y){
  const ready=scene.textures.exists(RIVER_WALK.key);
- const hero=ready?scene.add.sprite(x,y,RIVER_WALK.key,walkFrame('south')).setOrigin(...RIVER_WALK.origin).setDisplaySize(...RIVER_WALK.display):scene.add.image(x,y,'river').setOrigin(.5,.94).setDisplaySize(50,69);
+ const base=ready?RIVER_WALK.key:'river',key=cacheRiverOutline(scene,base,ready?RIVER_WALK:null);
+ const hero=ready?scene.add.sprite(x,y,key,walkFrame('south')).setOrigin(...RIVER_WALK.origin).setDisplaySize(...RIVER_WALK.display):scene.add.image(x,y,key).setOrigin(.5,.94).setDisplaySize(50,69);
+ if(key!==base){
+  const original=scene.textures.getFrame(base,ready?1:undefined),scale=hero.displayHeight/original.height,pad=(hero.height-original.height)/2;
+  hero.setOrigin(.5,(hero.originY*original.height+pad)/hero.height).setScale(scale);
+ }
  hero.setDepth(10).setName('river-walker');
  const shadow=scene.add.ellipse(x,y,29,9,0x193c2c,.20).setDepth(9);
  let facing='south',distance=0;
