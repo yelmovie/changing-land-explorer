@@ -331,12 +331,16 @@ export function renderMap({arrival,engine,loadEngine}={}){
         const round=['river','rocks','safety'].indexOf(target);
         if(round>=0){s.final.assembled=true;s.final.round=round;}
         navigate('final',round>=0?'assembly':target==='ending'?'celebration':target);});});
-  if(!isAdmin()&&s.completed.length)combat=mountMapVillains({world,page,tools:$('.map-view-tools',page),state:s,save,reduced,
+  if(!isAdmin()&&s.completed.length)combat=mountMapVillains({world,page,tools:$('.map-secondary-tools',page),hand:$('#map-hand',page),state:s,save,reduced,
     eligible:s.completed,clearStage:arrival,paused:()=>closed||guided||destination!==null,
     getHero:()=>hero?{x:hero.x,y:hero.y}:fallback?POINTS[current]:null,
     heroPose:pose=>{hero?.setVisible(pose<0);if(fallback)$('.atlas-fallback-river').style.visibility=pose<0?'':'hidden';},
     stopTravel,
-    go:node=>go(node,null),say:text=>$('#map-speech').textContent=text,
+    go:(x,y)=>{
+      const distance=p=>Math.hypot(p.x-x,p.y-y);
+      const nearest=POINTS.reduce((best,p,i)=>distance(p)<distance(POINTS[best])?i:best,0);
+      go(nearest,null);
+    },say:text=>$('#map-speech').textContent=text,
     reveal:(x,y)=>{leaveOverview();follow=false;panTo(cameraFor(x,y));}
   });
   void openMapEngine(engine);
