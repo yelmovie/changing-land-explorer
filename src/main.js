@@ -105,21 +105,53 @@ function setPreview(value){
  if(value){preview=seedPreview(structuredClone(student));admin=true;navigate('map');}
  else{admin=false;preview=null;const location=student.location||{type:'home'};navigate(location.type,location.arg,true);}
 }
-function settings(){modal('탐험 설정',`<label class="setting-row">전체 소리 <input id="sound-setting" type="checkbox" role="switch" ${student.sound?'checked':''}></label><label class="setting-row music-setting" for="music-volume">배경 음악 크기 <span><input id="music-volume" type="range" min="0" max="100" step="5" value="${musicVolume()}"><output for="music-volume">${musicVolume()}%</output></span></label>${audioSettingsHTML()}<label class="setting-row">교사용 전체 해금 <input id="admin-setting" type="checkbox" role="switch" ${admin?'checked':''}></label><p class="settings-note">모든 활동·엔딩·인증서를 살펴보는 수업 시연 기능이에요. 시연 중 답과 보상은 학생 기록에 저장되지 않아요. 끄면 원래 진행으로 돌아와요.</p>${storageProblem?`<p class="settings-status danger-note" role="status">${escapeHTML(storageProblem)}</p>`:''}${recoveryNotice?`<p class="settings-note" role="status">${escapeHTML(recoveryNotice)}</p>`:''}<div class="settings-actions"><button class="secondary" id="intro-replay">인트로 영상 다시 보기</button><button class="secondary" id="concept-list">개념 영상 다시 보기</button><button class="secondary" id="operations-open">현장 작전 다시 도전</button><button class="secondary" id="bag-open">${icon('bag')} 내 탐험 가방</button><button class="secondary" id="ending-replay" ${!admin&&!student.finished?'disabled':''}>엔딩 영상 다시 보기</button><button class="secondary" id="certificate-open" ${!admin&&!student.finished?'disabled':''}>인증서 받기</button></div>${!admin&&!student.finished?'<p class="settings-note">다섯 장소와 마지막 기록탑을 모두 마치면 엔딩과 인증서가 열려요.</p>':''}<div class="settings-links"><button class="secondary" id="app-info">앱 정보 · 배움과 보상</button><button class="secondary" id="help">학생용 가이드</button><button class="secondary" id="teacher-help">교사용 가이드</button><button class="secondary" id="credits-open">이미지·소리·저작권 고지</button></div><p class="settings-note">기록은 현재 기기의 브라우저와 이 앱 주소에 저장돼요. 다른 기기·브라우저로 자동 연결되지 않아요. 공용 기기에서는 다음 사용자가 기록을 볼 수 있어요.</p>`,(d,close)=>{
- d.classList.add('settings-dialog');
- d.insertAdjacentHTML('beforeend',`<footer class="dialog-footer"><button class="text-button" id="${admin?'reset-preview':'reset-save'}">${admin?'시연 기록 초기화':'탐험 기록 초기화'}</button><button class="primary" id="settings-close">닫기</button></footer>`);
- bindAudioSettings(d);
- $('#music-volume',d).oninput=e=>{setMusicVolume(e.target.value);$('output[for="music-volume"]',d).textContent=musicVolume()+'%';};
- $('#sound-setting',d).onchange=e=>{student.sound=e.target.checked;saveSound();};
- $('#admin-setting',d).onchange=e=>{const enabled=e.target.checked;close();setPreview(enabled);};
- const open=(id,action)=>{$(id,d).onclick=()=>{close();action();};};
- open('#intro-replay',()=>showFilm('intro',{replay:true}));
- open('#operations-open',operationList);open('#concept-list',conceptList);open('#bag-open',bag);open('#help',help);open('#teacher-help',teacherHelp);
- open('#app-info',()=>modal('앱 정보 · 배움과 보상',SETTINGS_CONTENT.info(document.documentElement.dataset.appVersion||'')));
- open('#credits-open',()=>modal('이미지·소리·저작권 고지',SETTINGS_CONTENT.credits));
- open('#ending-replay',()=>navigate('final','celebration'));open('#certificate-open',()=>navigate('final','certificate'));
- open(admin?'#reset-preview':'#reset-save',resetProgress);$('#settings-close',d).onclick=close;
- });}
+function settings(){
+ const info=(id,label,content)=>`<details class="settings-section"><summary id="${id}">${label}</summary><div>${content}</div></details>`;
+ const finished=admin||student.finished;
+ modal('설정',`
+  <section class="science-settings-audio" aria-labelledby="settings-sound-heading">
+   <h3 id="settings-sound-heading" class="science-settings-label">소리</h3>
+   <label class="setting-row">전체 소리 <input id="sound-setting" type="checkbox" role="switch" ${student.sound?'checked':''}></label>
+   <label class="setting-row music-setting" for="music-volume">배경 음악 크기 <span><input id="music-volume" type="range" min="0" max="100" step="5" value="${musicVolume()}" aria-valuetext="${musicVolume()}%"><output for="music-volume">${musicVolume()}%</output></span></label>${audioSettingsHTML()}
+  </section>
+  <section aria-labelledby="settings-quick-heading">
+   <h3 id="settings-quick-heading" class="science-settings-label">영상과 기록</h3>
+   <div class="settings-actions science-settings-actions">
+    <button class="secondary" id="intro-replay">인트로 영상 다시 보기</button>
+    <button class="secondary" id="ending-replay" ${!finished?'disabled':''}>엔딩 영상 다시 보기</button>
+    <button class="secondary" id="bag-open">${icon('bag')} 내 탐험 가방</button>
+    <button class="secondary" id="certificate-open" ${!finished?'disabled':''}>인증서 받기</button>
+    <button class="secondary" id="concept-list">개념 영상 다시 보기</button>
+    <button class="secondary" id="operations-open">현장 작전 다시 도전</button>
+   </div>
+   ${!finished?'<p class="settings-note">다섯 장소와 마지막 기록탑을 모두 마치면 엔딩과 인증서가 열려요.</p>':''}
+  </section>
+   ${info('app-info','앱 정보 · 배움과 보상',SETTINGS_CONTENT.info(document.documentElement.dataset.appVersion||'')+'<p class="settings-note">기록은 현재 기기의 브라우저와 이 앱 주소에 저장돼요. 다른 기기·브라우저로 자동 연결되지 않아요. 공용 기기에서는 다음 사용자가 기록을 볼 수 있어요.</p>')}
+   ${info('help','학생용 가이드',SETTINGS_CONTENT.student)}
+   ${info('teacher-help','교사용 가이드',SETTINGS_CONTENT.teacher+learningGuideHTML())}
+   ${info('credits-open','이미지·소리·저작권 고지',SETTINGS_CONTENT.credits)}
+  <section class="science-settings-teacher" aria-label="교사 시연">
+   <label class="setting-row">교사용 전체 해금 <input id="admin-setting" type="checkbox" role="switch" ${admin?'checked':''}></label>
+   <p class="settings-note">모든 활동·엔딩·인증서를 살펴보는 수업 시연 기능이에요. 시연 중 답과 보상은 학생 기록에 저장되지 않아요. 끄면 원래 진행으로 돌아와요.</p>
+  </section>
+  ${storageProblem?`<p class="settings-status danger-note" role="status">${escapeHTML(storageProblem)}</p>`:''}
+  ${recoveryNotice?`<p class="settings-note" role="status">${escapeHTML(recoveryNotice)}</p>`:''}
+ `,(d,close)=>{
+  d.classList.add('settings-dialog');
+  d.setAttribute('data-science-settings','');
+  $('.dialog-body',d).classList.add('science-settings-body');
+  d.insertAdjacentHTML('beforeend',`<footer class="dialog-footer science-settings-footer"><button class="text-button" id="${admin?'reset-preview':'reset-save'}">${admin?'시연 기록 초기화':'탐험 기록 초기화'}</button><button class="primary" id="settings-close">닫기</button></footer>`);
+  bindAudioSettings(d);
+  $('#music-volume',d).oninput=e=>{setMusicVolume(e.target.value);$('output[for="music-volume"]',d).textContent=musicVolume()+'%';e.target.setAttribute('aria-valuetext',musicVolume()+'%');};
+  $('#sound-setting',d).onchange=e=>{student.sound=e.target.checked;saveSound();};
+  $('#admin-setting',d).onchange=e=>{const enabled=e.target.checked;close();setPreview(enabled);};
+  const open=(id,action)=>{$(id,d).onclick=()=>{close();action();};};
+  open('#intro-replay',()=>showFilm('intro',{replay:true}));
+  open('#operations-open',operationList);open('#concept-list',conceptList);open('#bag-open',bag);
+  open('#ending-replay',()=>navigate('final','celebration'));open('#certificate-open',()=>navigate('final','certificate'));
+  open(admin?'#reset-preview':'#reset-save',resetProgress);$('#settings-close',d).onclick=close;
+ });
+}
 function resetProgress(){
  const previewReset=admin;
  modal(previewReset?'시연 기록을 초기화할까요?':'탐험 기록을 초기화할까요?',`<p>${previewReset?'시연에서 고른 답, 모은 도구, 관찰 기록과 진행만 지워요. 학생의 원래 기록은 그대로 남아요.':'모은 도구, 활동 진행, 관찰 기록, 복구 원본 사본과 마지막 발견이 이 기기에서 지워져요. 되돌릴 수 없어요.'}</p><p>소리 설정은 그대로 유지돼요.</p>${storageReadOnly&&!previewReset?'<p class="danger-note">읽지 못한 기존 저장 원본도 새 기록으로 교체해요.</p>':''}<div class="dialog-footer"><button class="secondary" id="cancel-reset" autofocus>취소</button><button class="danger" id="confirm-reset">${previewReset?'시연 기록 지우기':'기록 지우기'}</button></div>`,(d,close)=>{
