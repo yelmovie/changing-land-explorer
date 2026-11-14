@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=1920, height=1080" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <style>
-      @font-face { font-family: 'Jua'; src: url('assets/fonts/jua-korean-400.woff2') format('woff2'); }
-      @font-face { font-family: 'Jua'; src: url('assets/fonts/jua-latin-400.woff2') format('woff2'); unicode-range: U+0000-00FF; }
+      @font-face { font-family: 'NanumSquareNeo'; src: url('assets/fonts/NanumSquareNeoTTF-bRg.woff2') format('woff2'); font-style: normal; font-weight: 400; font-display: block; }
+      @font-face { font-family: 'NanumSquareNeo'; src: url('assets/fonts/NanumSquareNeoTTF-cBd.woff2') format('woff2'); font-style: normal; font-weight: 700; font-display: block; }
       /* GeoValley palette, taken from the game's own tokens (src/style.css, concept-focus.css). */
       :root {
         --paper: #fff5dd;
@@ -21,11 +21,11 @@
         --water: #58bbd1;
         --red: #d5543b;
         --soil: #9a6a3e;
-        --font: 'Jua', sans-serif;
+        --font: 'NanumSquareNeo', sans-serif;
       }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); }
-      #film { position: absolute; inset: 0; font-family: var(--font); color: var(--ink); overflow: hidden; }
+      #film { position: absolute; inset: 0; font-family: var(--font); font-weight: 700; color: var(--ink); overflow: hidden; }
       /* notebook page: faint ruled lines and a margin line, no gradients or glow */
       #page { position: absolute; inset: 0; background-color: var(--paper);
         background-image: linear-gradient(var(--rule) 2px, transparent 2px), linear-gradient(90deg, #f0c9a8 3px, transparent 3px);
@@ -73,7 +73,7 @@
       window.__timelines = window.__timelines || {};
       const vars = (window.__hyperframes && window.__hyperframes.getVariables && window.__hyperframes.getVariables()) || {};
       const key = vars.film || new URLSearchParams(location.search).get('film') || 'river-0';
-      document.fonts.ready.then(() => {
+      document.fonts.load('700 62px NanumSquareNeo', '질문 정리').then(() => document.fonts.ready).then(() => {
         const film = window.GEO_FILMS[key];
         const { tl } = window.buildFilm(film);
         window.__timelines['main'] = tl;
