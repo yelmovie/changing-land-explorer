@@ -1,6 +1,7 @@
 import {pathToFileURL} from 'node:url';
 const {chromium}=await import(process.env.PLAYWRIGHT_PATH?pathToFileURL(process.env.PLAYWRIGHT_PATH).href:'playwright');
 import assert from 'node:assert/strict';
+import {bridgeDrag} from './bridge-test-controls.mjs';
 import fs from 'node:fs/promises';
 import {FIELD_POINTS,RIVER_MARKS} from '../src/learning-model.js';
 import {MODEL_MOUTH,MODEL_FLOW} from '../src/observation-scenes.js';
@@ -47,24 +48,44 @@ async function sortRocks(){
  await stroke({x:780,y:225},{x:1060,y:275});await stroke({x:420,y:225},{x:140,y:275});
 }
 async function classifyRock(x){await stroke({x:600,y:316},{x,y:459});}
-async function cityCompare(){const range=page.getByRole('slider',{name:'관찰할 시기'});await range.press('Home');await range.press('End');
- if(width<1000){for(let i=0;i<2;i++){await page.locator('#city-choose-record').click();await page.locator(`[data-city-card="${i}"]`).click();await page.locator(`[data-city-period="${i}"]`).click();if(await page.locator('dialog[open]').count())await page.locator('.dialog-close').click();}}
- else {await stroke({x:255,y:610},{x:265,y:545});await stroke({x:625,y:610},{x:670,y:545});}
+async function cityCompare(phase){
+ if(phase===1){const range=page.getByRole('slider',{name:'관찰할 시기'});await range.press('Home');await range.press('End');}
+ else {await tap(300,260);await tap(900,260);}
+ for(const [from,to]of [[230,265],[600,670]]){
+  if(width<1000){await tap(from,597);await tap(to,510);}
+  else await stroke({x:from,y:597},{x:to,y:510});
+ }
 }
-async function notice(){
- if(width<1000){for(const [i,slot]of ['picture','reason','action'].entries()){await page.locator('#city-board-choose').click();await page.locator(`[data-board-card="${i}"]`).click();await page.locator(`[data-board-slot="${slot}"]`).click();}}
- else for(const [from,to]of [[150,262],[315,334],[425,406]])await stroke({x:300,y:from},{x:845,y:to});
+async function notice(phase){
+ const x=phase===1?458:183;
+ if(width<1000){await tap(x,305);await tap(861,327);}
+ else await stroke({x,y:305},{x:861,y:327});
 }
-async function ashSafety(){await stroke({x:686,y:340},{x:420,y:340});await stroke({x:420,y:560},{x:985,y:375});}
+async function ashSafety(){
+ await page.locator('.ash-room-hero').waitFor();await tap(686,340);
+ const face=await page.locator('.ash-room-face').boundingBox(),mask=await spot({x:420,y:560});
+ await page.mouse.move(mask.x,mask.y);await page.mouse.down();
+ await page.mouse.move(face.x+face.width/2,face.y+face.height/2,{steps:12});await page.mouse.up();
+}
 async function hazards(){await stroke({x:400,y:578},{x:150,y:205});await stroke({x:760,y:578},{x:438,y:265});}
 async function shelter(){await stroke({x:950,y:465},{x:700,y:482});await stroke({x:520,y:525},{x:724,y:389});}
 async function next(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await settle();}
 async function concept(){if(!await page.locator('.concept-dialog').isVisible()){await page.waitForSelector('#next.ready');await page.locator('#next').click();}await page.waitForSelector('.concept-dialog');concepts++;await page.locator('#concept-continue').click();}
 async function doneStage(index){
- await concept();await page.waitForSelector('#operation-board');
- const actions=[['observe:erosion','observe:transport','observe:deposit','bridge:checked','test','move:east','move:east','move:east','move:east'],['signed','shelter','station'],['inspect:color','inspect:grain','ship:granite','inspect:color','inspect:grain','ship:basalt'],['close','inside','notice'],['cover','hold','stopped','assembly']][index];
- for(const action of actions)await page.locator(`[data-operation="${action}"]`).click();
- const complete=page.getByRole('button',{name:'스테이지 완료'});await complete.waitFor();assert.equal(await complete.evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;}),true);await complete.click();await page.waitForSelector('#return-map');rewards++;
+ await concept();
+ if(index!==2)await page.waitForSelector('#operation-board');
+ const actions=[['observe:erosion','observe:transport','observe:deposit','bridge:checked','test','move:east','move:east','move:east','move:east'],['signed','shelter','station'],[],['close','inside','notice'],['cover','hold','stopped','assembly']][index];
+ for(const action of actions){
+  if(action.startsWith('bridge:'))await bridgeDrag(page,action.slice(7));
+  else await page.locator(`[data-operation="${action}"]`).click();
+ }
+ if(index!==2){
+  const complete=page.getByRole('button',{name:'스테이지 완료'});await complete.waitFor();assert.equal(await complete.evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;}),true);await complete.click();
+ }
+ await page.waitForSelector('#return-map');rewards++;
+ if(index===2){assert.equal(await page.locator('#operation-board').count(),0);assert.match(await page.locator('.village-reward-dialog h2').textContent(),/탐구 완료/);}
+ const colors=await page.locator('.reward-thanks').evaluate(p=>{const name=p.querySelector('.speaker-tag');return {name:getComputedStyle(name).color,badge:getComputedStyle(name).backgroundColor,line:getComputedStyle(p.querySelector('span')).color};});
+ assert.notEqual(colors.name,colors.line);assert.notEqual(colors.badge,'rgba(0, 0, 0, 0)');
  if(index===0){
   const original=page.viewportSize();
   await page.setViewportSize({width:850,height:420});
@@ -161,9 +182,9 @@ try{
  await enter(2);await rub();await next();await rockInspect();await next();await rockInspect();await concept();await settle();
  await sortRocks();await next();await classifyRock(245);await next();await classifyRock(955);await doneStage(2);
  await enter(3);
- for(let p=0;p<3;p++){await cityCompare();if(p<2)await next();else await concept();}
- await settle();await notice();await ashSafety();await next();await notice();await next();await notice();await doneStage(3);
- await enter(4);await hazards();await next();await shelter();await next();await stroke({x:1030,y:550},{x:820,y:512});await page.waitForTimeout(2700);await page.locator('#confirm-stop').click();await concept();await settle();
+ for(let p=0;p<3;p++){await cityCompare(p);if(p<2)await next();else await concept();}
+ await settle();await notice(0);await ashSafety();await next();await notice(1);await next();await notice(2);await doneStage(3);
+ await enter(4);await hazards();await next();await shelter();await next();await stroke({x:1030,y:550},{x:820,y:512});await page.waitForTimeout(2700);await tap(320,80);await concept();await settle();
  await pathRoute();await next();await pathRoute();await next();await pathRoute(true);await doneStage(4);
  }
  const before=await page.evaluate(async()=>structuredClone((await import('/src/main.js')).state()));

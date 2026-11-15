@@ -508,8 +508,7 @@ dialog.learning-dialog.grain-dialog{width:min(1060px,calc(100vw - 32px))}
 .voice-replay:focus-visible{outline:3px solid #e0a93d;outline-offset:2px}
 .reward-thanks{position:relative;margin:4px auto 10px;padding:9px 14px;max-width:34em;color:#3b3824;background:#fff6dd;border:1.5px solid #d8b878;border-radius:14px;box-shadow:0 2px 0 #c7a5662e;font-size:clamp(17px,1.4vw,20px);line-height:1.45;word-break:keep-all;text-align:left}
 .reward-thanks::before{content:"";position:absolute;top:-8px;left:35%;width:14px;height:14px;background:inherit;border:inherit;border-right:0;border-bottom:0;transform:rotate(45deg)}
-.reward-thanks strong{margin-right:4px;color:#2f6150}
-.reward-thanks[data-speaker="volcano"] strong{display:table;margin:0 0 6px;padding:3px 10px;border-radius:8px;background:#853923;color:#fff9e9}
+.reward-thanks .speaker-tag{display:inline-block;margin-inline-end:.55em;padding:.08em .48em;border-radius:7px;background:var(--speaker-badge,#385846);color:#fff9e9;font-weight:800}
 @media(max-height:600px) and (min-width:600px){.reward-thanks::before{top:14px;left:-8px;transform:rotate(-45deg)}}
 .village-progress{position:absolute;z-index:24;top:calc(var(--hud-top) + 6px);left:50%;transform:translateX(-50%);display:grid;justify-items:center;gap:3px;max-width:calc(100% - 32px);padding:8px 22px 9px;color:#4a3916;background:linear-gradient(#fff6d8,#f6e2a8);border:2px solid #b98b3d;border-radius:18px;box-shadow:0 4px 0 #8c6b3659,0 10px 22px #10231b40;text-align:center;pointer-events:none}
 .village-progress strong{font:normal clamp(19px,1.7vw,26px)/1.15 NanumSquareNeo,system-ui,sans-serif;color:#2f5546}

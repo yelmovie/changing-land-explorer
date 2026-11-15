@@ -33,7 +33,7 @@ try{
    await page.locator('#dpad-center').click();await page.locator('#mission-enter').waitFor();
    const recording=guideRecordings[`guide-intro-${stage.id}`];
    assert.equal(await page.locator('.mission-preview+p').textContent(),recording.text);
-   assert.ok((await page.locator('.mission-reward').textContent()).includes(OPERATIONS[stage.id].title));
+   assert.ok((await page.locator('.mission-reward').textContent()).includes(OPERATIONS[stage.id]?.title??stage.steps[1]));
    await page.waitForFunction(file=>window.guidePlays.some(a=>a.src.endsWith(file)&&a.currentTime>.05&&!a.paused),recording.file);
    assert.equal(await page.evaluate(()=>window.guidePlays.length),1);
    await page.evaluate(()=>document.fonts.ready);

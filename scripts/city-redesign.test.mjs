@@ -9,7 +9,7 @@ function harness(phase,work={},step=0){
  const add=new Proxy({container:object},{get:(t,k)=>t[k]||object}),data=step===1?{evidence:{['city-'+CITY_SITES[phase].id]:{pair:true}}}:{};
  const api={step,phase,data,work,completed:false,task(){},say(){},save(){},spark(){},counter(){},autoplay(){},listenCleanup(){},image:(key,x,y)=>object(x,y),hero:(x,y,size,asset)=>{const o=object(x,y);o.asset=asset;return o;},paper:object,panel:object,text:(text,x,y)=>{const o=object(x,y);o.text=text;return o;},card:(label,x,y)=>object(x,y,[object()]),target:object,drag:(o,h)=>drags.push({o,h}),range:(label,value,min,max,fn)=>{change=fn;return {value};},record(item){data.evidence[item.id]=item;records++;},finish(){finished++;},actions(list){for(const a of list)actions[a.id]=a;}};
  setup({add,make:add,children:{list:objects},tweens:{add(){}},textures:{exists:()=>true}},api);
- return {data,work,objects,actions,drags,counts:()=>({records,finished}),observe:()=>{change(3);change(97)},drop:(card,slot)=>drags[card].h.onDrop(drags[card].o,slot?670:265,531)};
+ return {data,work,objects,drags,counts:()=>({records,finished}),observe:()=>{change(3);change(97)},drop:(card,slot)=>drags[card].h.onDrop(drags[card].o,slot?670:265,510)};
 }
 for(let phase=0;phase<3;phase++){
  test('city '+phase+' requires both views and correct learner records exactly once',()=>{
@@ -23,7 +23,11 @@ for(let phase=0;phase<3;phase++){
  });
  test('city '+phase+' resumes completed comparison without inventing extra records',()=>{
   const work={wipe:.03,seen:{before:true,after:true},pairs:[0]};
-  const h=harness(phase,work);assert.equal(h.actions['city-choose-record'].disabled,false);h.drop(1,1);assert.deepEqual(h.counts(),{records:1,finished:1});
+  const h=harness(phase,work);
+  assert.deepEqual(h.counts(),{records:0,finished:0});
+  h.drop(0,0);assert.deepEqual(h.work.pairs,[0]);
+  h.drop(1,1);assert.deepEqual(h.work.pairs,[0,1]);
+  h.drop(1,1);assert.deepEqual(h.counts(),{records:1,finished:1});
  });
 }
 

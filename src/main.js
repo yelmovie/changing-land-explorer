@@ -12,6 +12,7 @@ import {STAGES,SAVE_KEY,LEGACY_SAVE_KEY,fresh,loadProgress,award,canEnter,activi
 import {SETTINGS_CONTENT} from './settings-content.js';
 import {activityComplete} from './learning-model.js';
 import {mountOperation} from './field-operation.js';
+import {OPERATIONS} from './field-operation-model.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
 import {showEvidence,evidenceCard} from './explore-ui.js';
 import {$,$$,icon,escapeHTML} from './ui.js';
@@ -163,7 +164,7 @@ export function showFilm(kind,options={}){stopAllSounds();openStory(kind,{...opt
 function saveSound(){persistStudent();$('#sound')?.setAttribute('aria-label',student.sound?'소리 끄기':'소리 켜기');$('#sound')?.setAttribute('aria-pressed',String(student.sound));if($('#sound'))$('#sound').innerHTML=icon(student.sound?'sound':'mute');setSoundEnabled(student.sound);}
 const conceptOpen=(id,step)=>admin||state().completed.includes(id)||activityComplete(id,step,state().drafts[id]?.data||{});
 function conceptList(){modal('개념 영상 다시 보기',`<div class="preview-links">${STAGES.map((s,i)=>`<strong>${s.place}</strong>${CONCEPTS[s.id].map((c,j)=>conceptOpen(s.id,j)?`<button class="secondary" data-concept="${i},${j}">${escapeHTML(c.title)}</button>`:`<button class="secondary" disabled>${escapeHTML(c.title)}<br><small>${s.place} 활동을 마치면 열려요</small></button>`).join('')}`).join('')}</div>`,d=>$$('[data-concept]',d).forEach(b=>b.onclick=()=>{const [i,j]=b.dataset.concept.split(',').map(Number);showConcept({s:STAGES[i],step:j,modal},null,{replay:true});}));}
-function operationList(){modal('리버의 현장 작전',`<p>관찰한 내용을 사용해 주민의 문제를 해결해 보자.</p><div class="preview-links">${STAGES.map((s,index)=>`<button class="secondary" data-operation-index="${index}" ${admin||state().completed.includes(s.id)||activityComplete(s.id,1,state().drafts[s.id]?.data||{})?'':'disabled'}>${s.place} · 현장 작전</button>`).join('')}</div><p class="settings-note">그 장소의 두 활동을 마치면 열려요. 교사 시연에서는 모두 열려요.</p>`,(dialog,close)=>{for(const button of dialog.querySelectorAll('[data-operation-index]'))button.onclick=()=>{close();navigate('operation',{index:Number(button.dataset.operationIndex)});};});}
+function operationList(){modal('리버의 현장 작전',`<p>관찰한 내용을 사용해 주민의 문제를 해결해 보자.</p><div class="preview-links">${STAGES.map((s,index)=>OPERATIONS[s.id]?`<button class="secondary" data-operation-index="${index}" ${admin||state().completed.includes(s.id)||activityComplete(s.id,1,state().drafts[s.id]?.data||{})?'':'disabled'}>${s.place} · 현장 작전</button>`:'').join('')}</div><p class="settings-note">그 장소의 두 활동을 마치면 열려요. 교사 시연에서는 모두 열려요.</p>`,(dialog,close)=>{for(const button of dialog.querySelectorAll('[data-operation-index]'))button.onclick=()=>{close();navigate('operation',{index:Number(button.dataset.operationIndex)});};});}
 function help(){modal('리버와 이렇게 탐험해요',SETTINGS_CONTENT.student);}
 export function shell(title,body,cls=''){stopGuideText();app.className=cls;app.innerHTML=`<header class="topbar"><div class="nav-group"><button class="icon-button" id="home" aria-label="홈">${icon('home')}</button><button class="icon-button" id="back" aria-label="이전 화면">${icon('back')}</button></div><div class="brand"><strong>${title}</strong></div><div class="nav-group"><button class="icon-button" id="sound" aria-pressed="${student.sound}" aria-label="${student.sound?'소리 끄기':'소리 켜기'}">${icon(student.sound?'sound':'mute')}</button><button class="icon-button" id="settings" aria-label="설정">${icon('settings')}</button></div></header>${admin?'<div class="preview-banner"><span>관리자 미리보기 · 학생 기록에는 저장되지 않아요</span><button class="secondary" id="exit-preview">시연 종료</button></div>':''}${body}`;$('#home').onclick=()=>navigate('home');$('#back').onclick=back;$('#settings').onclick=settings;$('#sound').onclick=()=>{student.sound=!student.sound;saveSound();};$('#exit-preview')?.addEventListener('click',()=>setPreview(false));if(screen.type==='home'){$('#home').disabled=true;$('#back').disabled=true;}stopGuideText=watchGuideText(app);}
 function bag(){modal('내 탐험 가방',`<div class="bag-grid">${STAGES.map(s=>`<article class="${state().completed.includes(s.id)?'earned':''}">${icon(s.tool,32)}<h3>${state().completed.includes(s.id)?s.reward:'아직 빈 자리'}</h3><p>${escapeHTML(state().records[s.id]?.summary||s.name+'에서 관찰 기록을 모아 봐.')}</p><button class="secondary" data-bag-record="${s.id}">관찰 펼치기</button></article>`).join('')}</div>`,(dialog,close)=>{$$('[data-bag-record]',dialog).forEach(b=>b.onclick=()=>{const data=state().drafts[b.dataset.bagRecord]?.data||state().records[b.dataset.bagRecord]?.data;close();modal('내가 남긴 관찰','<div class="evidence-list">'+(Object.values(data?.evidence||{}).map(e=>evidenceCard(e)).join('')||'<p>아직 관찰 장면이 없어. 해당 장소에서 기록을 남겨 줘.</p>')+'</div>');});});}
@@ -198,8 +199,23 @@ export async function navigate(type,arg,fromHistory=false){
    dispose=m.renderMap({arrival:arg?.arrival,engine,loadEngine:loadPhaser});screen.arg=undefined;
   }
   else if(type==='operation'){
-   const index=arg?.index,s=STAGES[index];if(s&&state().completed.includes(s.id)&&!state().drafts[s.id])state().drafts[s.id]={step:1,passed:[],data:structuredClone(state().records[s.id]?.data||{})};const draft=s&&state().drafts[s.id];
-   if(!draft||!canEnter(index,state(),admin)||(!admin&&!state().completed.includes(s.id)&&!activityComplete(s.id,1,draft.data))){navigate('map');return;}
+   const index=arg?.index,s=STAGES[index];
+   if(!s||!canEnter(index,state(),admin)){navigate('map');return;}
+   const progress=state(),alreadyDone=progress.completed.includes(s.id);
+   if(!OPERATIONS[s.id]){
+    const draft=progress.drafts[s.id];
+    if(alreadyDone||!draft){navigate('map',undefined,fromHistory);return;}
+    const first=activityComplete(s.id,0,draft.data);
+    if(admin||!first||!activityComplete(s.id,1,draft.data)){navigate('stage',{index,step:first||admin?1:0},fromHistory);return;}
+    // Old saves at the removed rock operation have already passed the second concept.
+    const mapRevision=navRevision+1;
+    await navigate('map',undefined,fromHistory);
+    if(navRevision===mapRevision&&screen.type==='map')complete(index,true);
+    return;
+   }
+   if(alreadyDone&&!progress.drafts[s.id])progress.drafts[s.id]={step:1,passed:[],data:structuredClone(progress.records[s.id]?.data||{})};
+   const draft=progress.drafts[s.id];
+   if(!draft||(!admin&&!alreadyDone&&!activityComplete(s.id,1,draft.data))){navigate('map');return;}
    dispose=mountOperation({id:s.id,data:draft.data,save,shell,sound:playSound,onBack:()=>navigate('stage',{index,step:1}),onComplete:()=>complete(index,true)});
   }
   else if(type==='stage'){
@@ -248,13 +264,14 @@ function renderStage(index,mount){
 }
 
 function complete(index,fieldReady=false){
- if(!fieldReady){navigate('operation',{index});return;}
- const stage=STAGES[index],draft=state().drafts[stage.id],newArrival=!state().completed.includes(stage.id);
+ const stage=STAGES[index],hasOperation=Object.hasOwn(OPERATIONS,stage.id);
+ if(hasOperation&&!fieldReady){navigate('operation',{index});return;}
+ const draft=state().drafts[stage.id],newArrival=!state().completed.includes(stage.id);
  const record={summary:`${stage.name}에서 내 관찰 ${Object.keys(draft.data.evidence||{}).length}개를 남겼어.`,data:structuredClone(draft.data)};
  if(admin)preview=award(preview,stage.id,record);else{student=award(student,stage.id,record);student.resumeActivity=null;}
  save();
  const resident=RESIDENTS[stage.id];
- modal(newArrival?`${stage.place} 현장 작전 성공!`:'탐험 기록을 다시 남겼어!',`<div class="reward-reveal"><img class="reward-partner" src="${newArrival?residentArt(stage.id):'/assets/hero-cheer.webp'}" alt="${newArrival?resident.name:'리버'}"><img class="reward-item" src="/assets/${TOOL_ASSETS[stage.tool]}.webp" alt=""></div>${newArrival?`<p class="reward-thanks" data-speaker="${stage.id}"><strong>${resident.name}</strong> ${resident.thanks}</p>`:''}<h3>${stage.reward}</h3>${newArrival?`<div class="relit-counter" aria-label="마을 불빛 ${state().completed.length}개, 전체 5개"><span>마을 불빛</span>${STAGES.map(st=>`<i class="${state().completed.includes(st.id)?'lit':''}"></i>`).join('')}<b>${state().completed.length}/5</b></div>`:''}<p class="world-change">${stage.change}</p>${newArrival?`<p><strong>${resident.name}</strong>에게 말을 걸면 ${resident.stamp} 도장을 받을 수 있어.</p>`:''}<button class="primary" id="return-map">${newArrival?`${resident.name} 만나러 가기`:'지도로 돌아가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
+ modal(newArrival?`${stage.place} ${hasOperation?'현장 작전 성공!':'탐구 완료!'}`:'탐험 기록을 다시 남겼어!',`<div class="reward-reveal"><img class="reward-partner" src="${newArrival?residentArt(stage.id):'/assets/hero-cheer.webp'}" alt="${newArrival?resident.name:'리버'}"><img class="reward-item" src="/assets/${TOOL_ASSETS[stage.tool]}.webp" alt=""></div>${newArrival?`<p class="reward-thanks" data-speaker="${stage.id}"><strong class="speaker-tag">${resident.name}</strong><span>${resident.thanks}</span></p>`:''}<h3>${stage.reward}</h3>${newArrival?`<div class="relit-counter" aria-label="마을 불빛 ${state().completed.length}개, 전체 5개"><span>마을 불빛</span>${STAGES.map(st=>`<i class="${state().completed.includes(st.id)?'lit':''}"></i>`).join('')}<b>${state().completed.length}/5</b></div>`:''}<p class="world-change">${stage.change}</p>${newArrival?`<p><strong>${resident.name}</strong>에게 말을 걸면 ${resident.stamp} 도장을 받을 수 있어.</p>`:''}<button class="primary" id="return-map">${newArrival?`${resident.name} 만나러 가기`:'지도로 돌아가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
   dialog.classList.add('village-reward-dialog');
   playSound('tool-reward',{force:true,inDialog:true});
   if(newArrival)setTimeout(()=>{if(dialog.open)playVoice(residentVoice(stage.id,'thanks'));},1100);

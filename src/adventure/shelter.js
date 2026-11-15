@@ -13,7 +13,7 @@ export function createShelter(scene,api,hero,p){
   frame.fillStyle(0x9b744c).fillRoundedRect(-165,-90,30,225,6).fillRoundedRect(105,-90,30,225,6);
   frame.fillStyle(0xdab47b).fillRoundedRect(-190,-111,380,29,7).lineStyle(4,0x88613b).strokeRoundedRect(-190,-111,380,29,7);}
  const outline=scene.add.graphics().lineStyle(3,0xffd86b,.75).strokeRoundedRect(-160,-45,320,190,16);rig.add(outline);
- rig.add(api.card('튼튼한 책상 · 몸을 낮춰 보호',0,-160,330,56,21));
+ rig.add(api.card('튼튼한 책상',0,-160,330,56,21));
  let pillow=null;
  function crouch(){
   if(hero.parentContainer!==rig)rig.add(hero);
@@ -28,7 +28,7 @@ export function createShelter(scene,api,hero,p){
  }
  function hold(){
   if(!scene.textures.exists('art/hero-hold-leg-v1'))return false;
-  hero.setTexture('art/hero-hold-leg-v1').setScale(SHELTER.body.size/hero.height).setPosition(SHELTER.body.x,SHELTER.body.y);
+  hero.setTexture('art/hero-hold-leg-v1').setScale(SHELTER.body.size/hero.height).setPosition(SHELTER.body.x,SHELTER.body.y).setFlipX(false);
   return true;
  }
  if(p.under)crouch();

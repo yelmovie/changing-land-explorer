@@ -83,13 +83,14 @@ export function setup(scene,api){
   const notes=api.text('',350,462,20,'#365548',420);
   const scanSites=[[248,220,0],[350,285,4],[450,330,5]];
   let completed=!!api.completed,focus={...w.lens},motion=null;
-  const scanMarkers=[];
+  const scanMarkers=[],claimTokens={},claimActions={};
   function drawLens(x,y,collect=true){
    const px=Math.max(230,Math.min(470,x)),py=Math.max(190,Math.min(360,y));lens.setPosition(px,py);focus={x:px,y:py};
    detail.setPosition(850-(px-350)*2.4,282-(py-275)*2.4);
    focusGuide.clear().lineStyle(2,0x9f834f,.68).lineBetween(px+44,py,676,282).fillStyle(0xfff3cd,.9).fillCircle(676,282,4);
    if(collect&&!compare&&!completed&&w.scanned.length<3){w.lens={...focus};const cell=Math.min(2,Math.floor((px-200)/101))+Math.min(1,Math.floor((py-130)/146))*3;if(!w.scanned.includes(cell)){w.scanned.push(cell);api.spark(px,py);api.save();}}
-   scanMarkers.forEach((paint,i)=>paint(w.scanned.includes(scanSites[i][2]),w.scanned.length<3));
+   scanMarkers.forEach((paint,i)=>paint(w.scanned.includes(scanSites[i][2])));
+   paintClaims();
    if(collect&&w.scanned.length===3&&!w.proofs.length)api.say('아래 카드에서 이 돌의 색 하나와 알갱이 특징 하나를 눌러 봐.');
    notes.setText(w.scanned.length>=3?'색 카드 하나 + 알갱이 카드 하나':`관찰한 곳 ${Math.min(3,w.scanned.length)} / 3`);
    if(collect)check();
@@ -101,24 +102,14 @@ export function setup(scene,api){
     ready:()=>!compare,stop,
     visit(site){lens.setVisible(true);if(reduced)drawLens(site[0],site[1]);else motion={from:{...focus},x:site[0],y:site[1],elapsed:0};}
   }));
-  const claimPositions={dark:210,light:465,fine:730,coarse:1000},claimActions={};
-  let modelAvailable=false;
-  function observeControls(){
-   api.actions([{id:'rock-observe-tools',label:'관찰 · 특징 기록',onClick:()=>{
-    api.modal('돌의 관찰과 특징',`<p>위치를 골라 확대된 돌을 살펴본 뒤, 다시 열어 색과 알갱이 특징을 각각 골라 줘.</p><div class="accessible-choices">${scanSites.map((_,i)=>`<button class="secondary" data-rock-scan="${i}">${i+1}번 위치 확대</button>`).join('')}</div><p id="rock-choice-status" role="status">관찰 ${Math.min(3,w.scanned.length)} / 3 · 특징 ${w.proofs.length} / 2</p><div class="accessible-choices">${Object.entries(FEATURES).map(([key,label])=>`<button class="secondary" data-rock-proof="${key}" ${w.scanned.length<3?'disabled':''}>${label}</button>`).join('')}</div>`,(dialog,close)=>{
-     dialog.querySelectorAll('[data-rock-scan]').forEach(button=>button.onclick=()=>{const [x,y]=scanSites[Number(button.dataset.rockScan)];drawLens(x,y);close();});
-     dialog.querySelectorAll('[data-rock-proof]').forEach(button=>button.onclick=()=>{
-      const count=w.proofs.length;claimActions[button.dataset.rockProof]();
-      dialog.querySelector('#rock-choice-status').textContent=w.proofs.length>count?'관찰한 특징을 기록했어. 다른 특징도 비교해 봐.':'아직 기록하지 않았어. 확대된 돌의 색과 알갱이를 다시 살펴봐.';
-      dialog.querySelectorAll('[data-rock-proof]').forEach(b=>{b.disabled=w.proofs.includes(b.dataset.rockProof);b.setAttribute('aria-pressed',String(w.proofs.includes(b.dataset.rockProof)));});
-      if(w.proofs.length===2)close();
-     });
-    });
-   }},...(modelAvailable?[{id:'rock-3d',label:'돌 돌려 보기',onClick:()=>openRock3D(api.modal,r)}]:[])]);
+  const claimPositions={dark:210,light:465,fine:730,coarse:1000};
+  function paintClaims(){
+   for(const [claim,card] of Object.entries(claimTokens))
+    card.setAlpha(w.proofs.includes(claim)?.42:w.scanned.length<3?.72:1);
   }
   for(const claim of Object.keys(FEATURES)){
    const token=api.card(FEATURES[claim],claimPositions[claim],570,240,70,20);
-   if(w.proofs.includes(claim))token.setAlpha(.35);
+   claimTokens[claim]=token;
    const apply=()=>{
     if(compare){api.say('카메라를 다시 눌러 지금 조사하는 돌로 돌아온 뒤 기록하자.');return false;}
     if(w.scanned.length<3){api.say('돋보기를 다른 곳으로 움직여 세 곳을 먼저 살펴봐.');return false;}
@@ -126,7 +117,7 @@ export function setup(scene,api){
     if(w.proofs.includes(claim)){api.say('이미 기록했어. 다른 특징을 살펴봐.');return false;}
     w.proofs.push(claim);
     api.record({id:`rock-${sample}-${claim}`,kind:'rock',sample,claim,asset:r.asset,label:`${r.name} · ${FEATURES[claim]}`,point:{x:(focus.x-150)/400,y:(focus.y-141.5)/267},zoom:2.4,annotations:[],text:FEATURES[claim]});
-    token.setAlpha(.35);api.spark(350,360);api.say(FEATURES[claim]+' 증거를 기록했어. 색과 알갱이를 모두 남겨 줘.');api.save();check();return false;
+    paintClaims();api.spark(350,360);api.say(FEATURES[claim]+' 증거를 기록했어. 색과 알갱이를 모두 남겨 줘.');api.save();check();return false;
    };
    claimActions[claim]=apply;
    api.drag(token,{onPick:apply,onDrop:(o,x,y)=>near(x,y,350,285,440,410)?apply():false});
@@ -140,9 +131,27 @@ export function setup(scene,api){
    completed=true;api.finish((r.type==='basalt'?'현무암':'화강암')+'이야. 색과 알갱이 두 가지를 기억하자.');
   }
   scanSites.forEach(([x,y],index)=>scanMarkers.push(api.marker(x,y,index+1,()=>drawLens(x,y))));
-  observeControls();drawLens(w.lens.x,w.lens.y,false);check();
+  const canvas=scene.game?.canvas;
+  if(canvas){
+   const previousLabel=canvas.getAttribute('aria-label'),claims=Object.keys(FEATURES);
+   canvas.tabIndex=0;
+   canvas.setAttribute('aria-label',r.name+' 관찰. 숫자 1, 2, 3으로 확대하고, '+claims.map((claim,i)=>(i+4)+'번: '+FEATURES[claim]).join(', '));
+   canvas.setAttribute('aria-keyshortcuts','1 2 3 4 5 6 7');
+   const key=e=>{
+    if(e.altKey||e.ctrlKey||e.metaKey||!/^[1-7]$/.test(e.key)||document.querySelector('dialog[open]'))return;
+    e.preventDefault();
+    const site=scanSites[Number(e.key)-1];
+    if(site)drawLens(site[0],site[1]);else claimActions[claims[Number(e.key)-4]]();
+   };
+   canvas.addEventListener('keydown',key);
+   api.listenCleanup(()=>{
+    canvas.removeEventListener('keydown',key);canvas.removeAttribute('tabindex');canvas.removeAttribute('aria-keyshortcuts');
+    if(previousLabel)canvas.setAttribute('aria-label',previousLabel);
+   });
+  }
+  api.actions([]);drawLens(w.lens.x,w.lens.y,false);check();
   // The 3D specimen is an extra way to look, offered only once its GLB is in assets/models.
-  hasRockModel(r.asset).then(ok=>{if(ok&&specimen.active&&scene.sys.isActive()){modelAvailable=true;observeControls();}});
+  hasRockModel(r.asset).then(ok=>{if(ok&&specimen.active&&scene.sys.isActive()){api.actions([{id:'rock-3d',label:'돌 돌려 보기',onClick:()=>openRock3D(api.modal,r)}]);}});
   return {update(time,delta){
     if(!motion)return;motion.elapsed+=Math.min(delta,60);const t=Math.min(1,motion.elapsed/650),ease=t*t*(3-2*t),m=motion;
     drawLens(m.from.x+(m.x-m.from.x)*ease,m.from.y+(m.y-m.from.y)*ease,false);

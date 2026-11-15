@@ -114,8 +114,8 @@
   padding: 7px 24px;
   border: 1px solid #c2a66e;
   border-radius: 10px 10px 6px 6px;
-  background: #536a3c;
-  color: #fff7d7;
+  background: var(--speaker-badge,#385846);
+  color: #fff9e9;
   font-size: 26px;
   font-weight: 700;
   line-height: 1.2;
@@ -126,7 +126,12 @@
 #overlay .resident-stage .resident-line-advance { display: block; width: 100%; min-height: 0; position: relative; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: inherit; text-align: left; cursor: pointer; }
 #overlay .resident-stage .resident-line-advance:disabled { opacity: 1; cursor: default; }
 #overlay .resident-stage .resident-reply { display: block; min-height: 0; margin: 0; color: #34452e; font-size: 26px; font-weight: 400; line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; }
-#overlay .resident-stage[data-speaker="volcano"] .resident-name { background:#853923; border-color:#d7a77d; color:#fff9e9; }
+:is(.resident-stage,.reward-thanks)[data-speaker="river"] {--speaker-badge:#1f584e}
+:is(.resident-stage,.reward-thanks)[data-speaker="volcano"] {--speaker-badge:#853923}
+:is(.resident-stage,.reward-thanks)[data-speaker="rocks"] {--speaker-badge:#644429}
+:is(.resident-stage,.reward-thanks)[data-speaker="city"] {--speaker-badge:#315376}
+:is(.resident-stage,.reward-thanks)[data-speaker="safety"] {--speaker-badge:#604376}
+#overlay .resident-stage[data-speaker="volcano"] .resident-name {border-color:#d7a77d}
 #overlay .resident-stage[data-speaker="volcano"] .resident-reply { color:#293932; }
 #overlay .resident-stage .resident-choice-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; margin-top: 10px; }
 #overlay .resident-stage .resident-questions { flex: 1; visibility: hidden; gap: 10px; }

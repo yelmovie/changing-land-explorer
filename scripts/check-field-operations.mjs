@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import assert from 'node:assert/strict';
+import {bridgeDrag} from './bridge-test-controls.mjs';
 
 const {chromium}=await import(process.env.PLAYWRIGHT_PATH?pathToFileURL(process.env.PLAYWRIGHT_PATH).href:'playwright');
 const out=process.env.CHECK_OUT||'.work/field-operations';
@@ -9,7 +10,6 @@ const sizes=(process.env.CHECK_SIZES||'667x375,915x412,830x515,1024x600,1024x768
 const operations={
  river:['observe:erosion','observe:transport','observe:deposit','bridge:bank','test','bridge:sand','test','bridge:checked','test','move:east','move:east','move:east','move:east'],
  volcano:['crater','signed','shelter','station'],
- rocks:['ship:basalt','inspect:color','inspect:grain','ship:basalt','ship:granite','inspect:color','inspect:grain','ship:basalt'],
  city:['open','close','inside','notice'],
  safety:['run','cover','hold','stopped','assembly']
 };
@@ -56,10 +56,11 @@ async function inspect(page,label){
 try{
  for(const [width,height]of sizes){
   const context=await browser.newContext({viewport:{width,height},hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
-  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)httpErrors.push({url:r.url(),status:r.status()});});
+  const page=await context.newPage(),touch=width<1100?await context.newCDPSession(page):null;page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)httpErrors.push({url:r.url(),status:r.status()});});
   await page.goto(process.env.CHECK_URL||'http://localhost:5177');
   await page.locator('#settings').click();await page.locator('#admin-setting').evaluate(e=>e.click());
-  for(const [index,[id,actions]]of Object.entries(operations).entries()){
+  for(const [id,actions]of Object.entries(operations)){
+   const index=['river','volcano','rocks','city','safety'].indexOf(id);
    await page.evaluate(async({index,id})=>{
     const main=await import('/src/main.js');
     main.state().drafts[id]={step:1,passed:[],data:{}};
@@ -70,12 +71,27 @@ try{
    if(id==='river')assert.equal(await page.locator('#operation-back,#operation-retry').count(),0);
    await inspect(page,`${width}x${height}-${id}-start`);
    for(const [n,action]of actions.entries()){
-    await page.locator(`[data-operation="${action}"]`).click();
-    if(id==='river'&&action==='observe:deposit')assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
     if(id==='river'&&action.startsWith('bridge:')){
+     const site=action.slice(7);
+     if(site==='bank'){
+      assert.equal(await page.locator('.bridge-spot,button[data-operation^="bridge:"]').count(),0);
+      assert.equal(await page.locator('[data-bridge-drop]').count(),3);
+      await bridgeDrag(page,null,touch);
+      assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
+     }
+     if(width===1024&&site==='checked'){
+      const grip=page.locator('.bridge-grip');await grip.press('ArrowDown');await grip.press('Enter');
+     }else await bridgeDrag(page,site,touch);
+     if(site==='bank'){
+      await bridgeDrag(page,'sand',touch);
+      assert.equal(await page.locator('.bridge-map').getAttribute('data-bridge-choice'),'sand');
+      await bridgeDrag(page,'bank',touch);
+     }
+     assert.equal(await page.locator('.bridge-map').getAttribute('data-bridge-choice'),site);
      await bridgeSprite(page,'placed');
      if(width===667||width===1024&&height===768)await page.screenshot({path:`${out}/${width}x${height}-${action.replace(':','-')}.png`});
-    }
+    }else await page.locator(`[data-operation="${action}"]`).click();
+    if(id==='river'&&action==='observe:deposit')assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
     if(id==='river'&&action==='test'){
      const success=actions[n-1]==='bridge:checked';
      await page.locator('.bridge-map[data-bridge-phase="'+(success?'held':'washed')+'"]').waitFor();
@@ -95,7 +111,7 @@ try{
     const main=await import('/src/main.js');delete main.state().drafts.river.data.fieldOperation;await main.navigate('operation',{index:0});
    });else await page.locator('#operation-retry').click();
    assert.equal(await page.locator('#operation-finish').isVisible(),false);
-   if(id==='river'||id==='rocks'){
+   if(id==='river'){
     assert.equal(await page.locator('#operation-speed').count(),0);
     await page.locator('#operation-auto').click();
     await page.locator('#operation-auto').click();
@@ -105,7 +121,7 @@ try{
     await page.locator('#operation-auto').click();
     await page.locator('#operation-auto').waitFor({state:'hidden'});
     const saved=await page.evaluate(async id=>(await import('/src/main.js')).state().drafts[id].data.fieldOperation,id);
-    assert.equal(saved.step,id==='river'?1:0,'autoplay stops before choosing an answer');
+    assert.equal(saved.step,1,'autoplay stops before choosing an answer');
     assert.equal(saved.choice,null);
     assert.equal(saved.done,false);
     await inspect(page,`${width}x${height}-${id}-auto-handoff`);

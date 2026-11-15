@@ -34,7 +34,7 @@ test('handoff labels match the concept then field-operation destination', () => 
   const activity = readFileSync(new URL('../src/adventure/index.js', import.meta.url), 'utf8');
   const concepts = readFileSync(new URL('../src/concepts.js', import.meta.url), 'utf8');
   assert.ok(activity.includes("phase<2?'다음 발견':'개념 정리'"));
-  assert.ok(concepts.includes("ctx.step===0?'다음 활동으로':'현장 임무로'"));
+  assert.ok(concepts.includes("ctx.step===0?'다음 활동으로':OPERATIONS[ctx.s.id]?'현장 임무로':'스테이지 완료'"));
   assert.equal(PHASES.volcano[0][1], '붉은 물 흐름');
 });
 
@@ -54,5 +54,5 @@ test('volcano transfer requires distinguishing the model from real ejecta', () =
 test('a bridge test without a placement asks for a choice before judging the evidence', () => {
   const result = operate('river', {...freshOperation(), step: 1}, 'test');
   assert.equal(result.state.step, 1);
-  assert.match(result.message, /먼저 골라/);
+  assert.match(result.message, /먼저 놓아/);
 });

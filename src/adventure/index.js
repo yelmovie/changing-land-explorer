@@ -19,8 +19,8 @@ const ACTION_CUES={
  river:[['물뿌리개를 누르면 물이 나와. 다시 누르면 멈춰.','물의 양을 바꿔 같은 언덕을 관찰해 봐.','이름표를 골라 빈 원에 놓아 봐.'],['숫자를 눌러 상류를 관찰해 봐.','숫자를 눌러 하류를 관찰해 봐.','관찰 카드를 상류와 하류의 빈 점선 칸에 놓아 줘.']],
  volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','손잡이를 밀거나 자동 재생으로 물을 흘려 봐.','그림에서 물이 나온 곳을 누르고, 물길의 점을 이어 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.']],
  rocks:[['문지르거나 자동 재생으로 먼지를 털어 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문에 맞는 표본을 반짝이는 상자로 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.']],
- city:[['손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.','손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.','손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.'],['안내판에 붙일 카드를 먼저 골라 봐.','안내판에 붙일 카드를 먼저 골라 봐.','안내판에 붙일 카드를 먼저 골라 봐.']],
- safety:[['위험 표식을 알맞은 곳에 놓아 봐.','몸을 보호할 곳을 고르고 머리를 감싸 줘.','잡을 곳을 고르고 흔들림이 멈추면 확인해.'],['가까운 통로를 눌러 리버를 출구와 운동장으로 안내해.','위험 구역을 피해 다시 운동장까지 직접 걸어 봐.','건물·담장·전신주를 피해 공터까지 걸어 봐.']]
+ city:[['두 사진을 차례로 눌러 봐.','사진 위 손잡이를 좌우로 움직여 봐.','두 사진을 차례로 눌러 봐.'],['맞는 포스터를 안내판에 붙여 줘.','맞는 포스터를 안내판에 붙여 줘.','맞는 포스터를 안내판에 붙여 줘.']],
+ safety:[['위험 표시를 위험한 곳에 붙여 줘.','리버를 책상 아래로 옮기거나, 책상 아래를 눌러 줘.','책상 다리를 잡고 기다려 줘.'],['가까운 통로를 눌러 리버를 출구와 운동장으로 안내해.','위험 구역을 피해 다시 운동장까지 직접 걸어 봐.','건물·담장·전신주를 피해 공터까지 걸어 봐.']]
 };
 const UI=name=>'art/ui/'+name;
 // Reading surfaces use a quiet, inset outline instead of artwork that competes with text.
@@ -42,6 +42,7 @@ export function mount(ctx) {
   const page=ctx.root.closest('.adventure-page'), heading=$('.adventure-heading',page);
   page.style.setProperty('--activity-backdrop',backdrop);
   page.style.setProperty('--stage-accent',ctx.s.color);
+ page.classList.toggle('safety-classroom',ctx.s.id==='safety'&&ctx.step===0);
   let game,closed=false,hooks,activeScene,phaseDone=false,toolHandler=null,zoomed=false;
   let restarting=false,focusInstruction=false,autoplayNext=false;
   let sceneCleanups=[];
@@ -208,7 +209,19 @@ export function mount(ctx) {
       const meter=$('#quest-meter');
       let meterText='',completionShown=false;
       const clearSelection=()=>{selected=null;tapRing.clear();};
-      const select=object=>{scene.tweens.killTweensOf(object);selected=object;tapRing.clear().lineStyle(5,0xffd36b,1).strokeCircle(object.x,object.y,Math.min(110,Math.max(45,object.displayWidth/2+10)));ctx.say('도착할 곳을 눌러 줘. 손가락으로 끌어도 돼.');ctx.sound('pickup');};
+      const select=object=>{
+        scene.tweens.killTweensOf(object);selected=object;tapRing.clear().lineStyle(5,0xffd36b,1);
+        if(object.getData('learningCard')){
+          const width=object.displayWidth||object.width,height=object.displayHeight||object.height;
+          const left=Math.max(4,object.x-width/2+2),top=Math.max(4,object.y-height/2+2);
+          const right=Math.min(1196,object.x+width/2-2),bottom=Math.min(636,object.y+height/2-2);
+          tapRing.strokeRoundedRect(left,top,right-left,bottom-top,12);
+        }else{
+          const radius=Math.min(110,Math.max(36,object.displayWidth/2+10),Math.max(8,Math.min(object.x,1200-object.x,object.y,640-object.y)-4));
+          tapRing.strokeCircle(object.x,object.y,radius);
+        }
+        ctx.say(draggables.get(object)?.selectionHint||'도착할 곳을 눌러 줘. 손가락으로 끌어도 돼.');ctx.sound('pickup');
+      };
       scene.input.on('pointerdown',(p)=>{pressPoint={x:p.x,y:p.y};gestureMoved=false;});
       scene.input.on('pointerup',(p)=>{
         if(document.querySelector('dialog[open]'))return;
@@ -242,6 +255,7 @@ export function mount(ctx) {
         record(item){capture(ctx,{...item,phase,operationHelp:!!work.operationHelp,observationHint:!!work.observationHint,hintLevel:work.hintLevel||0,answerHint:!!work.answerHint}); next.disabled=!phaseDone;},
         sound:ctx.sound,
         select(object){if(object?.active&&object.input?.enabled&&draggables.has(object)&&!document.querySelector('dialog[open]')){pressed=null;select(object);}},
+        deselect:clearSelection,
         finish(summary,details={}){
           stopAuto();
           if(completionShown)return;
@@ -342,13 +356,13 @@ export function mount(ctx) {
           c.add(text);c.setData('learningCard',true);
           return c.setSize(w,height);
         },
-        drag(object,{onDrop,onMove,onStart,onTap,onPick}={}){
+        drag(object,{onDrop,onMove,onStart,onTap,onPick,selectionHint}={}){
           let home={x:object.x,y:object.y};
           const depth=object.depth;
           let dragging=false;
           if(!object.input)object.setInteractive({useHandCursor:true});
           scene.input.setDraggable(object);
-          draggables.set(object,{onDrop,onMove,onStart,onTap,onPick});
+          draggables.set(object,{onDrop,onMove,onStart,onTap,onPick,selectionHint});
           // Small phones shrink the canvas; keep every draggable at least 48 CSS px wide and tall.
           const area=object.input?.hitArea;
           if(area instanceof window.Phaser.Geom.Rectangle){

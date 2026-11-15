@@ -2,7 +2,6 @@
 export const OPERATIONS={
  river:{title:'물길을 읽고 조사 다리 놓기',goal:'물의 흔적을 조사하고, 점검된 양쪽 받침에 다리를 놓아 리버를 보내 줘.',background:'river-canyon-v2',steps:3},
  volcano:{title:'분출물 관찰을 대피와 연결하기',goal:'용암과 화산재의 특징을 떠올려 안전하게 대피하고, 모형과 실제의 차이를 알려 줘.',background:'volcano-caldera-v2',steps:3},
- rocks:{title:'두 단서로 알맞은 돌 보내기',goal:'표본의 색과 알갱이를 비교해 두 주문을 완성해 줘.',background:'rocks-quarry-atelier-v2',steps:2},
  city:{title:'화산재 안내소 운영하기',goal:'관측 소식을 보고 주민에게 필요한 대응을 배치해 줘.',background:'city-message-square-v2',steps:3},
  safety:{title:'몸을 보호하고 넓은 곳으로',goal:'흔들릴 때 몸을 보호하고, 멈춘 뒤 안내를 따라 이동해 줘.',background:'safety-evacuation-garden-v2',steps:4}
 };
@@ -13,7 +12,7 @@ export function operationState(raw,id){
  if(!raw||raw.version!==1)return initial;
  const steps=OPERATIONS[id]?.steps||5;
  const step=Number(raw.step),attempts=Number(raw.attempts);
- const allowed=id==='river'?['erosion','transport','deposit']:id==='rocks'?['color','grain']:[];
+ const allowed=id==='river'?['erosion','transport','deposit']:[];
  const observed=Array.isArray(raw.observed)?raw.observed.filter(item=>allowed.includes(item)):[];
  const position=Array.isArray(raw.position)&&raw.position.length===2&&raw.position.every(Number.isInteger)
   ?[Math.max(0,Math.min(4,raw.position[0])),Math.max(0,Math.min(2,raw.position[1]))]:initial.position;
@@ -32,18 +31,18 @@ export function operate(id,raw,action){
  const fail=message=>({state:{...s,attempts:s.attempts+1},message,changed:true,ok:false});
  const pass=message=>{const next={...s,step:s.step+1,observed:[],choice:null};next.done=next.step>=OPERATIONS[id].steps;return {state:next,message,changed:true,ok:true};};
  if(id==='river'){
-  if(s.step===0&&action.startsWith('observe:')){const k=action.slice(8);if(!['erosion','transport','deposit'].includes(k))return fail('물길의 세 흔적을 눌러 살펴봐.');s.observed=[...new Set([...s.observed,k])];if(s.observed.length===3)return pass('깎이고 옮겨져 쌓이는 흐름을 찾았어. 이제 다리 위치를 시험하자.');return {state:s,changed:true,message:{erosion:'물가의 흙이 깎였어. 침식의 흔적이야.',transport:'깎인 흙이 물과 함께 아래쪽으로 옮겨져. 운반이야.',deposit:'흐름이 느려진 곳에 흙이 쌓였어. 퇴적의 흔적이야.'}[k]};}
+  if(s.step===0&&action.startsWith('observe:')){const k=action.slice(8);if(!['erosion','transport','deposit'].includes(k))return fail('물길의 세 흔적을 눌러 살펴봐.');s.observed=[...new Set([...s.observed,k])];if(s.observed.length===3)return pass('깎이고 옮겨져 쌓이는 흐름을 찾았어. 다리 그림을 끌어서 점선 안에 놓아 봐.');return {state:s,changed:true,message:{erosion:'물가의 흙이 깎였어. 침식의 흔적이야.',transport:'깎인 흙이 물과 함께 아래쪽으로 옮겨져. 운반이야.',deposit:'흐름이 느려진 곳에 흙이 쌓였어. 퇴적의 흔적이야.'}[k]};}
   if(s.step===1&&action.startsWith('bridge:')){
    const site=action.slice(7);
-   if(!BRIDGE_CHOICES.includes(site))return {state:s,changed:false,message:'사진에 표시된 세 곳 중 한 곳을 골라 줘.'};
+   if(!BRIDGE_CHOICES.includes(site))return {state:s,changed:false,message:'강 위의 점선 안에 다리를 놓아 줘.'};
    s.choice=site;return {state:s,changed:true,message:'다리를 놓았어. 물을 흘려 양쪽 받침이 버티는지 확인해 봐.'};
   }
   if(s.step===1&&action==='test'){
-   if(!BRIDGE_CHOICES.includes(s.choice))return fail('다리를 놓을 곳을 먼저 골라 줘.');
+   if(!BRIDGE_CHOICES.includes(s.choice))return fail('점선 안에 다리를 먼저 놓아 줘.');
    if(s.choice==='checked')return pass('물이 흘러도 점검한 양쪽 받침이 움직이지 않았어. 이제 리버를 보내 줘!');
    const reason=s.choice==='bank'?'물이 깎이는 물가 쪽 받침을 무너뜨렸어.':'새로 쌓인 모래가 물에 옮겨져 받침이 흔들렸어.';
    s.choice=null;
-   return fail(reason+' 다른 위치를 골라 다시 시험해 봐.');
+   return fail(reason+' 다른 점선 자리에 다리를 놓고 다시 시험해 봐.');
   }
   if(s.step===2&&action.startsWith('move:')){
    const direction={east:[1,0],west:[-1,0],north:[0,-1],south:[0,1]}[action.slice(5)];if(!direction)return fail('방향 버튼으로 리버를 움직여 줘.');
@@ -59,10 +58,6 @@ export function operate(id,raw,action){
   const good=['signed','shelter','station'][s.step];
   if(action===good)return pass(['용암은 땅 위로 나온 뜨거운 물질이야. 안내된 통로를 따라 멀어졌어.','화산재는 날아다니는 작은 고체 알갱이야. 지정된 대피소에서 안내를 확인하자.','모형은 붉은 물의 흐름을 보여 줘. 실제 화산에서는 뜨거운 용암과 기체, 화산재, 암석 조각도 나올 수 있어.'][s.step]);
   return fail(s.step===2?'모형에서 본 붉은 물과 실제 화산에서 관찰한 분출물을 다시 비교해 봐.':'용암은 뜨겁고, 화산재는 숨을 쉴 때 몸에 해로울 수 있어. 위험 구역에서 멀어지는 공식 안내를 따라가자.');
- }
- if(id==='rocks'){
-  if(action.startsWith('inspect:')){const k=action.slice(8);if(!['color','grain'].includes(k))return fail('색과 알갱이를 비교해 줘.');s.observed=[...new Set([...s.observed,k])];return {state:s,changed:true,message:k==='color'?'두 표본의 전체 색을 비교했어.':'두 표본의 알갱이 크기를 비교했어.'};}
-  if(action.startsWith('ship:')){if(!['color','grain'].every(k=>s.observed.includes(k)))return fail('색 하나만으로 판단하지 말고 색과 알갱이를 모두 살펴봐.');return action===['ship:granite','ship:basalt'][s.step]?pass(s.step===0?'밝은 색과 큰 알갱이, 두 근거로 화강암을 보냈어.':'어두운 색과 작은 알갱이, 두 근거로 현무암을 보냈어.'):fail('주문의 색과 알갱이가 표본의 두 특징과 모두 맞는지 비교해 봐.');}
  }
  if(id==='city'){
   const good=['close','inside','notice'][s.step];if(action===good)return pass(['창문을 닫아 실내로 들어오는 화산재를 줄였어.','야외 활동을 멈추고 실내에서 안내를 기다려.','관측 정보와 행동 요령을 주민에게 전달했어.'][s.step]);return fail('관측 소식은 화산재가 날린다는 거야. 창문을 열거나 야외로 나가기보다 공식 안내에 맞는 대응을 골라봐.');
