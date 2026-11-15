@@ -1,4 +1,5 @@
 import {TOOL_ASSETS} from './adventure/rules.js';
+import {CITY_SITES} from './learning-model.js';
 
 // Logical asset names remain stable in saved observations; only their artwork changes.
 const replacements={
@@ -26,10 +27,11 @@ export const STAGE_BACKGROUNDS={
 
 // Textures used by the five activities, shared with the offline build.
 const UI=name=>'art/ui/'+name;
+export const cityPosterAsset=(site,kind)=>`art/posters/${site}-${kind}`;
 export const STAGE_ASSETS={
   river:['art/river-field-clues-v3','river-lab','river-field','art/river-upper-photo-v1','art/river-lower-photo-v1','art/river-sand-model','art/river-sand-wet-v1','art/river-sediment-fan-v1','art/river-water-current-v2','art/river-connection-map-v1'],volcano:['volcano-lab','volcano-field','volcano-eruption','art/volcano-mountain','art/volcano-tray','art/volcano-syringe',...Array.from({length:3},(_,i)=>'art/volcano-ash-puff-'+i+'-v1')],
   rocks:['rocks-lab','art/rocks-quarry-atelier-v2','rock-0','rock-1','rock-2','rock-3','art/geologist-brush',UI('dust-crust'),UI('specimen-tray')],
-  city:['art/ash-classroom-v3','hero-protect-mask','city-before','city-eruption','city-calm','art/city-message-square-v2','art/volcano-ash-puff-1-v1','art/volcano-ash-puff-2-v1',...['notice-board','indoor-wall','window-frame','glass-pane','dust-mask','time-knob'].map(UI)],
+  city:['art/ash-classroom-v3','hero-protect-mask','city-before','city-eruption','city-calm','art/city-message-square-v2','art/volcano-ash-puff-1-v1','art/volcano-ash-puff-2-v1',...['notice-board','indoor-wall','window-frame','glass-pane','dust-mask','time-knob'].map(UI),...CITY_SITES.flatMap(({id})=>['guide','retry'].map(kind=>cityPosterAsset(id,kind)))],
   safety:['classroom','school','art/safety-cushion','art/hero-hold-leg-v1',...['warning-sign','school-desk','school-floor','flowerbed','broken-glass','fallen-shelf','exit-mat','playground','town-ground','house-roof','brick-wall','utility-pole'].map(UI)]
 };
 export const SHARED_STAGE_ASSETS=['river-hero','river-pose-0','river-pose-1','river-pose-2','river-pose-3','hero-lens','hero-brush','hero-cheer','hero-protect','tool-water',UI('parchment-panel'),UI('paper-card'),...Object.values(TOOL_ASSETS)];

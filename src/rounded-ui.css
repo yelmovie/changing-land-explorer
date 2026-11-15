@@ -212,4 +212,5 @@
 #app.adventure .ash-room-face{z-index:4;border:2px dashed #d8ffc8;border-radius:50%;box-shadow:0 0 0 1px #366348}
 #app.adventure .ash-room-face[hidden]{display:none}
 @media(min-height:621px){#app.adventure .city-ash-room .adventure-surface{bottom:9px}}
-#app.adventure .safety-classroom::before{background:linear-gradient(140deg,#e6d7b9,#d5b490 65%,#ad8a6e)}
+#app.adventure .safety-classroom::before{background-size:var(--classroom-image-size,cover);background-position:var(--classroom-image-position,center)}
+#app.adventure .safety-classroom::after{display:none}

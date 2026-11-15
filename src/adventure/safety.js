@@ -2,9 +2,40 @@ import {setupEvacuation} from './evacuation.js';
 import {SHELTER,shelterPoint,inShelter,createShelter} from './shelter.js';
 
 const inside=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
-// Classroom art is 1600 × 900. Draw it at 1200 × 675 in the same coordinate
-// system as the targets, instead of anchoring targets to the page's cover crop.
+// Source anchors are in the 1200 × 675 classroom illustration, centered on the 1200 × 640 scene.
 export const CLASSROOM_HAZARDS=[{id:'window',name:'창문',x:190,y:190,w:320,h:320,text:'창문 가까이에서는 유리나 화분이 떨어질 수 있어.'},{id:'shelf',name:'책장',x:465,y:295,w:190,h:290,text:'책장과 책이 넘어질 수 있어. 떨어진 곳에서 몸을 보호해.'}];
+
+function fitClassroom(scene,api,onFit){
+ const canvas=scene.game?.canvas,page=canvas?.closest('.safety-classroom');
+ if(!page)return;
+ const [first,last]=CLASSROOM_HAZARDS,clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
+ const leftAnchor=first.x/1200,rightAnchor=last.x/1200,windowY=(first.y+17.5)/675,bookcaseY=(last.y+17.5)/675;
+ function fit(){
+  const view=page.getBoundingClientRect(),frame=canvas.getBoundingClientRect();
+  if(!view.width||!view.height||!frame.width||!frame.height)return;
+  const x=frame.left-view.left,y=frame.top-view.top,pad=Math.min(32,frame.width*.08),padY=Math.min(16,frame.height*.045);
+  // Keep the full page painted, but keep both hazards within reach on narrow screens.
+  const width=Math.max(view.width,(x+pad)/leftAnchor,Math.min(view.height*16/9,(frame.width-pad*2)/(rightAnchor-leftAnchor)));
+  const height=Math.max(view.height,width*9/16,(y+padY)/windowY,(view.height-y-frame.height+padY)/(1-bookcaseY));
+  const minLeft=Math.max(view.width-width,x+pad-leftAnchor*width);
+  const maxLeft=Math.min(0,x+frame.width-pad-rightAnchor*width);
+  const alignWindow=x+leftAnchor*(frame.width-width);
+  const left=minLeft<=maxLeft?clamp(alignWindow,minLeft,maxLeft):clamp(alignWindow,view.width-width,0);
+  const minTop=Math.max(view.height-height,y+padY-windowY*height);
+  const maxTop=Math.min(0,y+frame.height-padY-bookcaseY*height);
+  const alignBookcase=y+frame.height*last.y/640-bookcaseY*height;
+  const top=minTop<=maxTop?clamp(alignBookcase,minTop,maxTop):clamp(alignBookcase,view.height-height,0);
+  page.style.setProperty('--classroom-image-size',`${width}px ${height}px`);
+  page.style.setProperty('--classroom-image-position',`${left}px ${top}px`);
+  onFit?.(CLASSROOM_HAZARDS.map(h=>({...h,
+   x:(left+h.x/1200*width-x)*1200/frame.width,
+   y:(top+(h.y+17.5)/675*height-y)*640/frame.height
+  })));
+ }
+ const observer=new ResizeObserver(fit);observer.observe(page);observer.observe(canvas);
+ scene.scale.on('resize',fit);fit();
+ api.listenCleanup(()=>{observer.disconnect();scene.scale.off('resize',fit);});
+}
 export function setup(scene,api){
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
  const d=api.data,w=api.work;d.evidence??={};d.protect??={under:false,head:false,leg:false,stopped:false,confirmed:false};
@@ -29,12 +60,13 @@ export function setup(scene,api){
  function protect(){
   api.image('classroom',600,320,1200,640);
   const p=d.protect,phase=api.phase;
-  api.image('classroom',600,320,1200,675,{sceneBackground:false}).setName('aligned-classroom');
+  if(phase!==0)fitClassroom(scene,api);
   scene.add.ellipse(950,588,150,27,0x3a2718,.26);
   const hero=api.hero(950,450,270,'river-pose-2').setFlipX(true).setName('classroom-companion');
   if(phase===0){
    api.task('위험 표시를 붙여 보자','위험 표시를 위험한 곳에 끌어다 놓아 줘.');
-   const hazards=CLASSROOM_HAZARDS,risk=scene.add.graphics();
+   let hazards=CLASSROOM_HAZARDS;
+   const risk=scene.add.graphics();
    const placed=new Set(hazards.filter(h=>d.evidence['safety-'+h.id]).map(h=>h.id));
    const labels=hazards.map(h=>api.text(h.name,h.x,h.y+49,24,'#ffffff').setBackgroundColor('#315c47').setPadding(10,5));
    function showRisk(over=null){
@@ -44,20 +76,22 @@ export function setup(scene,api){
      risk.fillStyle(0xffefbf,h===over?.26:done?.12:.045).fillRoundedRect(x,y,h.w,h.h,16);
      risk.lineStyle(h===over?5:3,done?0xa95636:0xffe9b6,.95);
      for(const [cx,cy,dx,dy]of [[x,y,1,1],[x+h.w,y,-1,1],[x,y+h.h,1,-1],[x+h.w,y+h.h,-1,-1]])risk.beginPath().moveTo(cx,cy+dy*24).lineTo(cx,cy).lineTo(cx+dx*24,cy).strokePath();
-     labels[i].setVisible(done);
+     labels[i].setPosition(h.x,h.y+49).setVisible(done);
     });
    }
    const warning=(x,y,i)=>{
     const symbol=api.image('art/ui/warning-sign',0,0,118,110);
     return scene.add.container(x,y,[scene.add.circle(0,0,60,0xfff4cb,.92).setStrokeStyle(3,0x89633b),symbol]).setSize(130,128).setName('hazard-marker-'+i);
    };
-   const markers=[warning(400,565,0),warning(760,565,1)],used=new Set();
+   const markers=[warning(400,565,0),warning(760,565,1)],used=new Map();
+   const markHazard=(mark,h)=>{used.set(mark,h.id);mark.setPosition(h.x,h.y-22).setScale(.78).disableInteractive();};
    function place(mark,h){
     if(!mark||used.has(mark))return false;
     if(!h||placed.has(h.id)){api.say(h?'이미 표시한 곳이야. 다른 위험한 곳을 찾아봐.':'유리가 깨지거나 물건이 넘어질 수 있는 곳을 찾아봐.');return false;}
-    used.add(mark);placed.add(h.id);
-    api.record({id:'safety-'+h.id,kind:'safety',asset:'classroom',label:h.name,point:{x:h.x/1200,y:(h.y+17.5)/675},text:h.text});
-    showRisk();mark.setPosition(h.x,h.y-22).setScale(.78).disableInteractive();
+    placed.add(h.id);markHazard(mark,h);
+    const anchor=CLASSROOM_HAZARDS.find(a=>a.id===h.id);
+    api.record({id:'safety-'+h.id,kind:'safety',asset:'classroom',label:h.name,point:{x:anchor.x/1200,y:(anchor.y+17.5)/675},text:h.text});
+    showRisk();
     api.spark(h.x,h.y);api.say(h.text);progress();return true;
    }
    function search(x,y){return hazards.find(h=>inside(x,y,h.x,h.y,h.w,h.h));}
@@ -65,10 +99,16 @@ export function setup(scene,api){
     const drop=(o,x,y,pointer)=>{const a=pointer||{x,y};showRisk();return place(o,search(a.x,a.y));};
     api.drag(mark,{onDrop:drop,onTap:drop,onMove:(_obj,x,y,pointer)=>{const a=pointer||{x,y};showRisk(search(a.x,a.y));},selectionHint:'위험 표시를 붙일 곳을 눌러 줘.'});
    });
-   hazards.filter(h=>placed.has(h.id)).forEach((h,i)=>{used.add(markers[i]);markers[i].setPosition(h.x,h.y-22).setScale(.78).disableInteractive();});
+   hazards.filter(h=>placed.has(h.id)).forEach((h,i)=>markHazard(markers[i],h));
    function progress(){api.counter(placed.size,2,'붙인 위험 표시');if(placed.size===2)api.finish('창문과 책장을 피해, 가까운 튼튼한 책상 아래에서 몸을 보호하자.');}
    sceneKey('위험 표시 붙이기: 숫자 1은 창문, 2는 책장이에요.', '1 2',key=>place(markers.find(m=>!used.has(m)),hazards[Number(key)-1]));
-   api.actions([]);showRisk();progress();return;
+   api.actions([]);showRisk();progress();
+   fitClassroom(scene,api,anchors=>{
+    hazards=anchors;
+    for(const [mark,id] of used){const h=hazards.find(a=>a.id===id);mark.setPosition(h.x,h.y-22);}
+    showRisk();
+   });
+   return;
   }
   if(api.admin&&phase===2){p.under=true;p.head=true;}
   const shelter=createShelter(scene,api,hero,p);

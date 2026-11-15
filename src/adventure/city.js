@@ -2,6 +2,7 @@ import {observationTour} from './observation-tour.js';
 import {CITY_SITES} from '../learning-model.js';
 import {CITY_POINTS,CITY_OBSERVATIONS as OBSERVATIONS,cityTimeLabel,cityScene,paintScene,cityEvidence,cityMarker} from '../observation-scenes.js';
 import {AIRPORT_CLIPS} from '../airport-clips.js';
+import {cityPosterAsset} from '../stage-art.js';
 
 const SITE_X=CITY_POINTS.map(p=>p.x),SITE_Y=CITY_POINTS.map(p=>p.y);
 const POSTER_CAPTIONS=[
@@ -249,7 +250,7 @@ export function setup(scene,api){
   const existing=new Set(scene.children.list);let ashShown=false,ashKey=null;
   api.task(`${s.name} 안내판을 채워 줘`,'카드를 안내판의 빈칸에 놓아 줘.');
   if(w.poster!==true&&['picture','reason','action'].every(key=>w.board?.[key]))w.poster=true;
-  const BX=861,BY=327,PW=318,PH=253,asset=key=>'art/posters/'+s.id+'-'+key;
+  const BX=861,BY=327,PW=240,PH=304;
   if(scene.textures.exists('art/ui/notice-board'))api.image('art/ui/notice-board',BX,335,662,523);
   else api.panel(BX,335,625,465,0xf1d3a6,1);
   api.text(['비행기를 이용해도 될까?','농사는 바로 잘될까?','온천을 이용해도 될까?'][index],BX,143,25,'#fff8e5',425);
@@ -266,11 +267,13 @@ export function setup(scene,api){
   let posted;
   function poster(x,y,good,w,h){
    const label=POSTER_CAPTIONS[index][good?0:1];
-   const card=scene.add.container(x,y,[api.paper('paper-card',0,0,w,h)]);
-   const key=asset(good?'guide':'retry');
-   const image=api.image(scene.textures.exists(key)?key:'city-calm',0,-34,w-20,h-91);
-   const caption=api.text(label,0,h/2-34,23,'#294239',w-26);
-   card.add(image).add(caption).setSize(w,h);card.setData('learningCard',true);
+   const frame=scene.add.rectangle(0,0,w,h,0xfff4d9).setStrokeStyle(4,0x795636);
+   const key=cityPosterAsset(s.id,good?'guide':'retry');
+   const image=api.image(scene.textures.exists(key)?key:'city-calm',0,0,w-8,h-8);
+   const strip=scene.add.rectangle(0,h/2-40,w-8,72,0xfff4d9);
+   const caption=api.text(label,0,h/2-40,23,'#294239',w-26);
+   const card=scene.add.container(x,y,[frame,image,strip,caption]).setSize(w,h);
+   card.setData('learningCard',true);
    return card.setName('city-poster-'+(good?'guide':'retry'));
   }
   const options=(index===1?[false,true]:[true,false]).map((good,i)=>({good,obj:poster(183+i*275,305,good,240,326)}));

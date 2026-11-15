@@ -5,6 +5,7 @@ import {bridgeDrag} from './bridge-test-controls.mjs';
 import fs from 'node:fs/promises';
 import {FIELD_POINTS,RIVER_MARKS} from '../src/learning-model.js';
 import {MODEL_MOUTH,MODEL_FLOW} from '../src/observation-scenes.js';
+import {CLASSROOM_HAZARDS} from '../src/adventure/safety.js';
 const out=process.env.CHECK_OUT||'.work/learning-verification';
 await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true});
@@ -67,7 +68,15 @@ async function ashSafety(){
  await page.mouse.move(mask.x,mask.y);await page.mouse.down();
  await page.mouse.move(face.x+face.width/2,face.y+face.height/2,{steps:12});await page.mouse.up();
 }
-async function hazards(){await stroke({x:400,y:578},{x:150,y:205});await stroke({x:760,y:578},{x:438,y:265});}
+async function hazards(){
+ const canvas=await page.locator('#activity canvas').boundingBox();
+ const targets=await page.locator('.safety-classroom').evaluate((el,hazards)=>{
+  const view=el.getBoundingClientRect(),style=getComputedStyle(el,'::before');
+  const [w,h]=style.backgroundSize.split(' ').map(parseFloat),[x,y]=style.backgroundPosition.split(' ').map(parseFloat);
+  return hazards.map(p=>({x:view.x+x+p.x*w/1200,y:view.y+y+(p.y+17.5)*h/675}));
+ },CLASSROOM_HAZARDS);
+ for(const [i,p] of targets.entries())await stroke({x:400+i*360,y:565},{x:(p.x-canvas.x)*1200/canvas.width,y:(p.y-canvas.y)*640/canvas.height});
+}
 async function shelter(){await stroke({x:950,y:465},{x:700,y:482});await stroke({x:520,y:525},{x:724,y:389});}
 async function next(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await settle();}
 async function concept(){if(!await page.locator('.concept-dialog').isVisible()){await page.waitForSelector('#next.ready');await page.locator('#next').click();}await page.waitForSelector('.concept-dialog');concepts++;await page.locator('#concept-continue').click();}
