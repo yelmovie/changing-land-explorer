@@ -269,6 +269,12 @@ function field(scene,api) {
   for(const [dx,dy]of [[-4,0],[4,0],[0,-4],[0,4],[-3,-3],[3,-3],[-3,3],[3,3]])scene.add.image(heroX+dx,heroY+dy,pose).setScale(176/heroHeight).setTintFill(0xfff9df);
   api.hero(heroX,heroY,176,pose).setName('field-companion');
   const points=FIELD_POINTS.filter(p=>p.side===(api.phase===0?'upper':'lower'));
+  const position=p=>({x:p.x*1.2,y:p.y*640/560});
+  function nearby(x,y,radius){
+    let nearest;
+    for(const p of points){const gap=distance({x,y},position(p));if(gap<radius){nearest=p;radius=gap;}}
+    return nearest;
+  }
   w.found??=[];let finished=!!api.completed;
   api.task(api.phase===0?'돋보기로 상류의 두 단서를 찾아 봐':'돋보기로 하류의 두 단서를 찾아 봐','돋보기를 옮기거나 숫자를 눌러 두 곳을 살펴봐.');
   const lens=tool(scene,api,'lens',600,500,'돋보기');
@@ -285,9 +291,8 @@ function field(scene,api) {
   const recorded=p=>w.found.includes(p.id)&&d.evidence[p.id]?.kind==='field'&&d.evidence[p.id]?.claim===p.claim;
   function check(){if(!finished&&points.every(recorded)){finished=true;api.finish(api.phase===0?'상류는 물길이 좁고 경사가 급해. 크고 각진 바위도 찾았어.':'하류는 물길이 넓고 완만해. 모래와 고운 흙도 찾았어.');}}
   function focus(x,y){zoom.setPosition(preview.x+(600-x)*1.5,preview.y+(320-y)*1.5);}
-  function observe(p){
-    lens.setPosition(p.x*1.2,p.y*640/560);
-    focus(lens.x,lens.y);
+  function observe(p,snap=true){
+    if(snap){const {x,y}=position(p);lens.setPosition(x,y);focus(x,y);}
     name.setText(p.label);caption.setText(p.text);
     if(recorded(p)){api.say(p.text);check();return true;}
     if(!w.found.includes(p.id))w.found.push(p.id);markers.get(p.id)(true);api.say(p.text+' 남은 숫자도 눌러 봐.');
@@ -295,10 +300,13 @@ function field(scene,api) {
     api.spark(lens.x,lens.y);api.save();check();
     return true;
   }
-  api.drag(lens,{onMove(obj,x,y){focus(x,y);},onDrop(obj,x,y){const p=points.find(p=>distance({x,y},{x:p.x*1.2,y:p.y*640/560})<80);if(p)return observe(p);api.say('반짝이는 물길이나 바위로 돋보기를 옮겨 줘.');return false;}});
+  api.drag(lens,{
+    onMove(_obj,x,y){focus(x,y);const p=nearby(x,y,42);if(p&&!recorded(p))observe(p,false);},
+    onDrop(_obj,x,y){const p=nearby(x,y,80);if(p)return observe(p);api.say('반짝이는 물길이나 바위로 돋보기를 옮겨 줘.');return false;}
+  });
   points.forEach((p,index)=>{
-    const mx=p.x*1.2,my=p.y*640/560;
-    const paint=api.marker(mx,my,index+1,()=>observe(p),{transparent:true});
+    const {x,y}=position(p);
+    const paint=api.marker(x,y,index+1,()=>observe(p),{transparent:true});
     markers.set(p.id,paint);paint(recorded(p));
   });
   api.autoplay(observationTour(api,{label:api.phase===0?'상류 두 곳 관찰':'하류 두 곳 관찰',items:points,interval:3200,visit:observe}));

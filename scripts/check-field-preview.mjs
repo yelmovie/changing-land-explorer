@@ -18,7 +18,12 @@ try{for(const [width,height]of [[1920,1080],[1024,768],[852,806],[915,412]]){
  assert.deepEqual(await page.evaluate(()=>{const scene=window.__qaGame.scene.getScene('Activity'),lens=scene.children.getByName('field-lens'),hero=scene.children.getByName('field-companion');return {lensLayers:lens.list.length,heroOnLeft:hero.x<200&&hero.y>480,facingIn:hero.texture.key==='hero-lens'&&!hero.flipX};}),{lensLayers:2,heroOnLeft:true,facingIn:true});
  await page.screenshot({path:`${out}/${width}x${height}-${phase}.png`});
  const p=FIELD_POINTS.filter(p=>p.side===(phase?'lower':'upper'))[0],canvas=page.locator('#activity canvas'),b=await canvas.boundingBox();
- await page.touchscreen.tap(b.x+p.x/1000*b.width,b.y+p.y/560*b.height);data=await inspect();assert.notEqual(data.zoom.x,840);assert.ok(data.texts.some(t=>/바위|물길/.test(t.text)));
+ await page.mouse.move(b.x+b.width/2,b.y+500/640*b.height);await page.mouse.down();
+ await page.mouse.move(b.x+p.x/1000*b.width,b.y+p.y/560*b.height,{steps:12});
+ await page.waitForFunction(label=>window.__qaGame.scene.getScene('Activity').children.getByName('field-preview-title').text===label,p.label);
+ data=await inspect();assert.notEqual(data.zoom.x,840);assert.ok(data.texts.some(t=>/바위|물길/.test(t.text)));
+ const logged=await page.evaluate(async id=>Boolean((await import('/src/main.js')).state().drafts.river.data.evidence[id]),p.id);assert.equal(logged,true,'moving the lens records the clue before releasing it');
+ await page.mouse.up();
  await canvas.press('2');await page.waitForSelector('#next.ready');
  assert.deepEqual(errors,[]);results.push({width,height,phase,passed:true});
  }
