@@ -19,7 +19,7 @@ try{
  const paused=(await work()).pour;assert.ok(paused>0&&paused<.25);await p.waitForTimeout(300);assert.equal((await work()).pour,paused);results.canTogglesOnTouch=true;
  await canvas.press('Space');await p.waitForTimeout(300);await canvas.press('Space');assert.ok((await work()).pour>paused);results.canTogglesOnKeyboard=true;
  await auto.tap();await p.waitForTimeout(250);await tap(400,198);assert.equal(await auto.getAttribute('aria-pressed'),'false');results.canStopsAutoplay=true;
- await auto.tap();await p.locator('[data-phase="1"][aria-current="step"]').waitFor();assert.equal(await auto.getAttribute('aria-pressed'),'true');
+ await auto.tap();await p.locator('#activity[data-phase="1"]').waitFor();assert.equal(await auto.getAttribute('aria-pressed'),'true');
  await p.waitForSelector('#next.ready',{timeout:15000});assert.equal(await auto.getAttribute('aria-pressed'),'false');
  const finished=await data();assert.equal(finished.adventure.chapters[0].phase,1);assert.deepEqual(finished.runs.map(r=>r.water),[1,2]);results.waterExperimentsRunInSequence=true;
  await auto.tap();await p.waitForTimeout(300);await auto.tap();assert.deepEqual(await data(),finished);results.replayDoesNotRewriteEvidence=true;

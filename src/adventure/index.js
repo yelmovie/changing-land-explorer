@@ -1,5 +1,5 @@
 import {SCIENCE_LEARNING,scienceText} from '../science-learning.js';
-import {$, $$, icon, escapeHTML} from '../ui.js';
+import {$, icon, escapeHTML} from '../ui.js';
 import {capture,evidenceCard} from '../explore-ui.js';
 import {PHASES,TOOL_ASSETS,revisitPhase,completePhase} from './rules.js';
 import {setup as river} from './river.js';
@@ -16,7 +16,7 @@ import {createPlayback} from './playback.js';
 
 const SETUP={river,volcano,rocks,city,safety};
 const ACTION_CUES={
- river:[['물뿌리개를 누르면 물이 나와. 다시 누르면 멈춰.','물의 양을 바꿔 같은 언덕을 관찰해 봐.','이름표를 골라 빈 원에 놓아 봐.'],['숫자를 눌러 상류를 관찰해 봐.','숫자를 눌러 하류를 관찰해 봐.','카드를 고른 뒤 상류·하류에 놓아 봐.']],
+ river:[['물뿌리개를 누르면 물이 나와. 다시 누르면 멈춰.','물의 양을 바꿔 같은 언덕을 관찰해 봐.','이름표를 골라 빈 원에 놓아 봐.'],['숫자를 눌러 상류를 관찰해 봐.','숫자를 눌러 하류를 관찰해 봐.','관찰 카드를 상류와 하류의 빈 점선 칸에 놓아 줘.']],
  volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','손잡이를 밀거나 자동 재생으로 물을 흘려 봐.','그림에서 물이 나온 곳을 누르고, 물길의 점을 이어 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.']],
  rocks:[['문지르거나 자동 재생으로 먼지를 털어 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문에 맞는 표본을 반짝이는 상자로 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.']],
  city:[['손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.','손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.','손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.'],['안내판에 붙일 카드를 먼저 골라 봐.','안내판에 붙일 카드를 먼저 골라 봐.','안내판에 붙일 카드를 먼저 골라 봐.']],
@@ -46,9 +46,7 @@ export function mount(ctx) {
   let restarting=false,focusInstruction=false,autoplayNext=false;
   let sceneCleanups=[];
   let hintIndex=0,initialHint='';
-  ctx.root.innerHTML='<div class="phaser-stage" id="phaser-stage"></div><div class="stage-loader" role="status">리버가 탐험 도구를 꺼내고 있어요…</div><div class="quest-meter" id="quest-meter" aria-live="polite"></div>';
-  // Progress shares the stage label; guidance only describes the next action.
-  $('.stage-kicker',page).append($('#quest-meter',ctx.root));
+  ctx.root.innerHTML='<div class="phaser-stage" id="phaser-stage"></div><div class="stage-loader" role="status">리버가 탐험 도구를 꺼내고 있어요…</div><div id="quest-meter" role="status"></div>';
   const next=$('#next');
   const narration=$('.river-narrator>div',page);
   narration.tabIndex=0; narration.setAttribute('role','region');narration.setAttribute('aria-label','리버의 탐구 안내');
@@ -110,22 +108,8 @@ export function mount(ctx) {
   document.addEventListener('pointerdown',manual,true);
   document.addEventListener('keydown',manual,true);
   document.addEventListener('input',manual,true);
-  function updateStepNav(){
-    const phase=chapter.phase, names=PHASES[ctx.s.id][ctx.step];
-    const path=$('#phase-path'),focused=path.contains(document.activeElement)?document.activeElement.dataset.phase:null;
-    path.innerHTML=names.map((name,i)=>{
-      const done=chapter.tasks[i]?.done,locked=i>phase&&!chapter.tasks[i-1]?.done&&!ctx.admin;
-      const status=done?' 완료':locked?' 잠김':ctx.admin?' 교사 시연 열림':'';
-      const badge=done?icon('check',16):locked?icon('lock',16):ctx.admin&&i!==phase?icon('unlock',16):i+1;
-      return `<button class="phase-node ${i===phase?'current':''} ${done?'done':''}" data-phase="${i}" ${locked?'disabled':''} aria-label="${i+1}단계 ${escapeHTML(name)}${status}${i===phase?' · 단계 목록 열기':''}" ${i===phase?'aria-current="step" aria-haspopup="dialog"':''}><span>${badge}</span><b>${name}</b>${i===phase?`<i class="phase-menu-cue">${icon('arrow',14)}</i>`:''}</button>`;
-    }).join('');
-    $$('[data-phase]',path).forEach(button=>button.onclick=event=>{
-      const target=Number(button.dataset.phase);
-      if(restarting)return;
-      if(target===chapter.phase){showPhaseChoices();return;}
-      chapter.phase=target;ctx.save();restart(event.detail===0);
-    });
-    if(focused!==null)$('[data-phase="'+focused+'"]',path)?.focus({preventScroll:true});
+  function updateCompletion(){
+    const phase=chapter.phase;
     phaseDone=chapter.tasks[phase]?.done===true;
     next.disabled=!phaseDone;
     skipLabel();
@@ -135,19 +119,6 @@ export function mount(ctx) {
     badge.hidden=false;
     badge.innerHTML=scienceText(SCIENCE_LEARNING[ctx.s.id].focus[ctx.step][phase],ctx.s.id);
     page.classList.toggle('phase-complete',phaseDone);
-  }
-  function showPhaseChoices(){
-    const phase=chapter.phase,names=PHASES[ctx.s.id][ctx.step];
-    ctx.modal('이번 활동의 세 가지 발견',`<div class="phase-choices">${names.map((name,i)=>{
-      const done=chapter.tasks[i]?.done,locked=i>phase&&!chapter.tasks[i-1]?.done&&!ctx.admin;
-      return `<button class="secondary" data-choose-phase="${i}" ${locked?'disabled':''} ${i===phase?'aria-current="step"':''}><span>${done?icon('check',22):locked?icon('lock',22):i+1}</span><strong>${escapeHTML(name)}</strong><small>${done?'완료':locked?'앞 발견을 먼저 마쳐 줘':i===phase?'지금 탐구 중':'다시 살펴보기'}</small></button>`;
-    }).join('')}</div>`,(dialog,close)=>{
-      for(const button of dialog.querySelectorAll('[data-choose-phase]'))button.onclick=()=>{
-        const target=Number(button.dataset.choosePhase);close();
-        if(restarting||target===chapter.phase)return;
-        chapter.phase=target;ctx.save();restart(true);
-      };
-    });
   }
   function restart(focus=false){
     if(closed||restarting||!activeScene)return;
@@ -222,7 +193,7 @@ export function mount(ctx) {
       hintIndex=0;initialHint='';
       ctx.controls.innerHTML='';$('#quest-meter').textContent='';
       $('.stage-loader',ctx.root)?.remove();
-      updateStepNav();
+      updateCompletion();
       const phase=chapter.phase;
       const riverField=ctx.s.id==='river'&&ctx.step===1&&phase<2;
       page.classList.toggle('river-observation',riverLab&&phase===2);
@@ -245,7 +216,7 @@ export function mount(ctx) {
         if(!moved&&selected&&pressed!==selected){
           const at=scene.cameras.main.getWorldPoint(p.x,p.y);
           const object=selected,config=draggables.get(object),home={x:object.x,y:object.y};clearSelection();
-          if(config&&object.active){scene.tweens.killTweensOf(object);object.setPosition(at.x,at.y);config.onMove?.(object,at.x,at.y);const accepted=(config.onTap||config.onDrop)?.(object,object.x,object.y)===true;if(!accepted&&object.active)object.setPosition(home.x,home.y);ctx.sound(accepted?'place':'move');}
+          if(config&&object.active){scene.tweens.killTweensOf(object);object.setPosition(at.x,at.y);config.onMove?.(object,at.x,at.y,at);const accepted=(config.onTap||config.onDrop)?.(object,object.x,object.y,at)===true;if(!accepted&&object.active)object.setPosition(home.x,home.y);ctx.sound(accepted?'place':'move');}
         }else if(!moved&&pressed){
           const action=draggables.get(pressed)?.onPick;
           if(action){clearSelection();action();}else select(pressed);
@@ -263,11 +234,10 @@ export function mount(ctx) {
         task(title,hint){ctx.instruction(title);ctx.say(initialHint?hint:ACTION_CUES[ctx.s.id][ctx.step][phase]);initialHint=hint;},
         say(text,success=false){ctx.say(text);if(success)ctx.chime();},
         counter(done,total,label){
-          const value=Math.min(done,total), key=label+' '+value+'/'+total;
+          const key=label+' '+Math.min(done,total)+' / '+total;
           if(key===meterText)return;
           meterText=key;
-          meter.innerHTML=`<span>${escapeHTML(label)}</span><strong>${value} <small>/ ${total}</small></strong>`;
-          meter.style.setProperty('--progress',(100*value/total)+'%');
+          meter.textContent=key;
         },
         record(item){capture(ctx,{...item,phase,operationHelp:!!work.operationHelp,observationHint:!!work.observationHint,hintLevel:work.hintLevel||0,answerHint:!!work.answerHint}); next.disabled=!phaseDone;},
         sound:ctx.sound,
@@ -284,7 +254,7 @@ export function mount(ctx) {
           if(!phaseDone)return;
           completionShown=true;
           const focusAction=ctx.controls.contains(document.activeElement)&&document.activeElement.closest('.action-buttons');
-          ctx.save();ctx.update();updateStepNav();ctx.say(summary);
+          ctx.save();ctx.update();updateCompletion();ctx.say(summary);
           if(focusAction)next.focus({preventScroll:true});
           if(fresh){
             ctx.chime();
@@ -394,11 +364,12 @@ export function mount(ctx) {
           }
           object.on('pointerdown',()=>{if(!document.querySelector('dialog[open]'))pressed=object;});
           object.on('dragstart',()=>{if(document.querySelector('dialog[open]'))return;scene.tweens.killTweensOf(object);dragging=true;home={x:object.x,y:object.y};clearSelection();gestureMoved=true;ctx.sound('pickup');object.setDepth(200);onStart?.(object);});
-          object.on('drag',(_pointer,x,y)=>{object.setPosition(x,y);onMove?.(object,x,y);});
-          object.on('dragend',()=>{
+          const worldPoint=pointer=>scene.cameras.main.getWorldPoint(pointer.x,pointer.y);
+          object.on('drag',(pointer,x,y)=>{object.setPosition(x,y);onMove?.(object,x,y,worldPoint(pointer));});
+          object.on('dragend',pointer=>{
             if(!dragging)return;dragging=false;
             let accepted=false;
-            try{accepted=onDrop?.(object,object.x,object.y)===true;}finally{object.setDepth(depth);}
+            try{accepted=onDrop?.(object,object.x,object.y,worldPoint(pointer))===true;}finally{object.setDepth(depth);}
             if(accepted)ctx.sound('place');
             if(!accepted&&object.active)scene.tweens.add({targets:object,x:home.x,y:home.y,duration:reduced?0:180,ease:'Sine.easeOut'});
           });
@@ -436,6 +407,7 @@ export function mount(ctx) {
         }
       };
       hooks=SETUP[ctx.s.id](scene,api);
+      ctx.root.dataset.phase=String(phase);
       if(phaseDone)ctx.say(chapter.tasks[phase]?.summary||'발견을 마쳤어. 다음으로 이어 가자.');
       guideAction();
       if(focusInstruction){focusInstruction=false;$('#instruction').focus({preventScroll:true});}

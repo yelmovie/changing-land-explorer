@@ -328,7 +328,8 @@ function connectField(scene,api){
     {side:'upper',x:205,y:410},{side:'upper',x:405,y:410},
     {side:'lower',x:795,y:410},{side:'lower',x:995,y:410}
   ];
-  const flagSpot={x:978,y:281},slotWidth=182,slotHeight=83;
+  const flagSpot={x:978,y:278},slotWidth=182,slotHeight=83;
+  const flagPrompt='깃발을 모래톱으로 끌어 놓아 봐. 깃발과 모래톱을 차례로 눌러도 돼.';
   let hover=-1,flagHover=false,finished=!!api.completed;
   for(const id of w.connected??[]){
     const point=FIELD_POINTS.find(p=>p.id===id);
@@ -342,7 +343,7 @@ function connectField(scene,api){
   function persist(){w.connected=[...connected.keys()];w.cardSlots=Object.fromEntries(connected);api.save();}
   function guide(){
     const title='네가 모은 단서로 강 지도를 완성해 봐';
-    const hint=w.deposition?'모래가 강 안쪽에 쌓인 곳에 깃발을 꽂았어.':allCards()?'모래가 쌓인 곳에 깃발을 옮겨 봐.':'관찰 카드를 상류와 하류의 빈 점선 칸에 놓아 줘.';
+    const hint=w.deposition?'모래가 강 안쪽에 쌓인 곳에 깃발을 꽂았어.':allCards()?flagPrompt:'관찰 카드를 상류와 하류의 빈 점선 칸에 놓아 줘.';
     api.task(title,hint);
     api.counter(connected.size+Number(w.deposition),5,'지도 연결');
   }
@@ -352,7 +353,7 @@ function connectField(scene,api){
   groupLabel('상류',305);groupLabel('하류',895);
   const places=scene.add.graphics();
   const ghosts=slots.map(({x,y})=>api.text('카드 놓는 곳',x,y,21,'#31574a'));
-  const flagHint=api.text('카드 4장을 먼저 놓아 줘',978,235,18,'#204b42').setBackgroundColor('#fff9e9').setPadding(8,5);
+  const flagHint=api.text('카드 네 장을 먼저 놓아 줘',flagSpot.x,224,22,'#204b42').setBackgroundColor('#fff9e9').setPadding(8,5);
   function dashed(x,y,w,h){
     for(let k=0;k<w;k+=16){const end=Math.min(w,k+9);places.lineBetween(x+k,y,x+end,y);places.lineBetween(x+k,y+h,x+end,y+h);}
     for(let k=0;k<h;k+=16){const end=Math.min(h,k+9);places.lineBetween(x,y+k,x,y+end);places.lineBetween(x+w,y+k,x+w,y+end);}
@@ -370,15 +371,15 @@ function connectField(scene,api){
     }
     if(!w.deposition){
       const {x,y}=flagSpot,active=allCards();
-      places.fillStyle(0xfff4cf,flagHover?.82:active?.42:.20).fillEllipse(x,y,94,59);
-      places.lineStyle(active?4:2,active?0x704818:0x5d6250,active?1:.82);
-      for(let k=0;k<14;k++){
-        const a=k*Math.PI/7,b=a+.23;
-        places.lineBetween(x+46*Math.cos(a),y+28*Math.sin(a),x+46*Math.cos(b),y+28*Math.sin(b));
+      places.fillStyle(flagHover?0xd6f3bb:0xfff4cf,flagHover?.84:active?.52:.20).fillEllipse(x,y,150,68);
+      places.lineStyle(active?5:2,flagHover?0x24594b:active?0x704818:0x5d6250,active?1:.82);
+      for(let k=0;k<16;k++){
+        const a=k*Math.PI/8,b=a+.24;
+        places.lineBetween(x+74*Math.cos(a),y+33*Math.sin(a),x+74*Math.cos(b),y+33*Math.sin(b));
       }
     }
-    flagHint.setVisible(!w.deposition).setText(allCards()?'여기에 깃발 꽂기':'카드 4장을 먼저 놓아 줘');
-    if(!w.deposition){flag.setAlpha(allCards()?1:.68);flag.caption?.setText(allCards()?'깃발을 모래톱에':'모래톱 깃발');}
+    flagHint.setVisible(!w.deposition).setText(allCards()?'여기에 깃발 꽂기':'카드 네 장을 먼저 놓아 줘');
+    if(!w.deposition)flag.setAlpha(allCards()?1:.68);
   }
   function slotAt(x,y){
     return slots.findIndex(slot=>Math.abs(x-slot.x)<=slotWidth/2+9&&Math.abs(y-slot.y)<=slotHeight/2+10);
@@ -393,7 +394,7 @@ function connectField(scene,api){
     connected.set(point.id,index);
     cards.get(point.id).setPosition(slot.x,slot.y).setScale(.92).disableInteractive();
     persist();paint();guide();api.spark(slot.x,slot.y);
-    api.say(allCards()?'카드를 다 연결했어. 모래가 쌓인 점선 자리에 깃발을 꽂아 줘.':'맞는 곳에 단서를 놓았어. 남은 카드도 연결해 봐.');
+    if(!allCards())api.say('맞는 곳에 단서를 놓았어. 남은 카드도 연결해 봐.');
     return true;
   }
   for(const [i,point] of FIELD_POINTS.entries()){
@@ -410,19 +411,32 @@ function connectField(scene,api){
       card.setPosition(slot.x,slot.y).setScale(.92).disableInteractive();
     }
   }
-  const flag=tool(scene,api,'flag',1045,518,'모래가 쌓여요').setScale(.88).setName('river-sand-flag');
-  const plant=()=>{flag.setPosition(flagSpot.x+20,flagSpot.y-33).setScale(.64).disableInteractive();flag.caption?.setVisible(false);};
+  const flag=tool(scene,api,'flag',1045,518,'깃발').setScale(.96).setName('river-sand-flag');
+  // The flag's artwork is centered on the drag object; the pole ends at its lower left.
+  const pole=flag.artwork?{x:-.45*flag.artwork.displayWidth,y:.47*flag.artwork.displayHeight}:{x:0,y:30};
+  const plant=()=>{
+    flag.setScale(.76).setPosition(flagSpot.x-pole.x*.76,flagSpot.y-pole.y*.76).disableInteractive();
+    flag.caption?.setVisible(false);
+  };
   function deposit(){
     if(w.deposition)return true;
     if(!allCards()){api.say('깃발은 카드를 네 장 모두 놓은 뒤에 꽂아 줘.');return false;}
     w.deposition=true;d.fieldLink='deposit';plant();persist();paint();guide();api.spark(flagSpot.x,flagSpot.y);check();return true;
   }
-  const onSand=(x,y)=>Math.abs(x-flagSpot.x)<=74&&y>=flagSpot.y-75&&y<=flagSpot.y+33;
+  // Forgive a near miss around the printed oval and treat its caption as part of the target.
+  const onSand=(x,y)=>((x-flagSpot.x)/88)**2+((y-flagSpot.y)/49)**2<=1||flagHint.getBounds().contains(x,y);
+  const canPlant=(x,y,pointer)=>onSand(pointer.x,pointer.y)||onSand(x+pole.x*flag.scaleX,y+pole.y*flag.scaleY);
   api.drag(flag,{
-    onStart(){api.say(allCards()?'강 안쪽 모래톱의 점선까지 깃발을 옮겨 줘.':'관찰 카드부터 네 장 모두 연결해 줘.');},
-    onMove(_obj,x,y){const next=allCards()&&onSand(x,y);if(next!==flagHover){flagHover=next;paint();}},
-    onDrop(_obj,x,y){flagHover=false;paint();if(!allCards())return deposit();if(!onSand(x,y)){api.say('물에 옮겨진 모래가 쌓인 모래톱의 점선 안에 깃발을 꽂아 줘.');return false;}return deposit();}
+    onStart(){api.say(allCards()?'모래톱 위에서 손을 떼면 깃발이 꽂혀.':'관찰 카드부터 네 장 모두 연결해 줘.');},
+    onMove(_obj,x,y,pointer){const next=allCards()&&canPlant(x,y,pointer);if(next!==flagHover){flagHover=next;paint();}},
+    onTap(_obj,x,y){return drop(onSand(x,y));},
+    onDrop(_obj,x,y,pointer){return drop(canPlant(x,y,pointer));}
   });
+  function drop(onTarget){
+    flagHover=false;
+    if(!allCards()||onTarget)return deposit();
+    paint();api.say('모래톱의 점선 안에 깃발을 놓아 봐.');return false;
+  }
   if(w.deposition)plant();
   function check(){
     if(finished||!allCards()||!w.deposition)return;

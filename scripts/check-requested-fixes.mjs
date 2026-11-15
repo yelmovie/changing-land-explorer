@@ -37,7 +37,7 @@ try{
   if(width===1024){await page.setViewportSize({width:768,height:1024});await ready();assert.equal((await data('river')).adventure.chapters[0].work[0].pour,stopped);await layout('water-rotated-portrait');await page.setViewportSize({width,height});await ready();}
   await page.reload();await ready();assert.equal((await data('river')).adventure.chapters[0].work[0].pour,stopped,'intermediate saved amount');
   await beginPour(mode);
-  await page.locator('[data-phase="1"][aria-current="step"]').waitFor({timeout:15000});if(mode==='drag')await page.mouse.up();
+  await page.locator('#activity[data-phase="1"]').waitFor({timeout:15000});if(mode==='drag')await page.mouse.up();
   const d=await data('river');assert.equal(d.runs.length,1);assert.equal(d.evidence['river-run-1'].time,1);assert.equal(d.adventure.chapters[0].work[0].pour,1);
   const metrics=await layout(`${width}-${height}-water-${mode}`);
   await page.waitForSelector('#next.ready',{timeout:15000});

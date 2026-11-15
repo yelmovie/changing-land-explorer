@@ -147,10 +147,10 @@ try{
  await page.waitForSelector('#start');await page.locator('#start').click();await page.locator('#story-skip').click();await enter(0);
  await page.locator('#observation-auto').click();
  // The second run follows without a navigation click; a reload keeps its phase.
- await page.waitForSelector('[data-phase="1"][aria-current="step"]');await settle();
+ await page.waitForSelector('#activity[data-phase="1"]');await settle();
  assert.equal(await page.locator('#instruction').evaluate(e=>e===document.activeElement),true);
- assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);
- await page.reload();await settle();await page.waitForSelector('[data-phase="1"][aria-current="step"]');
+ assert.equal(await page.locator('[data-phase="2"]').count(),0);
+ await page.reload();await settle();await page.waitForSelector('#activity[data-phase="1"]');
  await page.locator('#observation-auto').click();await page.waitForSelector('#next.ready',{timeout:15000});await next();
  const timeline=page.getByRole('slider',{name:'실험 시간'});await timeline.press('Home');await timeline.press('End');
  await riverMarks();

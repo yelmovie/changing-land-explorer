@@ -34,12 +34,14 @@ try{
      if(!e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)))issues.push('covered '+name);
     }
     for(const e of document.querySelectorAll('.adventure-footer,.controls,.river-narrator>div,.adventure-toolbar'))if(e.scrollHeight>e.clientHeight+2||e.scrollWidth>e.clientWidth+2)issues.push('panel overflow '+e.className);
-    const a=rect(document.querySelector('#activity')),c=rect(document.querySelector('#activity canvas')),footer=rect(document.querySelector('.adventure-footer')),h=rect(document.querySelector('.adventure-heading'));
+    const heading=document.querySelector('.adventure-heading'),title=heading.querySelector('h1');
+    const a=rect(document.querySelector('#activity')),c=rect(document.querySelector('#activity canvas')),footer=rect(document.querySelector('.adventure-footer')),h=rect(heading);
+    if(!title?.textContent.trim()||heading.textContent.trim()!==title.textContent.trim()||heading.querySelector('nav,button'))issues.push('activity header contains more than the title');
     if(c.top<a.top-2||c.bottom>a.bottom+2||c.left<a.left-2||c.right>a.right+2)issues.push('canvas clipped');
     const overlap=(a,b)=>Math.min(a.right,b.right)>Math.max(a.left,b.left)+1&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top)+1;
     if(overlap(c,footer))issues.push('experiment covered by controls');
     for(const e of document.querySelectorAll('.topbar .nav-group'))if(overlap(h,rect(e)))issues.push('heading covers navigation');
-    const texts=[...document.querySelectorAll('#instruction,#speech,.phase-node b')].filter(visible).map(e=>e.textContent.trim());
+    const texts=[...document.querySelectorAll('#instruction,#speech')].filter(visible).map(e=>e.textContent.trim());
     if(new Set(texts).size!==texts.length)issues.push('duplicate instruction');
     return{issues,canvas:{w:c.width,h:c.height},controls:controls.map(e=>e.id||e.textContent.trim()),speech:document.querySelector('#speech').textContent,footer:{height:footer.height,contentHeight:document.querySelector('.adventure-toolbar').scrollHeight}};
    });

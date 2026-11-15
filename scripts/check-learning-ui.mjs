@@ -30,10 +30,10 @@ async function record(page,label,scope='body',{scroll=false,shot=false}={}){
   if(!scroll){
    for(const a of root.querySelectorAll('p'))if(vis(a)&&parseFloat(getComputedStyle(a).fontSize)<19.9)issues.push('body text under 20px: '+a.textContent);
   }
-  const heading=root.querySelector('.task-copy'),phases=root.querySelector('.phase-path');
+  const heading=root.querySelector('.adventure-heading');
   const activity=root.querySelector('#activity'),canvas=activity?.querySelector('canvas');
   if(canvas){const a=activity.getBoundingClientRect(),b=canvas.getBoundingClientRect();if(b.left<a.left-1||b.top<a.top-1||b.right>a.right+1||b.bottom>a.bottom+1)issues.push('activity canvas clipped');}
-  if(heading&&phases){const h=heading.getBoundingClientRect(),p=phases.getBoundingClientRect();if(h.right>p.left+1&&h.left<p.right-1&&h.bottom>p.top+1&&h.top<p.bottom-1)issues.push('goal overlaps phase navigation');}
+  if(heading&&(heading.querySelectorAll('h1').length!==1||heading.textContent.trim()!==heading.querySelector('h1')?.textContent.trim()||heading.querySelector('nav,button')))issues.push('activity header contains more than the title');
   if(root.querySelector('.transfer-page')){
    const svg=activity.querySelector('.scene-svg').getBoundingClientRect();
    if(svg.height<128||!inside(svg))issues.push('transfer drawing area is too small or clipped');
