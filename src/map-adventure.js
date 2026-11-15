@@ -267,11 +267,6 @@ export function renderMap({arrival,engine,loadEngine}={}){
       if(document.activeElement===retry)nextButton?.focus({preventScroll:true});
       retry.hidden=true;engineStatus.textContent='';
       mapScene=this;this.cameras.main.setZoom(1.6).centerOn(600,337.5);
-      const paths=this.add.graphics();
-      for(let i=0;i<5;i++)if(s.completed.includes(STAGES[i].id)){const route=[i?DOORS[i-1]:0,...findRoute(i?DOORS[i-1]:0,DOORS[i])];
-        // 새로 연 장소로 가는 길은 금빛 선이 천천히 그려진다.
-        if(STAGES[i].id===newcomer?.id&&!reduced){const glow=this.add.graphics(),pts=route.map(n=>POINTS[n]);this.tweens.addCounter({from:0,to:pts.length-1,duration:1500,delay:300,ease:'Sine.easeInOut',onUpdate:t=>{const v=t.getValue(),k=Math.floor(v),f=v-k;glow.clear().lineStyle(7,0xffe78a,.75).beginPath().moveTo(pts[0].x,pts[0].y);for(let j=1;j<=k;j++)glow.lineTo(pts[j].x,pts[j].y);if(k<pts.length-1)glow.lineTo(pts[k].x+(pts[k+1].x-pts[k].x)*f,pts[k].y+(pts[k+1].y-pts[k].y)*f);glow.strokePath();}});continue;}
-        paths.lineStyle(7,0xffe78a,.68).beginPath();route.forEach((n,j)=>j?paths.lineTo(POINTS[n].x,POINTS[n].y):paths.moveTo(POINTS[n].x,POINTS[n].y));paths.strokePath();}
       const p=POINTS[current];walker=createRiverWalker(this,p.x,p.y);hero=walker.hero;
       syncResidents(p);
       if(pendingTravel){const {node,target,auto}=pendingTravel;pendingTravel=null;go(node,target,auto);}

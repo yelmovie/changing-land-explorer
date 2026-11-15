@@ -15,6 +15,14 @@ const operations={
 };
 const results=[],errors=[],httpErrors=[];
 const browser=await chromium.launch({channel:'chrome',headless:true});
+async function bridgeSprite(page,state){
+ const image=page.locator(`.bridge-photo image[data-bridge-model="${state}"]`);
+ const decoded=await image.evaluate(async el=>{
+  const img=new Image();img.src=el.getAttribute('href');await img.decode();
+  return img.naturalWidth>img.naturalHeight*3?img.src:'';
+ });
+ assert.match(decoded,/\/river-footbridge-v1\.webp$/);
+}
 async function inspect(page,label){
  await page.evaluate(()=>Promise.all([...document.querySelectorAll('#operation-board img')].map(img=>img.decode())));
  await page.waitForTimeout(80);
@@ -64,12 +72,20 @@ try{
    for(const [n,action]of actions.entries()){
     await page.locator(`[data-operation="${action}"]`).click();
     if(id==='river'&&action==='observe:deposit')assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
-    if(id==='river'&&action.startsWith('bridge:'))assert.equal(await page.locator('.bridge-photo [data-bridge-model="placed"]').count(),1);
+    if(id==='river'&&action.startsWith('bridge:')){
+     await bridgeSprite(page,'placed');
+     if(width===667||width===1024&&height===768)await page.screenshot({path:`${out}/${width}x${height}-${action.replace(':','-')}.png`});
+    }
     if(id==='river'&&action==='test'){
      const success=actions[n-1]==='bridge:checked';
      await page.locator('.bridge-map[data-bridge-phase="'+(success?'held':'washed')+'"]').waitFor();
      if(!success)assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
-     else await page.locator('[data-operation="move:east"]').waitFor();
+     await bridgeSprite(page,success?'held':'washed');
+     if(success){
+      await page.locator('[data-operation="move:east"]').waitFor();
+      await page.locator('.crossing-bridge').evaluate(img=>img.decode());
+      assert.match(await page.locator('.crossing-bridge').getAttribute('src'),/\/river-footbridge-v1\.webp$/);
+     }
     }
     await inspect(page,`${width}x${height}-${id}-${n}`);
    }

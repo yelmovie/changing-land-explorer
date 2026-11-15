@@ -1,7 +1,8 @@
+export const BRIDGE_ART='/assets/art/river-footbridge-v1.webp';
 export const BRIDGE_SITES={
- bank:{label:'깎이는 물가',mark:[22,43],ends:[[145,237],[634,303]]},
- checked:{label:'점검한 양쪽 받침',mark:[53,29],ends:[[326,143],[730,198]]},
- sand:{label:'새로 쌓인 모래',mark:[81,59],ends:[[222,378],[802,352]]}
+ bank:{label:'깎이는 물가',mark:[22,51],ends:[[121,271],[701,294]]},
+ checked:{label:'점검한 양쪽 받침',mark:[57,32],ends:[[322,128],[902,150]]},
+ sand:{label:'새로 쌓인 모래',mark:[81,66],ends:[[99,352],[840,333]]}
 };
 const flow=[
  'M922 58 C730 78 478 95 332 228 S324 399 560 480 S776 523 970 551',
@@ -10,12 +11,9 @@ const flow=[
 ];
 function bridge(site,state){
  const [[x,y],[right,bottom]]=site.ends,length=Math.hypot(right-x,bottom-y),angle=Math.atan2(bottom-y,right-x)*180/Math.PI;
- return '<g transform="translate('+x+' '+y+') rotate('+angle+')"><g class="bridge-model" data-bridge-model="'+state+'">'
-  +'<path class="bridge-trestles" d="M0 -21 v42 M'+length+' -21 v42" />'
-  +'<rect x="0" y="-12" width="'+length+'" height="24" rx="5"/>'
-  +'<path class="bridge-boards" d="M9 0 H'+(length-9)+'"/>'
-  +'<path class="bridge-rails" d="M0 -13 H'+length+' M0 13 H'+length+'"/>'
-  +'<circle cx="0" cy="0" r="12"/><circle cx="'+length+'" cy="0" r="12"/></g></g>';
+ // Align the masonry feet in the image with the two ground points for this site.
+ const width=length/.88,height=Math.min(118,width*.21);
+ return `<g transform="translate(${x} ${y}) rotate(${angle})"><image class="bridge-model" data-bridge-model="${state}" href="${BRIDGE_ART}" x="${-.06*width}" y="${-.98*height}" width="${width}" height="${height}" preserveAspectRatio="none"/></g>`;
 }
 export function bridgeExperiment(choice,phase,tested){
  const site=BRIDGE_SITES[choice||tested];

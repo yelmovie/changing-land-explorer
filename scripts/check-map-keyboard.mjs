@@ -8,10 +8,20 @@ const browser=await chromium.launch({channel:'chrome',headless:true});
 const out=process.env.CHECK_OUT||'.work/map-keyboard';
 await fs.mkdir(out,{recursive:true});
 const results=[],errors=[],base=process.env.CHECK_URL||'http://127.0.0.1:5177';
-async function scenario(name,fn,{reduced=false,fallback=false,node=0}={}){
+async function scenario(name,fn,{reduced=false,fallback=false,node=0,completed=[]}={}){
  const context=await browser.newContext({viewport:{width:1280,height:720},reducedMotion:reduced?'reduce':'no-preference',serviceWorkers:'block'});
- const state=fresh();state.started=true;state.mapNode=node;state.location={type:'home'};
- await context.addInitScript(({state,key})=>{if(!sessionStorage.keyboardQA){sessionStorage.keyboardQA='1';localStorage.setItem(key,JSON.stringify(state));}},{state,key:SAVE_KEY});
+ const state=fresh();state.started=true;state.mapNode=node;state.completed=completed;state.location={type:'home'};
+ await context.addInitScript(({state,key})=>{
+  if(!sessionStorage.keyboardQA){sessionStorage.keyboardQA='1';localStorage.setItem(key,JSON.stringify(state));}
+  if(state.completed.length){
+   const stroke=CanvasRenderingContext2D.prototype.stroke;
+   window.atlasStrokes=0;
+   CanvasRenderingContext2D.prototype.stroke=function(...args){
+    if(this.canvas.parentElement?.id==='atlas-canvas')window.atlasStrokes++;
+    return Reflect.apply(stroke,this,args);
+   };
+  }
+ },{state,key:SAVE_KEY});
  const page=await context.newPage();page.setDefaultTimeout(6000);page.on('pageerror',e=>errors.push(String(e)));
  if(fallback)await page.route('**/assets/vendor/*phaser*.js',r=>r.abort());
  try{
@@ -61,6 +71,17 @@ try{
   await p.keyboard.press('ArrowRight');await at(p,2);
   await p.locator('#home').click();await p.locator('#start').waitFor();await p.keyboard.press('ArrowDown');assert.equal(await node(p),2);
  });
+ await scenario('map-without-drawn-trails',async p=>{
+  await p.keyboard.press('ArrowUp');await at(p,1);
+  assert.equal(await p.evaluate(()=>window.atlasStrokes),0,'a completed route does not add strokes to the map canvas');
+  await p.evaluate(async()=>{(await import('/src/main.js')).navigate('map',{arrival:'river'});});
+  await p.locator('.restored-place-announcement').waitFor({state:'attached'});
+  await p.locator('.map-ready').waitFor();
+  await p.keyboard.press('ArrowUp');await at(p,2);
+  await p.waitForTimeout(450);
+  assert.equal(await p.evaluate(()=>window.atlasStrokes),0,'opening a restored place and walking do not draw a trail');
+  await p.screenshot({path:out+'/restored-map.png'});
+ },{completed:['river']});
  for(const fallback of [false,true])await scenario(fallback?'fallback-keyboard':'reduced-motion-keyboard',async p=>{
   await p.locator('#dpad-center').focus();await p.keyboard.press('ArrowUp');await at(p,1);
   await p.keyboard.press('ArrowDown');await at(p,0);
