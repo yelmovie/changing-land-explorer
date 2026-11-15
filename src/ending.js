@@ -1,12 +1,51 @@
 import {STAGES} from './model.js';
-import {$,$$,escapeHTML} from './ui.js';
-import {shell,state,isAdmin,save,navigate,enter,toast,chime,modal} from './main.js';
+import {$,$$,escapeHTML,icon} from './ui.js';
+import {shell,state,isAdmin,save,navigate,enter,toast,chime,modal,showFilm} from './main.js';
 import {evidenceCard,btn,pill,svgFrame,pointerSurface,bindChoices} from './explore-ui.js';
+import {scienceText} from './science-learning.js';
 import {riverArt,pin} from './visuals.js';
 import {RIVER_MARKS,riverMarkValid,inspectRoute} from './learning-model.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
 const toolArt=(st,size)=>`<img src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt="${st.reward}" width="${size}" height="${size}">`;
 import {mountRoute} from './safety.js';
+const TOWER_PHOTOS={
+ river:'/assets/art/river-field-clues-v3.webp',
+ volcano:'/assets/art/volcano-caldera-v2.webp',
+ rocks:'/assets/art/rocks-crystal-cave-v2.webp',
+ city:'/assets/art/city-harbor-v2.webp',
+ safety:'/assets/art/safety-evacuation-garden-v2.webp'
+};
+const towerPhoto=st=>`<img class="tower-photo" src="${TOWER_PHOTOS[st.id]}" alt="${st.place} 대표 그림">`;
+function frameContents(st,e,review){
+ return `<span class="tower-mat" aria-hidden="true">${e?towerPhoto(st):icon('camera',34)}</span><span class="tower-plaque"><strong>${st.name}</strong><span class="tower-caption">${e?escapeHTML(e.label):review?'걸어 둔 기록 없음':'아직 빈 액자'}</span>${!review||e?`<span class="tower-frame-action">${review?'기록 펼치기':e?'기록 바꾸기':'내 기록 고르기'} ${icon('arrow',16)}</span>`:''}</span>`;
+}
+function towerFrames(chosen,review=false){
+ return `<ol class="tower-frames" aria-label="다섯 장소의 사진틀">${STAGES.map(st=>{
+   const e=chosen(st.id),action=review?'read':'select';
+  return `<li class="tower-slot"><span class="tower-hanger" aria-hidden="true"></span>${review&&!e?`<div class="tower-frame">${frameContents(st,e,review)}</div>`:`<button type="button" class="tower-frame${e?' mounted':''}" data-${action}-record="${st.id}">${frameContents(st,e,review)}</button>`}</li>`;
+ }).join('')}</ol>`;
+}
+function chooseTowerRecord(st,list,current,onSelect){
+ if(!list.length){
+  modal(st.name,'<p>아직 이 액자에 걸 기록이 없어. 이 장소에서 관찰을 남겨 줘.</p>'+btn('이 장소로','redo-stage'),(d,close)=>{
+   $('#redo-stage',d).onclick=()=>{close();enter(STAGES.indexOf(st));};
+  });
+  return;
+ }
+ let index=Math.max(0,list.findIndex(e=>e.id===current));
+ modal(`${st.name} 기록 고르기`,`<div class="tower-picker">${towerPhoto(st)}<div class="tower-note" aria-live="polite" aria-atomic="true"></div>${list.length>1?`<div class="tower-pager" aria-label="관찰 기록 넘기기">${btn('이전 기록','tower-prev')}<span id="tower-page"></span>${btn('다음 기록','tower-next')}</div>`:''}<button type="button" class="primary tower-hang" data-evidence-id>이 기록 걸기 ${icon('check',18)}</button></div>`,(d,close)=>{
+  const back=$('#tower-prev',d),forward=$('#tower-next',d),hang=$('[data-evidence-id]',d);
+  const update=()=>{
+   const e=list[index];
+   $('.tower-note',d).innerHTML=`<h3>${escapeHTML(e.label)}</h3><p>${scienceText(e.text||'',st.id)}</p>${e.answerHint?'<small>정답 힌트를 살펴본 연습</small>':''}`;
+   if(back){back.disabled=index===0;forward.disabled=index===list.length-1;$('#tower-page',d).textContent=`${index+1} / ${list.length}`;}
+   hang.dataset.evidenceId=e.id;
+  };
+  if(back){back.onclick=()=>{index--;update();};forward.onclick=()=>{index++;update();};}
+  hang.onclick=()=>{close();onSelect(list[index]);};
+  update();
+ });
+}
 const TRANSFER_ROUTE={start:{x:120,y:410},goal:{x:880,y:100},areas:[{x:50,y:50,w:900,h:420}],gates:[],hazards:[{x:320,y:180,w:230,h:160,label:'도서관',message:'도서관 건물에서 떨어져 이동해.'},{x:650,y:270,w:70,h:160,label:'담장',message:'담장과 떨어진 길을 찾아 봐.'},{x:760,y:150,w:45,h:65,label:'전신주',message:'전신주가 있는 곳을 피해 가자.'}]};
 export function renderFinal(mode='assembly'){
  const s=state();if(s.completed.length<5&&!isAdmin()){navigate('map');return()=>{};}
@@ -17,7 +56,6 @@ export function renderFinal(mode='assembly'){
  }
  const records=id=>Object.values({...s.records[id]?.data?.evidence,...s.drafts[id]?.data?.evidence});
  const chosen=id=>records(id).find(e=>e.id===f.selected[id]);
- const recordTile=(st,e,action)=>`<article class="saved-evidence record-tile"><div class="evidence-symbol">${toolArt(st,52)}</div><div><h3>${st.name}</h3><span>${escapeHTML(e.label)}</span>${action}</div></article>`;
  const openRecords=id=>modal('내가 남긴 관찰',`<div class="evidence-list">${records(id).map(e=>evidenceCard(e)).join('')||'<p>아직 관찰 장면이 없어. 지도에서 해당 탐험의 기록을 남겨 줘.</p>'}</div>`);
  if(mode==='certificate'){
   if(!s.finished&&!isAdmin()){navigate('final');return()=>{};}
@@ -25,7 +63,8 @@ export function renderFinal(mode='assembly'){
  }
  if(mode==='ending'){
   if(!s.finished&&!isAdmin()){navigate('final');return()=>{};}
-  shell('우리의 발견이 연결됐어',`<main class="final-scene restored-scene"><header class="restored-hero"><span class="eyebrow">${isAdmin()?'교사 시연 · 완료 장면':'지오밸리 탐험 완료'}</span><h1>기록탑에 다시 불이 켜졌어요!</h1><p>${isAdmin()?'학생이 다섯 기록과 마지막 도전을 마치면 만나는 장면이에요.':'다섯 장소에서 모은 관찰을 마지막 도전에도 써 봤어요.'}</p></header><div class="final-panel"><div class="final-record-grid">${STAGES.map(st=>{const e=chosen(st.id);return e?recordTile(st,e,`<button class="secondary" data-read-record="${st.id}">기록 펼치기</button>`):`<article class="saved-evidence"><div><h3>${st.name}</h3><p>${isAdmin()?'시연용 화면':'대표 기록을 골라 주세요.'}</p></div></article>`;}).join('')}</div><div class="final-actions">${btn('나의 탐험 인증서','certificate','primary')}${btn('다시 지도로','journey')}${btn('대표 기록 바꾸기','choose-again')}</div></div></main>`,'final');$('#certificate').onclick=()=>navigate('final','certificate');$('#journey').onclick=()=>navigate('map');$('#choose-again').onclick=()=>{f.assembled=false;save();navigate('final');};$$('[data-read-record]').forEach(button=>button.onclick=()=>{
+  shell('우리의 발견이 연결됐어',`<main class="final-scene restored-scene tower-scene"><header class="restored-hero"><h1>기록탑에 다시 불이 켜졌어!</h1><p>${isAdmin()?'학생이 다섯 기록과 마지막 도전을 마치면 만나는 장면이야.':'다섯 장소에서 모은 관찰을 마지막 도전에도 써 봤어.'}</p></header><section class="tower-display" aria-label="내가 기록탑에 건 발견">${towerFrames(chosen,true)}<div class="tower-actions">${btn('다시 지도로','journey')}${btn('대표 기록 바꾸기','choose-again')}${btn(`${icon('play',18)} 마무리 영상 다시 보기`,'final-film-replay')}${btn('나의 탐험 인증서','certificate','primary')}</div></section></main>`,'final');
+  $('#certificate').onclick=()=>navigate('final','certificate');$('#journey').onclick=()=>navigate('map');$('#final-film-replay').onclick=()=>showFilm('final',{replay:true});$('#choose-again').onclick=()=>{f.assembled=false;save();navigate('final');};$$('[data-read-record]').forEach(button=>button.onclick=()=>{
    const id=button.dataset.readRecord,e=chosen(id),index=STAGES.findIndex(st=>st.id===id);
    modal('내가 남긴 발견',evidenceCard(e,'<button class="primary" data-replay>이 장면 다시 탐구</button>'),(dialog,close)=>{
     $('[data-replay]',dialog).onclick=()=>{s.drafts[id]??={step:0,passed:[],data:structuredClone(s.records[id]?.data||{})};s.drafts[id].data.revisit=e.id;save();close();enter(index,e.activity);};
@@ -33,12 +72,35 @@ export function renderFinal(mode='assembly'){
   });return()=>{};
  }
  if(!f.assembled){
-  shell('기억의 기록탑',`<main class="final-scene"><h1>내가 남긴 다섯 발견을 골라 줘</h1><p>아래 장소마다 ‘내 기록 고르기’를 눌러 하나씩 꽂아 줘. <strong>${STAGES.filter(st=>chosen(st.id)).length} / 5개 선택</strong></p><div class="final-panel"><div class="final-record-grid">${STAGES.map(st=>chosen(st.id)?recordTile(st,chosen(st.id),`<button class="secondary" data-select-record="${st.id}">다른 기록 고르기</button>`):`<article class="saved-evidence"><div class="evidence-symbol">${toolArt(st,64)}</div><div><h3>${st.name}</h3><button class="secondary" data-select-record="${st.id}">내 기록 고르기</button></div></article>`).join('')}</div><div class="final-actions">${btn('새 상황에 써 보기','final-connect','primary')}</div></div></main>`,'final');
-  $$('[data-select-record]').forEach(b=>b.onclick=()=>{const id=b.dataset.selectRecord,list=records(id);modal('기록탑에 꽂을 내 관찰',`<div class="evidence-list">${list.map(e=>evidenceCard(e,`<button class="secondary" data-evidence-id="${escapeHTML(e.id)}">이 기록 선택</button>`)).join('')||'<p>이전 기록에는 관찰 장면이 없어. 이 장소를 다시 탐험해 새 기록을 남겨 줘.</p>'}</div>${list.length?'':btn('이 장소로','redo-stage')}`,(dialog,close)=>{$$('[data-evidence-id]',dialog).forEach(x=>x.onclick=()=>{f.selected[id]=x.dataset.evidenceId;save();close();navigate('final');});if($('#redo-stage'))$('#redo-stage').onclick=()=>{close();enter(STAGES.findIndex(st=>st.id===id));};});});$('#final-connect').onclick=()=>{if(!isAdmin()&&!STAGES.every(st=>chosen(st.id))){const missing=STAGES.find(st=>!chosen(st.id));toast(`${missing.place}의 기록을 하나 골라 줘.`);$(`[data-select-record="${missing.id}"]`).focus();return;}f.assembled=true;save();navigate('final');};return()=>{};
+  shell('기억의 기록탑',`<main class="final-scene tower-scene"><header class="tower-heading"><h1>기억의 기록탑</h1><p>장소마다 기억에 남는 기록을 하나씩 골라 액자에 걸어 줘.</p></header><section class="tower-display" aria-label="기록탑 전시"><div class="tower-progress"><span class="tower-lights" aria-hidden="true">${STAGES.map(()=>'<i></i>').join('')}</span><strong id="tower-count" role="status"></strong></div>${towerFrames(chosen)}<div class="tower-actions">${btn(s.finished?'탐험 기록 보기':'새 상황에 써 보기','final-connect','primary')}</div></section></main>`,'final');
+  const updateProgress=()=>{
+   const lit=STAGES.map(st=>!!chosen(st.id)),n=lit.filter(Boolean).length;
+   $$('.tower-lights i').forEach((light,i)=>light.classList.toggle('lit',lit[i]));
+   $('#tower-count').textContent=`${n} / ${STAGES.length}개 기록을 걸었어`;
+  };
+  updateProgress();
+  $$('[data-select-record]').forEach((b,i)=>b.onclick=()=>{
+   const st=STAGES[i];
+   chooseTowerRecord(st,records(st.id),f.selected[st.id],e=>{
+    if(e.id===f.selected[st.id])return;
+    f.selected[st.id]=e.id;save();
+    if(b.classList.contains('mounted'))$('.tower-caption',b).textContent=e.label;
+    else {
+     b.innerHTML=frameContents(st,e,false);b.classList.add('mounted');
+     if(!matchMedia('(prefers-reduced-motion: reduce)').matches)b.animate?.([{transform:'translateY(-12px) rotate(-3deg)',opacity:.55},{transform:'none',opacity:1}],{duration:400,easing:'cubic-bezier(.16,1,.3,1)'});
+    }
+    updateProgress();chime();
+   });
+  });
+  $('#final-connect').onclick=()=>{
+   const missing=STAGES.find(st=>!chosen(st.id));
+   if(missing&&!isAdmin()){toast(`${missing.place}의 기록을 하나 골라 줘.`);$(`[data-select-record="${missing.id}"]`).focus();return;}
+   f.assembled=true;save();navigate('final');
+  };return()=>{};
  }
  if(f.round>=3){s.finished=true;save();navigate('final','ending');return()=>{};}
  const round=f.round,source=['river','rocks','safety'][round],topic=['새 물길','새 암석','새 안전길'][round];
- shell('기억의 기록탑',`<main class="explore-page transfer-page"><div class="explore-heading"><div><span class="eyebrow">기록탑 · ${round+1}/3 · ${topic}</span><h1 id="instruction"></h1></div>${btn('내 관찰 펼치기','final-source')}</div><section id="activity" class="activity-surface" aria-labelledby="instruction"></section><div class="transfer-aside"><div class="explore-feedback"><img src="/assets/hero-lens.webp" alt=""><p id="speech" role="status">내 관찰을 떠올려 새 상황을 살펴봐.</p></div><div class="explore-actions"><div id="controls" class="controls"></div>${btn(round===2?'탐험 마치기':'다음 도전','next','primary')}</div></div></main>`,'exploration');$('#final-source').onclick=()=>openRecords(source);$('#next').disabled=true;$('#next').setAttribute('aria-describedby','speech');
+ shell('기억의 기록탑',`<main class="explore-page transfer-page"><div class="explore-heading"><div><span class="eyebrow">기록탑 · ${round+1}/3 · ${topic}</span><h1 id="instruction"></h1></div>${btn('내 관찰 펼치기','final-source')}</div><section id="activity" class="activity-surface" aria-labelledby="instruction"></section><div class="transfer-aside"><div class="explore-feedback"><img src="/assets/hero-lens.webp" alt=""><p id="speech" role="status">내 관찰을 떠올려 새 상황을 살펴봐.</p></div><div class="explore-actions"><div id="controls" class="controls"></div>${btn(round===2?'마무리 영상 보기':'다음 도전','next','primary')}</div></div></main>`,'exploration');$('#final-source').onclick=()=>openRecords(source);$('#next').disabled=true;$('#next').setAttribute('aria-describedby','speech');
  const finish=()=>{f.round++;if(f.round>=3)s.finished=true;save();chime();navigate('final',f.round>=3?'celebration':'assembly');};$('#next').onclick=finish;
  if(round===0){
   let time=f.transferRiverTime??0,point=f.transferRiverPoint;
