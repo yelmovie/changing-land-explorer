@@ -12,7 +12,6 @@
 #app.atlas .map-villain.hit .villain-impact{animation:combat-spark .35s ease-out}
 #app.atlas .map-villain.defeated .villain-art{animation:combat-retreat .55s ease-in forwards}
 #app.atlas .map-villain.defeated .villain-hp{visibility:hidden}
-#app.atlas .map-view-tools #map-villain-focus{width:auto;min-width:80px;gap:5px;display:flex;padding:4px 8px;font:bold 16px/1 NanumSquareNeo,system-ui}
 #app.atlas .combat-mini{display:block;width:30px;height:30px}
 #app.atlas .map-combat-hud{position:absolute;z-index:35;right:16px;bottom:calc(var(--atlas-footer-h,100px) + 18px);display:flex;align-items:center;gap:8px;pointer-events:none}
 #app.atlas .combat-health{border:2px solid #827147;border-radius:15px;background:#fff9e8;box-shadow:0 3px 0 #54483144;padding:7px 12px;color:#9c392d;text-align:center;font:800 20px/1.15 NanumSquareNeo,system-ui}

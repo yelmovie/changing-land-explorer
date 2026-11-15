@@ -10,7 +10,7 @@ export function setup(scene,api){
  api.image(api.step===0?'rocks-lab':'art/rocks-quarry-atelier-v2',600,320,1200,640);
  const companion=api.hero(110,470,165,scene.textures.exists(api.step===0&&api.phase===0?'hero-brush':'hero-lens')?(api.step===0&&api.phase===0?'hero-brush':'hero-lens'):'river-pose-0');
  companion.setVisible(api.step===0&&api.phase===0);
- return api.step===0&&api.phase===0?brush():inspect();
+ return api.step===1?(api.phase===0?sortKnown():classifyNew()):api.phase===0?brush():inspect();
 
  function tray(x,y,label,w=220){if(scene.textures.exists('art/ui/specimen-tray'))api.image('art/ui/specimen-tray',x,y,w,w*.66);else api.target(x,y,w,w*.6,'');api.card(label,x,y-w*.43,128,50,22);}
 
@@ -64,11 +64,9 @@ export function setup(scene,api){
  }
 
  function inspect(){
-  const known=api.step===1&&api.phase===0;
-  if(known)return sortKnown();
-  const sample=api.step===0?api.phase-1:api.phase+1,r=ROCKS[sample],classify=api.step===1;
+  const sample=api.phase-1,r=ROCKS[sample];
   w.scanned??=[];w.proofs??=[];w.lens??={x:350,y:285};
-  api.task(classify?`${r.name}의 정체를 알아내자`:`${r.name}를 확대해서 살펴보자`,'왼쪽 돌의 숫자 세 곳을 눌러 확대해 봐. 오른쪽에서 색과 알갱이를 살펴봐.');
+  api.task(`${r.name}를 확대해서 살펴보자`,'왼쪽 돌의 숫자 세 곳을 눌러 확대해 봐. 오른쪽에서 색과 알갱이를 살펴봐.');
   api.panel(350,290,470,450,0xfff8e5,.88);api.panel(850,280,440,450,0xfff8e5,.9);
   const specimen=api.image(r.asset,350,275,400,267);api.text(r.name,350,100,27);const detailTitle=api.text('내가 살핀 부분',850,100,24);
   const maskShape=scene.add.graphics().fillStyle(0xffffff).fillCircle(850,282,156);maskShape.setVisible(false);
@@ -81,10 +79,10 @@ export function setup(scene,api){
   const focusGuide=scene.add.graphics();
   const lens=scene.add.container(w.lens.x,w.lens.y);lens.add(scene.add.circle(0,0,43,0xe6f5f4,.055).setStrokeStyle(5,0xf4c85f));lens.add(scene.add.rectangle(39,46,14,61,0x82613f).setAngle(-38));lens.setSize(150,160);
   let compare=false;
-  api.setToolHandler?.('camera',()=>{compare=!compare;detail.setTexture(compare?ROCKS[sample%2?0:1].asset:r.asset);focusGuide.setVisible(!compare&&!traysMade);detailTitle.setText(compare?'다른 표본과 비교':'내가 살핀 부분');api.say(compare?'반대 특징의 표본을 같은 확대 크기로 꺼냈어. 카메라를 다시 누르면 내 돌로 돌아와.':'내 돌의 확대 관찰로 돌아왔어.');});
+  api.setToolHandler?.('camera',()=>{compare=!compare;detail.setTexture(compare?ROCKS[sample%2?0:1].asset:r.asset);focusGuide.setVisible(!compare);detailTitle.setText(compare?'다른 표본과 비교':'내가 살핀 부분');api.say(compare?'반대 특징의 표본을 같은 확대 크기로 꺼냈어. 카메라를 다시 누르면 내 돌로 돌아와.':'내 돌의 확대 관찰로 돌아왔어.');});
   const notes=api.text('',350,462,20,'#365548',420);
   const scanSites=[[248,220,0],[350,285,4],[450,330,5]];
-  let completed=!!api.completed,focus={...w.lens},motion=null,traysMade=false;
+  let completed=!!api.completed,focus={...w.lens},motion=null;
   const scanMarkers=[];
   function drawLens(x,y,collect=true){
    const px=Math.max(230,Math.min(470,x)),py=Math.max(190,Math.min(360,y));lens.setPosition(px,py);focus={x:px,y:py};
@@ -100,13 +98,12 @@ export function setup(scene,api){
   const stop=()=>{const interrupted=!!motion;motion=null;return interrupted;};
   api.autoplay(observationTour(api,{label:'돌 세 곳 확대 관찰',items:scanSites,interval:2400,
     needed:()=>w.scanned.length<3,
-    ready:()=>!compare&&(!traysMade||completed),stop,
+    ready:()=>!compare,stop,
     visit(site){lens.setVisible(true);if(reduced)drawLens(site[0],site[1]);else motion={from:{...focus},x:site[0],y:site[1],elapsed:0};}
   }));
   const claimPositions={dark:210,light:465,fine:730,coarse:1000},claimActions={};
   let modelAvailable=false;
   function observeControls(){
-   if(traysMade)return;
    api.actions([{id:'rock-observe-tools',label:'관찰 · 특징 기록',onClick:()=>{
     api.modal('돌의 관찰과 특징',`<p>위치를 골라 확대된 돌을 살펴본 뒤, 다시 열어 색과 알갱이 특징을 각각 골라 줘.</p><div class="accessible-choices">${scanSites.map((_,i)=>`<button class="secondary" data-rock-scan="${i}">${i+1}번 위치 확대</button>`).join('')}</div><p id="rock-choice-status" role="status">관찰 ${Math.min(3,w.scanned.length)} / 3 · 특징 ${w.proofs.length} / 2</p><div class="accessible-choices">${Object.entries(FEATURES).map(([key,label])=>`<button class="secondary" data-rock-proof="${key}" ${w.scanned.length<3?'disabled':''}>${label}</button>`).join('')}</div>`,(dialog,close)=>{
      dialog.querySelectorAll('[data-rock-scan]').forEach(button=>button.onclick=()=>{const [x,y]=scanSites[Number(button.dataset.rockScan)];drawLens(x,y);close();});
@@ -135,22 +132,17 @@ export function setup(scene,api){
    api.drag(token,{onPick:apply,onDrop:(o,x,y)=>near(x,y,350,285,440,410)?apply():false});
   }
   function check(){
-   const n=w.proofs.filter(c=>[r.color,r.grain].includes(c)).length;api.counter(Math.min(3,w.scanned.length)+n+(classify&&w.classified?1:0),classify?6:5,classify?'관찰과 분류':'관찰과 증거');
+   const n=w.proofs.filter(c=>[r.color,r.grain].includes(c)).length;
+   api.counter(Math.min(3,w.scanned.length)+n,5,'관찰과 증거');
    if(n!==2||w.scanned.length<3)return;
-   notes?.setText(`${FEATURES[r.color]} · ${FEATURES[r.grain]}`);
-   if(!classify){if(completed)return;completed=true;api.finish(`${r.type==='basalt'?'현무암':'화강암'}이야. 색과 알갱이 두 가지를 기억하자.`);return;}
-   if(!traysMade){traysMade=true;lens.disableInteractive().setVisible(false);focusGuide.setVisible(false);api.say('두 증거가 모였어! 아래에서 알맞은 암석 이름을 골라 줘.');
-    for(const [x,label] of [[750,'현무암'],[1010,'화강암']])tray(x,445,label,210);
-    api.actions([{id:'rock-name-basalt',label:'현무암',onClick:()=>put('basalt')},{id:'rock-name-granite',label:'화강암',onClick:()=>put('granite')}]);
-    api.drag(specimen,{onDrop:(o,x,y)=>{const type=near(x,y,750,435,220,100)?'basalt':near(x,y,1010,435,220,100)?'granite':null;return type?put(type):false;}});
-   }
-   if(!completed&&w.classified&&d.rockNames[sample]===r.type){completed=true;api.finish('새 돌도 두 가지 관찰 증거로 알아냈어!');}
+   notes.setText(FEATURES[r.color]+' · '+FEATURES[r.grain]);
+   if(completed)return;
+   completed=true;api.finish((r.type==='basalt'?'현무암':'화강암')+'이야. 색과 알갱이 두 가지를 기억하자.');
   }
-  function put(type){if(type!==r.type){api.say('이름을 붙이기 전에 붙여 둔 색과 알갱이 증거를 비교해 봐.');return false;}d.rockNames[sample]=type;d.rockProofs[sample]=[r.color,r.grain];w.classified=true;api.save();api.spark(900,430);check();return false;}
   scanSites.forEach(([x,y],index)=>scanMarkers.push(api.marker(x,y,index+1,()=>drawLens(x,y))));
   observeControls();drawLens(w.lens.x,w.lens.y,false);check();
   // The 3D specimen is an extra way to look, offered only once its GLB is in assets/models.
-  hasRockModel(r.asset).then(ok=>{if(ok&&specimen.active&&scene.sys.isActive()&&!traysMade){modelAvailable=true;observeControls();}});
+  hasRockModel(r.asset).then(ok=>{if(ok&&specimen.active&&scene.sys.isActive()){modelAvailable=true;observeControls();}});
   return {update(time,delta){
     if(!motion)return;motion.elapsed+=Math.min(delta,60);const t=Math.min(1,motion.elapsed/650),ease=t*t*(3-2*t),m=motion;
     drawLens(m.from.x+(m.x-m.from.x)*ease,m.from.y+(m.y-m.from.y)*ease,false);
@@ -162,32 +154,72 @@ export function setup(scene,api){
   w.sorted??=[];let finished=!!api.completed;
   const orders=['granite','basalt'],names={basalt:'현무암',granite:'화강암'},stones=[],glow=scene.add.graphics();
   tray(TRAY.basalt,TRAY_Y,'현무암');tray(TRAY.granite,TRAY_Y,'화강암');
-  const orderText=api.text('',600,34,26).setBackgroundColor('#fff8e8').setPadding(18,8);
+  const orderText=api.text('',600,38,26).setBackgroundColor('#fff8e8').setPadding(18,8);
   const current=()=>orders.find(type=>!w.sorted.some(id=>ROCKS[id].type===type));
-  function actions(){api.actions([0,1].map(id=>({id:'rock-ship-'+id,label:'표본 '+(id?'B':'A')+' 보내기',disabled:w.sorted.includes(id),onClick:()=>ship(id)})));}
   function progress(){
    const type=current();glow.clear();orderText.setText(type?'전시관 주문 · '+names[type]:'두 주문을 모두 보냈어');
-   if(type)glow.lineStyle(4,0xe5b94e,.9).strokeRoundedRect(TRAY[type]-112,TRAY_Y-72,224,150,28);
-   api.counter(w.sorted.length,2,'처리한 주문');actions();
+   if(type)glow.lineStyle(4,0xe5b94e,.95).strokeRoundedRect(TRAY[type]-112,TRAY_Y-72,224,150,28);
+   api.counter(w.sorted.length,2,'처리한 주문');
    if(w.sorted.length===2&&!finished){finished=true;api.finish('관찰 기록으로 두 주문을 해결했어. 이제 처음 보는 돌에도 적용해 보자!');}
   }
-  function ship(id){
-   if(w.sorted.includes(id)||finished)return;
-   const r=ROCKS[id];
-   if(!hasRockEvidence(d,id)){api.say('앞 활동에서 모은 색과 알갱이 관찰 기록을 먼저 확인해 줘.');return;}
-   if(r.type!==current()){api.say('주문 이름과 앞에서 관찰한 특징을 비교해 봐.');return;}
+  function ship(id,x,y){
+   if(w.sorted.includes(id)||finished)return false;
+   const r=ROCKS[id],type=current();
+   if(!hasRockEvidence(d,id)){api.say('앞 활동에서 모은 색과 알갱이 기록을 먼저 확인해 줘.');return false;}
+   if(!near(x,y,TRAY[type],TRAY_Y,235,176)){api.say('반짝이는 주문 상자까지 표본을 옮겨 줘.');return false;}
+   if(r.type!==type){api.say('주문과 표본의 색, 알갱이 기록을 다시 비교해 봐.');return false;}
+   const stone=stones[id];
    d.rockNames[id]=r.type;d.rockProofs[id]=[r.color,r.grain];w.sorted.push(id);
-   const stone=stones[id];scene.tweens.add({targets:stone,x:TRAY[r.type],y:TRAY_Y-8,displayWidth:140,displayHeight:140,duration:reduced?0:500,ease:'Sine.easeInOut'});
-   api.spark(TRAY[r.type],TRAY_Y);api.save();api.say(`${r.name}를 ${names[r.type]} 주문으로 보냈어!`);api.sound?.('place',{force:true});progress();
+   stone.disableInteractive();
+   scene.tweens.add({targets:stone,x:TRAY[type],y:TRAY_Y-8,displayWidth:140,displayHeight:140,duration:reduced?0:240,ease:'Sine.easeOut'});
+   api.spark(TRAY[type],TRAY_Y);api.save();api.say(r.name+'를 '+names[type]+' 주문으로 보냈어.');progress();return true;
   }
   [0,1].forEach(id=>{
-   const r=ROCKS[id],cx=id?780:420,panel=api.panel(cx,280,330,430,0xfff7df,.9);
-   panel.setInteractive({useHandCursor:true}).on('pointerup',p=>{if(!p.getDistance||p.getDistance()<18)ship(id);});
-   api.text(r.name,cx,100,25);stones[id]=api.image(r.asset,cx,225,240,240);
-   api.text(hasRockEvidence(d,id)?FEATURES[r.color]+'\n'+FEATURES[r.grain]:'관찰 수첩의 기록을 확인해 봐',cx,374,21,'#345546',290);
-   api.text('표본을 눌러 보내기',cx,446,20).setBackgroundColor('#fff8e8').setPadding(12,5);
-   if(w.sorted.includes(id))stones[id].setPosition(TRAY[r.type],TRAY_Y-8).setDisplaySize(140,140);
+   const r=ROCKS[id],cx=id?780:420;
+   api.panel(cx,280,330,430,0xfff7df,.9);api.text(r.name,cx,100,25);
+   const stone=stones[id]=api.image(r.asset,cx,225,240,240);
+   api.text(hasRockEvidence(d,id)?FEATURES[r.color]+'\n'+FEATURES[r.grain]:'앞 활동에서 기록을 확인해 봐',cx,374,21,'#345546',290);
+   if(w.sorted.includes(id))stone.setPosition(TRAY[r.type],TRAY_Y-8).setDisplaySize(140,140);
+   else api.drag(stone,{onDrop(_obj,x,y){return ship(id,x,y);}});
   });
-  api.task('주문에 맞는 표본을 보내자','앞에서 남긴 기록을 보고, 주문에 맞는 표본을 눌러 보내 줘.');progress();
+  api.task('주문에 맞는 표본을 보내자','색과 알갱이 기록을 읽고, 맞는 표본을 반짝이는 상자로 끌어 줘.');
+  progress();
+ }
+
+ function classifyNew(){
+  const r=ROCKS[api.phase+1],ref=ROCKS.find(item=>item.id<2&&item.type===r.type);
+  const bins={basalt:{x:245,y:459},granite:{x:955,y:459}},names={basalt:'현무암',granite:'화강암'};
+  const already=w.classified&&d.rockNames[r.id]===r.type&&hasRockEvidence(d,r.id);
+  let finished=!!api.completed;
+  api.task(r.name+'를 알맞은 표본함에 넣자','앞에서 기록한 색과 알갱이를 새 돌과 비교해 봐. 더 잘 맞는 표본함으로 끌어 줘.');
+  for(const base of ROCKS.slice(0,2)){
+   const {x,y}=bins[base.type];
+   api.panel(x,320,288,448,0xfff7df,.94);
+   api.text(names[base.type]+'의 관찰 기록',x,132,23);
+   api.image(base.asset,x,212,144,98);
+   const note=hasRockEvidence(d,base.id)?FEATURES[base.color]+'\n'+FEATURES[base.grain]:'앞 활동에서 관찰 기록 확인';
+   api.text(note,x,305,21,'#345546',262);
+   tray(x,y,names[base.type],202);
+  }
+  api.text(r.name,600,150,27).setBackgroundColor('#fff8e8').setPadding(14,7);
+  const specimen=api.image(r.asset,600,316,290,194);
+  function check(){
+   const done=w.classified&&hasRockEvidence(d,r.id)&&d.rockNames[r.id]===r.type;
+   api.counter(done?1:0,1,'새 표본 분류');
+   if(done&&!finished){finished=true;api.finish('앞에서 기록한 두 특징을 비교해 '+r.name+'의 이름을 알아냈어.');}
+  }
+  if(already)specimen.setPosition(bins[r.type].x,bins[r.type].y-9).setDisplaySize(146,98);
+  else api.drag(specimen,{onDrop(_obj,x,y){
+   const type=Object.keys(bins).find(key=>near(x,y,bins[key].x,bins[key].y,246,165));
+   if(!type){api.say('새 돌을 양쪽 표본함 중 한 곳에 끌어 놓아 줘.');return false;}
+   if(!ROCKS.slice(0,2).every(base=>hasRockEvidence(d,base.id))){api.say('앞 활동에서 기준 표본 두 개의 관찰 기록을 먼저 남겨 줘.');return false;}
+   if(type!==r.type){api.say('새 돌의 전체 색과 알갱이가 어느 기록과 더 가까운지 다시 비교해 봐.');return false;}
+   const claims=[r.color,r.grain];
+   d.rockNames[r.id]=type;d.rockProofs[r.id]=claims;w.classified=true;
+   specimen.setPosition(bins[type].x,bins[type].y-9).setDisplaySize(146,98).disableInteractive();
+   for(const claim of claims)api.record({id:'rock-'+r.id+'-'+claim,kind:'rock',sample:r.id,claim,asset:r.asset,label:r.name+' · '+FEATURES[claim],reference:ref.id,comparison:true,text:'기준 표본의 '+FEATURES[claim]+' 기록과 새 표본을 비교했어.'});
+   api.spark(bins[type].x,bins[type].y);api.save();check();return true;
+  }});
+  check();
  }
 }

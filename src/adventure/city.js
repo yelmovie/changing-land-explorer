@@ -150,7 +150,7 @@ export function setup(scene,api){
    }
    api.actions([{id:'city-choose-record',label:'기록 카드 고르기',primary:w.seen.before&&w.seen.after,disabled:completed||!w.seen.before||!w.seen.after,onClick:chooseRecord}]);
   }
-  range=api.range('관찰할 시기',Math.round((1-w.wipe)*100),3,97,v=>set(1-Number(v)/100),['분출 당시','이후 모습']);
+  range=api.range('관찰할 시기',Math.round((1-w.wipe)*100),3,97,v=>set(1-Number(v)/100));
   const stop=()=>{const interrupted=!!motion;motion=null;return interrupted;};
   api.autoplay(observationTour(api,{label:'두 시기의 모습 관찰',items:[.97,.03],interval:3200,stop,
    needed:()=>!w.seen.before||!w.seen.after,

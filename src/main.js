@@ -126,7 +126,7 @@ function settings(){
    </div>
    ${!finished?'<p class="settings-note">다섯 장소와 마지막 기록탑을 모두 마치면 엔딩과 인증서가 열려요.</p>':''}
   </section>
-   ${info('app-info','앱 정보 · 배움과 보상',SETTINGS_CONTENT.info(document.documentElement.dataset.appVersion||'')+'<p class="settings-note">기록은 현재 기기의 브라우저와 이 앱 주소에 저장돼요. 다른 기기·브라우저로 자동 연결되지 않아요. 공용 기기에서는 다음 사용자가 기록을 볼 수 있어요.</p>')}
+   ${info('app-info','앱 정보 · 배움과 보상',SETTINGS_CONTENT.info(document.documentElement.dataset.appVersion||'')+'<p class="settings-note">기록은 현재 기기의 브라우저와 이 앱 주소에 저장돼요. 다른 기기·브라우저로 자동 연결되지 않아요. 공용 기기에서는 다음 사용자가 기록을 볼 수 있어요.</p><p class="settings-note">현장 작전 화면은 교육용 모형이에요. 실제 현장에서는 전문가와 선생님의 안내를 따라요.</p>')}
    ${info('help','학생용 가이드',SETTINGS_CONTENT.student)}
    ${info('teacher-help','교사용 가이드',SETTINGS_CONTENT.teacher+learningGuideHTML())}
    ${info('credits-open','이미지·소리·저작권 고지',SETTINGS_CONTENT.credits)}
@@ -254,7 +254,7 @@ function complete(index,fieldReady=false){
  if(admin)preview=award(preview,stage.id,record);else{student=award(student,stage.id,record);student.resumeActivity=null;}
  save();
  const resident=RESIDENTS[stage.id];
- modal(newArrival?`${stage.place} 현장 작전 성공!`:'탐험 기록을 다시 남겼어!',`<div class="reward-reveal"><img class="reward-partner" src="${newArrival?residentArt(stage.id):'/assets/hero-cheer.webp'}" alt="${newArrival?resident.name:'리버'}"><img class="reward-item" src="/assets/${TOOL_ASSETS[stage.tool]}.webp" alt=""></div>${newArrival?`<p class="reward-thanks"><strong>${resident.name}</strong> ${resident.thanks}</p>`:''}<h3>${stage.reward}</h3>${newArrival?`<div class="relit-counter" aria-label="마을 불빛 ${state().completed.length}개, 전체 5개"><span>마을 불빛</span>${STAGES.map(st=>`<i class="${state().completed.includes(st.id)?'lit':''}"></i>`).join('')}<b>${state().completed.length}/5</b></div>`:''}<p class="world-change">${stage.change}</p>${newArrival?`<p><strong>${resident.name}</strong>에게 말을 걸면 ${resident.stamp} 도장을 받을 수 있어.</p>`:''}<button class="primary" id="return-map">${newArrival?`${resident.name} 만나러 가기`:'지도로 돌아가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
+ modal(newArrival?`${stage.place} 현장 작전 성공!`:'탐험 기록을 다시 남겼어!',`<div class="reward-reveal"><img class="reward-partner" src="${newArrival?residentArt(stage.id):'/assets/hero-cheer.webp'}" alt="${newArrival?resident.name:'리버'}"><img class="reward-item" src="/assets/${TOOL_ASSETS[stage.tool]}.webp" alt=""></div>${newArrival?`<p class="reward-thanks" data-speaker="${stage.id}"><strong>${resident.name}</strong> ${resident.thanks}</p>`:''}<h3>${stage.reward}</h3>${newArrival?`<div class="relit-counter" aria-label="마을 불빛 ${state().completed.length}개, 전체 5개"><span>마을 불빛</span>${STAGES.map(st=>`<i class="${state().completed.includes(st.id)?'lit':''}"></i>`).join('')}<b>${state().completed.length}/5</b></div>`:''}<p class="world-change">${stage.change}</p>${newArrival?`<p><strong>${resident.name}</strong>에게 말을 걸면 ${resident.stamp} 도장을 받을 수 있어.</p>`:''}<button class="primary" id="return-map">${newArrival?`${resident.name} 만나러 가기`:'지도로 돌아가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
   dialog.classList.add('village-reward-dialog');
   playSound('tool-reward',{force:true,inDialog:true});
   if(newArrival)setTimeout(()=>{if(dialog.open)playVoice(residentVoice(stage.id,'thanks'));},1100);

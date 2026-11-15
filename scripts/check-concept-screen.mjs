@@ -36,6 +36,8 @@ try{
      const found=[],r=d.getBoundingClientRect(),body=d.querySelector('.dialog-body');
      if(r.left<-.5||r.right>innerWidth+.5||r.top<-.5||r.bottom>innerHeight+.5)found.push('dialog outside viewport');
      if(body.scrollWidth>body.clientWidth+1)found.push('horizontal scroll');
+     const next=d.querySelector('#concept-continue'),n=next.getBoundingClientRect();
+     if(!next.checkVisibility()||n.top<r.top||n.bottom>r.bottom||!next.contains(document.elementFromPoint(n.x+n.width/2,n.y+n.height/2)))found.push('advance button is obscured');
      for(const el of d.querySelectorAll('button:not([hidden])')){
       const b=el.getBoundingClientRect();if(!el.checkVisibility())continue;
       if(b.height<47.5||b.width<47.5)found.push('small touch target '+el.textContent);

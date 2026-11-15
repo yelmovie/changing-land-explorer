@@ -9,7 +9,7 @@ export const ROCKS=[
  {id:2,name:'새 표본 C',type:'basalt',color:'dark',grain:'fine',asset:'rock-2'},
  {id:3,name:'새 표본 D',type:'granite',color:'light',grain:'coarse',asset:'rock-3'}
 ];
-export const FEATURES={dark:'전체가 어두운색',light:'전체가 밝은색',fine:'알갱이가 잘 안 보임',coarse:'알갱이가 뚜렷함'};
+export const FEATURES={dark:'전체가 어두운 색',light:'전체가 밝은 색',fine:'알갱이가 잘 안 보임',coarse:'알갱이가 뚜렷함'};
 export const FIELD_POINTS=[
  {id:'upper-rock',x:160,y:295,label:'상류의 바위',side:'upper',feature:'바위',claim:'large',text:'크고 각진 바위가 보여.'},
  {id:'upper-slope',x:140,y:215,label:'상류의 물길',side:'upper',feature:'물길',claim:'steep',text:'좁고 경사가 급한 물길이야.'},

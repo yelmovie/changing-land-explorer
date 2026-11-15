@@ -5,10 +5,13 @@ const {chromium}=await import(process.env.PLAYWRIGHT_PATH?pathToFileURL(process.
 const browser=await chromium.launch({channel:'chrome',headless:true}),errors=[];
 const ids=['river','volcano','rocks','city','safety'],base=process.env.CHECK_URL||'http://127.0.0.1:5177';
 const out=process.env.CHECK_OUT||'.work/residents',key='moving-geovalley-v3';
-// The current scenic map keeps a directory within reach on compact screens.
+// Enter conversations from the residents on the map.
 async function roster(page){
- await page.locator('#resident-directory').tap();
- if(await page.locator('[data-roster]').isVisible())await page.locator('[data-roster]').tap();
+ await page.locator('.map-ready,.map-fallback').waitFor();
+ await page.locator('.map-resident:visible').first().press('Enter');
+ await page.locator('dialog.resident-dialog').waitFor();
+ await page.locator('[data-roster]').click();
+ await page.locator('[data-talk]').first().waitFor();
 }
 try{
  await fs.mkdir(out,{recursive:true});
@@ -17,7 +20,7 @@ try{
   p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url());});
   // Behave like an existing student who earned three stage awards before residents existed.
   await p.addInitScript(({key,ids})=>{if(!sessionStorage.fixture){sessionStorage.fixture='1';localStorage.setItem(key,JSON.stringify({version:3,started:true,completed:ids.slice(0,3),records:{},drafts:{},mapNode:15,location:{type:'map'}}));}},{key,ids});
-  await p.goto(base);await p.locator('#resident-directory').waitFor();
+  await p.goto(base);await p.locator('.map-resident').first().waitFor({state:'attached'});
   assert.equal(await p.locator('.map-resident').count(),3);
   if(width===390){
    await p.locator('#rotation-note').waitFor({state:'visible'});
@@ -27,7 +30,7 @@ try{
   }
 
   const snap=()=>p.evaluate(key=>localStorage.getItem(key),key),student=await snap();
-  assert.equal(await p.locator('#resident-directory').count(),1);await roster(p);
+  assert.equal(await p.locator('#resident-directory,#map-villain-focus').count(),0);await roster(p);
   assert.equal(await p.locator('[data-talk]').count(),3);
   await p.locator('[data-talk="rocks"]').tap();const first=await p.locator('.resident-reply').innerText();
   await p.locator('[data-ask="0"]').tap();let second=await p.locator('.resident-reply').innerText();
@@ -36,16 +39,16 @@ try{
   await p.screenshot({path:out+'/chat-'+width+'.png'});
   await p.locator('[data-roster]').tap();assert.equal(await p.locator(':focus').getAttribute('data-talk'),'rocks');
   await p.keyboard.press('Escape');await p.waitForSelector('dialog',{state:'detached'});
-  assert.equal(await snap(),student);await p.reload();await p.locator('#resident-directory').waitFor();assert.equal(await p.locator('.map-resident').count(),3);
+  assert.equal(await snap(),student);await p.reload();await p.locator('.map-resident').first().waitFor({state:'attached'});assert.equal(await p.locator('.map-resident').count(),3);
   await p.locator('#settings').click();await p.locator('#admin-setting').click();await p.waitForSelector('#preview-nav');
   assert.equal(await p.locator('.map-resident').count(),5);
   await roster(p);await p.waitForFunction(()=>[...document.querySelectorAll('.resident-entry img')].every(im=>im.complete&&im.naturalWidth>0));
   if(width===1280)await p.screenshot({path:out+'/roster.png'});
-  for(const id of ids){await p.locator('[data-talk="'+id+'"]').tap();await p.locator('[data-ask="1"]').tap();await p.locator('[data-stamp]').tap();assert.ok(await p.locator('[data-stamp]').isDisabled());await p.locator('[data-roster]').tap();}
+  for(const id of ids){await p.locator('[data-talk="'+id+'"]').tap();if(id==='volcano')assert.deepEqual(await p.locator('dialog[data-speaker="volcano"]').evaluate(d=>({name:d.querySelector('.resident-name').textContent,badge:getComputedStyle(d.querySelector('.resident-name')).backgroundColor,reply:getComputedStyle(d.querySelector('.resident-reply')).color})),{name:'마그',badge:'rgb(133, 57, 35)',reply:'rgb(41, 57, 50)'});await p.locator('[data-ask="1"]').tap();await p.locator('[data-stamp]').tap();assert.ok(await p.locator('[data-stamp]').isDisabled());await p.locator('[data-roster]').tap();}
   assert.equal(await p.locator('.stamp-slot.inked').count(),5);
   assert.equal(await p.locator('.plaza-festival.celebrating').count(),1);
   await p.locator('[data-plaza]').tap();await p.locator('#atlas-core').tap();await p.waitForSelector('#app.final');
-  await p.locator('#exit-preview').click();await p.locator('#resident-directory').waitFor();
+  await p.locator('#exit-preview').click();await p.locator('.map-resident').first().waitFor({state:'attached'});
   assert.equal(await p.locator('.workplace.awake').count(),3);assert.equal(await p.locator('.plaza-festival.celebrating').count(),0);
   assert.equal(await p.locator('.map-resident').count(),3);assert.equal(await snap(),student);
   console.log('PASS',width,height,'legacy, 5 teacher NPCs, replies, focus, save');

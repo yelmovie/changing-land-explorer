@@ -6,6 +6,9 @@
   const { el, samplePath, seeded } = window.GeoKit;
   const img = (id, src, x, y, w, extra = '') => `<img class="art-img" id="${id}" src="assets/art/${src}" style="left:${x}px;top:${y}px;width:${w}px;${extra}" alt="">`;
   const frame = (id, src, x, y, w, h, extra = '') => `<div class="frame" id="${id}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${extra}"><img src="assets/art/${src}" alt=""></div>`;
+  const apparatus = body => `<svg width="1920" height="1080" viewBox="0 0 1920 1080" style="position:absolute;inset:0" aria-hidden="true">${body}</svg>`;
+  const contact = (x,y,w,h,opacity=.2) => `<ellipse cx="${x}" cy="${y}" rx="${w}" ry="${h}" fill="#5a5544" opacity="${opacity}"/>`;
+  const hose = 'M1327 607 V641 C1327 692 1321 740 1283 763 C1229 798 1168 768 1132 762 C1073 751 1038 752 994 753';
 
   // A stroke that draws along its path (water, red water, route).
   function flow(api, { d, color, width, at, dur, cap = 'round', opacity = 1, under, dash }) {
@@ -111,23 +114,25 @@
     'volcano-0': {
       question: '모형에서 붉은 물은 어디로 갈까?',
       conclusion: '붉은 물로 흐르는 모습만 나타냈어.',
-      art: img('tray', 'volcano-tray.webp', 240, 742, 1000) + img('mountain', 'volcano-mountain.webp', 420, 318, 640) + img('syringe', 'volcano-syringe.webp', 1250, 250, 170),
+      art: apparatus(contact(750,887,495,38)+contact(1400,866,118,26)+
+        '<path d="M1394 471 H1353 M1394 471 V850 M1309 854 H1474" fill="none" stroke="#70887a" stroke-width="18" stroke-linecap="round"/><path d="M1390 479 V840" fill="none" stroke="#ced8c1" stroke-width="4" stroke-linecap="round"/>')+
+        img('tray', 'volcano-tray.webp', 218, 675, 1064)+apparatus(contact(750,778,293,23,.32)+
+          `<path d="${hose}" fill="none" stroke="#677b70" stroke-width="21" stroke-linecap="round"/><path d="${hose}" fill="none" stroke="#d7e5d4" stroke-width="13" stroke-linecap="round"/><ellipse cx="1327" cy="621" rx="15" ry="7" fill="#849887"/>`)+
+        img('mountain', 'volcano-mountain.webp', 440, 331, 620)+img('syringe', 'volcano-syringe.webp', 1245, 244, 164),
       build(api) {
         const { tl } = api;
-        // tube from the syringe tip, under the tray edge, into the model's base
-        flow(api, { d: 'M1335 640 C1335 700 1300 760 1200 800 L760 800', color: '#a9b8b1', width: 16, at: 0, dur: 0.01 });
-        arrowDown(api, 1335, 230, 0.7, 3.8);
-        flow(api, { d: 'M1335 640 C1335 700 1300 760 1200 800 L760 800', color: '#d5543b', width: 9, at: 1.4, dur: 1.6 });
-        flow(api, { d: 'M760 800 C740 600 740 450 742 340', color: '#d5543b', width: 9, at: 3.0, dur: 1.2, opacity: 0.35, dash: '14 16' });
-        const pool = el('svg:ellipse', { cx: 742, cy: 334, rx: 44, ry: 13, fill: '#d5543b', opacity: 0 }, api.fx);
+        arrowDown(api, 1327, 230, 0.7, 3.8);
+        flow(api, { d: 'M1327 623 V641 C1327 692 1321 740 1283 763 C1229 798 1168 768 1132 762 C1099 757 1072 753 1031 753', color: '#d5543b', width: 8, at: 1.4, dur: 1.6 });
+        flow(api, { d: 'M1031 753 C915 742 770 645 750 350', color: '#d5543b', width: 8, at: 3.0, dur: 1.2, opacity: 0.35, dash: '14 16' });
+        const pool = el('svg:ellipse', { cx: 750, cy: 347, rx: 44, ry: 13, fill: '#d5543b', opacity: 0 }, api.fx);
         tl.fromTo(pool, { opacity: 0, attr: { rx: 8 } }, { opacity: 1, attr: { rx: 44 }, duration: 0.8, ease: 'power2.out' }, 4.4);
-        flow(api, { d: 'M760 340 C790 400 800 450 840 500 S900 600 930 650 S990 730 1030 760', color: '#d5543b', width: 20, at: 5.3, dur: 4.5 });
-        flow(api, { d: 'M726 340 C700 410 690 470 650 540 S600 640 560 700', color: '#d5543b', width: 14, at: 6.4, dur: 4.0, opacity: 0.85 });
+        flow(api, { d: 'M764 351 C785 405 792 453 833 506 S894 600 931 650 S984 729 1004 776', color: '#d5543b', width: 20, at: 5.3, dur: 4.5 });
+        flow(api, { d: 'M733 351 C711 412 690 474 654 539 S593 640 566 711', color: '#d5543b', width: 14, at: 6.4, dur: 4.0, opacity: 0.85 });
       },
-      cams: [{ at: 4.9, dur: 0.9, s: 1.6, c: [742, 420] }, { at: 9.5, dur: 0.9, s: 1 }],
+      cams: [{ at: 4.9, dur: 0.9, s: 1.6, c: [750, 420] }, { at: 9.5, dur: 0.9, s: 1 }],
       tags: [
-        { text: '손잡이 밀기', at: 1.2, a: [1335, 268], box: [1460, 320] },
-        { text: '꼭대기로 나옴', at: 5.9, a: [742, 334], box: [820, 190], zbox: [880, 250] },
+        { text: '손잡이 밀기', at: 1.2, a: [1327, 265], box: [1460, 320] },
+        { text: '꼭대기로 나옴', at: 5.9, a: [750, 347], box: [820, 190], zbox: [880, 250] },
         { text: '경사면 따라 흐름', at: 10.5, a: [920, 640], box: [1060, 560] }
       ],
       river: { pose: 'hero-lens.webp', h: 400 }
@@ -137,11 +142,11 @@
     'volcano-1': {
       question: '모형과 실제 화산은 무엇이 같고 다를까?',
       conclusion: '실제 화산에서는 기체와 화산재도 나와.',
-      art: img('tray', 'volcano-tray.webp', 140, 700, 640) + img('mountain', 'volcano-mountain.webp', 200, 400, 520) + frame('real', 'volcano-eruption.webp', 860, 210, 900, 506),
+      art: apparatus(contact(466,833,321,26))+img('tray', 'volcano-tray.webp', 120, 692, 692)+apparatus(contact(466,768,250,17,.32))+img('mountain', 'volcano-mountain.webp', 212, 404, 508)+frame('real', 'volcano-eruption.webp', 860, 210, 900, 506),
       build(api) {
         const { tl } = api;
-        flow(api, { d: 'M470 412 C495 470 505 520 540 570 S600 660 640 715', color: '#d5543b', width: 18, at: 0.6, dur: 3.2 });
-        const pool = el('svg:ellipse', { cx: 460, cy: 408, rx: 34, ry: 10, fill: '#d5543b' }, api.fx);
+        flow(api, { d: 'M472 418 C495 470 505 520 540 570 S598 661 658 752', color: '#d5543b', width: 18, at: 0.6, dur: 3.2 });
+        const pool = el('svg:ellipse', { cx: 466, cy: 417, rx: 34, ry: 10, fill: '#d5543b' }, api.fx);
         tl.fromTo(pool, { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0.4);
         tl.fromTo('#real', { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.6, ease: 'expo.out' }, 0.3);
       },

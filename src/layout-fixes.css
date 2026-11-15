@@ -3,7 +3,7 @@
 #app.atlas:not(.welcome) .atlas-footer #map-speech {max-height:80px;overflow:auto;margin:0}
 #app.atlas:not(.welcome) .atlas-footer .map-river {height:76px;width:52px}
 #app.atlas:not(.welcome) .map-resident {width:88px;height:48px;min-height:48px;min-width:88px;display:block;transform:translate(-50%,0);overflow:visible}
-#app.atlas:not(.welcome) .map-resident img {position:absolute;left:50%;bottom:48px;transform:translateX(-50%);pointer-events:none}
+#app.atlas:not(.welcome) .map-resident img {position:absolute;left:50%;bottom:48px;transform:translateX(-50%);pointer-events:auto}
 #app.atlas:not(.welcome) .map-resident .resident-tag {position:absolute;inset:0;min-height:48px;height:48px;min-width:0;padding:4px;pointer-events:none}
 #app.atlas:not(.welcome) .map-resident::before {display:none}
 #app.atlas:not(.welcome) .map-target-obscured {visibility:hidden;pointer-events:none}
@@ -27,8 +27,6 @@
 /* Labels can shift into clear space without being clipped by the map image box. */
 #app.atlas:not(.welcome) .atlas-world {overflow:visible}
 
-#app.atlas:not(.welcome) .map-view-tools #resident-directory {display:flex;gap:2px}
-#app.atlas:not(.welcome) .map-view-tools #resident-directory span {font-size:12px}
 #app.atlas:not(.welcome) .map-villain.map-target-obscured {visibility:visible;opacity:0;pointer-events:none}
 
 #app.atlas:not(.welcome) .map-overview .map-villain {visibility:hidden;pointer-events:none}
@@ -155,10 +153,6 @@
   background:#245b46; color:#fff; border-color:#123e2e; box-shadow:0 3px 0 #123e2e;
 }
 #app.atlas:not(.welcome) .atlas-page .map-secondary-tools:empty { display:none; }
-#app.atlas:not(.welcome) .atlas-page .map-secondary-tools #map-villain-focus { width:52px; min-width:48px; padding:0; }
-@media(max-height:620px) {
-  #app.atlas:not(.welcome) .atlas-page .map-secondary-tools #map-villain-focus { width:48px; }
-}
 
 #app.atlas:not(.welcome) .atlas-fallback-river,
 #app.atlas:not(.welcome) .map-combat-river {

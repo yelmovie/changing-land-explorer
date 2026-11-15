@@ -7,7 +7,7 @@ const out=process.env.CHECK_OUT||'.work/field-operations';
 await fs.mkdir(out,{recursive:true});
 const sizes=(process.env.CHECK_SIZES||'667x375,915x412,830x515,1024x600,1024x768,1280x800,1920x1080').split(',').map(size=>size.split('x').map(Number));
 const operations={
- river:['observe:erosion','observe:transport','observe:deposit','bridge:bank','test','bridge:checked','test','move:east','move:east','move:east','move:east'],
+ river:['observe:erosion','observe:transport','observe:deposit','bridge:bank','test','bridge:sand','test','bridge:checked','test','move:east','move:east','move:east','move:east'],
  volcano:['crater','signed','shelter','station'],
  rocks:['ship:basalt','inspect:color','inspect:grain','ship:basalt','ship:granite','inspect:color','inspect:grain','ship:basalt'],
  city:['open','close','inside','notice'],
@@ -58,14 +58,26 @@ try{
     await main.navigate('operation',{index});
    },{index,id});
    await page.waitForSelector('#operation-board');await page.evaluate(()=>document.fonts.ready);
+   assert.equal(await page.locator('.operation-model-note').count(),0);
+   if(id==='river')assert.equal(await page.locator('#operation-back,#operation-retry').count(),0);
    await inspect(page,`${width}x${height}-${id}-start`);
    for(const [n,action]of actions.entries()){
     await page.locator(`[data-operation="${action}"]`).click();
+    if(id==='river'&&action==='observe:deposit')assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
+    if(id==='river'&&action.startsWith('bridge:'))assert.equal(await page.locator('.bridge-photo [data-bridge-model="placed"]').count(),1);
+    if(id==='river'&&action==='test'){
+     const success=actions[n-1]==='bridge:checked';
+     await page.locator('.bridge-map[data-bridge-phase="'+(success?'held':'washed')+'"]').waitFor();
+     if(!success)assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
+     else await page.locator('[data-operation="move:east"]').waitFor();
+    }
     await inspect(page,`${width}x${height}-${id}-${n}`);
    }
    assert.equal(await page.locator('#operation-finish').isVisible(),true);
    await inspect(page,`${width}x${height}-${id}-done`);
-   await page.locator('#operation-retry').click();
+   if(id==='river')await page.evaluate(async()=>{
+    const main=await import('/src/main.js');delete main.state().drafts.river.data.fieldOperation;await main.navigate('operation',{index:0});
+   });else await page.locator('#operation-retry').click();
    assert.equal(await page.locator('#operation-finish').isVisible(),false);
    if(id==='river'||id==='rocks'){
     assert.equal(await page.locator('#operation-speed').count(),0);

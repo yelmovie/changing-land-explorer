@@ -27,28 +27,27 @@ async function stroke(...points){
  for(const p of rest)await page.mouse.move(p.x,p.y,{steps:12});
  await page.mouse.up();await page.waitForTimeout(120);
 }
-const jump=name=>page.getByRole('button',{name,exact:true}).click();
 async function riverMarks(){for(const [i,[id,mark]]of Object.entries(RIVER_MARKS).entries()){
  if(width<1000){await tap(275+i*325,535);await tap(150+mark.x*900,120+mark.y*400);}
  else await stroke({x:275+i*325,y:535},{x:150+mark.x*900,y:120+mark.y*400});
 }}
 async function fieldPoints(side){for(const p of FIELD_POINTS.filter(p=>p.side===side))await tap(p.x*1.2,p.y*640/560);}
 async function riverLinks(){
- const zones={upper:{x:330,y:235},lower:{x:870,y:370}};
- for(const [i,p]of FIELD_POINTS.entries())await stroke({x:190+i*228,y:515},zones[p.side]);
- await stroke({x:1068,y:500},{x:950,y:375});
+ const slots=[205,405,795,995];
+ for(const i of FIELD_POINTS.keys())await stroke({x:168+i*198,y:531},{x:slots[i],y:410});
+ await stroke({x:1045,y:518},{x:978,y:281});
  assert.match(await page.locator('#quest-meter').textContent(),/5\s*\/\s*5/);
 }
 async function assemble(){for(const [i,to]of [{x:580,y:485},{x:560,y:315},{x:957,y:350}].entries())await stroke({x:135,y:170+i*175},to);}
-async function trace(){await stroke({x:175,y:260},MODEL_MOUTH);await stroke({x:180,y:480},...MODEL_FLOW);}
+async function trace(){await tap(MODEL_MOUTH.x,MODEL_MOUTH.y);await stroke(...MODEL_FLOW);}
 async function volcanoOutputs(){for(const [x,y]of [[385,395],[610,80],[260,115],[670,245]]){await tap(x*1.2,y*640/560);}}
 async function volcanoLinks(){for(const [i,to]of [{x:835,y:470},{x:400,y:335},{x:400,y:470},{x:835,y:335}].entries())await stroke({x:165+i*290,y:584},to);}
 async function rub(){for(const cx of [440,840])await stroke(...[170,250,330,410].flatMap((y,row)=>(row%2?[120,-120]:[-120,120]).map(dx=>({x:cx+dx,y}))));}
 async function sortRocks(){
- await page.locator('#rock-ship-1').click();await page.locator('#rock-ship-0').click();
+ await stroke({x:780,y:225},{x:1060,y:275});await stroke({x:420,y:225},{x:140,y:275});
 }
-async function classifyRock(){for(const x of [750,1010])await stroke({x:350,y:275},{x,y:435});}
-async function cityCompare(){await jump('분출 당시');await jump('이후 모습');
+async function classifyRock(x){await stroke({x:600,y:316},{x,y:459});}
+async function cityCompare(){const range=page.getByRole('slider',{name:'관찰할 시기'});await range.press('Home');await range.press('End');
  if(width<1000){for(let i=0;i<2;i++){await page.locator('#city-choose-record').click();await page.locator(`[data-city-card="${i}"]`).click();await page.locator(`[data-city-period="${i}"]`).click();if(await page.locator('dialog[open]').count())await page.locator('.dialog-close').click();}}
  else {await stroke({x:255,y:610},{x:265,y:545});await stroke({x:625,y:610},{x:670,y:545});}
 }
@@ -65,7 +64,7 @@ async function doneStage(index){
  await concept();await page.waitForSelector('#operation-board');
  const actions=[['observe:erosion','observe:transport','observe:deposit','bridge:checked','test','move:east','move:east','move:east','move:east'],['signed','shelter','station'],['inspect:color','inspect:grain','ship:granite','inspect:color','inspect:grain','ship:basalt'],['close','inside','notice'],['cover','hold','stopped','assembly']][index];
  for(const action of actions)await page.locator(`[data-operation="${action}"]`).click();
- await page.locator('#operation-finish').click();await page.waitForSelector('#return-map');rewards++;
+ const complete=page.getByRole('button',{name:'스테이지 완료'});await complete.waitFor();assert.equal(await complete.evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;}),true);await complete.click();await page.waitForSelector('#return-map');rewards++;
  if(index===0){
   const original=page.viewportSize();
   await page.setViewportSize({width:850,height:420});
@@ -160,7 +159,7 @@ try{
  await enter(1);await assemble();await next();await stroke({x:957,y:185},{x:957,y:340});await page.waitForSelector('#next.ready',{timeout:15000});await next();await trace();await concept();await settle();
  await volcanoOutputs();await next();await volcanoLinks();await next();await volcanoLinks();await doneStage(1);
  await enter(2);await rub();await next();await rockInspect();await next();await rockInspect();await concept();await settle();
- await sortRocks();await next();await rockInspect();await classifyRock();await next();await rockInspect();await classifyRock();await doneStage(2);
+ await sortRocks();await next();await classifyRock(245);await next();await classifyRock(955);await doneStage(2);
  await enter(3);
  for(let p=0;p<3;p++){await cityCompare();if(p<2)await next();else await concept();}
  await settle();await notice();await ashSafety();await next();await notice();await next();await notice();await doneStage(3);

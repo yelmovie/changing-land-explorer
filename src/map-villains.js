@@ -41,13 +41,12 @@ function layoutSpeech(host, entries){
  }
 }
 
-export function mountMapVillains({world,page,tools,hand,state,save,reveal,go,getHero,heroPose,stopTravel,paused,say,reduced,clearStage,eligible=MAP_VILLAINS.map(v=>v.id)}){
+export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,heroPose,stopTravel,paused,say,reduced,clearStage,eligible=MAP_VILLAINS.map(v=>v.id)}){
  const game=createCombat(state.mapVillains,performance.now(),{visualOnly:true});
  const roster=MAP_VILLAINS.filter(v=>eligible.includes(v.id));
  game.enemies=game.enemies.filter(e=>eligible.includes(e.id));
  const cleared=()=>roster.every(v=>game.progress.hits[v.id]===VILLAIN_HITS);
  const layer=document.createElement('div');layer.className='map-villains';world.append(layer);
- const meter=document.createElement('button');meter.id='map-villain-focus';meter.type='button';meter.innerHTML='<span class="combat-mini" aria-hidden="true"></span>';tools.append(meter);
  const hud=document.createElement('section');hud.className='map-combat-hud';hud.setAttribute('aria-label','리버의 지도 모험');
  hud.innerHTML='<p class="combat-guide" id="combat-guide">다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small></p><button type="button" id="map-attack" aria-label="주변 돌먼지 대장 공격, J 또는 Space" aria-keyshortcuts="J Space" aria-describedby="combat-guide" hidden></button>';
  page.append(hud);
@@ -68,7 +67,6 @@ export function mountMapVillains({world,page,tools,hand,state,save,reveal,go,get
  function commit(){state.mapVillains=game.progress;save();renderHud();}
  function renderHud(){
   const n=defeatedVillains(game.progress);
-  meter.setAttribute('aria-label',n===5?'돌먼지 대장 다섯 마리 모두 물리침':'돌먼지 대장 찾기, '+n+'마리 물리침');meter.title='돌먼지 대장 찾기';
   attack.disabled=cleared();page.classList.toggle('combat-cleared',n===MAP_VILLAINS.length);
  }
  const available=()=>!closed&&!document.hidden&&!document.querySelector('dialog[open]')&&!paused()&&!page.classList.contains('map-overview');
@@ -116,7 +114,6 @@ export function mountMapVillains({world,page,tools,hand,state,save,reveal,go,get
   return {x,y};
  }
  const spriteResize=new ResizeObserver(updateClearZones);spriteResize.observe(world);updateClearZones();
- meter.onclick=()=>{if(!available())return;const next=game.enemies.find(e=>game.progress.hits[e.id]<VILLAIN_HITS);if(!next){say('열린 지도 도전을 모두 마쳤어. 다른 구역의 관찰을 이어 가 보자!');return;}selectedEnemy=next;reveal(next.x/1200,next.y/675);foes.get(next.id).focus({preventScroll:true});say('악당을 눌러 다가간 뒤, 가까이서 3번 공격! 악당 누르기·공격 버튼·J·Space를 쓸 수 있어. 실제 돌이나 화산과 싸우는 놀이는 아니야.');};
  function strike(targetId=null){
   if(!available()||cleared()||!game.enemies.some(enemy=>game.progress.hits[enemy.id]<VILLAIN_HITS&&(!targetId||enemy.id===targetId)&&inRange(enemy)))return;
   if(!targetId&&selectedEnemy&&game.progress.hits[selectedEnemy.id]<VILLAIN_HITS&&inRange(selectedEnemy))targetId=selectedEnemy.id;
@@ -130,7 +127,7 @@ export function mountMapVillains({world,page,tools,hand,state,save,reveal,go,get
    lastSpeechLayout=-Infinity;
    el.dataset.lineUntil=String(now+(event.type==='defeat'?2200:1800));
    callback.hidden=true;
-   if(event.type==='defeat'){if(defeatedVillains(game.progress)===MAP_VILLAINS.length)finaleAt=now+2350;if(document.activeElement===el)attack.focus({preventScroll:true});say(defeatedVillains(game.progress)===MAP_VILLAINS.length?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 위쪽 악당 찾기로 다음 친구를 찾아봐.');playSound('complete');}
+   if(event.type==='defeat'){if(defeatedVillains(game.progress)===MAP_VILLAINS.length)finaleAt=now+2350;if(document.activeElement===el)attack.focus({preventScroll:true});say(defeatedVillains(game.progress)===MAP_VILLAINS.length?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 지도를 둘러보며 남은 악당을 찾아봐.');playSound('complete');}
    else{say(event.remaining===2?'앗, 바위에 금이 갔어! 두 번 남았어.':'자갈이 튀었어! 한 번 남았어.');playSound(event.remaining===2?'stamp':'pickup');}
   }
   paint(now);
@@ -188,5 +185,5 @@ export function mountMapVillains({world,page,tools,hand,state,save,reveal,go,get
   paint(now);
  }
  renderHud();paint(performance.now());raf=requestAnimationFrame(tick);
- return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);heroPose(-1);layer.remove();meter.remove();attack.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
+ return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);heroPose(-1);layer.remove();attack.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
 }

@@ -126,6 +126,8 @@
 #overlay .resident-stage .resident-line-advance { display: block; width: 100%; min-height: 0; position: relative; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: inherit; text-align: left; cursor: pointer; }
 #overlay .resident-stage .resident-line-advance:disabled { opacity: 1; cursor: default; }
 #overlay .resident-stage .resident-reply { display: block; min-height: 0; margin: 0; color: #34452e; font-size: 26px; font-weight: 400; line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; }
+#overlay .resident-stage[data-speaker="volcano"] .resident-name { background:#853923; border-color:#d7a77d; color:#fff9e9; }
+#overlay .resident-stage[data-speaker="volcano"] .resident-reply { color:#293932; }
 #overlay .resident-stage .resident-choice-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; margin-top: 10px; }
 #overlay .resident-stage .resident-questions { flex: 1; visibility: hidden; gap: 10px; }
 #overlay .resident-stage .is-choosing .resident-questions { visibility: visible; }

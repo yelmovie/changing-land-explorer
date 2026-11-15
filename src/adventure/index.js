@@ -17,8 +17,8 @@ import {createPlayback} from './playback.js';
 const SETUP={river,volcano,rocks,city,safety};
 const ACTION_CUES={
  river:[['물뿌리개를 누르면 물이 나와. 다시 누르면 멈춰.','물의 양을 바꿔 같은 언덕을 관찰해 봐.','이름표를 골라 빈 원에 놓아 봐.'],['숫자를 눌러 상류를 관찰해 봐.','숫자를 눌러 하류를 관찰해 봐.','카드를 고른 뒤 상류·하류에 놓아 봐.']],
- volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','손잡이를 밀거나 자동 재생으로 물을 흘려 봐.','돋보기로 나온 곳을 찾고 연필로 길을 따라가 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.']],
- rocks:[['문지르거나 자동 재생으로 먼지를 털어 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문의 특징에 맞는 표본을 보내 줘.','세 곳을 확대한 뒤 특징 두 개를 기록해 봐.','세 곳을 확대한 뒤 특징 두 개를 기록해 봐.']],
+ volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','손잡이를 밀거나 자동 재생으로 물을 흘려 봐.','그림에서 물이 나온 곳을 누르고, 물길의 점을 이어 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.']],
+ rocks:[['문지르거나 자동 재생으로 먼지를 털어 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문에 맞는 표본을 반짝이는 상자로 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.']],
  city:[['손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.','손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.','손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.'],['안내판에 붙일 카드를 먼저 골라 봐.','안내판에 붙일 카드를 먼저 골라 봐.','안내판에 붙일 카드를 먼저 골라 봐.']],
  safety:[['위험 표식을 알맞은 곳에 놓아 봐.','몸을 보호할 곳을 고르고 머리를 감싸 줘.','잡을 곳을 고르고 흔들림이 멈추면 확인해.'],['가까운 통로를 눌러 리버를 출구와 운동장으로 안내해.','위험 구역을 피해 다시 운동장까지 직접 걸어 봐.','건물·담장·전신주를 피해 공터까지 걸어 봐.']]
 };
@@ -40,7 +40,6 @@ export function mount(ctx) {
   const backdrop=`url('/assets/${backgroundForAsset(STAGE_BACKGROUNDS[ctx.s.id][ctx.step])}.webp')`;
   ctx.root.style.setProperty('--activity-backdrop',backdrop);
   const page=ctx.root.closest('.adventure-page'), heading=$('.adventure-heading',page);
-  page.classList.toggle('river-lab',riverLab);
   page.style.setProperty('--activity-backdrop',backdrop);
   page.style.setProperty('--stage-accent',ctx.s.color);
   let game,closed=false,hooks,activeScene,phaseDone=false,toolHandler=null,zoomed=false;
@@ -53,7 +52,7 @@ export function mount(ctx) {
   const next=$('#next');
   const narration=$('.river-narrator>div',page);
   narration.tabIndex=0; narration.setAttribute('role','region');narration.setAttribute('aria-label','리버의 탐구 안내');
-  const toolMenu=$('.activity-tools',page);
+  const toolMenu=$('.activity-tools',page);toolMenu.hidden=true;
   $('.topbar .nav-group',ctx.root.closest('#app')).append(toolMenu);
   const dismissTools=()=>{toolMenu.open=false;toolMenu.querySelector('summary').focus({preventScroll:true});};
   for(const button of toolMenu.querySelectorAll('button'))button.addEventListener('click',dismissTools);
@@ -226,7 +225,6 @@ export function mount(ctx) {
       updateStepNav();
       const phase=chapter.phase;
       const riverField=ctx.s.id==='river'&&ctx.step===1&&phase<2;
-      toolMenu.hidden=riverLab||riverField;
       page.classList.toggle('river-observation',riverLab&&phase===2);
       page.classList.toggle('river-field-observation',riverField);
       page.classList.toggle('volcano-observation',ctx.s.id==='volcano'&&ctx.step===1&&phase===0);
@@ -419,14 +417,12 @@ export function mount(ctx) {
           actions.forEach((a,i)=>{const b=buttons.children[i];b.className=a.primary?'primary':'secondary';b.disabled=!!a.disabled;if(b.textContent!==a.label)b.textContent=a.label;b.onclick=a.onClick;});
           guideAction();
         },
-        range(label,value,min,max,onChange,ends=['처음','끝']){
+        range(label,value,min,max,onChange){
           const row=document.createElement('div');row.className='adventure-range';
           const span=document.createElement('span');span.textContent=label;
           const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.step=(max-min<=1)?.01:1;input.value=value;input.setAttribute('aria-label',label);
           input.oninput=()=>onChange(Number(input.value));input.onchange=ctx.save;
-          const jump=(label,value)=>{const b=document.createElement('button');b.className='range-jump secondary';b.textContent=label;b.type='button';b.onclick=()=>{input.value=value;onChange(value);ctx.save();};return b;};
-          if(ends)row.append(span,jump(ends[0],min),input,jump(ends[1],max));
-          else{row.classList.add('range-only');row.append(span,input);}
+          row.append(span,input);
           ctx.controls.append(row);return input;
         },
         setToolHandler(id,handler){if(tool?.id===id)toolHandler=handler;},

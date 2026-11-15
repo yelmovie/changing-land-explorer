@@ -22,8 +22,8 @@ function harness(setup,step,phase,{data={},work={},completed=false}={}){
 }
 
 const STAGES={river,volcano,rocks,city,safety};
-const allowed={river:[[0,0],[0,1],[0,2],[1,0],[1,1]],volcano:[[0,0],[0,1],[1,0]],rocks:[[0,0],[0,1],[0,2],[1,1],[1,2]],city:[[0,0],[0,1],[0,2]],safety:[]};
-test('all 30 phases expose autoplay only for the 16 permitted observation or operation phases',()=>{
+const allowed={river:[[0,0],[0,1],[0,2],[1,0],[1,1]],volcano:[[0,0],[0,1],[1,0]],rocks:[[0,0],[0,1],[0,2]],city:[[0,0],[0,1],[0,2]],safety:[]};
+test('all 30 phases expose autoplay only for permitted observation or operation phases',()=>{
  for(const [name,setup]of Object.entries(STAGES))for(let step=0;step<2;step++)for(let phase=0;phase<3;phase++){
   const h=harness(setup,step,phase);
   assert.equal(!!h.auto,allowed[name].some(p=>p[0]===step&&p[1]===phase),name+' '+step+'/'+phase);
@@ -60,7 +60,7 @@ test('manual syringe endpoint snaps 97 percent to completion, keeps 90 percent u
   h.destroy();
  }
 });
-for(const [step,phase]of [[0,1],[0,2],[1,1],[1,2]]){
+for(const [step,phase]of [[0,1],[0,2]]){
  test('rock '+step+'/'+phase+' resumes the interrupted lens target and never chooses evidence or a name',()=>{
   const h=harness(rocks,step,phase);h.press();h.tick(200);h.stop();const objects=JSON.stringify(h.objects.map(o=>[o.x,o.y]));h.tick(1000);assert.equal(JSON.stringify(h.objects.map(o=>[o.x,o.y])),objects);
   h.press();h.tick(12000);assert.deepEqual(h.work.scanned,[0,4,5]);assert.deepEqual(h.work.proofs,[]);assert.deepEqual(h.data.rockNames,{});
@@ -124,11 +124,18 @@ for(const spec of observedScenes){
 }
 test('rock orders reuse prior evidence without attaching the same feature cards again',()=>{
  const evidence=Object.fromEntries(ROCKS.slice(0,2).flatMap(r=>[r.color,r.grain].map(claim=>[`rock-${r.id}-${claim}`,{claim}])));
- const h=harness(rocks,1,0,{data:{evidence}});assert.equal(h.drags.length,0);
- h.actions['rock-ship-0']();assert.deepEqual(h.work.sorted,[],'the first order is granite');
- h.actions['rock-ship-1']();assert.deepEqual(h.work.sorted,[1]);
- h.actions['rock-ship-0']();assert.deepEqual(h.work.sorted,[1,0]);assert.equal(h.counts().finishes,1);
+ const h=harness(rocks,1,0,{data:{evidence}});assert.deepEqual(Object.keys(h.actions),[]);
+ h.drags[0].h.onDrop(null,1060,275);assert.deepEqual(h.work.sorted,[],'the first order is granite');
+ h.drags[1].h.onDrop(null,1060,275);assert.deepEqual(h.work.sorted,[1]);
+ h.drags[0].h.onDrop(null,140,275);assert.deepEqual(h.work.sorted,[1,0]);assert.equal(h.counts().finishes,1);
  assert.deepEqual(h.data.rockProofs[0],['dark','fine']);assert.deepEqual(h.data.rockProofs[1],['light','coarse']);
+});
+test('new rock classification compares the existing reference records without another observation tour',()=>{
+ const evidence=Object.fromEntries(ROCKS.slice(0,2).flatMap(r=>[r.color,r.grain].map(claim=>[`rock-${r.id}-${claim}`,{claim}])));
+ const h=harness(rocks,1,1,{data:{evidence}}),drop=h.drags[0].h.onDrop;
+ assert.equal(h.auto,undefined);assert.equal(drop(null,955,459),false);assert.equal(h.counts().records,0);
+ assert.equal(drop(null,245,459),true);assert.equal(h.counts().finishes,1);
+ assert.equal(h.data.evidence['rock-2-dark'].reference,0);assert.equal(h.data.evidence['rock-2-fine'].comparison,true);
 });
 for(const phase of [0,1,2])test('safety '+phase+' requires direct movement instead of autoplay',()=>{
  const h=harness(safety,1,phase);assert.equal(h.auto,undefined);h.press();h.tick(3000);assert.equal(h.counts().finishes,0);h.destroy();

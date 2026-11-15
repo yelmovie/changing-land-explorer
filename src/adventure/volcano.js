@@ -74,7 +74,7 @@ function assemble(scene,api){
   const d=api.data,w=api.work;w.parts??=[];let parts=w.parts,finished=false,completed=!!api.completed;
   const art=model(scene,api);
   const order=['tray','mountain','water'];
-  const spots={tray:{x:580,y:490},mountain:{x:560,y:349},water:{x:957,y:350}};
+  const spots={tray:{x:580,y:492},mountain:{x:580,y:351},water:{x:957,y:350}};
   const target=scene.add.graphics();
   const objects={};
   function show(){
@@ -144,7 +144,7 @@ function inject(scene,api){
     api.finish('붉은 물이 꼭대기 구멍으로 나와 경사면을 따라 흘렀어.');
   }
   draw();
-  api.range('주사기 손잡이 밀기',Math.round(w.push*100),0,100,value=>{api.stopAutoplay();push(Number(value)/100);},['처음','끝까지']);
+  api.range('주사기 손잡이 밀기',Math.round(w.push*100),0,100,value=>{api.stopAutoplay();push(Number(value)/100);});
   if(!finished&&w.push>=.98&&w.flow>=.98)api.actions([{id:'model-run-saved',label:'분출 관찰 확인',onClick:finish,primary:true}]);
   return {update(time,delta){
     if(!active)return;
@@ -160,50 +160,93 @@ function inject(scene,api){
 }
 
 function trace(scene,api){
-  const d=api.data,w=api.work;w.path??=0;let finished=false;
-  model(scene,api).draw(['tray','mountain','water'],1);
-  const scope=lens(scene,api,175,260,'나온 곳 찾기');
-  const pencil=scene.add.container(180,480,[scene.add.circle(0,0,30,0xf2c453),api.text('✎',0,0,35,'#513f29'),api.text('흐른 길 따라가기',0,57,20)]).setSize(160,130);
-  const guide=scene.add.graphics();
+  const d=api.data,w=api.work,parts=['tray','mountain','water'];
+  w.path=w.mouth?Math.min(FLOW.length,Math.max(0,Math.floor(Number(w.path)||0))):0;
+  const art=model(scene,api),scope=lens(scene,api,180,470,'나온 곳 찾기');
+  const guide=scene.add.graphics(),sources=[{x:957,y:362},{...MOUTH},{x:425,y:510}];
+  const sourceMarkers=sources.map((p,i)=>api.text(String(i+1),p.x,p.y,19).setDepth(2));
+  const marks=FLOW.map((p,i)=>api.text(String(i+1),p.x,p.y,19).setDepth(2));
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const flowTarget=()=>w.mouth?Math.max(.035,(w.path-1)/(FLOW.length-1)):0;
+  let visual=flowTarget(),finished=!!api.completed,drawing=false,down=null;
+  const closest=(list,x,y)=>{
+    let match=-1,limit=43;
+    list.forEach((p,i)=>{const distance=Math.hypot(x-p.x,y-p.y);if(distance<limit){match=i;limit=distance;}});
+    return match;
+  };
   function guideDraw(){
     guide.clear();
-    FLOW.forEach((p,i)=>guide.lineStyle(3,i<w.path?0xfff1ab:0xf8dd95,.95).strokeCircle(p.x,p.y,i===w.path?22:12));
-    if(w.path>1){guide.lineStyle(6,0xffeaa4);for(let i=1;i<w.path;i++)guide.lineBetween(FLOW[i-1].x,FLOW[i-1].y,FLOW[i].x,FLOW[i].y);}
-    api.task(w.mouth?'물이 흐른 길을 위에서 아래로 따라 그려 줘':'물이 나온 구멍을 돋보기로 찾아 봐',w.mouth?'노란 연필을 꼭대기에서 시작해 반짝이는 점들을 차례로 지나가 줘.':'붉은 물이 처음 나온 곳에 돋보기를 놓아 줘.');
-    api.counter((w.mouth?1:0)+w.path,6,'모형 조사');
-  }
-  function mouth(){
-    w.mouth=true;scope.setPosition(MOUTH.x,MOUTH.y).setScale(.7);
-    api.record({id:'model-mouth',kind:'model',...modelEvidence(d),asset:'volcano-lab',label:'물이 나온 입구',point:{x:MOUTH.x/1200,y:MOUTH.y/640},time:1,claim:'mouth',text:'붉은 물이 꼭대기의 구멍으로 나왔어.'});
-    api.say('바로 이 구멍에서 나왔어. 이제 흐른 길을 따라가 보자.',true);guideDraw();api.save();check();return true;
-  }
-  function advance(x,y){
-    if(!w.mouth||w.path>=FLOW.length)return;
-    if(near(x,y,FLOW[w.path],47)){w.path++;guideDraw();api.save();if(w.path===FLOW.length){
-      api.record({id:'model-flow',kind:'model',...modelEvidence(d),asset:'volcano-lab',label:'경사면을 흐른 붉은 물',point:{x:700/1200,y:398/640},time:1,claim:'flow',text:'붉은 물이 모형의 경사면을 따라 흘렀어.'});check();
-    }}
-  }
-  function check(){if(!finished&&w.mouth&&w.path===FLOW.length){finished=true;d.modelTime=1;api.finish('나온 구멍과 흐른 길을 기록했어. 실제 화산과 비교할 단서가 생겼어.');}}
-  api.drag(scope,{onDrop(obj,x,y){if(near(x,y,MOUTH,75))return mouth();api.say('붉은 물이 처음 나온 꼭대기를 살펴봐.');return false;}});
-  api.drag(pencil,{onMove(obj,x,y){advance(x,y);},onDrop(obj,x,y){advance(x,y);return true;}});
-  if(w.mouth)scope.setPosition(MOUTH.x,MOUTH.y).setScale(.7);
-  if(w.path>0)pencil.setPosition(FLOW[w.path-1].x,FLOW[w.path-1].y);
-  guideDraw();
-  api.actions([{id:'volcano-trace-choice',label:'구멍·흐른 길 조사',onClick:openTraceChoices}]);
-  function openTraceChoices(){
-    if(!w.mouth){
-      choicePanel(api,'물이 처음 나온 곳은?','분출 때 본 그림을 떠올리고 조사할 곳을 골라 줘.',[{id:'syringe',label:'옆에 있는 주사기 손잡이'},{id:'mouth',label:'산 모형 꼭대기의 구멍'},{id:'tray',label:'산 모형 아래의 쟁반'}],(item,close)=>{if(item.id!=='mouth')return '붉은 물이 산 모형 밖으로 처음 나온 곳을 다시 살펴봐.';mouth();close();});
-      return;
-    }
-    const names=['꼭대기 구멍','윗 경사면','가운데 경사면','아랫 경사면','경사면 아래 끝'];
-    choicePanel(api,'흐른 길을 차례로 조사해 보자','꼭대기부터 물이 흐른 방향으로 한 곳씩 골라 줘. 진행: '+w.path+' / '+FLOW.length,[3,0,4,1,2].map(i=>({id:i,label:names[i],disabled:i<w.path})),(item,close)=>{
-      const before=w.path;advance(FLOW[item.id].x,FLOW[item.id].y);
-      if(w.path===before)return '물이 지나간 순서를 그림과 비교해 봐.';
-      pencil.setPosition(FLOW[item.id].x,FLOW[item.id].y);close();
+    const showingPath=!!w.mouth,showingDots=showingPath&&w.path<FLOW.length;
+    scope.setVisible(!showingPath);
+    sourceMarkers.forEach((marker,i)=>{
+      marker.setVisible(!showingPath);
+      if(!showingPath){const {x,y}=sources[i];guide.fillStyle(0xfff4d3,.88).fillCircle(x,y,20).lineStyle(2,0x6d6039,.94).strokeCircle(x,y,20);}
     });
+    marks.forEach((marker,i)=>{
+      marker.setVisible(showingDots&&i>=w.path);
+      if(!showingDots||i<w.path)return;
+      const {x,y}=FLOW[i],active=i===w.path;
+      guide.fillStyle(active?0xffdfa0:0xfff6db,active?1:.77).fillCircle(x,y,active?23:17);
+      guide.lineStyle(active?3:2,active?0x784936:0x876f56,.94).strokeCircle(x,y,active?23:17);
+    });
+    api.task(showingPath?'물이 흐른 길을 이어 봐':'붉은 물이 나온 곳을 찾아 봐',showingPath?'꼭대기 1번부터 차례로 누르거나, 손가락으로 점을 이어 봐.':'그림에서 붉은 물이 밖으로 나온 곳의 번호를 눌러 봐.');
+    api.counter(Number(showingPath)+w.path,6,'물길 연결');
+    canvas?.setAttribute('aria-label',showingPath?'물길 잇기. 꼭대기부터 숫자 1, 2, 3, 4, 5를 차례로 눌러.':'물의 출구 찾기. 1번 주사기, 2번 꼭대기 구멍, 3번 쟁반.');
   }
-  if(w.mouth&&w.path===FLOW.length)api.actions([{id:'trace-saved',label:'조사 기록 확인',onClick:check,primary:true}]);
-  return {destroy(){api.save();}};
+  function chooseSource(index){
+    if(w.mouth||index<0)return false;
+    if(index!==1){api.say(index===0?'주사기는 물을 밀어 넣는 곳이야. 물이 밖으로 나온 곳을 찾아 봐.':'쟁반은 흐른 물이 모인 곳이야. 물이 처음 나온 곳을 찾아 봐.');return false;}
+    w.mouth=true;
+    api.record({id:'model-mouth',kind:'model',...modelEvidence(d),asset:'volcano-lab',label:'물이 나온 입구',point:{x:MOUTH.x/1200,y:MOUTH.y/640},time:1,claim:'mouth',text:'붉은 물이 꼭대기의 구멍으로 나왔어.'});
+    guideDraw();api.say('꼭대기 구멍에서 나왔어. 이제 1번부터 경사면의 점을 이어 봐.',true);api.save();return true;
+  }
+  function link(index,feedback=false){
+    if(!w.mouth||w.path===FLOW.length||index<0)return false;
+    if(index!==w.path){if(feedback&&index>w.path)api.say((w.path+1)+'번부터 이어 봐. 물은 높은 곳에서 낮은 곳으로 흘러.');return false;}
+    w.path++;guideDraw();api.save();
+    if(w.path===FLOW.length){
+      d.modelTime=1;
+      api.record({id:'model-flow',kind:'model',...modelEvidence(d),asset:'volcano-lab',label:'경사면을 흐른 붉은 물',point:{x:700/1200,y:398/640},time:1,claim:'flow',text:'붉은 물이 모형의 경사면을 따라 흘렀어.'});
+    }
+    return true;
+  }
+  function check(){if(!finished&&w.mouth&&w.path===FLOW.length&&visual>=1){finished=true;api.finish('꼭대기에서 나온 붉은 물이 네가 이은 길을 따라 쟁반까지 흘렀어.');}}
+  const world=p=>scene.cameras.main.getWorldPoint(p.x,p.y);
+  scene.input.on('pointerdown',p=>{
+    if(document.querySelector('dialog[open]'))return;
+    const {x,y}=world(p);down={x,y};
+    if(w.mouth){
+      const index=closest(FLOW,x,y);
+      drawing=index>=0&&(index===w.path-1||index===w.path);
+      link(index,true);
+    }
+  });
+  scene.input.on('pointermove',p=>{if(p.isDown&&drawing){const {x,y}=world(p);link(closest(FLOW,x,y));}});
+  scene.input.on('pointerup',p=>{
+    drawing=false;
+    if(!w.mouth&&down){const {x,y}=world(p);if(Math.hypot(x-down.x,y-down.y)<25)chooseSource(closest(sources,x,y));}
+    down=null;
+  });
+  scene.input.on('pointerupoutside',()=>{drawing=false;down=null;});
+  api.drag(scope,{onDrop(_obj,x,y){return chooseSource(closest(sources,x,y));}});
+  const canvas=scene.game?.canvas;
+  if(canvas){
+    const original=canvas.getAttribute('aria-label');canvas.tabIndex=0;
+    const onKey=event=>{
+      if(event.repeat||document.querySelector('dialog[open]'))return;
+      const i=['1','2','3','4','5'].indexOf(event.key);
+      if(i<0)return;
+      event.preventDefault();if(w.mouth)link(i,true);else if(i<sources.length)chooseSource(i);
+    };
+    canvas.addEventListener('keydown',onKey);
+    api.listenCleanup(()=>{canvas.removeEventListener('keydown',onKey);canvas.removeAttribute('tabindex');if(original)canvas.setAttribute('aria-label',original);});
+  }
+  art.draw(parts,visual);guideDraw();check();
+  return {update(time,delta){
+    const target=flowTarget();
+    if(visual<target){visual=reduced?target:Math.min(target,visual+Math.min(delta,50)/620);art.draw(parts,visual,time);}
+    check();
+  },destroy(){api.save();}};
 }
 
 function observeOutputs(scene,api){
@@ -243,11 +286,11 @@ function compare(scene,api){
   api.hero(1140,525,100,'hero-cheer');
   api.task(same?'모형과 실제 화산의 같은 모습을 연결해 봐':'모형으로 모두 나타낼 수 없는 점을 찾아 봐',same?'네 모형 기록과 화산 설명을 알맞은 관찰 자리에 끌어 놓아 줘.':'붉은 물과 실제 분출물은 어떻게 다른지, 카드 두 쌍을 완성해 줘.');
   const rows=same?[
-    {id:'opening',title:'나오는 곳',source:'model-mouth',left:'모형: 꼭대기의 구멍으로 붉은 물이 나와.',right:'실제: 화산의 구멍으로 분출물이 나와.'},
-    {id:'downhill',title:'흐르는 길',source:'model-flow',left:'모형: 붉은 물이 경사면을 따라 아래로 흘러.',right:'실제: 용암이 경사면을 따라 아래로 흘러.'}
+    {id:'opening',title:'나오는 곳',source:'model-mouth',left:'꼭대기의 구멍으로 붉은 물이 나와.',right:'화산의 구멍으로 분출물이 나와.'},
+    {id:'downhill',title:'흐르는 길',source:'model-flow',left:'붉은 물이 경사면을 따라 아래로 흘러.',right:'용암이 경사면을 따라 아래로 흘러.'}
   ]:[
-    {id:'material',title:'흐르는 물질',source:'model-flow',left:'모형: 차가운 붉은 물을 사용했어.',right:'실제: 땅속에서 나온 뜨거운 용암이 흘러.'},
-    {id:'extra',title:'함께 나오는 것',source:'model-mouth',left:'모형: 붉은 물만 나왔어.',right:'실제: 화산재·화산 기체·암석 조각도 나와.'}
+    {id:'material',title:'흐르는 물질',source:'model-flow',left:'차가운 붉은 물을 사용했어.',right:'땅속에서 나온 뜨거운 용암이 흘러.'},
+    {id:'extra',title:'함께 나오는 것',source:'model-mouth',left:'붉은 물만 나왔어.',right:'화산재·화산 기체·암석 조각도 나와.'}
   ];
   api.text('내 모형',400,54,26);api.text('실제 화산',835,54,26);
   const smallModel=paintScene(scene,api,modelScene(d.assembly,d.modelTime??1),{x:226,y:74,scale:.29});
@@ -269,7 +312,7 @@ function compare(scene,api){
   const order=[cells[3],cells[0],cells[2],cells[1]];
   order.forEach((cell,i)=>{
     const text=cell.row[cell.side];
-    const card=api.card(text,165+i*290,584,270,104,20,{color:cell.side==='left'?'#2d5a49':'#6b4423'});
+    const card=api.card(text,165+i*290,584,270,104,20);
     const fitScale=Math.min(1,108/card.height);card.setScale(fitScale);
     function place(){
       if(!d.evidence[cell.row.source]){api.say('모형 활동에서 네 관찰 기록을 먼저 남겨 줘.');return false;}

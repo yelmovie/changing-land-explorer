@@ -7,6 +7,7 @@ export const OPERATIONS={
  safety:{title:'몸을 보호하고 넓은 곳으로',goal:'흔들릴 때 몸을 보호하고, 멈춘 뒤 안내를 따라 이동해 줘.',background:'safety-evacuation-garden-v2',steps:4}
 };
 export function freshOperation(){return {version:1,step:0,observed:[],choice:null,position:[0,1],attempts:0,done:false};}
+const BRIDGE_CHOICES=['bank','checked','sand'];
 export function operationState(raw,id){
  const initial=freshOperation();
  if(!raw||raw.version!==1)return initial;
@@ -20,7 +21,7 @@ export function operationState(raw,id){
   ...initial,
   step:Number.isFinite(step)?Math.max(0,Math.min(steps-1,Math.floor(step))):0,
   observed:[...new Set(observed)],
-  choice:typeof raw.choice==='string'?raw.choice:null,
+  choice:id==='river'&&BRIDGE_CHOICES.includes(raw.choice)?raw.choice:null,
   position,
   attempts:Number.isFinite(attempts)?Math.max(0,Math.min(999,Math.floor(attempts))):0,
   done:raw.done===true
@@ -32,10 +33,17 @@ export function operate(id,raw,action){
  const pass=message=>{const next={...s,step:s.step+1,observed:[],choice:null};next.done=next.step>=OPERATIONS[id].steps;return {state:next,message,changed:true,ok:true};};
  if(id==='river'){
   if(s.step===0&&action.startsWith('observe:')){const k=action.slice(8);if(!['erosion','transport','deposit'].includes(k))return fail('물길의 세 흔적을 눌러 살펴봐.');s.observed=[...new Set([...s.observed,k])];if(s.observed.length===3)return pass('깎이고 옮겨져 쌓이는 흐름을 찾았어. 이제 다리 위치를 시험하자.');return {state:s,changed:true,message:{erosion:'물가의 흙이 깎였어. 침식의 흔적이야.',transport:'깎인 흙이 물과 함께 아래쪽으로 옮겨져. 운반이야.',deposit:'흐름이 느려진 곳에 흙이 쌓였어. 퇴적의 흔적이야.'}[k]};}
-  if(s.step===1&&action.startsWith('bridge:')){s.choice=action.slice(7);return {state:s,changed:true,message:'이 위치에 놓았어. 모형에 물을 흘려 확인해 봐.'};}
+  if(s.step===1&&action.startsWith('bridge:')){
+   const site=action.slice(7);
+   if(!BRIDGE_CHOICES.includes(site))return {state:s,changed:false,message:'사진에 표시된 세 곳 중 한 곳을 골라 줘.'};
+   s.choice=site;return {state:s,changed:true,message:'다리를 놓았어. 물을 흘려 양쪽 받침이 버티는지 확인해 봐.'};
+  }
   if(s.step===1&&action==='test'){
-   if(!['bank','checked','sand'].includes(s.choice))return fail('다리를 놓을 곳을 먼저 골라 줘.');
-   return s.choice==='checked'?pass('점검 표시가 있는 양쪽 받침에 연결됐어. 리버가 건널 수 있어!'):fail(s.choice==='bank'?'깎이는 물가라 받침이 남지 않았어. 관찰한 흔적과 점검 표시를 다시 살펴봐.':'쌓인 흙만으로는 안전한 받침인지 알 수 없어. 점검된 받침을 찾아봐.');
+   if(!BRIDGE_CHOICES.includes(s.choice))return fail('다리를 놓을 곳을 먼저 골라 줘.');
+   if(s.choice==='checked')return pass('물이 흘러도 점검한 양쪽 받침이 움직이지 않았어. 이제 리버를 보내 줘!');
+   const reason=s.choice==='bank'?'물이 깎이는 물가 쪽 받침을 무너뜨렸어.':'새로 쌓인 모래가 물에 옮겨져 받침이 흔들렸어.';
+   s.choice=null;
+   return fail(reason+' 다른 위치를 골라 다시 시험해 봐.');
   }
   if(s.step===2&&action.startsWith('move:')){
    const direction={east:[1,0],west:[-1,0],north:[0,-1],south:[0,1]}[action.slice(5)];if(!direction)return fail('방향 버튼으로 리버를 움직여 줘.');

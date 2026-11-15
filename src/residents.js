@@ -58,6 +58,7 @@ export function showResidents(modal,stages,{initial,onGreet,preview,stamps,colle
   function roster(focus){
    stopTalk();
    dialog.classList.remove('resident-stage');
+   delete dialog.dataset.speaker;
    heading.textContent=title;
    body.innerHTML=`${stampBook(stamps)}<div class="resident-roster">${stages.map(st=>`<button class="resident-entry" data-talk="${st.id}"><img src="${residentArt(st.id)}" alt=""><strong>${RESIDENTS[st.id].name}</strong><small>${st.place}</small>${stamps.includes(st.id)?`<span class="entry-stamp" aria-label="도장 받음">${icon(RESIDENTS[st.id].symbol,14)}</span>`:''}</button>`).join('')}</div>${stamps.length===5?'<div class="resident-exit"><button class="primary" data-plaza>축제 광장 보기</button></div>':'<p class="stamp-hint">주민에게 감사 도장을 받아 봐. 다섯 개를 모으면 기록탑에 축제 깃발이 걸려!</p>'}`;
    $('[data-plaza]',body)?.addEventListener('click',()=>{close();visitPlaza();});
@@ -70,6 +71,7 @@ export function showResidents(modal,stages,{initial,onGreet,preview,stamps,colle
    onGreet(id);
    const r=RESIDENTS[id];heading.textContent=`${r.name}에게 말 걸기`;
    dialog.classList.add('resident-stage');
+   dialog.dataset.speaker=id;
    body.innerHTML=`<div class="resident-conversation" data-emotion="greeting"><div class="resident-portrait"><div class="resident-actor"><img src="/assets/npc-expressions/${id}-neutral.webp" alt="${r.role} ${r.name}" draggable="false"></div></div><section class="resident-lines" aria-label="${r.name}과의 대화"><span class="resident-name">${r.name}</span><span class="resident-place">${st.place} · ${r.role}</span><button class="voice-replay" type="button" aria-label="${r.name}의 말 다시 듣기">${icon('sound',20)}<span>다시 듣기</span></button><p class="resident-transcript sr-only" aria-live="polite" aria-atomic="true"></p><button class="resident-line-advance" type="button" aria-label="대사 모두 보기"><span class="resident-line-layout" aria-hidden="true"></span><span class="resident-reply" aria-hidden="true"></span></button><div class="resident-choice-row"><div class="resident-questions" inert aria-hidden="true">${r.chat.map(([q],i)=>`<button class="secondary" data-ask="${i}" aria-pressed="false">${q}</button>`).join('')}</div><button class="resident-continue" type="button" data-continue>대사 모두 보기 <span aria-hidden="true">▼</span></button></div><p class="resident-stamp-note" role="status" hidden></p><div class="resident-exit"><button class="stamp-press" data-stamp>${icon(r.symbol,20)} <span></span></button><button class="secondary" data-roster>주민 목록</button><button class="primary" data-close>지도로 돌아가기</button></div></section></div>`;
    const scene=$('.resident-conversation',body),reply=$('.resident-reply',body),questions=$('.resident-questions',body);
    const next=$('[data-continue]',body),lineButton=$('.resident-line-advance',body),transcript=$('.resident-transcript',body);

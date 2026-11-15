@@ -10,6 +10,7 @@ async function setup(width,height,{node=0,reduce=true,fallback=false,stages=comp
  const p=await context.newPage();p.setDefaultTimeout(12000);p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url());});await p.goto(url);await p.waitForSelector(fallback?'.map-fallback':'.map-ready');return {context,p};
 }
 const state=p=>p.evaluate(k=>JSON.parse(localStorage.getItem(k)),SAVE_KEY);
+const showFoe=async(p,foe)=>{await p.keyboard.press('Tab');await foe.focus();await p.waitForTimeout(450);};
 try{
  const first=await setup(1024,768,{stages:[]});
  assert.equal(await first.p.locator('.map-villain').count(),0,'optional enemies appear only after the relevant observations');
@@ -21,23 +22,23 @@ try{
   const {context,p}=await setup(width,height,{reduce:width!==1280});
   assert.equal(await p.locator('#map-attack').isVisible(),false,'out-of-range attack control stays hidden');
   await p.keyboard.press('KeyJ');assert.equal((await state(p)).mapVillains.hits.river,0,'attack out of range does not hit');
-  await p.locator('#map-villain-focus').tap();await p.waitForTimeout(450);const foe=p.locator('[data-villain="river"]'),r=await foe.boundingBox();
+  const foe=p.locator('[data-villain="river"]');await showFoe(p,foe);const r=await foe.boundingBox();
   assert.ok(r.width>=48&&r.height>=48&&r.x>=0&&r.y>=0&&r.x+r.width<=width&&r.y+r.height<=height,'first enemy is visible');
   await p.mouse.move(r.x+r.width/2,r.y+r.height/2);await p.mouse.down();await p.mouse.move(r.x+r.width/2+45,r.y+r.height/2,{steps:8});await p.mouse.up();assert.equal((await state(p)).mapNode,0,'drag does not trigger enemy approach');
-  await p.locator('#map-villain-focus').tap();await p.waitForTimeout(450);await foe.tap();
+  await showFoe(p,foe);await foe.tap();
   await p.waitForFunction(k=>JSON.parse(localStorage.getItem(k)).mapNode!==0,SAVE_KEY);assert.equal((await state(p)).mapVillains.hits.river,0,'clicking villain only moves River');
   await p.locator('#map-attack').waitFor({state:'visible'});
   assert.equal(await p.locator('#map-hand + #map-attack').count(),1,'attack is docked beside the hand tool');
-  assert.equal(await p.locator('.map-secondary-tools #map-villain-focus').count(),1,'villain finder stays with resident tools');
+  assert.equal(await p.locator('#map-villain-focus,#resident-directory').count(),0,'corner shortcuts are gone');
   const attack=await p.locator('#map-attack').boundingBox();assert.ok(attack.width>=48&&attack.height>=48&&attack.x>=0&&attack.y>=0&&attack.x+attack.width<=width&&attack.y+attack.height<=height);
   await p.locator('#map-attack').focus();await p.keyboard.press('KeyJ');await p.waitForTimeout(60);assert.equal((await state(p)).mapVillains.hits.river,1);assert.equal(await p.locator('.map-combat-river').isVisible(),true);assert.equal(await foe.getAttribute('data-frame'),'4');
   await p.keyboard.press('KeyJ');assert.equal((await state(p)).mapVillains.hits.river,1,'cooldown rejects repeat');await p.screenshot({path:out+'/'+width+'-attack.png'});
   for(let n=2;n<=3;n++){await p.waitForTimeout(610);if(n===2)await p.locator('#map-attack').tap();else{await p.evaluate(()=>document.activeElement?.blur());await p.keyboard.press('Space');}assert.equal((await state(p)).mapVillains.hits.river,n);}
   await foe.waitFor({state:'hidden'});assert.equal(await p.evaluate(()=>window.__audioPlays),0);assert.deepEqual((await state(p)).completed,completed);
-  await p.reload();await p.waitForSelector('.map-ready');assert.equal(await p.locator('[data-villain="river"]').isVisible(),false);assert.match(await p.locator('#map-villain-focus').getAttribute('aria-label'),/1마리 물리침/);
+  await p.reload();await p.waitForSelector('.map-ready');assert.equal(await p.locator('[data-villain="river"]').isVisible(),false);assert.equal((await state(p)).mapVillains.hits.river,3);
   // Every foe can be approached with a native button and defeated through attack, not click removal.
   for(const id of ['volcano','rocks','city','safety']){
-   await p.locator('#map-villain-focus').tap();await p.waitForTimeout(450);const v=p.locator('[data-villain="'+id+'"]');await v.press('Enter');
+   const v=p.locator('[data-villain="'+id+'"]');await showFoe(p,v);await v.press('Enter');
    await p.locator('#map-attack').waitFor({state:'visible',timeout:22000});
    for(let i=(await state(p)).mapVillains.hits[id];i<3;i++){await p.locator('#map-attack[data-ready="true"]').tap();await p.waitForFunction(({key,id,hits})=>JSON.parse(localStorage.getItem(key)).mapVillains.hits[id]===hits,{key:SAVE_KEY,id,hits:i+1});}
    assert.equal((await state(p)).mapVillains.hits[id],3,id+' defeated');

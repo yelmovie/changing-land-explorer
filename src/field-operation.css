@@ -12,7 +12,7 @@
  flex:1;
  min-height:0;
  display:grid;
- grid-template-rows:minmax(0,1fr) auto auto;
+ grid-template-rows:minmax(0,1fr) auto;
  gap:10px;
  padding:12px 24px max(8px,env(safe-area-inset-bottom));
  background:linear-gradient(#edf6ee33,#e6f7ec22),var(--operation-bg) center/cover;
@@ -42,7 +42,6 @@
 .operation-footer p {flex:1;margin:0;font-size:20px;line-height:1.4;word-break:keep-all}
 .operation-navigation,.operation-playback {display:flex;gap:8px;align-items:center}
 .operation-footer button {min-height:48px;min-width:48px;font-size:18px;padding:8px 12px;white-space:nowrap}
-.operation-model-note {background:#fffbd8ed;border-radius:10px;padding:4px 10px;font-size:14px;line-height:1.3;text-align:center;word-break:keep-all}
 .operation-choice,.operation-inspect {display:flex;justify-content:center;gap:20px;position:relative;flex:none}
 .operation-choice>* {min-width:0;flex:1;max-width:360px}
 .operation-specimens {display:flex;justify-content:center;gap:24px;min-height:0}
@@ -55,9 +54,6 @@
 .operation-win p {font-size:22px;margin:8px 0}
 .operation-win strong {font-size:18px}
 .operation-win svg {color:#24785f}
-.bridge-sites .placed:after {content:'다리';display:block;margin:8px auto 0;border:4px double #906730;background:#d9b47b;padding:3px;max-width:130px}
-.bridge-sites.washed .placed {background:#efbca5}
-.bridge-sites.washed .placed:after {transform:rotate(-9deg);opacity:.55}
 .operation-walk-grid {display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,minmax(32px,1fr));max-width:700px;width:100%;height:200px;min-height:0;align-self:center;gap:4px}
 .operation-walk-grid>div {border-radius:12px;background:#d0dea7dd;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;border:1px solid #fff9;min-height:0}
 .operation-walk-grid .water {background:#71c6d7ec}
@@ -71,14 +67,13 @@
  .operation-hero {transition:none}
 }
 @media(max-height:700px) and (orientation:landscape) {
- .field-operation {grid-template-columns:minmax(0,1fr) clamp(220px,26vw,300px);grid-template-rows:minmax(0,1fr) auto;gap:6px;padding:6px 10px max(4px,env(safe-area-inset-bottom))}
+ .field-operation {grid-template-columns:minmax(0,1fr) clamp(220px,26vw,300px);grid-template-rows:minmax(0,1fr);gap:6px;padding:6px 10px max(4px,env(safe-area-inset-bottom))}
  .operation-footer {grid-column:2;grid-row:1;flex-direction:column;align-items:stretch;justify-content:center;gap:10px;padding:10px}
  .operation-footer p {flex:0}
  .operation-navigation {flex-wrap:wrap}
  .operation-navigation>* {flex:1}
  #operation-finish {flex-basis:100%}
  .operation-playback {justify-content:center}
- .operation-model-note {grid-column:1/-1}
  .operation-progress {top:5px;right:10px;padding:2px 8px;font-size:14px}
  #operation-board {gap:10px;padding:30px 12px 10px}
  .operation-hero {display:none}
@@ -112,7 +107,6 @@
  .operation-win p {font-size:18px}
  .operation-walk-grid {height:110px;grid-template-rows:repeat(3,minmax(24px,1fr))}
  .operation-walk-grid>div {font-size:14px}
- .bridge-sites .placed:after {display:none}
 }
 
 /* Scientific evidence is shown in illustrations, with readable DOM captions. */
@@ -133,4 +127,43 @@
  #operation-board {gap:6px;padding-bottom:6px}
  .operation-choice .operation-action {font-size:15px;padding:6px}
  .operation-task {font-size:17px}
+}
+
+/* Place the candidates and the working model on the same river image. */
+.bridge-map {flex:1;min-height:0;display:grid;place-items:center;container-type:size}
+.bridge-photo {position:relative;width:min(100cqw,calc(100cqh * 16 / 9));aspect-ratio:16/9;margin:0;isolation:isolate;pointer-events:none}
+.bridge-photo>img,.bridge-overlay {position:absolute;inset:0;width:100%;height:100%;border-radius:16px}
+.bridge-photo>img {display:block;object-fit:cover;pointer-events:none}
+.bridge-overlay {pointer-events:none;overflow:hidden}
+.bridge-current {fill:none;stroke:#e1f8ff;stroke-width:3.4;stroke-linecap:round;opacity:.57}
+.bridge-current path {stroke-dasharray:1.4 6.7 .6 4 1 6.3;animation:bridge-ripple 9s linear infinite}
+.bridge-current path:nth-child(2) {animation-delay:-2.2s;stroke-width:2.7}
+.bridge-current path:nth-child(3) {animation-delay:-4.7s;stroke-width:2}
+@keyframes bridge-ripple {to{stroke-dashoffset:-100}}
+.bridge-map[data-bridge-phase=running] .bridge-current {opacity:.96;stroke-width:5}
+.bridge-map[data-bridge-phase=running] .bridge-current path {animation-duration:3s}
+.bridge-model {fill:#d8ae68;stroke:#543d2b;stroke-width:4;filter:drop-shadow(0 4px 4px #182c2b9c);transform-box:fill-box;transform-origin:center}
+.bridge-model .bridge-boards {stroke:#634633;stroke-width:23;stroke-dasharray:2 12;opacity:.65}
+.bridge-model .bridge-rails {stroke:#ffedbf;stroke-width:3;fill:none}
+.bridge-model .bridge-trestles {stroke:#654c37;stroke-width:16;stroke-linecap:round;fill:none}
+.bridge-model circle {fill:#f9e6ae;stroke:#5f4d39}
+.bridge-model[data-bridge-model=held] circle {fill:#e6f1ad;stroke:#275841}
+.bridge-model[data-bridge-model=washed] {transform:translate(10px,18px) rotate(6deg);opacity:.78;animation:bridge-wash .42s ease-out}
+@keyframes bridge-wash {from{transform:none;opacity:1}}
+.operation-action.bridge-spot {
+ position:absolute;left:calc(var(--spot-x) - 25px);top:calc(var(--spot-y) - 25px);pointer-events:auto;
+ display:grid;place-items:center;width:50px;height:50px;min-width:48px;padding:0;z-index:2;
+ border:2px dashed #fff3cd;border-radius:50%;background:#204b42df;color:#fff6db;box-shadow:0 3px 8px #162f34b3
+}
+.operation-action.bridge-spot:hover {background:#346e5f}
+.operation-action.bridge-spot[aria-pressed=true] {border-style:solid;background:#fff1c7;color:#2d4b3d;border-color:#48614a}
+.operation-action.bridge-spot:disabled:not([aria-pressed=true]) {opacity:.5;cursor:default}
+.bridge-legend {display:flex;justify-content:center;flex:none;gap:clamp(8px,3vw,40px);margin:0;padding:0;color:#24493d;font-size:clamp(13px,1.45vw,18px);font-weight:700;counter-reset:bridge-point;list-style:none}
+.bridge-legend li {counter-increment:bridge-point;white-space:nowrap}
+.bridge-legend li::before {content:counter(bridge-point) ' · ';color:#466859}
+.bridge-legend .is-selected {color:#0f5546;text-decoration:underline;text-underline-offset:3px}
+.operation-scene[data-operation=river][data-step="1"] .operation-center button:disabled {opacity:.68;cursor:default}
+.operation-navigation:not(:has(button:not([hidden]))) {display:none}
+@media(prefers-reduced-motion:reduce){
+ .bridge-current path,.bridge-model[data-bridge-model=washed] {animation:none}
 }

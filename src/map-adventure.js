@@ -42,7 +42,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
       ${residents.map(st=>residentMarker(st,st===newcomer)).join('')}
       <button id="atlas-core" class="atlas-core ${coreOpen?'ready':''}" style="left:${CORE_LABEL[0]*100}%;top:${CORE_LABEL[1]*100}%" aria-label="기록탑 ${coreOpen?'마지막 도전 열림':'다섯 도구를 모아 연결'}">${icon(coreOpen?'unlock':'lock',22)}<span>기록탑</span></button>
     </div>
-    </div><div class="map-view-tools map-secondary-tools" role="group" aria-label="주민과 지도 도전">${residents.length?`<button type="button" id="resident-directory" aria-label="돌아온 주민 대화 목록 열기" title="주민 대화 목록">${icon('chat',24)}</button>`:''}</div><div class="map-dpad" role="group" aria-label="리버 이동 방향키"><button data-dir="up" aria-keyshortcuts="ArrowUp W" aria-label="위로 걷기">${icon('arrow',26)}</button><button data-dir="left" aria-keyshortcuts="ArrowLeft A" aria-label="왼쪽으로 걷기">${icon('arrow',26)}</button><button class="dpad-center" id="dpad-center" aria-label="리버가 있는 곳 보기"><img src="/assets/hero-lens.webp" alt=""></button><button data-dir="right" aria-keyshortcuts="ArrowRight D" aria-label="오른쪽으로 걷기">${icon('arrow',26)}</button><button data-dir="down" aria-keyshortcuts="ArrowDown S" aria-label="아래로 걷기">${icon('arrow',26)}</button></div><footer class="atlas-footer"><img class="map-river" src="/assets/hero-cheer.webp" alt="리버"><p id="map-speech" role="status">${newcomer?`${RESIDENTS[newcomer.id].name}의 말풍선을 눌러 봐!`:isAdmin()?'시연할 장소 이름표를 눌러. 아래 시연 목록에서 활동이나 마지막 도전을 바로 고를 수도 있어.':finished?'30개 발견과 마지막 도전을 마쳤어. 기록을 다시 보거나 새 상황에 다시 도전해 봐.':''}</p>${finished?'<div class="map-complete-actions"><button class="secondary" id="map-records">기록 다시 보기</button><button class="secondary" id="map-retry">새 상황 다시 도전</button></div>':''}${isAdmin()?'<button class="secondary" id="preview-nav">시연 목록</button>':''}<div class="map-destination"><div class="map-view-tools" role="group" aria-label="지도 보기"><button type="button" id="map-hand" aria-label="손으로 지도 이동" title="손으로 지도 이동" aria-pressed="true">${icon('hand',26)}</button><button type="button" id="map-overview" aria-label="지도 전체 보기" title="지도 전체 보기" aria-pressed="false">${icon('overview',26)}</button></div>${!finished?`<button class="stage-shortcuts map-next-cue" id="stage-shortcuts" aria-label="${nextStage?.place||'기록탑'} 가기"><span class="shortcut-copy"><strong>${nextStage?.place||'기록탑'} 가기</strong></span>${icon('arrow',24)}</button>`:''}</div></footer>
+    </div><div class="map-view-tools map-secondary-tools" role="group" aria-label="지도 복구"></div><div class="map-dpad" role="group" aria-label="리버 이동 방향키"><button data-dir="up" aria-keyshortcuts="ArrowUp W" aria-label="위로 걷기">${icon('arrow',26)}</button><button data-dir="left" aria-keyshortcuts="ArrowLeft A" aria-label="왼쪽으로 걷기">${icon('arrow',26)}</button><button class="dpad-center" id="dpad-center" aria-label="리버가 있는 곳 보기"><img src="/assets/hero-lens.webp" alt=""></button><button data-dir="right" aria-keyshortcuts="ArrowRight D" aria-label="오른쪽으로 걷기">${icon('arrow',26)}</button><button data-dir="down" aria-keyshortcuts="ArrowDown S" aria-label="아래로 걷기">${icon('arrow',26)}</button></div><footer class="atlas-footer"><img class="map-river" src="/assets/hero-cheer.webp" alt="리버"><p id="map-speech" role="status">${newcomer?`${RESIDENTS[newcomer.id].name}의 말풍선을 눌러 봐!`:isAdmin()?'시연할 장소 이름표를 눌러. 아래 시연 목록에서 활동이나 마지막 도전을 바로 고를 수도 있어.':finished?'30개 발견과 마지막 도전을 마쳤어. 기록을 다시 보거나 새 상황에 다시 도전해 봐.':''}</p>${finished?'<div class="map-complete-actions"><button class="secondary" id="map-records">기록 다시 보기</button><button class="secondary" id="map-retry">새 상황 다시 도전</button></div>':''}${isAdmin()?'<button class="secondary" id="preview-nav">시연 목록</button>':''}<div class="map-destination"><div class="map-view-tools" role="group" aria-label="지도 보기"><button type="button" id="map-hand" aria-label="손으로 지도 이동" title="손으로 지도 이동" aria-pressed="true">${icon('hand',26)}</button><button type="button" id="map-overview" aria-label="지도 전체 보기" title="지도 전체 보기" aria-pressed="false">${icon('overview',26)}</button></div>${!finished?`<button class="stage-shortcuts map-next-cue" id="stage-shortcuts" aria-label="${nextStage?.place||'기록탑'} 가기"><span class="shortcut-copy"><strong>${nextStage?.place||'기록탑'} 가기</strong></span>${icon('arrow',24)}</button>`:''}</div></footer>
   </main>`,'atlas');
   $('.brand').innerHTML='<img class="brand-logo" src="/assets/title-logo.webp" alt="움직이는 지오밸리">';
   const world=$('.atlas-world'),page=$('.atlas-page'),nextButton=$('#stage-shortcuts'),residentButtons=$$('.map-resident',world);
@@ -204,7 +204,6 @@ export function renderMap({arrival,engine,loadEngine}={}){
     const marker=$(`.map-resident.arrived[data-resident="${id}"]`,world);
     if(!marker)return;
     marker.classList.remove('arrived');
-    const directory=$('#resident-directory');if(directory)directory.setAttribute('aria-label',`${isAdmin()?'주민 시연':'돌아온 주민'} 대화 목록 열기`);
     $('.resident-tag',marker).innerHTML=`${icon('chat',16)} ${RESIDENTS[id].name}`;
     $('#map-speech').textContent=nextStage?`다음 탐험은 ${nextStage.place}야. 지도에서 이름표를 눌러 봐!`:'다섯 주민이 돌아왔어! 이제 기록탑에서 발견을 연결하자.';
   }
@@ -231,9 +230,15 @@ export function renderMap({arrival,engine,loadEngine}={}){
     residentButtons.forEach(b=>{const [x,y]=RESIDENTS[b.dataset.resident].feet;b.classList.toggle('is-near',Math.hypot(pos.x-x*1200,pos.y-y*675)<145);});
   }
   function travelControls(busy){
-    $$('.map-resident,#resident-directory',page).forEach(button=>{button.disabled=busy;});
+    $$('.map-resident',page).forEach(button=>{button.disabled=busy;});
   }
-  $$('.map-resident',world).forEach(button=>button.onclick=()=>openResidents(button.dataset.resident));
+  for(const button of residentButtons){
+    button.onclick=()=>openResidents(button.dataset.resident);
+    button.onfocus=()=>{
+      if(overview||moving||!button.matches(':focus-visible'))return;
+      follow=false;syncViewControls();panTo(cameraFor(...RESIDENTS[button.dataset.resident].feet));
+    };
+  }
   nextButton?.addEventListener('click',()=>{
     if(guided)return;
     if(!nextStage){if(coreOpen)go(28,'core',true);return;}
@@ -241,7 +246,6 @@ export function renderMap({arrival,engine,loadEngine}={}){
     if(!canEnter(index,s,isAdmin()))return;
     go(DOORS[index],index,true);
   });
-  $('#resident-directory')?.addEventListener('click',()=>openResidents($('.map-resident.arrived',world)?.dataset.resident));
   world.addEventListener('click',e=>{
     if(e.target.closest('button')||document.querySelector('dialog[open]'))return;
     cancelGuided();if(moving)return;
@@ -330,7 +334,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
         const round=['river','rocks','safety'].indexOf(target);
         if(round>=0){s.final.assembled=true;s.final.round=round;}
         navigate('final',round>=0?'assembly':target==='ending'?'celebration':target);});});
-  if(!isAdmin()&&s.completed.length)combat=mountMapVillains({world,page,tools:$('.map-secondary-tools',page),hand:$('#map-hand',page),state:s,save,reduced,
+  if(!isAdmin()&&s.completed.length)combat=mountMapVillains({world,page,hand:$('#map-hand',page),state:s,save,reduced,
     eligible:s.completed,clearStage:arrival,paused:()=>closed||guided||destination!==null,
     getHero:()=>hero?{x:hero.x,y:hero.y}:fallback?POINTS[current]:null,
     heroPose:pose=>{hero?.setVisible(pose<0);if(fallback)$('.atlas-fallback-river').style.visibility=pose<0?'':'hidden';},

@@ -2,10 +2,12 @@ import {backgroundForAsset} from './stage-art.js';
 import {riverSurface,wetSoilAlpha} from './river-water.js';
 // Serializable scene conditions. Activities, notebooks, selected records and
 // endings all render these same assets, coordinates, overlays and time labels.
-export const MODEL_MOUTH={x:560,y:229};
-export const MODEL_FLOW=[MODEL_MOUTH,{x:591,y:289},{x:631,y:351},{x:682,y:421},{x:737,y:491}];
-// Match the original asset proportions; the mountain leaves a visible tray rim.
-export const MODEL_PARTS={tray:['art/volcano-tray',580,490,560,125],mountain:['art/volcano-mountain',560,349,392,280],water:['art/volcano-syringe',957,343,100,231]};
+export const MODEL_MOUTH={x:580,y:229};
+export const MODEL_FLOW=[MODEL_MOUTH,{x:610,y:289},{x:648,y:350},{x:697,y:418},{x:751,y:491}];
+export const MODEL_PARTS={tray:['art/volcano-tray',580,492,598,133],mountain:['art/volcano-mountain',580,351,378,270],water:['art/volcano-syringe',957,343,100,231]};
+// The short curves begin inside the syringe nozzle and end under the clay base.
+const MODEL_TUBE=[{x:957,y:447},{x:957,y:468},{x:956,y:478},{x:951,y:489},{x:942,y:497},{x:931,y:501},{x:915,y:501},{x:898,y:498},{x:871,y:490},{x:845,y:483},{x:819,y:478},{x:789,y:475},{x:744,y:475}];
+const moveLine=(path,dx,dy)=>path.map(p=>({x:p.x+dx,y:p.y+dy}));
 export const CITY_POINTS=[{x:210,y:282},{x:530,y:280},{x:1030,y:330}];
 export const cityMarker=index=>({...CITY_POINTS[index],y:CITY_POINTS[index].y+5,w:index===1?350:220,h:145});
 export const CITY_OBSERVATIONS=[['비행 중단','안전 확인 뒤 운항','화산재 속에서도 운항'],['농작물 피해','오랜 시간 뒤 토양 변화','분출하자마자 풍년'],['위험할 때 출입 금지','안전 확인 뒤 이용','분출 중에도 온천 이용']];
@@ -23,9 +25,17 @@ export function riverScene(time=0,water=1,motion=0,flowing=false){
 }
 export function modelScene(parts=['tray','mountain','water'],amount=1){
  const layers=[];
- if(parts.includes('water'))layers.push(line([{x:955,y:425},{x:850,y:425},{x:560,y:465},{x:560,y:249}],14,'#bcae98'),line([{x:955,y:425},{x:850,y:425},{x:560,y:465},{x:560,y:249}],7,'#e5d7bd'));
- for(const id of parts)if(MODEL_PARTS[id])layers.push(image(...MODEL_PARTS[id]));
+ if(parts.includes('tray'))layers.push(ellipse(580,535,571,38,'#263739',.38),image(...MODEL_PARTS.tray));
+ if(parts.includes('mountain'))layers.push(ellipse(580,483,374,33,'#253d38',.32));
+ if(parts.includes('water'))layers.push(
+  line(moveLine(MODEL_TUBE,1,3),17,'#293c43',.33),line(MODEL_TUBE,14,'#586d69',.9),
+  line(MODEL_TUBE,10,'#c9dcd1',.92),line(moveLine(MODEL_TUBE,-1.5,-2),2,'#f9ffed',.85),
+  ellipse(957,456,20,12,'#647d73',.98),ellipse(957,452,19,8,'#d6e1d3',1),ellipse(758,475,19,13,'#575749',.9)
+ );
+ if(parts.includes('mountain'))layers.push(image(...MODEL_PARTS.mountain));
+ if(parts.includes('water'))layers.push(image(...MODEL_PARTS.water));
  if(amount>0){
+  layers.push(line(MODEL_TUBE.slice(1,-1),4,'#cf5e54',.55+amount*.2));
   const count=Math.min(1,amount)*4,path=[MODEL_FLOW[0]];
   for(let i=0;i<Math.ceil(count);i++){const a=MODEL_FLOW[i],b=MODEL_FLOW[i+1],f=Math.min(1,count-i);path.push({x:a.x+(b.x-a.x)*f,y:a.y+(b.y-a.y)*f});}
   const stream=[path[0]];
@@ -33,7 +43,7 @@ export function modelScene(parts=['tray','mountain','water'],amount=1){
   layers.push(line(stream,25,'#7d4636',.17),line(stream,15,'#d85e50',.86),ellipse(MODEL_MOUTH.x,MODEL_MOUTH.y,42,12,'#d85e50',.85));
   // Broken reflections and uneven margins read as shallow coloured water, not a pipe.
   for(let i=1;i<stream.length;i+=3){const p=stream[i];layers.push(ellipse(p.x-2,p.y,4+(i%4),7,'#ffd0b5',.38));}
-  if(amount>.8){const spread=(amount-.8)*320;layers.push(ellipse(737,493,spread*1.1,20,'#855142',.18),ellipse(737,491,spread,15,'#d85e50',.76),ellipse(726,492,spread*.65,18,'#d85e50',.5),ellipse(731,488,spread*.35,3,'#f4b29c',.55));}
+  if(amount>.8){const {x,y}=MODEL_FLOW.at(-1),spread=(amount-.8)*320;layers.push(ellipse(x,y+2,spread*1.1,20,'#855142',.18),ellipse(x,y,spread,15,'#d85e50',.76),ellipse(x-11,y+1,spread*.65,18,'#d85e50',.5),ellipse(x-6,y-3,spread*.35,3,'#f4b29c',.55));}
  }
  return {width:1200,height:640,background:'volcano-lab',layers};
 }

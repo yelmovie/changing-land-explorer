@@ -29,7 +29,7 @@ try{
    // A panel itself is tappable, not merely decorated to look like a button.
    const canvas=await page.locator('#activity canvas').boundingBox();
    await page.touchscreen.tap(canvas.x+canvas.width*.25,canvas.y+canvas.height*.4);
-   await page.getByRole('button',{name:'이후 모습',exact:true}).tap();
+   await page.getByRole('slider',{name:'관찰할 시기'}).press('End');
    const work=()=>page.evaluate(async()=>{const d=(await import('/src/main.js')).state().drafts.city.data;return structuredClone(d.adventure.chapters[0].work[d.adventure.chapters[0].phase]);});
    assert.deepEqual((await work()).seen,{before:true,after:true});assert.deepEqual((await work()).pairs,[]);
    await page.screenshot({path:out+'/'+width+'-city-'+phase+'.png',animations:'disabled'});
