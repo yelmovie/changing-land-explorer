@@ -13,9 +13,9 @@ async function click(x,y){const b=await page.locator('#activity canvas').boundin
 async function drag(from,to){const b=await page.locator('#activity canvas').boundingBox();const p=v=>({x:b.x+v.x*b.width/1200,y:b.y+v.y*b.height/640});const a=p(from),z=p(to);await page.mouse.move(a.x,a.y);await page.mouse.down();await page.mouse.move(z.x,z.y,{steps:15});await page.mouse.up();await page.waitForTimeout(220);}
 async function data(stage){return page.evaluate(async stage=>(await import('/src/main.js')).state().drafts[stage].data,stage);}
 async function beginPour(mode){
- if(mode==='button'){await page.locator('#river-pour-start').click();}
- else if(mode==='tap'){await click(140,515);await click(400,195);}
- else {const b=await page.locator('#activity canvas').boundingBox();await page.mouse.move(b.x+140*b.width/1200,b.y+515*b.height/640);await page.mouse.down();await page.mouse.move(b.x+400*b.width/1200,b.y+195*b.height/640,{steps:15});}
+ if(mode==='keyboard'){await page.locator('#activity canvas').press('Space');}
+ else if(mode==='tap'){await click(140,515);}
+ else {const b=await page.locator('#activity canvas').boundingBox();await page.mouse.move(b.x+140*b.width/1200,b.y+515*b.height/640);await page.mouse.down();await page.mouse.move(b.x+400*b.width/1200,b.y+253*b.height/640,{steps:15});}
 }
 async function layout(label){
  const metrics=await page.evaluate(()=>{const c=document.querySelector('#activity canvas')?.getBoundingClientRect(),a=document.querySelector('#activity')?.getBoundingClientRect();const buttons=[...document.querySelectorAll('.adventure-toolbar button,#next')].filter(e=>e.getClientRects().length).map(e=>({text:e.textContent.trim(),rect:e.getBoundingClientRect().toJSON()}));return {width:innerWidth,height:innerHeight,horizontalOverflow:document.documentElement.scrollWidth>innerWidth+1,canvas:c?.toJSON(),surface:a?.toJSON(),buttons};});
@@ -25,26 +25,22 @@ async function layout(label){
  await page.screenshot({path:out+'/'+label+'.png'});return metrics;
 }
 try{
- for(const [width,height,mode,touch]of (process.env.CHECK_PART&&process.env.CHECK_PART!=='water'?[]:[[1280,800,'drag',false],[1024,768,'tap',true],[768,1024,'tap',true],[1280,800,'button',false]])){
+ for(const [width,height,mode,touch]of (process.env.CHECK_PART&&process.env.CHECK_PART!=='water'?[]:[[1280,800,'drag',false],[1024,768,'tap',true],[768,1024,'tap',true],[1280,800,'keyboard',false]])){
   await fresh(width,height,touch);await page.evaluate(async()=>{(await import('/src/main.js')).enter(0);});await ready();
   assert.equal(await page.locator('#observation-auto').isVisible(),true,'water observation offers playback');
   assert.equal(await page.locator('#next').isDisabled(),true,'observation must finish before continuing');
-  await click(140,515);await click(1100,80);assert.equal((await data('river')).adventure.chapters[0].work[0].pour,0,'wrong watering position cannot advance');
-  if(mode==='button'){await page.locator('#river-pour-start').click();}
-  else if(mode==='tap'){await click(140,515);await click(400,195);}
-  else {const b=await page.locator('#activity canvas').boundingBox();await page.mouse.move(b.x+140*b.width/1200,b.y+515*b.height/640);await page.mouse.down();await page.mouse.move(b.x+400*b.width/1200,b.y+195*b.height/640,{steps:15});}
+  await click(1100,80);assert.equal((await data('river')).adventure.chapters[0].work[0].pour,0,'only the watering can starts flow');
+  await beginPour(mode);
   await page.waitForTimeout(900);const partial=(await data('river')).adventure.chapters[0].work[0].pour;assert.ok(partial>.02&&partial<1,mode+' has real continuous progress');
-  if(mode==='drag')await page.mouse.up();else await page.locator('#river-pour-stop').click();
+  if(mode==='drag')await page.mouse.up();else if(mode==='keyboard')await page.locator('#activity canvas').press('Space');else await click(400,198);
   const stopped=(await data('river')).adventure.chapters[0].work[0].pour;await page.waitForTimeout(400);assert.equal((await data('river')).adventure.chapters[0].work[0].pour,stopped,'explicit stop');
   if(width===1024){await page.setViewportSize({width:768,height:1024});await ready();assert.equal((await data('river')).adventure.chapters[0].work[0].pour,stopped);await layout('water-rotated-portrait');await page.setViewportSize({width,height});await ready();}
   await page.reload();await ready();assert.equal((await data('river')).adventure.chapters[0].work[0].pour,stopped,'intermediate saved amount');
-  if(mode==='button'){await page.locator('#river-pour-start').click();}
-  else if(mode==='tap'){await click(140,515);await click(400,195);}
-  else {const b=await page.locator('#activity canvas').boundingBox();await page.mouse.move(b.x+140*b.width/1200,b.y+515*b.height/640);await page.mouse.down();await page.mouse.move(b.x+400*b.width/1200,b.y+195*b.height/640,{steps:15});}
-  await page.waitForSelector('#next.ready',{timeout:15000});if(mode==='drag')await page.mouse.up();
+  await beginPour(mode);
+  await page.locator('[data-phase="1"][aria-current="step"]').waitFor({timeout:15000});if(mode==='drag')await page.mouse.up();
   const d=await data('river');assert.equal(d.runs.length,1);assert.equal(d.evidence['river-run-1'].time,1);assert.equal(d.adventure.chapters[0].work[0].pour,1);
   const metrics=await layout(`${width}-${height}-water-${mode}`);
-  await page.locator('#next').click();await ready();await beginPour(mode);await page.waitForSelector('#next.ready',{timeout:15000});if(mode==='drag')await page.mouse.up();
+  await page.waitForSelector('#next.ready',{timeout:15000});
   const compared=await data('river');assert.deepEqual(compared.runs.map(r=>r.water),[1,2]);assert.equal(compared.evidence['river-run-2'].water,2);
   results.push({test:'water',width,height,mode,touchEmulation:touch,partial,stopped,record:d.evidence['river-run-1'],bothWaterAmounts:true,metrics});
  }

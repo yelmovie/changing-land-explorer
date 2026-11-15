@@ -18,7 +18,7 @@ function harness(setup,step,phase,{data={},work={},completed=false}={}){
  const hooks=setup(scene,api)||{};
  const tick=(ms=16000)=>{for(let n=0;n<ms;n+=20){time+=20;scene.time.now=time;playback.update(20,(clock,delta)=>hooks.update?.(clock,delta));}};
  const press=()=>{if(playback.playing)stop();else playback.start();};
- return {data,work,api,hooks,objects,drags,actions,markers,events,press,stop,tick,get auto(){return auto;},get playing(){return playback.playing;},setSpeed:value=>playback.setSpeed(value),counts:()=>({records,finishes,saves,stops}),snapshot:()=>JSON.stringify({data,work}),destroy:()=>{stop();hooks.destroy?.();cleanups.forEach(f=>f());}};
+ return {data,work,api,hooks,objects,drags,actions,markers,events,press,stop,tick,get auto(){return auto;},get playing(){return playback.playing;},counts:()=>({records,finishes,saves,stops}),snapshot:()=>JSON.stringify({data,work}),destroy:()=>{stop();hooks.destroy?.();cleanups.forEach(f=>f());}};
 }
 
 const STAGES={river,volcano,rocks,city,safety};
@@ -146,21 +146,16 @@ test('reduced-motion mode keeps observation controls functional without travel t
  try{const r=harness(rocks,0,1);r.press();r.tick(10000);assert.deepEqual(r.work.scanned,[0,4,5]);const c=harness(city,0,0);c.press();c.tick(10000);assert.deepEqual(c.work.seen,{before:true,after:true});}finally{globalThis.matchMedia=()=>({matches:false});}
 });
 
-for(const [name,setup,step,phase] of [['river',river,0,0],['red water',volcano,0,1]]){
- test(name+' playback speed changes simulation and visit timing without skipping completion',()=>{
-  const normal=harness(setup,step,phase),fast=harness(setup,step,phase),slow=harness(setup,step,phase);
-  fast.setSpeed(3);slow.setSpeed(.5);
-  for(const h of [normal,fast,slow]){h.press();h.tick(1000);}
-  const progress=h=>name==='river'?h.work.pour:h.work.flow;
-  assert.ok(progress(fast)>progress(normal)*2.5);assert.ok(progress(slow)<progress(normal)*.6);
-  const before=progress(normal);normal.setSpeed(3);normal.tick(500);assert.ok(progress(normal)>before);
-  normal.stop();const paused=normal.snapshot();normal.setSpeed(.5);normal.tick(2000);assert.equal(normal.snapshot(),paused);
-  normal.press();normal.setSpeed(3);normal.tick(18000);assert.equal(normal.counts().finishes,1);
-  for(const h of [normal,fast,slow])h.destroy();
- });
-}
-test('speed changes preserve a city tour and leave its answer cards unselected',()=>{
- const h=harness(city,0,0);h.press();h.tick(250);h.setSpeed(3);h.tick(2500);
+test('river autoplay advances exactly twice as fast as the watering can',()=>{
+ const manual=harness(river,0,0),auto=harness(river,0,0),can=manual.drags[0].h;
+ can.onPick();auto.press();manual.tick(1000);auto.tick(1000);
+ assert.ok(Math.abs(auto.work.pour/manual.work.pour-2)<1e-8);
+ can.onPick();auto.stop();const paused=manual.work.pour;manual.tick(1000);assert.equal(manual.work.pour,paused);
+ auto.press();auto.tick(3500);assert.equal(auto.work.pour,1);assert.equal(auto.counts().finishes,1);
+ manual.destroy();auto.destroy();
+});
+test('2× city tour leaves its answer cards unselected',()=>{
+ const h=harness(city,0,0);h.press();h.tick(5000);
  assert.equal(h.playing,false);assert.deepEqual(h.work.seen,{before:true,after:true});
  assert.deepEqual(h.work.pairs,[]);assert.equal(h.counts().finishes,0);assert.equal(h.counts().records,0);
  h.destroy();

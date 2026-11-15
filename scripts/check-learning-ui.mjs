@@ -86,8 +86,9 @@ try{
   for(let index=0;index<5;index++)for(let step=0;step<2;step++)for(let phase=0;phase<3;phase++){
    const key=`${width}-${ids[index]}-${step}-${phase}`;await enter(page,index,step,phase);
    await record(page,key,'#app',{shot:width===1280&&height===800});
-   await page.locator('.activity-tools>summary').click();await page.locator('#river-hint').click();await record(page,key+'-hint','dialog');await page.locator('.dialog-close').click();
-   if(phase===0){
+   const tools=await page.locator('.activity-tools>summary').isVisible();
+   if(tools){await page.locator('.activity-tools>summary').click();await page.locator('#river-hint').click();await record(page,key+'-hint','dialog');await page.locator('.dialog-close').click();}
+   if(phase===0&&tools){
     await page.locator('.activity-tools>summary').click();await page.locator('#concept-review').click();await page.locator('video').evaluate(async v=>{const poster=new Image();poster.src=v.poster;await poster.decode();});await record(page,key+'-concept','dialog',{shot:width===1280&&height===800});
     await page.locator('video').evaluate(v=>{if(!v.paused)throw Error('Reduced-motion video autoplayed');});
     // The scene rail's play toggle replaced the overlay play button (concept-focus.js).

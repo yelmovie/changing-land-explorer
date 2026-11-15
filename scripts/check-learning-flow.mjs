@@ -28,9 +28,8 @@ async function stroke(...points){
  await page.mouse.up();await page.waitForTimeout(120);
 }
 const jump=name=>page.getByRole('button',{name,exact:true}).click();
-async function pour(){await tap(140,515);await tap(400,195);await page.waitForSelector('#next.ready',{timeout:15000});}
 async function riverMarks(){for(const [i,[id,mark]]of Object.entries(RIVER_MARKS).entries()){
- if(width<1000){await page.locator('#river-choose-label').click();await page.locator(`[data-river-label="${id}"]`).click();await tap(150+mark.x*900,120+mark.y*400);}
+ if(width<1000){await tap(275+i*325,535);await tap(150+mark.x*900,120+mark.y*400);}
  else await stroke({x:275+i*325,y:535},{x:150+mark.x*900,y:120+mark.y*400});
 }}
 async function fieldPoints(side){for(const p of FIELD_POINTS.filter(p=>p.side===side))await tap(p.x*1.2,p.y*640/560);}
@@ -61,7 +60,7 @@ async function ashSafety(){await stroke({x:686,y:340},{x:420,y:340});await strok
 async function hazards(){await stroke({x:400,y:578},{x:150,y:205});await stroke({x:760,y:578},{x:438,y:265});}
 async function shelter(){await stroke({x:950,y:465},{x:700,y:482});await stroke({x:520,y:525},{x:724,y:389});}
 async function next(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await settle();}
-async function concept(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await page.waitForSelector('.concept-dialog');concepts++;await page.locator('#concept-continue').click();}
+async function concept(){if(!await page.locator('.concept-dialog').isVisible()){await page.waitForSelector('#next.ready');await page.locator('#next').click();}await page.waitForSelector('.concept-dialog');concepts++;await page.locator('#concept-continue').click();}
 async function doneStage(index){
  await concept();await page.waitForSelector('#operation-board');
  const actions=[['observe:erosion','observe:transport','observe:deposit','bridge:checked','test','move:east','move:east','move:east','move:east'],['signed','shelter','station'],['inspect:color','inspect:grain','ship:granite','inspect:color','inspect:grain','ship:basalt'],['close','inside','notice'],['cover','hold','stopped','assembly']][index];
@@ -147,16 +146,14 @@ try{
  await page.goto(process.env.CHECK_URL||'http://localhost:5177');await page.waitForSelector('#settings');
  if(!resumedStageState){
  await page.waitForSelector('#start');await page.locator('#start').click();await page.locator('#story-skip').click();await enter(0);
- await pour();
- // A rapid repeat must advance only once; the next unfinished phase must
- // survive a page reload without reopening the completed first experiment.
- await page.locator('#next').evaluate(button=>{button.click();button.click();});
+ await page.locator('#observation-auto').click();
+ // The second run follows without a navigation click; a reload keeps its phase.
  await page.waitForSelector('[data-phase="1"][aria-current="step"]');await settle();
  assert.equal(await page.locator('#instruction').evaluate(e=>e===document.activeElement),true);
  assert.equal(await page.locator('[data-phase="2"]').isDisabled(),true);
  await page.reload();await settle();await page.waitForSelector('[data-phase="1"][aria-current="step"]');
- await pour();await next();
- await jump('처음 모습');await jump('마지막 모습');
+ await page.locator('#observation-auto').click();await page.waitForSelector('#next.ready',{timeout:15000});await next();
+ const timeline=page.getByRole('slider',{name:'실험 시간'});await timeline.press('Home');await timeline.press('End');
  await riverMarks();
  await page.locator('#river-reflect-foot').click();await concept();await settle();
  await fieldPoints('upper');await next();await fieldPoints('lower');await next();await riverLinks();await doneStage(0);

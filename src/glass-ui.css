@@ -13,8 +13,7 @@
 #app .topbar .icon-button,
 #app.adventure .activity-tools>summary,
 #app :is(.secondary,.home-help,.home-settings,.atlas-overview,.atlas-route-help,.map-dpad button),
-#app.adventure .adventure-toolbar :is(.secondary,.compact-tool),
-#app.adventure #observation-speed {
+#app.adventure .adventure-toolbar :is(.secondary,.compact-tool) {
  background:var(--glass-control);color:var(--hud-ink);
  border:var(--glass-border);box-shadow:var(--glass-shadow);
  backdrop-filter:blur(6px) saturate(1.12);-webkit-backdrop-filter:blur(6px) saturate(1.12);

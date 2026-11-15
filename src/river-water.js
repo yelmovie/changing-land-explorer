@@ -173,9 +173,9 @@ export function depositedGrains(time,water=1){
 
 
 // Fine separated jets fall from the tilted spout, then splash against the soil.
-export function drawRiverSpray(g,can,time,water=1){
+export function drawRiverSpray(g,can,time,water=1,offsetY=0){
   g.clear();
-  const from={x:can.x-70,y:can.y+1},hit=riverFlowPoint(0),profile=riverFlowProfile(water),jets=profile.jets;
+  const from={x:can.x-70,y:can.y+1},mouth=riverFlowPoint(0),hit={x:mouth.x,y:mouth.y+offsetY},profile=riverFlowProfile(water),jets=profile.jets;
   for(let i=0;i<jets;i++){
     const end={x:hit.x+(i-(jets-1)/2)*profile.spread,y:hit.y+Math.sin(i)*3};
     const at=f=>({x:from.x+(end.x-from.x)*f,y:from.y+(end.y-from.y)*f*f});

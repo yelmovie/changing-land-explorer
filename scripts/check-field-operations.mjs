@@ -68,13 +68,12 @@ try{
    await page.locator('#operation-retry').click();
    assert.equal(await page.locator('#operation-finish').isVisible(),false);
    if(id==='river'||id==='rocks'){
-    await page.locator('#operation-speed').selectOption('0.5');
+    assert.equal(await page.locator('#operation-speed').count(),0);
     await page.locator('#operation-auto').click();
     await page.locator('#operation-auto').click();
     await page.waitForTimeout(700);
     const observed=await page.evaluate(async id=>(await import('/src/main.js')).state().drafts[id].data.fieldOperation.observed,id);
     assert.equal(observed.length,1,'pausing holds the current observation');
-    await page.locator('#operation-speed').selectOption('3');
     await page.locator('#operation-auto').click();
     await page.locator('#operation-auto').waitFor({state:'hidden'});
     const saved=await page.evaluate(async id=>(await import('/src/main.js')).state().drafts[id].data.fieldOperation,id);

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
+import {FIELD_POINTS} from '../src/learning-model.js';
 const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_PATH).href);
 const out=process.env.CHECK_OUT||'.work/river-visuals-20261110';await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true}),errors=[],results=[];
@@ -12,20 +13,19 @@ try{
   const data=()=>p.evaluate(()=>window.qaMain.state().drafts.river.data);
   await p.goto(process.env.CHECK_URL||'http://localhost:5197');await p.evaluate(async()=>{window.qaMain=await import('/src/main.js');});
   await p.evaluate(async()=>{const m=await import('/src/main.js');m.state().started=true;m.state().sound=false;m.state().drafts.river={step:0,passed:[],data:{}};m.enter(0);});await ready();
+  await p.locator('#observation-auto').tap();
   for(const water of [1,2]){
-   await p.locator('#observation-speed').selectOption('3');await p.locator('#observation-auto').tap();
    await p.waitForFunction(phase=>window.qaMain.state().drafts.river.data.adventure.chapters[0].work[phase].pour>.65,water-1);
    await p.screenshot({path:out+'/'+width+'-water-'+water+'.png'});
-   await p.waitForSelector('#next.ready',{timeout:20000});
+   if(water===1)await p.waitForFunction(()=>window.qaMain.state().drafts.river.data.adventure.chapters[0].phase===1);
+   else await p.waitForSelector('#next.ready',{timeout:20000});
    const d=await data();assert.equal(d.evidence['river-run-'+water].water,water);
-   await p.screenshot({path:out+'/'+width+'-deposit-'+water+'.png'});
-   if(water===1){await p.locator('#next').tap();await ready();}
   }
   const completed=await data();assert.deepEqual(completed.runs.map(r=>r.water),[1,2]);
   await p.evaluate(async()=>{const m=await import('/src/main.js'),draft=m.state().drafts.river,d=draft.data;draft.step=1;draft.passed=[0];d.reflection='foot';for(const [id,point]of Object.entries((await import('/src/learning-model.js')).RIVER_MARKS))d.evidence['river-'+id]={point:{x:point.x,y:point.y},time:1};d.adventure.chapters[0].tasks[2]={done:true};d.adventure.chapters[1]={phase:0,tasks:{},work:{}};m.enter(0,1);});await ready();
   for(const side of ['upper','lower']){
-   for(const i of [0,1]){
-    await p.locator('#river-field-observe').tap();await p.locator('[data-field-point="'+i+'"]').tap();
+   for(const [i,point] of FIELD_POINTS.filter(p=>p.side===side).entries()){
+    const b=await p.locator('#activity canvas').boundingBox();await p.touchscreen.tap(b.x+point.x/1000*b.width,b.y+point.y/560*b.height);
     await p.screenshot({path:out+'/'+width+'-'+side+'-'+i+'.png'});
    }
    await p.waitForSelector('#next.ready');

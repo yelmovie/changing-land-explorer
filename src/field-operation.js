@@ -1,10 +1,10 @@
 import {scienceText} from './science-learning.js';
 import {$,escapeHTML,icon} from './ui.js';
 import {OPERATIONS,operationState,operate,freshOperation} from './field-operation-model.js';
-import {createPlayback,PLAYBACK_SPEEDS} from './adventure/playback.js';
+import {createPlayback} from './adventure/playback.js';
 export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
  const spec=OPERATIONS[id];let model=operationState(data.fieldOperation,id),message=spec.goal,closed=false;
- shell(spec.title,`<main class="field-operation" style="--operation-bg:url('/assets/art/${spec.background}.webp')"><section class="operation-scene" aria-label="직접 조작하는 현장 모형"><div class="operation-progress"></div><div id="operation-board"></div><img class="operation-hero" src="/assets/river-hero.webp" alt="함께 작전하는 리버"></section><footer class="operation-footer"><p id="operation-message" role="status"></p><div class="operation-playback" hidden><button id="operation-auto" class="primary">자동 관찰</button><select id="operation-speed" aria-label="자동 관찰 속도">${PLAYBACK_SPEEDS.map(speed=>`<option value="${speed}" ${speed===1?'selected':''}>${speed}배</option>`).join('')}</select></div><div class="operation-navigation"><button class="secondary" id="operation-back">관찰로</button><button class="secondary" id="operation-retry">다시 도전</button><button class="primary" id="operation-finish" hidden>도구 받기 ${icon('arrow')}</button></div></footer><small class="operation-model-note">교육용 모형 · 실제 현장에서는 전문가와 선생님 안내를 따라요.</small></main>`,'operation-app');
+ shell(spec.title,`<main class="field-operation" style="--operation-bg:url('/assets/art/${spec.background}.webp')"><section class="operation-scene" aria-label="직접 조작하는 현장 모형"><div class="operation-progress"></div><div id="operation-board"></div><img class="operation-hero" src="/assets/river-hero.webp" alt="함께 작전하는 리버"></section><footer class="operation-footer"><p id="operation-message" role="status"></p><div class="operation-playback" hidden><button id="operation-auto" class="primary">자동 관찰</button></div><div class="operation-navigation"><button class="secondary" id="operation-back">관찰로</button><button class="secondary" id="operation-retry">다시 도전</button><button class="primary" id="operation-finish" hidden>도구 받기 ${icon('arrow')}</button></div></footer><small class="operation-model-note">교육용 모형 · 실제 현장에서는 전문가와 선생님 안내를 따라요.</small></main>`,'operation-app');
  const board=$('#operation-board'),hero=$('.operation-hero');
  const button=(key,label,cls='')=>`<button class="operation-action ${cls}" data-operation="${key}">${label}</button>`;
  const illustration=(file,description)=>`<figure class="operation-illustration"><img src="/assets/${file}.webp" alt="${escapeHTML(description)}"></figure>`;
@@ -89,7 +89,6 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   cancelAnimationFrame(frame);lastFrame=0;
   if(playback.start())frame=requestAnimationFrame(tick);
  };
- $('#operation-speed').onchange=e=>playback.setSpeed(e.target.value);
  $('#operation-back').onclick=onBack;
  $('#operation-retry').onclick=()=>{
   playback.stop();model=freshOperation();message=spec.goal;data.fieldOperation=model;save();render();

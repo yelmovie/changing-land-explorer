@@ -12,14 +12,13 @@ import {destroyGame} from '../phaser-lifecycle.js';
 import {backgroundForAsset,STAGE_BACKGROUNDS,STAGE_ASSETS,SHARED_STAGE_ASSETS} from '../stage-art.js';
 import {STAGES} from '../model.js';
 import {enter,navigate} from '../main.js';
-import {createPlayback,PLAYBACK_SPEEDS} from './playback.js';
+import {createPlayback} from './playback.js';
 
 const SETUP={river,volcano,rocks,city,safety};
-let playbackSpeed=1;
 const ACTION_CUES={
- river:[['물 주기나 자동재생을 눌러 봐.','물의 양을 바꿔 같은 언덕을 관찰해 봐.','이름표를 골라 빈 원에 놓아 봐.'],['숫자를 눌러 상류를 관찰해 봐.','숫자를 눌러 하류를 관찰해 봐.','카드를 고른 뒤 상류·하류에 놓아 봐.']],
- volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','손잡이를 밀거나 자동재생으로 물을 흘려 봐.','돋보기로 나온 곳을 찾고 연필로 길을 따라가 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.']],
- rocks:[['문지르거나 자동재생으로 먼지를 털어 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문의 특징에 맞는 표본을 보내 줘.','세 곳을 확대한 뒤 특징 두 개를 기록해 봐.','세 곳을 확대한 뒤 특징 두 개를 기록해 봐.']],
+ river:[['물뿌리개를 누르면 물이 나와. 다시 누르면 멈춰.','물의 양을 바꿔 같은 언덕을 관찰해 봐.','이름표를 골라 빈 원에 놓아 봐.'],['숫자를 눌러 상류를 관찰해 봐.','숫자를 눌러 하류를 관찰해 봐.','카드를 고른 뒤 상류·하류에 놓아 봐.']],
+ volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','손잡이를 밀거나 자동 재생으로 물을 흘려 봐.','돋보기로 나온 곳을 찾고 연필로 길을 따라가 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.']],
+ rocks:[['문지르거나 자동 재생으로 먼지를 털어 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문의 특징에 맞는 표본을 보내 줘.','세 곳을 확대한 뒤 특징 두 개를 기록해 봐.','세 곳을 확대한 뒤 특징 두 개를 기록해 봐.']],
  city:[['손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.','손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.','손잡이를 양쪽 끝까지 움직인 뒤 기록을 골라 봐.'],['안내판에 붙일 카드를 먼저 골라 봐.','안내판에 붙일 카드를 먼저 골라 봐.','안내판에 붙일 카드를 먼저 골라 봐.']],
  safety:[['위험 표식을 알맞은 곳에 놓아 봐.','몸을 보호할 곳을 고르고 머리를 감싸 줘.','잡을 곳을 고르고 흔들림이 멈추면 확인해.'],['가까운 통로를 눌러 리버를 출구와 운동장으로 안내해.','위험 구역을 피해 다시 운동장까지 직접 걸어 봐.','건물·담장·전신주를 피해 공터까지 걸어 봐.']]
 };
@@ -37,13 +36,15 @@ const TOOLS={
 /** Phaser owns scene objects and gestures; DOM owns navigation, narration and keyboard controls. */
 export function mount(ctx) {
   const chapter=revisitPhase(ctx.data,ctx.step), reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const riverLab=ctx.s.id==='river'&&ctx.step===0;
   const backdrop=`url('/assets/${backgroundForAsset(STAGE_BACKGROUNDS[ctx.s.id][ctx.step])}.webp')`;
   ctx.root.style.setProperty('--activity-backdrop',backdrop);
   const page=ctx.root.closest('.adventure-page'), heading=$('.adventure-heading',page);
+  page.classList.toggle('river-lab',riverLab);
   page.style.setProperty('--activity-backdrop',backdrop);
   page.style.setProperty('--stage-accent',ctx.s.color);
   let game,closed=false,hooks,activeScene,phaseDone=false,toolHandler=null,zoomed=false;
-  let restarting=false,focusInstruction=false;
+  let restarting=false,focusInstruction=false,autoplayNext=false;
   let sceneCleanups=[];
   let hintIndex=0,initialHint='';
   ctx.root.innerHTML='<div class="phaser-stage" id="phaser-stage"></div><div class="stage-loader" role="status">리버가 탐험 도구를 꺼내고 있어요…</div><div class="quest-meter" id="quest-meter" aria-live="polite"></div>';
@@ -58,17 +59,13 @@ export function mount(ctx) {
   for(const button of toolMenu.querySelectorAll('button'))button.addEventListener('click',dismissTools);
   const closeTools=event=>{if(event.key==='Escape'&&toolMenu.open){toolMenu.open=false;toolMenu.querySelector('summary').focus();}else if(event.type==='pointerdown'&&!toolMenu.contains(event.target))toolMenu.open=false;};
   document.addEventListener('pointerdown',closeTools,true);document.addEventListener('keydown',closeTools,true);
-  // A stage exposes only its repeatable observation, never an answer or a transition.
+  // Autoplay demonstrates actions while leaving answer choices to the learner.
   const playbackBar=document.createElement('div');playbackBar.className='activity-playback';playbackBar.hidden=true;
   const autoButton=document.createElement('button');
   autoButton.id='observation-auto';autoButton.type='button';autoButton.className='secondary';autoButton.hidden=true;
-  const speed=document.createElement('select');speed.id='observation-speed';speed.setAttribute('aria-label','자동재생 속도');
-  for(const value of PLAYBACK_SPEEDS){const option=document.createElement('option');option.value=value;option.textContent=value+'배속';speed.append(option);}
-  speed.value=playbackSpeed;
-  playbackBar.append(autoButton,speed);ctx.controls.before(playbackBar);
+  playbackBar.append(autoButton);ctx.controls.before(playbackBar);
   let auto=null;
-  const playback=createPlayback({onChange:paintAuto});playback.setSpeed(playbackSpeed);
-  speed.onchange=()=>{playbackSpeed=Number(speed.value);playback.setSpeed(playbackSpeed);};
+  const playback=createPlayback({onChange:paintAuto});
   function guideAction(){
     // Direction pads are free choices; never highlight one direction as the next step.
     const candidates=[...ctx.controls.querySelectorAll('.action-buttons button:not(:disabled):not([id^="route-"])')];
@@ -89,7 +86,7 @@ export function mount(ctx) {
     playbackBar.hidden=false;
     if(autoButton.hidden)autoButton.hidden=false;
     if(autoButton.disabled===playback.ready)autoButton.disabled=!playback.ready;
-    const label=playback.playing?'직접 해보기':'자동재생';
+    const label=playback.playing?'직접 해 보기':'자동 재생';
     guideAction();
     if(autoButton.dataset.state===label&&autoButton.title===auto.label)return;
     autoButton.dataset.state=label;autoButton.title=auto.label;
@@ -98,14 +95,19 @@ export function mount(ctx) {
     autoButton.setAttribute('aria-pressed',String(playback.playing));
   }
   function stopAuto(){playback.stop();}
-  autoButton.onclick=()=>{
-    if(playback.playing){stopAuto();return;}
+  function startAuto(){
     if(!auto||(phaseDone&&!auto.allowWhenComplete)||!auto.ready()||document.hidden||document.querySelector('dialog[open]'))return;
     const work=chapter.work[chapter.phase];
     if(!phaseDone){work.operationHelp=true;ctx.save();}
     toolMenu.open=false;playback.start();paintAuto();
-  };
-  function manual(event){if(playback.playing&&!playbackBar.contains(event.target))stopAuto();}
+  }
+  autoButton.onclick=()=>playback.playing?stopAuto():startAuto();
+  function manual(event){
+    if(playbackBar.contains(event.target))return;
+    // The watering can handles its own toggle for pointer and keyboard input.
+    if(event.target===game?.canvas&&riverLab&&chapter.phase<2&&(event.type==='pointerdown'||event.key==='Enter'||event.key===' '))return;
+    stopAuto();
+  }
   document.addEventListener('pointerdown',manual,true);
   document.addEventListener('keydown',manual,true);
   document.addEventListener('input',manual,true);
@@ -223,7 +225,10 @@ export function mount(ctx) {
       $('.stage-loader',ctx.root)?.remove();
       updateStepNav();
       const phase=chapter.phase;
-      page.classList.toggle('river-observation',ctx.s.id==='river'&&ctx.step===0&&phase===2);
+      const riverField=ctx.s.id==='river'&&ctx.step===1&&phase<2;
+      toolMenu.hidden=riverLab||riverField;
+      page.classList.toggle('river-observation',riverLab&&phase===2);
+      page.classList.toggle('river-field-observation',riverField);
       page.classList.toggle('volcano-observation',ctx.s.id==='volcano'&&ctx.step===1&&phase===0);
       const work=chapter.work[phase]??={};
       const scene=this;
@@ -286,6 +291,9 @@ export function mount(ctx) {
           if(fresh){
             ctx.chime();
             if(!reduced)$('#river-status').animate([{transform:'translateY(3px)',opacity:.65},{transform:'translateY(0)',opacity:1}],{duration:240,easing:'ease-out'});
+            if(riverLab&&phase===0){
+              chapter.phase=1;autoplayNext=!chapter.tasks[1]?.done;ctx.save();restart(true);
+            }else if(riverLab&&phase===2)ctx.finishActivity();
           }
         },
         image(key,x,y,w,h,{sceneBackground=true}={}){
@@ -336,8 +344,8 @@ export function mount(ctx) {
           surface.setStrokeStyle=(width=1.5,stroke=0x8ca894,opacity=.7)=>{surface.clear().fillStyle(color,alpha).fillRoundedRect(-w/2,-h/2,w,h,radius).lineStyle(width,stroke,opacity).strokeRoundedRect(-w/2,-h/2,w,h,radius);return surface;};
           return surface.setStrokeStyle();
         },
-        marker(x,y,number,onPick){
-          const ring=scene.add.circle(0,0,25,0x164c49,.94).setStrokeStyle(4,0xffe5a0);
+        marker(x,y,number,onPick,{transparent=false}={}){
+          const ring=scene.add.circle(0,0,25,0x164c49,transparent?.45:.94).setStrokeStyle(transparent?2:4,0xffe5a0);
           const glyph=api.text(number,0,0,26,'#ffffff');
           const button=scene.add.container(x,y,[ring,glyph]).setSize(78,78).setInteractive({useHandCursor:true});
           const canvas=scene.game.canvas;
@@ -350,7 +358,7 @@ export function mount(ctx) {
           const resizeHitArea=new ResizeObserver(fitHitArea);
           resizeHitArea.observe(canvas);fitHitArea();sceneCleanups.push(()=>resizeHitArea.disconnect());
           button.on('pointerup',()=>{if(!selected&&!pressed&&!gestureMoved&&!document.querySelector('dialog[open]'))onPick();});
-          return (done,visible=true)=>{button.setVisible(visible);glyph.setText(done?'✓':String(number));ring.setFillStyle(done?0x38693c:0x164c49,.94);};
+          return (done,visible=true)=>{button.setVisible(visible);glyph.setText(done?'✓':String(number));ring.setFillStyle(done?0x38693c:0x164c49,transparent?.45:.94);};
         },
         target(x,y,w,h,label){
           const area=scene.add.graphics();
@@ -417,7 +425,9 @@ export function mount(ctx) {
           const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.step=(max-min<=1)?.01:1;input.value=value;input.setAttribute('aria-label',label);
           input.oninput=()=>onChange(Number(input.value));input.onchange=ctx.save;
           const jump=(label,value)=>{const b=document.createElement('button');b.className='range-jump secondary';b.textContent=label;b.type='button';b.onclick=()=>{input.value=value;onChange(value);ctx.save();};return b;};
-          row.append(span,jump(ends[0],min),input,jump(ends[1],max));ctx.controls.append(row);return input;
+          if(ends)row.append(span,jump(ends[0],min),input,jump(ends[1],max));
+          else{row.classList.add('range-only');row.append(span,input);}
+          ctx.controls.append(row);return input;
         },
         setToolHandler(id,handler){if(tool?.id===id)toolHandler=handler;},
         listenCleanup(fn){sceneCleanups.push(fn);},
@@ -439,6 +449,7 @@ export function mount(ctx) {
       });
       // The navigation button always reflects saved phase completion, not incidental captures.
       next.disabled=!phaseDone;
+      if(autoplayNext){autoplayNext=false;startAuto();}
     }
     update(time,delta){
       if(closed||document.hidden||document.querySelector('dialog[open]'))return;

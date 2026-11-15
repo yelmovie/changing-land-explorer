@@ -32,7 +32,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
   const s=state(),all=s.completed.length===5,finished=s.finished===true,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coreOpen=all||isAdmin();
   const nextStage=STAGES.find(stage=>!s.completed.includes(stage.id));
-  let game,mapScene,current=POINTS[s.mapNode]?s.mapNode:0,moving=false,queue=[],destination=null,hero,walker,routeArt,pendingTravel=null,guided=false,combat=null,closed=false,fallback=false,bootTimer;
+  let game,mapScene,current=POINTS[s.mapNode]?s.mapNode:0,moving=false,queue=[],destination=null,hero,walker,pendingTravel=null,guided=false,combat=null,closed=false,fallback=false,bootTimer;
   const residents=STAGES.filter(st=>isAdmin()||s.completed.includes(st.id));
   const newcomer=residents.find(st=>st.id===arrival);
   shell('움직이는 지오밸리',`<main class="atlas-page">
@@ -171,7 +171,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
     else if($('#map-speech').textContent==='길을 따라 이동 중이야.')$('#map-speech').textContent='';
   }
   function stopTravel(){
-    pendingTravel=null;moving=false;queue=[];destination=null;setGuided(false);travelControls(false);routeArt?.clear();walker?.stop();updateDpad();
+    pendingTravel=null;moving=false;queue=[];destination=null;setGuided(false);travelControls(false);walker?.stop();updateDpad();
   }
   function cancelGuided(){
     if(!guided)return;
@@ -268,7 +268,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
         // 새로 연 장소로 가는 길은 금빛 선이 천천히 그려진다.
         if(STAGES[i].id===newcomer?.id&&!reduced){const glow=this.add.graphics(),pts=route.map(n=>POINTS[n]);this.tweens.addCounter({from:0,to:pts.length-1,duration:1500,delay:300,ease:'Sine.easeInOut',onUpdate:t=>{const v=t.getValue(),k=Math.floor(v),f=v-k;glow.clear().lineStyle(7,0xffe78a,.75).beginPath().moveTo(pts[0].x,pts[0].y);for(let j=1;j<=k;j++)glow.lineTo(pts[j].x,pts[j].y);if(k<pts.length-1)glow.lineTo(pts[k].x+(pts[k+1].x-pts[k].x)*f,pts[k].y+(pts[k+1].y-pts[k].y)*f);glow.strokePath();}});continue;}
         paths.lineStyle(7,0xffe78a,.68).beginPath();route.forEach((n,j)=>j?paths.lineTo(POINTS[n].x,POINTS[n].y):paths.moveTo(POINTS[n].x,POINTS[n].y));paths.strokePath();}
-      routeArt=this.add.graphics();const p=POINTS[current];walker=createRiverWalker(this,p.x,p.y);hero=walker.hero;
+      const p=POINTS[current];walker=createRiverWalker(this,p.x,p.y);hero=walker.hero;
       syncResidents(p);
       if(pendingTravel){const {node,target,auto}=pendingTravel;pendingTravel=null;go(node,target,auto);}
     }
@@ -280,7 +280,6 @@ export function renderMap({arrival,engine,loadEngine}={}){
         if(Math.hypot(x-view.x,y-view.y)>.3)place(view.x+(x-view.x)*blend,view.y+(y-view.y)*blend);}
       if(!moving||!queue.length){walker.stop();return;}
       const target=POINTS[queue[0]],dx=target.x-hero.x,dy=target.y-hero.y,distance=Math.hypot(dx,dy),speed=180*Math.min(delta,40)/1000;
-      routeArt.clear().lineStyle(4,0xfff4b0,.85).beginPath().moveTo(hero.x,hero.y);for(const node of queue)routeArt.lineTo(POINTS[node].x,POINTS[node].y);routeArt.strokePath();
       if(distance<=speed){current=queue.shift();hero.setPosition(target.x,target.y);walker.move(dx,dy,distance);if(!queue.length)arrive();}else{hero.x+=dx/distance*speed;hero.y+=dy/distance*speed;walker.move(dx,dy,speed);syncResidents(hero);}
     }
   }
