@@ -1,13 +1,11 @@
 import {STAGES} from './model.js';
 import {$,$$,escapeHTML,icon} from './ui.js';
-import {shell,state,isAdmin,save,navigate,enter,toast,chime,modal,showFilm} from './main.js';
-import {evidenceCard,btn,pill,svgFrame,pointerSurface,bindChoices} from './explore-ui.js';
+import {shell,state,isAdmin,save,navigate,toast,chime,modal,showFilm} from './main.js';
+import {btn} from './explore-ui.js';
 import {scienceText} from './science-learning.js';
-import {riverArt,pin} from './visuals.js';
-import {RIVER_MARKS,riverMarkValid,inspectRoute} from './learning-model.js';
+import {CONCEPTS,showConcept} from './concepts.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
 const toolArt=(st,size)=>`<img src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt="${st.reward}" width="${size}" height="${size}">`;
-import {mountRoute} from './safety.js';
 const TOWER_PHOTOS={
  river:'/assets/art/river-field-clues-v3.webp',
  volcano:'/assets/art/volcano-caldera-v2.webp',
@@ -16,135 +14,80 @@ const TOWER_PHOTOS={
  safety:'/assets/art/safety-evacuation-garden-v2.webp'
 };
 const towerPhoto=st=>`<img class="tower-photo" src="${TOWER_PHOTOS[st.id]}" alt="${st.place} 대표 그림">`;
-const TOWER_SKETCHES={
- river:'/assets/art/tower/sketch-river.webp',
- volcano:'/assets/art/tower/sketch-volcano.webp',
- rocks:'/assets/art/tower/sketch-rocks.webp',
- city:'/assets/art/tower/sketch-city.webp',
- safety:'/assets/art/tower/sketch-safety.webp'
+// The tower closes the journey by looking back, not by testing again: each frame opens the key
+// scene of one place, its three big ideas, the learner's own record and the two concept films.
+const KEY_SCENES={
+ river:{title:'물이 땅을 바꾸는 세 가지 일',points:[['침식','흐르는 물이 물가의 흙을 깎았어.'],['운반','깎인 흙과 돌을 물이 옮겼어.'],['퇴적','물이 느려진 곳에 모래가 쌓였어.']]},
+ volcano:{title:'화산 모형과 실제 화산',points:[['모형','붉은 물이 꼭대기로 나와 경사면을 따라 흘렀어.'],['실제 화산','용암과 기체, 화산재, 암석 조각이 나와.'],['비교','흐르는 모습은 같고, 나오는 물질은 달라.']]},
+ rocks:{title:'색과 알갱이로 찾은 암석',points:[['현무암','어두운색이고 알갱이가 아주 작아.'],['화강암','밝은색이고 알갱이가 커서 잘 보여.'],['증거','색과 알갱이 두 가지를 모아 이름을 붙였어.']]},
+ city:{title:'화산이 생활에 주는 영향',points:[['분출 당시','화산재 때문에 비행기가 멈추고 밭이 덮였어.'],['복구 뒤','안전을 확인한 뒤 다시 이용해.'],['오랜 시간 뒤','화산 물질이 변해 비옥한 흙이 되기도 해.']]},
+ safety:{title:'지진이 났을 때 나를 지키기',points:[['흔들릴 때','튼튼한 책상 아래에서 머리와 몸을 보호해.'],['멈춘 뒤','선생님 안내를 따라 계단으로 이동해.'],['밖에서는','건물·담장·전신주에서 떨어진 넓은 곳으로 가.']]}
 };
-const towerSketch=st=>`<img class="tower-sketch" src="${TOWER_SKETCHES[st.id]}" alt=""><span class="tower-empty-badge">${icon('camera',26)}</span>`;
-function frameContents(st,e,review){
- return `<span class="tower-mat" aria-hidden="true">${e?towerPhoto(st):towerSketch(st)}</span><span class="tower-plaque"><strong>${st.name}</strong><span class="tower-caption">${e?escapeHTML(e.label):review?'걸어 둔 기록 없음':'아직 빈 액자'}</span>${!review||e?`<span class="tower-frame-action">${review?'기록 펼치기':e?'기록 바꾸기':'내 기록 고르기'} ${icon('arrow',16)}</span>`:''}</span>`;
+function frameContents(st,lit){
+ return `<span class="tower-mat" aria-hidden="true">${towerPhoto(st)}${lit?'':`<span class="tower-empty-badge">${icon('play',22)}</span>`}</span><span class="tower-plaque"><strong>${st.name}</strong><span class="tower-caption">${KEY_SCENES[st.id].title}</span><span class="tower-frame-action">${lit?'✓ 불 켜짐 · 다시 보기':'눌러서 다시 보기'} ${icon('arrow',16)}</span></span>`;
 }
-function towerFrames(chosen,review=false){
- return `<ol class="tower-frames" aria-label="다섯 장소의 사진틀">${STAGES.map(st=>{
-   const e=chosen(st.id),action=review?'read':'select';
-  return `<li class="tower-slot"><span class="tower-hanger" aria-hidden="true"></span>${review&&!e?`<div class="tower-frame">${frameContents(st,e,review)}</div>`:`<button type="button" class="tower-frame${e?' mounted':''}" data-${action}-record="${st.id}">${frameContents(st,e,review)}</button>`}</li>`;
- }).join('')}</ol>`;
+function towerFrames(isLit){
+ return `<ol class="tower-frames" aria-label="다섯 장소의 핵심 장면">${STAGES.map(st=>`<li class="tower-slot"><span class="tower-hanger" aria-hidden="true"></span><button type="button" class="tower-frame${isLit(st.id)?' mounted':''}" data-scene="${st.id}">${frameContents(st,isLit(st.id))}</button></li>`).join('')}</ol>`;
 }
-function chooseTowerRecord(st,list,current,onSelect){
- if(!list.length){
-  modal(st.name,'<p>아직 이 액자에 걸 기록이 없어. 이 장소에서 관찰을 남겨 줘.</p>'+btn('이 장소로','redo-stage'),(d,close)=>{
-   $('#redo-stage',d).onclick=()=>{close();enter(STAGES.indexOf(st));};
-  });
-  return;
- }
- let index=Math.max(0,list.findIndex(e=>e.id===current));
- modal(`${st.name} 기록 고르기`,`<div class="tower-picker"><span class="tower-mat">${towerPhoto(st)}</span><div class="tower-note" aria-live="polite" aria-atomic="true"></div>${list.length>1?`<div class="tower-pager" aria-label="관찰 기록 넘기기">${btn('이전 기록','tower-prev')}<span id="tower-page"></span>${btn('다음 기록','tower-next')}</div>`:''}<button type="button" class="primary tower-hang" data-evidence-id>이 기록 걸기 ${icon('check',18)}</button></div>`,(d,close)=>{
-  const back=$('#tower-prev',d),forward=$('#tower-next',d),hang=$('[data-evidence-id]',d);
-  const update=()=>{
-   const e=list[index];
-   $('.tower-note',d).innerHTML=`<h3>${escapeHTML(e.label)}</h3><p>${scienceText(e.text||'',st.id)}</p>${e.answerHint?'<small>정답 힌트를 살펴본 연습</small>':''}`;
-   if(back){back.disabled=index===0;forward.disabled=index===list.length-1;$('#tower-page',d).textContent=`${index+1} / ${list.length}`;}
-   hang.dataset.evidenceId=e.id;
-  };
-  if(back){back.onclick=()=>{index--;update();};forward.onclick=()=>{index++;update();};}
-  hang.onclick=()=>{close();onSelect(list[index]);};
-  update();
+const playConcept=(id,step)=>showConcept({s:{id},step,modal},null,{replay:true});
+function reviewScene(st,mine,onLight){
+ const k=KEY_SCENES[st.id];
+ modal(`${st.place} · ${k.title}`,`<div class="tower-review"><span class="tower-mat">${towerPhoto(st)}</span><ol class="tower-points">${k.points.map(([term,text],i)=>`<li style="--i:${i}"><b>${term}</b><span>${scienceText(text,st.id)}</span></li>`).join('')}</ol>${mine?`<p class="tower-mine"><small>내가 남긴 기록</small><strong>${escapeHTML(mine.label)}</strong></p>`:''}<div class="tower-films" aria-label="개념 영상">${[0,1].map(step=>`<button type="button" class="tower-film" data-film="${step}"><img src="/assets/concepts/${st.id}-${step}.webp" alt=""><span>${icon('play',16)} ${escapeHTML(CONCEPTS[st.id][step].title)}</span></button>`).join('')}</div><button type="button" class="primary tower-light">기억났어! 불 켜기 ${icon('check',18)}</button></div>`,(d,close)=>{
+  $$('[data-film]',d).forEach(b=>b.onclick=()=>{close();onLight();playConcept(st.id,Number(b.dataset.film));});
+  $('.tower-light',d).onclick=()=>{close();onLight();};
  });
 }
-const TRANSFER_ROUTE={start:{x:120,y:410},goal:{x:880,y:100},areas:[{x:50,y:50,w:900,h:420}],gates:[],hazards:[{x:320,y:180,w:230,h:160,label:'도서관',message:'도서관 건물에서 떨어져 이동해.'},{x:650,y:270,w:70,h:160,label:'담장',message:'담장과 떨어진 길을 찾아 봐.'},{x:760,y:150,w:45,h:65,label:'전신주',message:'전신주가 있는 곳을 피해 가자.'}]};
+function conceptShelf(){
+ modal('개념 영상 모아 보기',`<div class="tower-shelf">${STAGES.map(st=>[0,1].map(step=>`<button type="button" class="tower-film" data-shelf="${st.id},${step}"><img src="/assets/concepts/${st.id}-${step}.webp" alt=""><span><small>${st.place}</small>${escapeHTML(CONCEPTS[st.id][step].title)}</span></button>`).join('')).join('')}</div>`,(d,close)=>{
+  $$('[data-shelf]',d).forEach(b=>b.onclick=()=>{const [id,step]=b.dataset.shelf.split(',');close();playConcept(id,Number(step));});
+ });
+}
 export function renderFinal(mode='assembly'){
  const s=state();if(s.completed.length<5&&!isAdmin()){navigate('map');return()=>{};}
  s.final??={};const f=s.final;f.selected??={};f.round=Math.min(3,Math.max(0,Number(f.round)||0));
- if(mode==='retry'&&s.finished){
-  f.attempts??=[];f.attempts.push({round:f.round,transferRiverTime:f.transferRiverTime,transferRiverPoint:structuredClone(f.transferRiverPoint),transferRockClaims:structuredClone(f.transferRockClaims||[]),transferRockName:f.transferRockName,transferSafety:structuredClone(f.transferSafety||{})});
-  f.round=0;f.assembled=true;for(const key of ['transferRiverTime','transferRiverPoint','transferRockClaims','transferRockName','transferSafety'])delete f[key];save();navigate('final');return()=>{};
- }
+ f.lit??={};
+ // "다시 둘러보기" turns the lights off again; finished learners otherwise land on the ending.
+ if(mode==='retry'&&s.finished){f.lit={};f.relight=true;save();navigate('final');return()=>{};}
  const records=id=>Object.values({...s.records[id]?.data?.evidence,...s.drafts[id]?.data?.evidence});
- const chosen=id=>records(id).find(e=>e.id===f.selected[id]);
- const openRecords=id=>modal('내가 남긴 관찰',`<div class="evidence-list">${records(id).map(e=>evidenceCard(e)).join('')||'<p>아직 관찰 장면이 없어. 지도에서 해당 탐험의 기록을 남겨 줘.</p>'}</div>`);
+ const mine=id=>records(id).find(e=>e.id===f.selected[id])||records(id).at(-1);
+ const isLit=id=>!!f.lit[id];
  if(mode==='certificate'){
   if(!s.finished&&!isAdmin()){navigate('final');return()=>{};}
   shell('지오밸리 탐험 인증서',`<main class="final-scene certificate-page"><div class="certificate-viewport"><article class="certificate"><span class="eyebrow">관찰 · 비교 · 설명 · 실천</span><img class="certificate-medal" src="/assets/art/expedition-medallion.webp" alt="지오밸리 탐험 메달"><h1>지오밸리 탐험 인증서</h1>${isAdmin()?'<p>관리자 미리보기 · 실제 완료 인증서가 아니야</p>':''}<input aria-label="인증서에 쓸 별명" maxlength="16" placeholder="나의 탐험가 별명"><p>강의 변화와 화산, 암석을 관찰하고<br>생활과 안전을 연결한 탐험가에게 이 인증서를 줘.</p><div class="cert-tools">${STAGES.map(st=>toolArt(st,56)).join('')}</div><strong>리버와 함께한 지오밸리 탐험대</strong><small>별명은 저장하거나 전송하지 않아.</small></article></div><div class="certificate-tools">${btn('인증서 인쇄 / PDF 저장','print','primary')}${btn('탐험 기록으로','ending-back')}</div></main>`,'final');$('#print').onclick=()=>window.print();$('#ending-back').onclick=()=>navigate('final','ending');return()=>{};
  }
  if(mode==='ending'){
   if(!s.finished&&!isAdmin()){navigate('final');return()=>{};}
-  shell('우리의 발견이 연결됐어',`<main class="final-scene restored-scene tower-scene"><header class="restored-hero"><h1>기록탑에 다시 불이 켜졌어!</h1><p>${isAdmin()?'학생이 다섯 기록과 마지막 도전을 마치면 만나는 장면이야.':'다섯 장소에서 모은 관찰을 마지막 도전에도 써 봤어.'}</p></header><section class="tower-display" aria-label="내가 기록탑에 건 발견">${towerFrames(chosen,true)}<div class="tower-actions">${btn('다시 지도로','journey')}${btn('대표 기록 바꾸기','choose-again')}${btn(`${icon('play',18)} 마무리 영상 다시 보기`,'final-film-replay')}${btn('나의 탐험 인증서','certificate','primary')}</div></section></main>`,'final');
-  $('#certificate').onclick=()=>navigate('final','certificate');$('#journey').onclick=()=>navigate('map');$('#final-film-replay').onclick=()=>showFilm('final',{replay:true});$('#choose-again').onclick=()=>{f.assembled=false;save();navigate('final');};$$('[data-read-record]').forEach(button=>button.onclick=()=>{
-   const id=button.dataset.readRecord,e=chosen(id),index=STAGES.findIndex(st=>st.id===id);
-   modal('내가 남긴 발견',evidenceCard(e,'<button class="primary" data-replay>이 장면 다시 탐구</button>'),(dialog,close)=>{
-    $('[data-replay]',dialog).onclick=()=>{s.drafts[id]??={step:0,passed:[],data:structuredClone(s.records[id]?.data||{})};s.drafts[id].data.revisit=e.id;save();close();enter(index,e.activity);};
-   });
-  });return()=>{};
+  shell('우리의 발견이 연결됐어',`<main class="final-scene restored-scene tower-scene"><header class="restored-hero"><h1>기록탑에 다시 불이 켜졌어!</h1><p>${isAdmin()?'학생이 다섯 장면을 모두 다시 보면 만나는 장면이야.':'다섯 장소에서 배운 장면이 하나로 이어졌어. 액자를 누르면 다시 볼 수 있어.'}</p></header><section class="tower-display" aria-label="기록탑에 걸린 핵심 장면">${towerFrames(()=>true)}<div class="tower-actions">${btn('다시 지도로','journey')}${btn(`${icon('play',18)} 개념 영상 모아 보기`,'concept-shelf')}${btn(`${icon('play',18)} 마무리 영상 다시 보기`,'final-film-replay')}${btn('나의 탐험 인증서','certificate','primary')}</div></section></main>`,'final');
+  $('#certificate').onclick=()=>navigate('final','certificate');$('#journey').onclick=()=>navigate('map');$('#final-film-replay').onclick=()=>showFilm('final',{replay:true});$('#concept-shelf').onclick=conceptShelf;
+  $$('[data-scene]').forEach(b=>b.onclick=()=>{const st=STAGES.find(x=>x.id===b.dataset.scene);reviewScene(st,mine(st.id),()=>{});});
+  return()=>{};
  }
- if(!f.assembled){
-  shell('기억의 기록탑',`<main class="final-scene tower-scene"><header class="tower-heading"><h1>기억의 기록탑</h1><p>장소마다 기억에 남는 기록을 하나씩 골라 액자에 걸어 줘.</p></header><section class="tower-display" aria-label="기록탑 전시"><div class="tower-progress"><span class="tower-lights" aria-hidden="true">${STAGES.map(()=>'<i></i>').join('')}</span><strong id="tower-count" role="status"></strong></div>${towerFrames(chosen)}<div class="tower-actions">${btn(s.finished?'탐험 기록 보기':'새 상황에 써 보기','final-connect','primary')}</div></section></main>`,'final');
-  const updateProgress=()=>{
-   const lit=STAGES.map(st=>!!chosen(st.id)),n=lit.filter(Boolean).length;
-   $$('.tower-lights i').forEach((light,i)=>light.classList.toggle('lit',lit[i]));
-   $('#tower-count').textContent=`${n} / ${STAGES.length}개 기록을 걸었어`;
-  };
-  updateProgress();
-  $$('[data-select-record]').forEach((b,i)=>b.onclick=()=>{
-   const st=STAGES[i];
-   chooseTowerRecord(st,records(st.id),f.selected[st.id],e=>{
-    if(e.id===f.selected[st.id])return;
-    f.selected[st.id]=e.id;save();
-    if(b.classList.contains('mounted'))$('.tower-caption',b).textContent=e.label;
-    else {
-     b.innerHTML=frameContents(st,e,false);b.classList.add('mounted');
-     if(!matchMedia('(prefers-reduced-motion: reduce)').matches)b.animate?.([{transform:'translateY(-12px) rotate(-3deg)',opacity:.55},{transform:'none',opacity:1}],{duration:400,easing:'cubic-bezier(.16,1,.3,1)'});
-    }
-    updateProgress();chime();
-   });
+ if(s.finished&&!f.relight){navigate('final','ending');return()=>{};}
+ shell('기억의 기록탑',`<main class="final-scene tower-scene"><header class="tower-heading"><h1>기억의 기록탑</h1><p>액자를 하나씩 눌러 장소마다 배운 장면을 다시 보고, 탑에 불을 켜 줘.</p></header><section class="tower-display" aria-label="기록탑 전시"><div class="tower-progress"><span class="tower-lights" aria-hidden="true">${STAGES.map(()=>'<i></i>').join('')}</span><strong id="tower-count" role="status"></strong></div>${towerFrames(isLit)}<div class="tower-actions">${btn(`${icon('play',18)} 개념 영상 모아 보기`,'concept-shelf')}${btn('기록탑 완성하기','final-connect','primary')}</div></section></main>`,'final');
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const updateProgress=()=>{
+  const n=STAGES.filter(st=>isLit(st.id)).length,all=n===STAGES.length;
+  $$('.tower-lights i').forEach((light,i)=>light.classList.toggle('lit',isLit(STAGES[i].id)));
+  $('#tower-count').textContent=all?'다섯 장면에 모두 불이 켜졌어!':`${n} / ${STAGES.length}개 장면에 불을 켰어`;
+  const done=$('#final-connect');done.disabled=!all&&!isAdmin();done.classList.toggle('is-ready',all);
+  $('.tower-display').classList.toggle('is-complete',all);
+ };
+ $$('[data-scene]').forEach(b=>b.onclick=()=>{
+  const st=STAGES.find(x=>x.id===b.dataset.scene);
+  reviewScene(st,mine(st.id),()=>{
+   if(isLit(st.id))return;
+   f.lit[st.id]=true;save();chime();
+   b.innerHTML=frameContents(st,true);b.classList.add('mounted');
+   if(!reduced)b.animate?.([{transform:'translateY(-10px) scale(1.04)',filter:'brightness(1.5)'},{transform:'none',filter:'none'}],{duration:600,easing:'cubic-bezier(.16,1,.3,1)'});
+   updateProgress();
   });
-  $('#final-connect').onclick=()=>{
-   const missing=STAGES.find(st=>!chosen(st.id));
-   if(missing&&!isAdmin()){toast(`${missing.place}의 기록을 하나 골라 줘.`);$(`[data-select-record="${missing.id}"]`).focus();return;}
-   f.assembled=true;save();navigate('final');
-  };return()=>{};
- }
- if(f.round>=3){s.finished=true;save();navigate('final','ending');return()=>{};}
- const round=f.round,source=['river','rocks','safety'][round],topic=['새 물길','새 암석','새 안전길'][round];
- shell('기억의 기록탑',`<main class="explore-page transfer-page"><div class="explore-heading"><div><span class="eyebrow">기록탑 · ${round+1}/3 · ${topic}</span><h1 id="instruction"></h1></div>${btn('내 관찰 펼치기','final-source')}</div><section id="activity" class="activity-surface" aria-labelledby="instruction"></section><div class="transfer-aside"><div class="explore-feedback"><img src="/assets/hero-lens.webp" alt=""><p id="speech" role="status">내 관찰을 떠올려 새 상황을 살펴봐.</p></div><div class="explore-actions"><div id="controls" class="controls"></div>${btn(round===2?'마무리 영상 보기':'다음 도전','next','primary')}</div></div></main>`,'exploration');$('#final-source').onclick=()=>openRecords(source);$('#next').disabled=true;$('#next').setAttribute('aria-describedby','speech');
- const finish=()=>{f.round++;if(f.round>=3)s.finished=true;save();chime();navigate('final',f.round>=3?'celebration':'assembly');};$('#next').onclick=finish;
- if(round===0){
-  let time=f.transferRiverTime??0,point=f.transferRiverPoint;
-  $('#instruction').textContent='시간 손잡이를 오른쪽으로 밀고, 흙이 쌓인 곳을 눌러 봐.';
-  $('#activity').innerHTML=svgFrame('<g id="transfer-river"></g>','오른쪽 높은 곳에서 왼쪽 낮은 곳으로 흐르는 물')+
-    '<div class="scene-tools"><label class="timeline">시간 <input type="range" id="transfer-time" aria-label="새 물길 시간" min="0" max="100" value="'+time*100+'"><output id="transfer-clock" for="transfer-time"></output></label></div>';
-  $('#controls').innerHTML=btn('장소를 버튼으로 고르기','transfer-locations');
-  const canObserve=()=>riverMarkValid('deposit',RIVER_MARKS.deposit,time);
-  const validPoint=()=>point&&riverMarkValid('deposit',{x:1-point.x,y:point.y},time);
-  const draw=()=>{
-   const bank=(x,y,label)=>`<g transform="translate(${x} ${y})"><rect width="144" height="46" rx="14" fill="#fff7df" stroke="#a98a52" stroke-width="2"/><text x="72" y="32" font-size="28" text-anchor="middle" fill="#26493c">${label}</text></g>`;
-   $('#transfer-river').innerHTML='<g transform="translate(1000 0) scale(-1 1)">'+riverArt(time,2).replace(/<text[\s\S]*?<\/text>/g,'')+'</g>'+bank(90,428,'낮은 곳')+bank(762,60,'높은 곳')+(validPoint()?pin(point,'✓'):'');
-   $('#transfer-clock').textContent=Math.round(time*100)+'%';
-   $('#next').disabled=!validPoint();
-  };
-  function guide(){
-   $('#speech').textContent=validPoint()?'옮겨 온 흙이 쌓인 것을 퇴적이라고 해. 이제 다음 도전으로 가자.':canObserve()?'흐르기 전과 달라진 곳을 찾아 그림 위에 표시해 봐.':'물길을 살펴보자. 시간 손잡이를 오른쪽 끝까지 밀면 흙이 움직여.';
-  }
-  const mark=p=>{
-   if(!canObserve()){guide();return;}
-   if(!riverMarkValid('deposit',{x:1-p.x,y:p.y},time)){$('#speech').textContent='물이 옮겨 온 흙이 모인 곳을 다시 살펴봐.';return;}
-   const fresh=!validPoint();point=f.transferRiverPoint=p;save();draw();guide();if(fresh)chime();
-  };
-  $('#transfer-time').oninput=e=>{time=+e.target.value/100;f.transferRiverTime=time;draw();guide();save();};
-  $('#transfer-locations').onclick=()=>modal('흙이 쌓인 곳은 어디일까?',`<div class="choice-row">${btn('왼쪽 낮은 곳','transfer-left')}${btn('오른쪽 높은 곳','transfer-right')}</div>`,(d,c)=>{
-   $('#transfer-left',d).onclick=()=>{c();mark({x:.18,y:.72});};
-   $('#transfer-right',d).onclick=()=>{c();mark({x:.73,y:.38});};
-  });
-  draw();guide();
-  return pointerSurface($('svg',$('#activity')),{up(p){mark({x:p.x/1000,y:p.y/500});}});
- }
- if(round===1){
-  let zoom=1,view={x:.5,y:.5},claims=f.transferRockClaims||[];$('#instruction').textContent='돌을 살펴보고 색과 알갱이 특징을 하나씩 골라 봐.';$('#activity').innerHTML=svgFrame('<g id="transfer-rock"></g>','방향을 돌린 암석의 확대 관찰','0 0 500 500')+'<div class="scene-tools" id="transfer-features"></div>';$('#controls').innerHTML=btn('확대 / 원래 크기','transfer-zoom')+btn('이름 붙이기','transfer-name');const draw=()=>{$('#transfer-rock').innerHTML=`<g transform="translate(${250-view.x*500*zoom} ${250-view.y*500*zoom}) scale(${zoom})"><image href="/assets/rock-3.webp" width="500" height="500" transform="rotate(25 250 250)"/></g>`;};$('#transfer-zoom').onclick=()=>{zoom=zoom===1?2:1;draw();};$('#speech').textContent=claims.length===2?'두 특징을 모았어. ‘이름 붙이기’를 눌러 봐.':'돌을 누르면 그 부분을 크게 볼 수 있어. 색과 알갱이 버튼을 하나씩 골라 봐.';const choices={dark:'전체가 어두운색',light:'전체가 밝은색',fine:'알갱이가 잘 안 보임',coarse:'알갱이가 뚜렷함'};const render=()=>{$('#transfer-features').innerHTML=Object.entries(choices).map(([k,v])=>pill(v,claims.includes(k),`data-transfer-feature="${k}"`)).join('');bindChoices($('#activity'),'data-transfer-feature',k=>{if(!['light','coarse'].includes(k)){$('#speech').textContent='방향이 달라도 돌의 전체 색과 알갱이를 함께 봐.';return;}claims=[...new Set([...claims,k])];f.transferRockClaims=claims;save();render();$('#speech').textContent=claims.length===2?'두 특징을 모았어. ‘이름 붙이기’를 눌러 봐.':k==='light'?'색을 기록했어. 이제 알갱이가 어떻게 보이는지 골라 봐.':'알갱이를 기록했어. 이제 돌 전체의 색을 골라 봐.';});};$('#transfer-name').onclick=()=>{if(claims.length!==2){$('#speech').textContent='확대해 살펴보고 색과 알갱이를 하나씩 골라 줘.';return;}modal('내 관찰로 이름 붙이기','<p>밝은색 · 뚜렷한 알갱이</p><div class="choice-row">'+btn('현무암','transfer-basalt')+btn('화강암','transfer-granite')+'</div>',(d,c)=>{$('#transfer-basalt').onclick=()=>{c();$('#speech').textContent='앞서 관찰한 기준 표본과 다시 비교해 봐.';};$('#transfer-granite').onclick=()=>{f.transferRockName='granite';save();c();chime();$('#next').disabled=false;$('#speech').textContent='이 돌은 기준 화강암처럼 밝은 바탕에 여러 색 알갱이가 뚜렷해!';};});};const clean=pointerSurface($('svg',$('#activity')),{down(p){view={x:p.x/500,y:p.y/500};zoom=2;draw();}});render();draw();if(f.transferRockName==='granite')$('#next').disabled=false;return clean;
- }
- f.transferSafety??={};const d=f.transferSafety;const ctx={data:d,step:1,s:{id:'safety'},root:$('#activity'),controls:$('#controls'),save,chime,modal,toast,say:text=>$('#speech').textContent=text,instruction:text=>$('#instruction').textContent=text,refresh:()=>navigate('final'),update(){const good=d.outsideRouteDone===true&&inspectRoute(d.outsideRoute||[],TRANSFER_ROUTE).ok;$('#next').disabled=!good;save();}};const cleanup=mountRoute(ctx,true,TRANSFER_ROUTE);$('#instruction').textContent='리버에서 공터까지 안전한 길을 그리고 확인해.';
- $('.scene-toolbar',ctx.root).append($('#route-keys'));
- if(!d.outsideRoute?.length)$('#speech').textContent='리버에서 도착점까지 길을 그려 줘. 점을 찍어 이어도 돼.';
- return cleanup;
+ });
+ $('#concept-shelf').onclick=conceptShelf;
+ $('#final-connect').onclick=()=>{
+  const missing=STAGES.find(st=>!isLit(st.id));
+  if(missing&&!isAdmin()){toast(`${missing.place} 액자를 눌러 장면을 다시 봐 줘.`);$(`[data-scene="${missing.id}"]`).focus();return;}
+  s.finished=true;delete f.relight;save();navigate('final','celebration');
+ };
+ updateProgress();
+ return()=>{};
 }
