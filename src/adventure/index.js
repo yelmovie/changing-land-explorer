@@ -258,7 +258,7 @@ export function mount(ctx) {
         if(!moved&&selected&&pressed!==selected){
           const at=scene.cameras.main.getWorldPoint(p.x,p.y);
           const object=selected,config=draggables.get(object),home={x:object.x,y:object.y};clearSelection();
-          if(config&&object.active){scene.tweens.killTweensOf(object);object.setPosition(at.x,at.y);config.onMove?.(object,at.x,at.y,at);const accepted=(config.onTap||config.onDrop)?.(object,object.x,object.y,at)===true;if(!accepted&&object.active)object.setPosition(home.x,home.y);ctx.sound(accepted?'place':'move');}
+          if(config&&object.active){scene.tweens.killTweensOf(object);object.setPosition(at.x,at.y);config.onMove?.(object,at.x,at.y,at);const accepted=(config.onTap||config.onDrop)?.(object,object.x,object.y,at)===true;if(!accepted&&object.active)object.setPosition(home.x,home.y);ctx.sound(accepted?'place':'retry');}
         }else if(!moved&&pressed){
           const action=draggables.get(pressed)?.onPick;
           if(action){clearSelection();action();}else select(pressed);

@@ -54,3 +54,30 @@
 - 50 RPG sound effects: https://opengameart.org/content/50-rpg-sound-effects (CC0)
 - 85 Short music jingles: https://opengameart.org/content/85-short-music-jingles (CC0)
 - Interface Sounds: https://kenney.nl/assets/interface-sounds (CC0)
+
+## 성취 효과음 (2026-11-16 교체)
+
+예전 `village-wake.ogg`·`festival.ogg`는 음이 반음씩 내려가는(F→E→D#→D) 패턴이라 성공 순간에 '진 것 같은' 느낌을 줬고, `tool-reward.ogg`는 반음을 오르내려 불안하게 들렸어. 정답음 `complete.mp3`도 싸구려 8비트 신호음처럼 들렸어. 그래서 아래 소리를 `scripts/make-sfx.mjs`로 **직접 합성**해 바꿨어. 녹음이나 외부 샘플 없이 사인파 계산만 쓰는 프로젝트 자체 제작물이라 별도 라이선스 표기가 필요 없어. 다시 만들 때는 `node scripts/make-sfx.mjs`.
+
+모든 성공 소리는 C장조로 위로 올라가고, '다시 해 보기'는 같은 높이로 톡톡 두드려 내려가는 느낌이 없게 했어. 맞는 자리 놓기·배지 줍기·악당 맞히기를 3초 안에 이어 하면 반음씩 올라가는 콤보가 되고(최대 5도), 다시 해 보기가 나오면 처음 높이로 돌아가.
+
+| 파일 | 게임 속 이름 | 쓰는 곳 |
+|---|---|---|
+| success.mp3 | complete | 단계·정답 성공, 대피 중 몸 낮추기 성공 |
+| good.mp3 | place, good | 맞는 자리에 놓기, 안전 약속 읽기 |
+| coin.mp3 | coin | 대피길 안전 발자국 배지 줍기 |
+| lift.mp3 | pickup | 물건 집어 들기 |
+| retry.mp3 | retry | 틀린 자리·헛방·현장 작전 다시 해 보기 |
+| twinkle.mp3 | hint | 힌트 열기 |
+| capture.mp3 | observe | 관찰 증거 기록 |
+| alert.mp3 | alert | 대피길 여진 경고 |
+| hit.mp3 | hit | 돌먼지 악당 맞히기 |
+| defeat.mp3 | defeat | 돌먼지 악당 퇴치 |
+| reward.mp3 | tool-reward | 장소를 마치고 새 도구 받기 |
+| village-rise.mp3 | village-wake | 마을이 깨어날 때 |
+| stamp-ding.mp3 | stamp | 친구 도장 찍기 |
+| fanfare.mp3 | festival | 도장 다섯 개 축제 |
+
+earshot으로 들어 본 결과: 새 성공음들은 "success chime" z +3.9~4.3, 분위기 "uplifting and hopeful" z +2.3~2.6으로 읽혔어(옛 정답음은 z +3.2에 "cheap synthesized beep" z +3.8, 옛 도구 보상음의 1순위는 "snare hit"). 사람 귀로 블라인드 비교한 건 아니야.
+
+위 표의 옛 파일(`complete.mp3`, `place.mp3`, `pickup.mp3`, `hint.mp3`, `observe.mp3`, `tool-reward.ogg`, `village-wake.ogg`, `stamp.ogg`, `festival.ogg`)은 더는 재생하지 않지만 기록용으로 남겨 뒀어.

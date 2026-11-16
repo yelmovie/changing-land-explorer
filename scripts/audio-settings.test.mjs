@@ -114,3 +114,19 @@ test('resident motion follows playing events and clears on interruption', async(
  await tick();assert.equal(nextStates.at(-1),false);
  audio.stopAllSounds();audio.setSoundEnabled(false);
 });
+
+test('achievement effects use the rising synthesized clips and climb on a streak', async()=>{
+ const {existsSync}=await import('node:fs');
+ audio.setSoundEnabled(true);audio.setEffectsVolume(100);document.hidden=false;
+ const files={complete:'success',place:'good',pickup:'lift',retry:'retry','tool-reward':'reward','village-wake':'village-rise',festival:'fanfare',stamp:'stamp-ding',hit:'hit',defeat:'defeat',alert:'alert',coin:'coin',hint:'twinkle',observe:'capture'};
+ for(const [name,file] of Object.entries(files)){
+  audio.playSound(name,{force:true});const src=players.at(-1).src;
+  assert.equal(src,`/assets/audio/${file}.mp3`,name);assert.ok(existsSync('public'+src),src);
+ }
+ assert.ok(players.some(p=>p.src==='/assets/audio/click.mp3'),'button clicks keep the short click');
+ const rates=[];for(let i=0;i<9;i++){audio.playSound('coin',{force:true});rates.push(players.find(p=>p.src.endsWith('/coin.mp3')).playbackRate);}
+ assert.ok(rates[1]>rates[0]&&rates[2]>rates[1],'each quick repeat climbs');
+ assert.equal(rates[8],rates[7],'the climb stops at a fifth');assert.ok(Math.abs(rates[8]-2**(7/12))<1e-9);
+ audio.playSound('retry',{force:true});audio.playSound('coin',{force:true});assert.equal(players.find(p=>p.src.endsWith('/coin.mp3')).playbackRate,1,'a retry resets the combo');
+ audio.stopAllSounds();audio.setSoundEnabled(false);
+});

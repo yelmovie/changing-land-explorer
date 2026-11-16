@@ -94,7 +94,7 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   // The win screen shows briefly, then the reward opens by itself; the finish button skips the wait.
   if(model.done&&!wasDone){clearTimeout(finishTimer);finishTimer=setTimeout(finish,2400);}
   if(result.changed){data.fieldOperation=model;save();}
-  sound(result.ok?'complete':'place',{force:true});
+  sound(model.done&&!wasDone?'complete':result.ok?'good':'retry',{force:true});
   render();
   if(manual){
    const target=model.done?$('#operation-finish'):board.querySelector(`[data-operation="${action.startsWith('bridge:')?'test':action}"]`)||board.querySelector('.operation-task');

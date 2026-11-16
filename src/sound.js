@@ -31,21 +31,47 @@ export function setVoiceVolume(value) {
 }
 const fieldSounds = {
   'trail-step': {volume:.22, fallback:'move'},
-  'notebook-open': {volume:.32, fallback:'observe'},
+  'notebook-open': {volume:.32, fallback:'capture'},
   'notebook-page': {volume:.28, fallback:'move'},
-  'tool-reward': {volume:.32, fallback:'complete'},
   'workplace-open': {volume:.3, fallback:'move'},
-  'lamp-light': {volume:.3, fallback:'observe'},
-  'village-wake': {volume:.34, fallback:'complete'},
-  'resident-pop': {volume:.26, fallback:'pickup'},
-  'stamp': {volume:.42, fallback:'place'},
-  'festival': {volume:.34, fallback:'complete'},
+  'lamp-light': {volume:.3, fallback:'capture'},
+  'resident-pop': {volume:.26, fallback:'lift'},
   'letter-open': {volume:.3, fallback:'notebook-page'}
 };
+// 성취 효과음은 scripts/make-sfx.mjs가 C장조로 위로 오르게 합성한 MP3다. 이름은 부르는 쪽이 쓰는 이름, file은 실제 파일이다.
+// 크기는 작은 반응(집기·딩동·다시 해 보기) < 정답 < 보상·축제 순으로 들리게 맞췄다.
+const effectClips = {
+  complete:{file:'success', volume:.39},        // 단계·정답 성공
+  place:{file:'good', volume:.31, streak:true}, // 맞는 자리에 놓기
+  good:{file:'good', volume:.31, streak:true},
+  coin:{file:'coin', volume:.29, streak:true},  // 배지·메달 줍기
+  pickup:{file:'lift', volume:.35},
+  retry:{file:'retry', volume:.43},             // 다시 해 보기 (내려가지 않는 톡톡)
+  hint:{file:'twinkle', volume:.24},
+  observe:{file:'capture', volume:.22},
+  alert:{file:'alert', volume:.36},
+  hit:{file:'hit', volume:.54, streak:true},
+  defeat:{file:'defeat', volume:.46},
+  'tool-reward':{file:'reward', volume:.5},
+  'village-wake':{file:'village-rise', volume:.43},
+  stamp:{file:'stamp-ding', volume:.42},
+  festival:{file:'fanfare', volume:.6}
+};
+const baseVolume = name => effectClips[name]?.volume ?? fieldSounds[name]?.volume ?? (name === 'water' ? .24 : .3);
 const sourceFor = (name, audio) => {
   const clip = fieldSounds[name];
+  if (effectClips[name]) return '/assets/audio/' + effectClips[name].file + '.mp3';
   return '/assets/audio/' + (clip && audio.canPlayType('audio/ogg; codecs="vorbis"') ? name+'.ogg' : (clip?.fallback ?? name)+'.mp3');
 };
+// 연달아 맞히면 같은 소리가 반음씩 올라가 '콤보'처럼 들린다. 3초 쉬면 처음 높이로 돌아온다.
+let streakCount = 0, streakAt = -Infinity;
+function streakRate(name, now) {
+  if (name === 'retry') streakAt = -Infinity; // 다시 해 보기가 나오면 콤보는 처음부터
+  if (!effectClips[name]?.streak) return 1;
+  streakCount = now - streakAt < 3000 ? Math.min(streakCount + 1, 7) : 0;
+  streakAt = now;
+  return 2 ** (streakCount / 12);
+}
 let enabled = true, active = null, last = 0;
 export function stopSounds() {
   if (active) { active.pause(); active.currentTime = 0; }
@@ -65,7 +91,9 @@ export function playSound(name = 'click', {force = false, inDialog = false} = {}
     sound.src = sourceFor(name, sound);
     players.set(name, sound);
   }
-  effectVolume(sound, fieldSounds[name]?.volume ?? (name === 'water' ? .24 : name === 'complete' ? .38 : .3));
+  effectVolume(sound, baseVolume(name));
+  const rate = streakRate(name, now);
+  if (rate !== 1 || sound.playbackRate !== 1) { sound.preservesPitch = sound.webkitPreservesPitch = false; sound.playbackRate = rate; }
   active = sound;
   sound.play().catch(() => {});
 }
@@ -83,7 +111,7 @@ export function playCue(name, delay = 0) {
     if (!enabled || !effectsLevel || document.hidden) return;
     cue = new Audio();
     cue.src = sourceFor(name, cue);
-    effectVolume(cue, fieldSounds[name]?.volume ?? .3);
+    effectVolume(cue, baseVolume(name));
     cues.add(cue);
     cue.onended = () => cues.delete(cue);
     cue.play().catch(() => cues.delete(cue));

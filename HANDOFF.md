@@ -1,5 +1,6 @@
 # 지오밸리 인계
 프로젝트: 현재 체크아웃의 루트 (`package.json`이 있는 폴더). 드라이브 문자는 작업 환경마다 다르다.
+2026-11-16 효과음 고도화: 성공 순간에 반음씩 내려가던 마을 깨어남·축제 소리, 흔들리던 도구 보상음, 8비트 정답음을 `scripts/make-sfx.mjs`로 직접 합성한 C장조 상승 효과음 14개로 바꿨다(`src/sound.js`의 `effectClips`). 악당 맞히기·퇴치·헛방, 대피 배지·여진 경고, 현장 작전 실패도 상황에 맞는 소리로 바꿨고, 연속 정답은 반음씩 오르는 콤보가 된다. 목록·검증은 `public/assets/audio/CREDITS.md` 맨 아래.
 2026-11-16 3D 대피 미니게임: 안전 스테이지 2단계(학교 안·학교 밖 대피길)에 Three.js 3D 걷기 화면을 얹었다(`src/adventure/evacuation-3d.js`, `src/evacuation-3d.css`). 이동·충돌·경로 저장·채점은 그대로 `evacuation.js`가 하고, 3D는 보기와 게임 요소(안전 발자국 배지, 안전 약속 판 3개, 여진 2번 때 Space/버튼으로 몸 낮추기, 집합 깃발)만 맡는다. WASD·방향키·바닥 탭으로 걷고 `지도로 보기` 버튼으로 기존 2D 판으로 바꿀 수 있다. WebGL이 안 되면 2D로 남는다. 그림은 기존 리버 8방향 걷기 시트·소품 그림을 재사용했다. 테스트 `scripts/evacuation-3d.test.mjs`.
 
 2026-11-09 밤 고도화(브랜치 `claude/upgrade-20261109`, 미배포): 개념영상 10편을 HyperFrames로 다시 만듦(15초, 캡션 0·5·10초, 원본 `films/concepts/`, 다시 렌더 `node films/concepts/render.mjs` — 옛 `npm run concepts:render`는 8초 영상으로 덮어쓰니 쓰지 말 것). 개념 창 글자·낮은 화면 배치, 공유 썸네일, 학습 목표 메타, 인트로·엔딩 5MB 이하. 결과 `docs/reviews/UPGRADE-RESULT-20261109.md`, 점수 `SCORE-20261109.md`.

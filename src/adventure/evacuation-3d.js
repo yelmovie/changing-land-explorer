@@ -278,7 +278,7 @@ export async function mountEvacuation3D(scene,bridge){
  function crouch(){
   if(!visible||arrived)return;
   crouchTimer=quake?Infinity:700;
-  if(quake&&!quake.crouched){quake.crouched=true;playSound('place');bridge.say('좋아! 그 자리에서 몸을 낮추고 머리를 보호했어. 흔들림이 멈출 때까지 기다리자.');}
+  if(quake&&!quake.crouched){quake.crouched=true;playSound('complete',{force:true});bridge.say('좋아! 그 자리에서 몸을 낮추고 머리를 보호했어. 흔들림이 멈출 때까지 기다리자.');}
  }
 
  // ---------- aftershocks ----------
@@ -289,7 +289,7 @@ export async function mountEvacuation3D(scene,bridge){
    const due=AFTERSHOCKS.first+quakesDone*AFTERSHOCKS.gap;
    if(walked>=due&&bridge.moving){
     quake={t:0,crouched:false};bridge.setLocked(true);held.clear();keyDriven=false;
-    banner.hidden=false;crouchButton.classList.add('is-urgent');playSound('hint',{force:true});
+    banner.hidden=false;crouchButton.classList.add('is-urgent');playSound('alert',{force:true});
     bridge.say('여진이야! 걷지 말고 그 자리에서 몸을 낮춰 머리를 보호해.');
    }
    return;
@@ -327,10 +327,10 @@ export async function mountEvacuation3D(scene,bridge){
   for(const m of medals){
    if(m.taken){if(m.pop<1){m.pop=Math.min(1,m.pop+dt/350);m.mesh.scale.setScalar(1+m.pop*.8);m.mesh.position.y=.75+m.pop*.9;m.mesh.material.forEach(x=>{x.transparent=true;x.opacity=1-m.pop;});if(m.pop>=1)m.mesh.visible=false;}continue;}
    m.mesh.rotation.set(-.35,reduced?0:Math.sin(clock/520+m.p.y)*.7,0);m.mesh.position.y=.75+(reduced?0:Math.sin(clock/380+m.p.x)*.08);
-   if(Math.hypot(m.p.x-cur.x,m.p.y-cur.y)<34){m.taken=true;medalCount++;chips();playSound('pickup');burst(m.mesh.position.clone());}
+   if(Math.hypot(m.p.x-cur.x,m.p.y-cur.y)<34){m.taken=true;medalCount++;chips();playSound('coin',{force:true});burst(m.mesh.position.clone());}
   }
   for(const r of rules){
-   if(!r.read&&Math.hypot(r.x-cur.x,r.y-cur.y)<46){r.read=true;ruleCount++;paintRule(r);chips();playSound('place');burst(r.sprite.position.clone().setY(1.2),0xa8e6b0,10);bridge.say(`안전 약속 ${r.n}: ${r.title}. ${r.text}`);}
+   if(!r.read&&Math.hypot(r.x-cur.x,r.y-cur.y)<46){r.read=true;ruleCount++;paintRule(r);chips();playSound('good',{force:true});burst(r.sprite.position.clone().setY(1.2),0xa8e6b0,10);bridge.say(`안전 약속 ${r.n}: ${r.title}. ${r.text}`);}
    r.sprite.position.y=r.read||reduced?0:Math.abs(Math.sin(clock/420+r.n))*.06;
   }
   for(const [msg,h] of hazardMeshes){if(h.flash>0){h.flash=Math.max(0,h.flash-dt);h.zone.material.opacity=.75+.25*Math.sin(h.flash/60);h.group.position.x=h.x+(reduced?0:Math.sin(h.flash/25)*.05*h.flash/900);}else{h.zone.material.opacity=.75;h.group.position.x=h.x;}}

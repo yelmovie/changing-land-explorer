@@ -61,7 +61,7 @@ function showConflict(){
 window.addEventListener('storage',e=>{if(!conflict&&(e.key===SAVE_KEY||e.key===null)&&storageChanged())showConflict();});
 export function save(){if(!admin)return persistStudent();return false;}
 export function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),4000);}
-export function chime(success=true){playSound(success?'complete':'place',{force:true});}
+export function chime(success=true){playSound(success?'complete':'retry',{force:true});}
 export function modal(title,content,setup){
  const previous=document.activeElement;
  stopAllSounds();
