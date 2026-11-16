@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {setup} from '../src/adventure/city.js';
+import {setup,citySlots} from '../src/adventure/city.js';
 import {CITY_SITES} from '../src/learning-model.js';
 globalThis.matchMedia=()=>({matches:true});
 function harness(phase,work={},step=0){
@@ -9,7 +9,7 @@ function harness(phase,work={},step=0){
  const add=new Proxy({container:object},{get:(t,k)=>t[k]||object}),data=step===1?{evidence:{['city-'+CITY_SITES[phase].id]:{pair:true}}}:{};
  const api={step,phase,data,work,completed:false,task(){},say(){},save(){},spark(){},counter(){},autoplay(){},listenCleanup(){},image:(key,x,y)=>object(x,y),hero:(x,y,size,asset)=>{const o=object(x,y);o.asset=asset;return o;},paper:object,panel:object,text:(text,x,y)=>{const o=object(x,y);o.text=text;return o;},card:(label,x,y)=>object(x,y,[object()]),target:object,drag:(o,h)=>drags.push({o,h}),range:(label,value,min,max,fn)=>{change=fn;return {value};},record(item){data.evidence[item.id]=item;records++;},finish(){finished++;},actions(list){for(const a of list)actions[a.id]=a;}};
  setup({add,make:add,children:{list:objects},tweens:{add(){}},textures:{exists:()=>true}},api);
- return {data,work,objects,drags,counts:()=>({records,finished}),observe:()=>{change(3);change(97)},drop:(card,slot)=>drags[card].h.onDrop(drags[card].o,slot?670:265,510)};
+ return {data,work,objects,drags,counts:()=>({records,finished}),observe:()=>{change(3);change(97)},drop:(card,slot)=>{const at=citySlots(phase);return drags[card].h.onDrop(drags[card].o,at.list[slot].x,at.y);}};
 }
 for(let phase=0;phase<3;phase++){
  test('city '+phase+' requires both views and correct learner records exactly once',()=>{

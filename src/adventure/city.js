@@ -17,7 +17,10 @@ const POSTER_RETRY=[
 ];
 const inBox=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
 
-const FARM_VIEW={x:144,y:86,w:912,h:342};
+const FARM_VIEW={x:144,y:86,w:912,h:300};
+// Drop places sit inside each photo panel, right under the time they belong to.
+export const citySlots=index=>index===1?{y:452,h:60,list:[{x:372,w:420},{x:828,w:420}]}:{y:442,h:60,list:[{x:300,w:440},{x:900,w:440}]};
+const WRONG_RECORD=['화산재 속을 날면 엔진이 멈출 수 있어. 그래서 비행기는 화산재가 걷힐 때까지 쉬어.','분출 직후에는 작물이 피해를 입어. 흙이 변하려면 아주 오랜 시간이 필요해.','분출 중에는 위험해서 온천에 들어갈 수 없어.'];
 
 // Painted props for this stage (scripts/prepare-city-stage-art.mjs). They are not in the shared
 // preload list, so they are fetched here on first use and drawn once ready.
@@ -125,9 +128,9 @@ export function setup(scene,api){
   ][index];
   const focus=CITY_POINTS[index],cx=Math.max(230,Math.min(970,focus.x)),zoom=farm?1.34:1.15;
   const frames=[],captions=[],masks=[],photoMasks=[];
-  if(farm)api.panel(600,260,948,474,0xfff7df,1);
+  if(farm)api.panel(600,255,948,464,0xfff7df,1);
   [false,true].forEach((later,j)=>{
-   const x=18+j*600,center=x+282,box=farm?FARM_VIEW:{x:x+8,y:88,w:548,h:310};
+   const x=18+j*600,center=x+282,box=farm?FARM_VIEW:{x:x+8,y:88,w:548,h:272};
    if(!farm)api.panel(center,252,564,462,0xfff7df,1);
    api.text(labels[j],center,58,26,later?'#285e42':'#7b432d',520);
    const description=cityScene(index,later);
@@ -165,40 +168,82 @@ export function setup(scene,api){
    }
    if(!farm){
     if(index===0)airportSlot(scene,api,later?'after':'before',box);
-    api.text(descriptions[j],center,424,23,'#294239',515);
+    api.text(descriptions[j],center,384,22,'#294239',515);
     frames.push(scene.add.graphics());
-    scene.add.zone(center,256,564,462).setInteractive({useHandCursor:true}).on('pointerup',()=>{api.stopAutoplay?.();set(later?.03:.97);});
+    scene.add.zone(box.x+box.w/2,box.y+box.h/2,box.w,box.h).setInteractive({useHandCursor:true}).on('pointerup',()=>{api.stopAutoplay?.();set(later?.03:.97);});
    }
-   captions.push(api.text('',center,farm?459:466,20,'#28633e',520));
+   // Each photo panel shows "tap me" until seen, then a check; it sits on the title row because the airport photo is covered by a video.
+   captions.push(farm?api.text('',citySlots(1).list[j].x,405,20,'#28633e',420):api.text('',center+200,58,17,'#ffffff').setPadding(10,4).setDepth(6));
   });
   const divider=farm?scene.add.graphics().setDepth(18):null;
   const arrows=farm?api.text('◀ ▶',600,FARM_VIEW.y+FARM_VIEW.h/2,23,'#204b42').setDepth(19):null;
   api.panel(600,562,1172,150,0xfff7df,1);
-  const slots=[{x:265,w:315},{x:670,w:355}],slotY=510;
-  slots.forEach(({x,w})=>api.target(x,slotY,w,58,''));
-  const recordLabels=slots.map(({x})=>api.text('',x,slotY,23));
-  let range,completed=!!api.completed,display=w.wipe,motion=null,focused=false;
-  const recordCards=[];
+  const {y:slotY,h:slotH,list:slots}=citySlots(index),CARD={w:330,h:58,y:584};
+  const slotArt=slots.map(()=>scene.add.graphics()),slotLabels=slots.map(({x})=>api.text('',x,slotY,21,'#8a7550'));
+  const trayTitle=api.text('',600,517,22,'#24463a',1120);
+  let range,completed=!!api.completed,display=w.wipe,motion=null,focused=false,dragging=false,hover=-1;
+  const wrongUntil=[0,0],recordCards=[];
+  function dashed(g,x,y,width,height,color,alpha){
+   g.lineStyle(3,color,alpha);
+   for(let i=x+10;i<x+width-10;i+=22)g.lineBetween(i,y,Math.min(i+12,x+width-10),y).lineBetween(i,y+height,Math.min(i+12,x+width-10),y+height);
+   for(let i=y+10;i<y+height-10;i+=20)g.lineBetween(x,i,x,Math.min(i+11,y+height-10)).lineBetween(x+width,i,x+width,Math.min(i+11,y+height-10));
+  }
+  function paintSlots(){
+   const ready=w.seen.before&&w.seen.after,now=scene.time?.now??0;
+   slots.forEach(({x,w:width},j)=>{
+    const g=slotArt[j].clear(),left=x-width/2,top=slotY-slotH/2,filled=w.pairs.includes(j),wrong=wrongUntil[j]>now;
+    if(filled){g.fillStyle(0xdcefd2,1).fillRoundedRect(left,top,width,slotH,16).lineStyle(4,0x38795f,1).strokeRoundedRect(left,top,width,slotH,16);slotLabels[j].setText('');return;}
+    if(wrong){g.fillStyle(0xf7d6c7,1).fillRoundedRect(left,top,width,slotH,16).lineStyle(4,0xc0583a,1).strokeRoundedRect(left,top,width,slotH,16);slotLabels[j].setText('다시 생각해 봐').setColor('#9a3f25');return;}
+    const on=hover===j;
+    g.fillStyle(on?0xffe3a0:dragging?0xfff1c9:0xfffaf0,on?1:ready?.95:.6).fillRoundedRect(left,top,width,slotH,16);
+    if(on)g.lineStyle(5,0xe08a2a,1).strokeRoundedRect(left,top,width,slotH,16);
+    else dashed(g,left,top,width,slotH,ready?0xd29a3a:0xb8a984,ready?1:.7);
+    slotLabels[j].setText(on?'여기에 놓기!':ready?'▼ 여기에 카드 놓기':'카드 놓는 자리').setColor(on?'#7a3f1a':ready?'#8a5a1f':'#9a917c');
+   });
+   trayTitle.setText(completed?'✓ 두 기록을 알맞은 사진 아래에 모두 놓았어요!':ready?'② 카드를 끌어서 알맞은 사진 아래 빈칸에 놓아요 · 맞지 않는 카드도 하나 있어요':'① 먼저 위의 사진 두 장을 하나씩 눌러 살펴봐요');
+  }
+  function slotAt(point){return slots.findIndex(p=>inBox(point.x,point.y,p.x,slotY,p.w+40,slotH+70));}
+  function seat(card,j,animate){
+   const {object}=card;scene.tweens.killTweensOf?.(object);
+   if(animate&&!reduced)scene.tweens.add({targets:object,x:slots[j].x,y:slotY,duration:180,ease:'Back.easeOut'});else object.setPosition(slots[j].x,slotY);
+  }
   function clearForNext(){
    if(completed)return;
    if(!w.seen.before||!w.seen.after)return;
-   api.say('기록 카드를 알맞은 시기의 칸에 놓아 줘.');
+   api.say('기록 카드를 끌어서 알맞은 사진 아래 빈칸에 놓아 줘.');
   }
   OBSERVATIONS[index].forEach((label,j)=>{
-   const object=token(shortRecords[j],230+j*370,597,345,54);
-   function connect(slot){
+   const object=token(shortRecords[j],230+j*370,CARD.y,CARD.w,CARD.h);
+   // Grip dots say "this card moves".
+   const grip=scene.add.graphics();grip.fillStyle(0xa58a5c,.85);
+   for(let r=0;r<3;r++)for(let c=0;c<2;c++)grip.fillCircle(-CARD.w/2+20+c*9,-9+r*9,2.8);
+   object.add?.(grip);
+   const card={object,enabled:true};
+   function connect(slot,animate=false){
     if(completed||w.pairs.includes(j)||!w.seen.before||!w.seen.after)return false;
-    if(j===2||j!==slot){api.say(index===1?'분출 직후에는 작물이 피해를 입어. 흙이 변하려면 시간이 필요해.':'두 사진을 다시 보고 알맞은 시기를 찾아봐.');return false;}
-    w.pairs.push(j);api.spark(slots[slot].x,slotY);api.save();
-    if(w.pairs.length<2)api.say('남은 기록도 빈칸에 놓아 줘.');
-    progress();return false;
+    if(w.pairs.includes(slot)){api.say('그 칸은 이미 채웠어. 다른 빈칸을 찾아봐.');return false;}
+    if(j===2||j!==slot){
+     wrongUntil[slot]=(scene.time?.now??0)+900;paintSlots();scene.time?.delayedCall?.(950,paintSlots);
+     api.say(j===2?WRONG_RECORD[index]:slot===0?'분출 당시 사진을 다시 봐. 그때는 어떤 모습이었지?':'복구된 뒤의 사진을 다시 봐. 지금은 어떤 모습이지?');
+     return false;
+    }
+    w.pairs.push(j);seat(card,j,animate);api.spark(slots[slot].x,slotY);api.save();
+    if(w.pairs.length<2)api.say('잘했어! 남은 빈칸에 맞는 카드도 찾아 놓아 줘.');
+    progress();return true;
    }
+   card.connect=slot=>connect(slot,true);
    const drop=(_o,x,y,pointer)=>{
-    const point=pointer||{x,y},slot=slots.findIndex(p=>inBox(point.x,point.y,p.x,slotY,p.w+55,83));
-    if(slot<0){clearForNext();return false;}return connect(slot);
+    dragging=false;hover=-1;
+    const slot=slotAt(pointer||{x,y});
+    if(slot<0){clearForNext();paintSlots();return false;}
+    const ok=connect(slot,true);paintSlots();return ok;
    };
-   api.drag(object,{onDrop:drop,onTap:drop,selectionHint:'카드를 놓을 시기의 칸을 눌러 줘.'});
-   recordCards.push({object,connect,enabled:true});
+   api.drag(object,{onDrop:drop,onTap:drop,
+    onStart:()=>{dragging=true;paintSlots();},
+    onMove:(_o,x,y,pointer)=>{const next=slotAt(pointer||{x,y});if(next!==hover){hover=next;paintSlots();}},
+    selectionHint:'카드를 놓을 사진 아래 빈칸을 눌러 줘.'});
+   recordCards.push(card);
+   if(w.pairs.includes(j))seat(card,j,false);
   });
   function setInteraction(card,enabled){
    if(!card.object.input||card.enabled===enabled)return;
@@ -221,15 +266,16 @@ export function setup(scene,api){
    }
    captions.forEach((caption,j)=>{
     const seen=w.seen[j?'after':'before'];
-    caption.setText(seen?(farm?'✓ '+descriptions[j]:'✓ 살펴봤어요'):farm?'': '사진을 눌러 살펴봐');
-    recordLabels[j].setText(w.pairs.includes(j)?shortRecords[j]:j?'이후 기록 놓기':'당시 기록 놓기');
+    caption.setText(seen?(farm?'✓ '+descriptions[j]:'✓ 살펴봤어요'):farm?'':'눌러 보기 ›');
+    if(!farm)caption.setBackgroundColor?.(seen?'#2f7a55':'#b8652e');
    });
    const ready=w.seen.before&&w.seen.after;
    recordCards.forEach((card,j)=>{
     const used=w.pairs.includes(j);
     setInteraction(card,ready&&!used&&!completed);
-    card.object.setAlpha(used?.35:ready?1:.65);
+    card.object.setAlpha(used?1:completed?.35:ready?1:.5);
    });
+   paintSlots();
   }
   function set(value,collect=true){
    const bothSeen=w.seen.before&&w.seen.after;
@@ -242,7 +288,7 @@ export function setup(scene,api){
     const before=Number(w.seen.before)+Number(w.seen.after);
     w.wipe=display;if(display>.92)w.seen.before=true;if(display<.08)w.seen.after=true;
     if(before!==Number(w.seen.before)+Number(w.seen.after)){
-     api.say(w.seen.before&&w.seen.after?'기록 카드를 알맞은 시기의 칸에 놓아 줘.':farm?'막대를 반대쪽 끝으로 움직여 봐.':w.seen.before?'이번에는 이후 사진을 눌러 봐.':'이번에는 분출 당시 사진을 눌러 봐.');
+     api.say(w.seen.before&&w.seen.after?'기록 카드를 끌어서 알맞은 사진 아래 빈칸에 놓아 줘.':farm?'막대를 반대쪽 끝으로 움직여 봐.':w.seen.before?'이번에는 이후 사진을 눌러 봐.':'이번에는 분출 당시 사진을 눌러 봐.');
     }
     d.citySeen[s.id]={...w.seen};api.save();progress();
    }
