@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {setup} from '../src/adventure/safety.js';
-import {SCHOOL_PATH,OUTSIDE_PATH,inspectRoute,SCHOOL_CONFIG,OUTSIDE_CONFIG} from '../src/learning-model.js';
+import {SCHOOL_PATH,SCHOOL_DRILL_PATH,OUTSIDE_PATH,inspectRoute,SCHOOL_CONFIG,SCHOOL_DRILL_CONFIG,OUTSIDE_CONFIG} from '../src/learning-model.js';
 function activity(phase=0,completed=false,data={}){
  const objects=[],handlers={},actions={};let finishes=0,clock=0;
  const object=(x=0,y=0)=>{const t={x,y};const p=new Proxy(t,{get:(t,k)=>k in t?t[k]:(...args)=>{if(k==='setPosition'){t.x=args[0];t.y=args[1];}if(k==='setText')t.text=args[0];return p;}});objects.push(p);return p;};
@@ -12,9 +12,9 @@ function activity(phase=0,completed=false,data={}){
  return {api,data,objects,actions,hooks,tick,walk,finishes:()=>finishes};
 }
 for(const phase of [0,1,2])test('direct movement reaches the valid destination in phase '+phase,()=>{
- const h=activity(phase),path=phase===2?OUTSIDE_PATH:SCHOOL_PATH;
+ const h=activity(phase),path=[SCHOOL_PATH,SCHOOL_DRILL_PATH,OUTSIDE_PATH][phase];
  for(const p of path.slice(1))h.walk(p);
- assert.equal(h.finishes(),1);const key=phase===2?'outsideRoute':'schoolRoute';assert.ok(inspectRoute(h.data[key],phase===2?OUTSIDE_CONFIG:SCHOOL_CONFIG).ok);if(phase)assert.equal(h.data[key+'Done'],true);
+ assert.equal(h.finishes(),1);const key=phase===2?'outsideRoute':'schoolRoute';assert.ok(inspectRoute(h.data[key],[SCHOOL_CONFIG,SCHOOL_DRILL_CONFIG,OUTSIDE_CONFIG][phase]).ok);if(phase)assert.equal(h.data[key+'Done'],true);
  const before=JSON.stringify(h.data);h.actions['route-reset']();for(const p of path.slice(1))h.walk(p);assert.equal(h.finishes(),1);assert.equal(JSON.stringify(h.data),before);
 });
 test('hazards stop movement without exhausting safety practice attempts',()=>{

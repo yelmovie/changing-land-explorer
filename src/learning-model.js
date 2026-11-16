@@ -31,7 +31,7 @@ export function activityComplete(stage,step,d={}){
  if(stage==='volcano')return step===0?['tray','mountain','water'].every(k=>d.assembly?.includes(k))&&['mouth','flow'].every(k=>ev[`model-${k}`]?.time>=.55):['lava','gas','ash','rock'].every(k=>ev[`output-${k}`]?.claim===k)&&['opening','downhill','material','extra'].every(k=>d.comparisons?.[k]===({opening:'same',downhill:'same',material:'different',extra:'different'}[k]));
  if(stage==='rocks')return step===0?[0,1].every(i=>hasRockEvidence(d,i)):[0,1,2,3].every(i=>hasRockEvidence(d,i)&&d.rockNames?.[i]===ROCKS[i].type&&d.rockProofs?.[i]?.every(f=>[ROCKS[i].color,ROCKS[i].grain].includes(f))&&new Set(d.rockProofs?.[i]).size===2);
  if(stage==='city')return step===0?CITY_SITES.every(s=>ev[`city-${s.id}`]?.claim===s.claim&&ev[`city-${s.id}`]?.pair===true):CITY_SITES.every(s=>ev[`city-${s.id}`]?.claim===s.claim&&d.notices?.[s.id]===s.claim);
- if(stage==='safety')return step===0?['window','shelf','desk'].every(k=>ev[`safety-${k}`])&&d.protect?.under===true&&d.protect?.head===true&&d.protect?.leg===true&&d.protect?.stopped===true&&d.protect?.confirmed===true:['schoolRoute','outsideRoute'].every(k=>d[k+'Done']===true&&Array.isArray(d[k])&&d[k+'Signature']===routeSignature(d[k])&&inspectRoute(d[k],k==='outsideRoute'?OUTSIDE_CONFIG:SCHOOL_CONFIG).ok);
+ if(stage==='safety')return step===0?['window','shelf','desk'].every(k=>ev[`safety-${k}`])&&d.protect?.under===true&&d.protect?.head===true&&d.protect?.leg===true&&d.protect?.stopped===true&&d.protect?.confirmed===true:['schoolRoute','outsideRoute'].every(k=>d[k+'Done']===true&&Array.isArray(d[k])&&d[k+'Signature']===routeSignature(d[k])&&routeConfigs(k==='outsideRoute').some(c=>inspectRoute(d[k],c).ok));
  return false;
 }
 export function replaceRouteSection(points,start,end,replacement){if(start<0||end<=start||end>=points.length||replacement.length<2)return points;return [...points.slice(0,start),...replacement, ...points.slice(end+1)];}
@@ -46,7 +46,7 @@ export function inspectRoute(points,config){
  for(let i=1;i<points.length;i++){
   const a=points[i-1],b=points[i],n=Math.max(1,Math.ceil(dist(a,b)/4));
   for(let j=0;j<=n;j++){const p={x:a.x+(b.x-a.x)*j/n,y:a.y+(b.y-a.y)*j/n};
-   const hit=config.hazards.find(r=>inside(p,r,10));if(hit)return fail(hit.message,i,last);
+   const hit=config.hazards.find(r=>inside(p,r,hazardMargin(r)));if(hit)return fail(hit.message,i,last);
    if(!config.areas.some(r=>inside(p,r,-8)))return fail('벽을 지나고 있어. 넓은 통로로 돌아가자.',i,last);
    config.gates.forEach((g,k)=>{if(dist(g,p)<g.radius)gates.add(k);});last=p;
   }
@@ -57,8 +57,18 @@ export function inspectRoute(points,config){
 }
 
 export const SCHOOL_CONFIG={start:{x:140,y:100},goal:{x:880,y:420},areas:[{x:60,y:50,w:880,h:260},{x:440,y:280,w:120,h:110},{x:60,y:350,w:880,h:130}],gates:[{x:500,y:335,radius:48}],hazards:[{x:360,y:155,w:220,h:100,label:'화단',message:'화단을 가로지를 수 없어. 복도로 돌아가자.'},{x:700,y:80,w:100,h:70,label:'깨진 유리',message:'깨진 유리 조각이 있어. 이 구간을 피해 가자.'},{x:150,y:200,w:70,h:60,label:'넘어진 책장',message:'책장이 통로를 막고 있어. 다른 쪽으로 돌아가자.'}]};
-export const OUTSIDE_CONFIG={start:{x:120,y:410},goal:{x:880,y:100},areas:[{x:50,y:50,w:900,h:420}],gates:[],hazards:[{x:280,y:80,w:230,h:160,label:'건물',message:'건물 가까이는 떨어지는 물건이 위험해. 떨어진 곳으로 가자.'},{x:600,y:270,w:70,h:170,label:'담장',message:'담장이 무너질 수 있어. 충분히 떨어져 돌아가자.'},{x:760,y:160,w:45,h:65,label:'전신주',message:'전신주 가까이는 피해 가자.'}]};
+// Earlier outside layout: routes saved on it before 2026-11-16 still count as finished.
+const LEGACY_OUTSIDE_CONFIG={start:{x:120,y:410},goal:{x:880,y:100},areas:[{x:50,y:50,w:900,h:420}],gates:[],hazards:[{x:280,y:80,w:230,h:160,label:'건물',message:'건물 가까이는 떨어지는 물건이 위험해. 떨어진 곳으로 가자.'},{x:600,y:270,w:70,h:170,label:'담장',message:'담장이 무너질 수 있어. 충분히 떨어져 돌아가자.'},{x:760,y:160,w:45,h:65,label:'전신주',message:'전신주 가까이는 피해 가자.'}]};
+// Outside, "keep away" means real distance: each hazard carries its own margin (default 10).
+export const OUTSIDE_CONFIG={start:{x:120,y:410},goal:{x:880,y:100},areas:[{x:50,y:50,w:900,h:420}],gates:[],hazards:[{x:300,y:60,w:210,h:140,margin:40,label:'건물',message:'건물 가까이는 떨어지는 물건이 위험해. 건물에서 멀리 떨어져 걸어.'},{x:600,y:330,w:70,h:140,margin:30,label:'담장',message:'담장이 무너질 수 있어. 충분히 떨어져 돌아가자.'},{x:760,y:170,w:45,h:65,margin:30,label:'전신주',message:'전신주 가까이는 피해 가자. 전깃줄이 끊어져 있을 수도 있어.'}]};
 export const SCHOOL_PATH=[{x:140,y:100},{x:280,y:100},{x:280,y:280},{x:500,y:280},{x:500,y:370},{x:880,y:420}];
 export const SCHOOL_ALTERNATIVE=[{x:140,y:100},{x:650,y:100},{x:650,y:280},{x:500,y:280},{x:500,y:370},{x:880,y:420}];
-export const OUTSIDE_PATH=[{x:120,y:410},{x:180,y:410},{x:180,y:285},{x:550,y:285},{x:550,y:100},{x:880,y:100}];
+export const OUTSIDE_PATH=[{x:120,y:410},{x:120,y:280},{x:700,y:280},{x:700,y:100},{x:880,y:100}];
 export function safetyRouteConfig(outside=false){return outside?OUTSIDE_CONFIG:SCHOOL_CONFIG;}
+export const hazardMargin=r=>Number.isFinite(r?.margin)?r.margin:10;
+// The second school walk starts from the classroom at the other end: the same building mirrored,
+// so the hazards, the start and the playground all swap sides instead of repeating the first walk.
+const mirror=c=>({start:{x:1000-c.start.x,y:c.start.y},goal:{x:1000-c.goal.x,y:c.goal.y},areas:c.areas.map(r=>({...r,x:1000-r.x-r.w})),gates:c.gates.map(g=>({...g,x:1000-g.x})),hazards:c.hazards.map(r=>({...r,x:1000-r.x-r.w}))});
+export const SCHOOL_DRILL_CONFIG=mirror(SCHOOL_CONFIG);
+export const SCHOOL_DRILL_PATH=SCHOOL_PATH.map(p=>({x:1000-p.x,y:p.y}));
+export const routeConfigs=outside=>outside?[OUTSIDE_CONFIG,LEGACY_OUTSIDE_CONFIG]:[SCHOOL_DRILL_CONFIG,SCHOOL_CONFIG];

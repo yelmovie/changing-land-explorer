@@ -80,7 +80,8 @@ export function setup(scene,api){
     });
    }
    const warning=(x,y,i)=>{
-    const symbol=api.image('art/ui/warning-sign',0,0,118,110);
+    // The triangle's corners stay inside the 60-radius disc instead of poking out past its rim.
+    const symbol=api.image('art/ui/warning-sign',0,-3,84,78);
     return scene.add.container(x,y,[scene.add.circle(0,0,60,0xfff4cb,.92).setStrokeStyle(3,0x89633b),symbol]).setSize(130,128).setName('hazard-marker-'+i);
    };
    const markers=[warning(400,565,0),warning(760,565,1)],used=new Map();

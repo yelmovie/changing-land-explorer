@@ -1,4 +1,5 @@
 import {RIVER_WALK,walkDirection} from '../river-walk.js';
+import {hazardMargin} from '../learning-model.js';
 
 // A 3D walk over the evacuation board. evacuation.js still owns movement, collisions and the
 // saved route; this view only reads that state, sends walking targets and adds the game layer:
@@ -11,16 +12,27 @@ export const EVAC_PICKUPS={
   medals:[{x:330,y:100},{x:470,y:95},{x:620,y:110},{x:285,y:215},{x:300,y:290},{x:650,y:220},{x:560,y:420},{x:760,y:410}],
   rules:[
    {x:205,y:100,title:'뛰지 않고 걸어요',text:'흔들림이 멈춘 뒤에도 뛰지 말고 천천히 걸어서 이동해.'},
-   {x:500,y:290,title:'밀지 않아요',text:'친구를 밀지 않고 한 줄로 차례차례 출구를 지나가.'},
+   {x:500,y:300,title:'밀지 않아요',text:'친구를 밀지 않고 한 줄로 차례차례 출구를 지나가.'},
    {x:650,y:420,title:'선생님 안내를 따라요',text:'선생님 안내를 듣고 정해진 곳에 모여 기다려.'}
   ]},
+ // Outside, badges and boards stay at least 30 units beyond each hazard's own keep-away margin.
  outside:{
-  medals:[{x:180,y:330},{x:260,y:285},{x:380,y:290},{x:470,y:300},{x:550,y:170},{x:640,y:100},{x:700,y:200},{x:850,y:250}],
+  medals:[{x:150,y:360},{x:250,y:300},{x:380,y:300},{x:510,y:300},{x:672,y:160},{x:760,y:100},{x:180,y:200},{x:900,y:330}],
   rules:[
-   {x:200,y:400,title:'건물에서 떨어져요',text:'건물 가까이는 유리나 간판이 떨어질 수 있어. 멀리 떨어져 걸어.'},
-   {x:550,y:230,title:'담장·전신주 피하기',text:'담장은 무너질 수 있고 전신주는 기울어질 수 있어. 넓게 돌아가.'},
-   {x:760,y:95,title:'넓은 곳에 모여요',text:'넓은 공터에서 선생님과 함께 다음 안내를 기다려.'}
+   {x:125,y:320,title:'건물에서 떨어져요',text:'건물 가까이는 유리나 간판이 떨어질 수 있어. 멀리 떨어져 걸어.'},
+   {x:440,y:290,title:'담장·전신주 피하기',text:'담장은 무너질 수 있고 전신주는 기울어질 수 있어. 넓게 돌아가.'},
+   {x:800,y:95,title:'넓은 곳에 모여요',text:'넓은 공터에서 선생님과 함께 다음 안내를 기다려.'}
   ]}
+};
+// The second school walk is the mirrored building, so its badges mirror too; its boards teach new rules.
+const DRILL_RULES=[
+ {title:'엘리베이터 대신 계단으로',text:'흔들린 뒤에는 엘리베이터가 멈출 수 있어. 계단으로 걸어서 이동해.'},
+ {title:'머리를 보호하며 이동해요',text:'떨어지는 물건에 대비해 가방이나 책으로 머리를 가리고 걸어.'},
+ {title:'모이면 인원 확인을 기다려요',text:'운동장에 모이면 선생님이 모두 왔는지 확인할 때까지 기다려.'}
+];
+EVAC_PICKUPS.drill={
+ medals:EVAC_PICKUPS.school.medals.map(p=>({x:1000-p.x,y:p.y})),
+ rules:EVAC_PICKUPS.school.rules.map((r,i)=>({x:1000-r.x,y:r.y,...DRILL_RULES[i]}))
 };
 export const AFTERSHOCKS={first:2000,gap:3200,length:3000,count:2};
 
@@ -34,7 +46,7 @@ export async function mountEvacuation3D(scene,bridge){
  let renderer;
  try{renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'low-power'});}catch{return null;}
  await document.fonts?.ready?.catch?.(()=>{});
- const reduced=reducedMotion(),{config,outside}=bridge,set=outside?EVAC_PICKUPS.outside:EVAC_PICKUPS.school;
+ const reduced=reducedMotion(),{config,outside}=bridge,set=EVAC_PICKUPS[bridge.scenario]||(outside?EVAC_PICKUPS.outside:EVAC_PICKUPS.school);
  const place=outside?'공터':'운동장';
  renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio||1,1.5));
  renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -106,7 +118,7 @@ export async function mountEvacuation3D(scene,bridge){
  const stripe=stripeTexture();
  for(const r of config.hazards){
   const c=W({x:r.x+r.w/2,y:r.y+r.h/2}),group=new THREE.Group();group.position.copy(c);world.add(group);
-  const zone=new THREE.Mesh(track(new THREE.PlaneGeometry((r.w+20)/S,(r.h+20)/S)),basic({map:stripe,transparent:true,opacity:.75,depthWrite:false,color:0xffffff}));
+  const zone=new THREE.Mesh(track(new THREE.PlaneGeometry((r.w+2*hazardMargin(r))/S,(r.h+2*hazardMargin(r))/S)),basic({map:stripe,transparent:true,opacity:.75,depthWrite:false,color:0xffffff}));
   zone.rotation.x=-Math.PI/2;zone.position.y=.018;group.add(zone);
   const w=r.w/S,d=r.h/S;let height=.5;
   const add=(m,x=0,y=0,z=0)=>{m.position.set(x,y,z);group.add(m);return m;};
@@ -194,7 +206,10 @@ export async function mountEvacuation3D(scene,bridge){
  }
 
  // River is the project's 8-direction walk sheet on a camera-facing sprite.
- const walkTex=texture(RIVER_WALK.url);walkTex.repeat.set(1/RIVER_WALK.columns,1/RIVER_WALK.directions.length);
+ // Frames sit edge to edge in one sheet: no mipmaps and a 1.5 px inset keep the row above from bleeding in.
+ const walkTex=texture(RIVER_WALK.url);walkTex.generateMipmaps=false;walkTex.minFilter=THREE.LinearFilter;
+ const SHEET_W=RIVER_WALK.frameWidth*RIVER_WALK.columns,SHEET_H=RIVER_WALK.frameHeight*RIVER_WALK.directions.length,EU=1.5/SHEET_W,EV=1.5/SHEET_H;
+ walkTex.repeat.set(1/RIVER_WALK.columns-2*EU,1/RIVER_WALK.directions.length-2*EV);
  const walkMat=track(new THREE.SpriteMaterial({map:walkTex,transparent:true,alphaTest:.25}));
  const protectMat=track(new THREE.SpriteMaterial({map:texture('/assets/hero-protect.webp'),transparent:true,alphaTest:.25}));
  const cheerMat=track(new THREE.SpriteMaterial({map:texture('/assets/hero-cheer.webp'),transparent:true,alphaTest:.25}));
@@ -207,7 +222,7 @@ export async function mountEvacuation3D(scene,bridge){
  }
 
  // ---------- state ----------
- let visible=true,facing='north',stride=0,last={...bridge.current},clock=0,walked=0,held=new Set(),keyDriven=false,dragging=null;
+ let visible=true,facing='south',stride=0,last={...bridge.current},clock=0,walked=0,held=new Set(),keyDriven=false,dragging=null;
  let flagTime=0,quake=null,quakesDone=0,crouchTimer=0,crouchHits=0,medalCount=0,ruleCount=0,arrived=false,frameNo=0,lastHazard={msg:'',at:-1e4},camPos=null,helpShown=true;
  const camTarget=new THREE.Vector3();
  function chips(){
@@ -318,7 +333,7 @@ export async function mountEvacuation3D(scene,bridge){
   if(river.material!==material){river.material=material;river.center.set(.5,material===walkMat?1-RIVER_WALK.origin[1]:.03);}
   if(material===walkMat){
    const row=Math.max(0,RIVER_WALK.directions.indexOf(facing)),col=moved>.01?Math.floor(stride/70*4)%4:1;
-   walkTex.offset.set(col/RIVER_WALK.columns,1-(row+1)/RIVER_WALK.directions.length);river.scale.set(1.28,1.6,1);
+   walkTex.offset.set(col/RIVER_WALK.columns+EU,1-(row+1)/RIVER_WALK.directions.length+EV);river.scale.set(1.28,1.6,1);
   }else if(material===protectMat)river.scale.set(1.3,1.27,1);
   else river.scale.set(1.14,1.6,1);
   const bob=moved>.01&&!reduced?Math.abs(Math.sin(stride/70*Math.PI))*.05:0;
@@ -354,7 +369,7 @@ export async function mountEvacuation3D(scene,bridge){
   const g=mini,k=200/1000;g.clearRect(0,0,200,106);
   g.fillStyle='rgba(30,52,42,.82)';g.beginPath();g.roundRect(0,0,200,106,10);g.fill();
   g.fillStyle=outside?'#c9d6a6':'#f2e3c2';for(const r of config.areas)g.fillRect(r.x*k,r.y*k,r.w*k,r.h*k);
-  g.fillStyle='#d9733f';for(const r of config.hazards)g.fillRect((r.x-10)*k,(r.y-10)*k,(r.w+20)*k,(r.h+20)*k);
+  g.fillStyle='#d9733f';for(const r of config.hazards){const m=hazardMargin(r);g.fillRect((r.x-m)*k,(r.y-m)*k,(r.w+2*m)*k,(r.h+2*m)*k);}
   g.fillStyle='#2f7a55';for(const gt of config.gates){g.beginPath();g.arc(gt.x*k,gt.y*k,6,0,7);g.fill();}
   g.fillStyle='#ffd25e';g.beginPath();g.arc(config.goal.x*k,config.goal.y*k,7,0,7);g.fill();
   g.strokeStyle='#3b8fb0';g.lineWidth=2;g.beginPath();bridge.points.forEach((p,i)=>i?g.lineTo(p.x*k,p.y*k):g.moveTo(p.x*k,p.y*k));g.stroke();

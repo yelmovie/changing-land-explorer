@@ -1,8 +1,8 @@
-import {SCHOOL_CONFIG,OUTSIDE_CONFIG,inspectRoute,routeSignature} from '../learning-model.js';
+import {SCHOOL_CONFIG,SCHOOL_DRILL_CONFIG,OUTSIDE_CONFIG,inspectRoute,routeSignature,hazardMargin} from '../learning-model.js';
 export function setupEvacuation(scene,api){
  const d=api.data,w=api.work;
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const outside=api.phase===2,playback=api.phase===1,config=outside?OUTSIDE_CONFIG:SCHOOL_CONFIG,key=outside?'outsideRoute':'schoolRoute';
+  const outside=api.phase===2,playback=api.phase===1,config=outside?OUTSIDE_CONFIG:playback?SCHOOL_DRILL_CONFIG:SCHOOL_CONFIG,key=outside?'outsideRoute':'schoolRoute';
   d[key]??=[];const ox=100,oy=80,scale=1;
   const toScreen=p=>({x:ox+p.x*scale,y:oy+p.y*scale});
   const toMap=p=>({x:(p.x-ox)/scale,y:(p.y-oy)/scale});
@@ -22,10 +22,11 @@ export function setupEvacuation(scene,api){
   config.areas.forEach(r=>map.lineStyle(3,0xffffff,.5).strokeRoundedRect(ox+r.x,oy+r.y,r.w,r.h,12));
   const HAZARD_ART={'화단':['flowerbed',1,1],'깨진 유리':['broken-glass',1,1],'넘어진 책장':['fallen-shelf',1,1],'건물':['house-roof',1,1],'담장':['brick-wall',.5,1],'전신주':['utility-pole',1.3,1.1]};
   config.hazards.forEach(r=>{
-   // The dashed border is the very same ten-unit safety margin used by inspectRoute.
-   map.fillStyle(0xc36c44,.16).fillRoundedRect(ox+r.x-10,oy+r.y-10,r.w+20,r.h+20,10);
-   for(let x=ox+r.x-10;x<ox+r.x+r.w+10;x+=16)map.lineStyle(3,0xc36c44,.8).lineBetween(x,oy+r.y-10,Math.min(x+9,ox+r.x+r.w+10),oy+r.y-10).lineBetween(x,oy+r.y+r.h+10,Math.min(x+9,ox+r.x+r.w+10),oy+r.y+r.h+10);
-   for(let y=oy+r.y-10;y<oy+r.y+r.h+10;y+=16)map.lineStyle(3,0xc36c44,.8).lineBetween(ox+r.x-10,y,ox+r.x-10,Math.min(y+9,oy+r.y+r.h+10)).lineBetween(ox+r.x+r.w+10,y,ox+r.x+r.w+10,Math.min(y+9,oy+r.y+r.h+10));
+   // The dashed border is the very same safety margin (hazardMargin) used by inspectRoute.
+   const m=hazardMargin(r),L=ox+r.x-m,T=oy+r.y-m,R=ox+r.x+r.w+m,B=oy+r.y+r.h+m;
+   map.fillStyle(0xc36c44,.16).fillRoundedRect(L,T,R-L,B-T,10);
+   for(let x=L;x<R;x+=16)map.lineStyle(3,0xc36c44,.8).lineBetween(x,T,Math.min(x+9,R),T).lineBetween(x,B,Math.min(x+9,R),B);
+   for(let y=T;y<B;y+=16)map.lineStyle(3,0xc36c44,.8).lineBetween(L,y,L,Math.min(y+9,B)).lineBetween(R,y,R,Math.min(y+9,B));
    const art=HAZARD_ART[r.label],key=art&&'art/ui/'+art[0],cx=ox+r.x+r.w/2,cy=oy+r.y+r.h/2;
    if(key&&scene.textures.exists(key))api.image(key,cx,cy,r.w*art[1],r.h*art[2]);
    else map.fillStyle(r.label==='화단'?0x86a56b:0xa98366).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,7);
@@ -60,7 +61,7 @@ export function setupEvacuation(scene,api){
    api.actions(list);
   }
   controls();
-  api.task(outside?'공터까지 안전하게 대피하자':playback?'한 번 더! 출구를 지나 운동장으로':'리버를 움직여 안전한 길을 찾아보자','가까운 통로를 누르면 리버가 걸어가. 방향 버튼도 써 봐. 주황 위험 구역 앞에서는 멈춰. 다른 길로 다시 갈 수 있어.');
+  api.task(outside?'공터까지 안전하게 대피하자':playback?'다른 교실에서도 안전한 길을 찾자':'리버를 움직여 안전한 길을 찾아보자','가까운 통로를 누르면 리버가 걸어가. 방향 버튼도 써 봐. 주황 위험 구역 앞에서는 멈춰. 다른 길로 다시 갈 수 있어.');
   const down=p=>{const q=toMap(p);if(q.x>=40&&q.x<=960&&q.y>=40&&q.y<=490)aim(q);};
   const keydown=e=>{if(view3d?.ownsKeys&&/^Arrow/.test(e.key))return;if(e.repeat||e.target?.matches?.('input,textarea,select')||globalThis.document?.querySelector('dialog[open]'))return;const v={ArrowLeft:[-55,0],ArrowRight:[55,0],ArrowUp:[0,-55],ArrowDown:[0,55]}[e.key];if(v){e.preventDefault();moveBy(...v);}else if(e.key==='Escape')stop();};
   scene.input.on('pointerdown',down);globalThis.window?.addEventListener('keydown',keydown);globalThis.window?.addEventListener('blur',stop);
@@ -75,13 +76,13 @@ export function setupEvacuation(scene,api){
    won=true;stop();hud();api.spark(goal.x,goal.y);view3d?.arrive();
    if(complete){api.say('안전하게 다시 도착했어! 앞서 모은 기록은 그대로야.');return;}
    d[key]=structuredClone(points);w.planned=true;
-   if(playback||outside){d[key+'Done']=true;d[key+'Signature']=routeSignature(points);w.replayed=true;api.record({id:key,kind:'route',label:outside?'내 학교 밖 안전길':'내 학교 안 안전길',points:structuredClone(points),outside,text:outside?'건물·담장·전신주를 피해 넓은 공터에 도착했어.':'위험을 피하고 출구를 지나 운동장에 도착했어.'});}
-   api.save();complete=true;api.finish(outside?'넓은 공터에 도착했어! 실제로는 선생님과 함께 대피해.':playback?'출구를 지나 운동장에 도착했어. 다음은 학교 밖이야.':'안전한 통로를 찾았어! 다음 단계에서도 직접 걸어 확인하자.');
+   if(playback||outside){d[key+'Done']=true;d[key+'Signature']=routeSignature(points);w.replayed=true;api.record({id:key,kind:'route',label:outside?'내 학교 밖 안전길':'내 학교 안 안전길',points:structuredClone(points),config:structuredClone(config),outside,text:outside?'건물·담장·전신주를 피해 넓은 공터에 도착했어.':'위험을 피하고 출구를 지나 운동장에 도착했어.'});}
+   api.save();complete=true;api.finish(outside?'넓은 공터에 도착했어! 실제로는 선생님과 함께 대피해.':playback?'출구를 지나 운동장에 도착했어. 다음은 학교 밖이야.':'안전한 통로를 찾았어! 다음에는 다른 교실에서 출발해 보자.');
   }
-  api.setToolHandler?.('compass',()=>api.say(outside?'건물·담장·전신주에서 떨어진 넓은 길을 찾아 공터로 가자.':'화단 아래 복도로 돌아서 가운데 출구를 지나 운동장으로 가자.'));
+  api.setToolHandler?.('compass',()=>api.say(outside?'건물·담장·전신주에서 떨어진 넓은 길을 찾아 공터로 가자.':playback?'이번엔 오른쪽 교실에서 출발해. 위험한 곳 위치가 바뀌었어. 가운데 출구를 지나 왼쪽 아래 운동장으로 가자.':'화단 아래 복도로 돌아서 가운데 출구를 지나 운동장으로 가자.'));
   hud();draw(false);
   // Shared state for the optional 3D walk. Movement, collisions and the saved route stay in this file.
-  const bridge={config,outside,
+  const bridge={config,outside,scenario:outside?'outside':playback?'drill':'school',
    get current(){return current;},get points(){return points;},get gates(){return gates;},get won(){return won;},get moving(){return !!target&&!paused&&clock>=blockedUntil;},
    aim,halt(){target=null;marker.clear();},stop,say:text=>api.say(text),
    setLocked(on){locked=on;if(on){target=null;marker.clear();}},
@@ -118,6 +119,6 @@ export function stageArt(scene,api,name,ready){
 export function evacuationCollision(a,b,config){
  const inside=(p,r,pad)=>p.x>=r.x-pad&&p.x<=r.x+r.w+pad&&p.y>=r.y-pad&&p.y<=r.y+r.h+pad;
  const n=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/4));
- for(let i=1;i<=n;i++){const p={x:a.x+(b.x-a.x)*i/n,y:a.y+(b.y-a.y)*i/n};const h=config.hazards.find(r=>inside(p,r,10));if(h)return h.message;if(!config.areas.some(r=>inside(p,r,-8)))return '벽이나 통로 밖으로 갈 수 없어.';}
+ for(let i=1;i<=n;i++){const p={x:a.x+(b.x-a.x)*i/n,y:a.y+(b.y-a.y)*i/n};const h=config.hazards.find(r=>inside(p,r,hazardMargin(r)));if(h)return h.message;if(!config.areas.some(r=>inside(p,r,-8)))return '벽이나 통로 밖으로 갈 수 없어.';}
  return null;
 }
