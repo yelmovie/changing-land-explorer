@@ -39,20 +39,14 @@ export function operate(id,raw,action){
   }
   if(s.step===1&&action==='test'){
    if(!BRIDGE_CHOICES.includes(s.choice))return fail('점선 안에 다리를 먼저 놓아 줘.');
-   if(s.choice==='checked')return pass('물이 흘러도 점검한 양쪽 받침이 움직이지 않았어. 이제 리버를 보내 줘!');
+   if(s.choice==='checked')return pass('물이 흘러도 점검한 양쪽 받침이 움직이지 않았어. 이제 리버를 끌어서 다리를 건너게 해 줘!');
    const reason=s.choice==='bank'?'물이 깎이는 물가 쪽 받침을 무너뜨렸어.':'새로 쌓인 모래가 물에 옮겨져 받침이 흔들렸어.';
    s.choice=null;
    return fail(reason+' 다른 점선 자리에 다리를 놓고 다시 시험해 봐.');
   }
-  if(s.step===2&&action.startsWith('move:')){
-   const direction={east:[1,0],west:[-1,0],north:[0,-1],south:[0,1]}[action.slice(5)];if(!direction)return fail('방향 버튼으로 리버를 움직여 줘.');
-   const [x,y]=s.position,next=[x+direction[0],y+direction[1]];
-   if(next[0]<0||next[0]>4||next[1]<0||next[1]>2)return fail('조사 모형의 경계야. 길 안으로 움직여 줘.');
-   if(next[0]===2&&next[1]!==1)return fail('여기는 강물이라 걸을 수 없어. 점검한 다리로 돌아가자.');
-   if(next[0]===1&&next[1]===0)return fail('흙이 깎인 위험 표시가 있어. 다른 길로 돌아가자.');
-   s.position=next;if(next[0]===4&&next[1]===1)return pass('리버가 조사 지점에 도착했어! 실제 다리는 전문가가 안전을 점검해.');
-   return {state:s,changed:true,message:next[0]===2?'다리 위를 지나고 있어. 조사 깃발까지 안내해 줘.':'리버가 한 칸 이동했어. 다리를 지나 깃발로 가자.'};
-  }
+  // Step 3 is the walk over the checked bridge; the view reports when River reached the flag.
+  if(s.step===2&&action==='cross')return pass('리버가 점검한 다리를 건너 조사 지점에 도착했어! 실제 다리는 전문가가 안전을 점검해.');
+  if(s.step===2)return {state:s,changed:false,message:'리버를 끌어서 다리를 건너게 해 줘.'};
  }
  if(id==='volcano'){
   const good=['signed','shelter','station'][s.step];

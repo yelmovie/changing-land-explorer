@@ -103,3 +103,107 @@ export function bindBridgePlacement(board,{place,miss}){
  });
  handle.addEventListener('blur',()=>{if(!gesture)highlight(-1);});
 }
+
+// Step 3 continues on the same photo: River walks over the checked bridge and, from the deck,
+// sees the three traces again (erosion, transport, deposit) before reaching the survey flag.
+const CROSSING_PATH=[[255,84],[338,80],[880,101],[940,124]];
+export const CROSSING_STOPS=[
+ {id:'erosion',x:430,name:'침식',text:'다리 아래 물가 흙이 깎여 나갔어.',at:[352,300]},
+ {id:'transport',x:625,name:'운반',text:'흙탕물이 깎인 흙을 옮기고 있어.',at:[600,350]},
+ {id:'deposit',x:815,name:'퇴적',text:'느려진 물이 모래를 쌓아 두었어.',at:[845,372]}
+];
+const segments=CROSSING_PATH.slice(1).map(([x,y],i)=>{const [a,b]=CROSSING_PATH[i];return {a,b,dx:x-a,dy:y-b,length:Math.hypot(x-a,y-b)};});
+const pathLength=segments.reduce((n,s)=>n+s.length,0);
+export function crossingPoint(t){
+ let d=Math.max(0,Math.min(1,t))*pathLength;
+ for(const s of segments){if(d<=s.length||s===segments.at(-1)){const k=Math.min(1,d/s.length);return [s.a+s.dx*k,s.b+s.dy*k];}d-=s.length;}
+}
+export function crossingProject(x,y){
+ let best=Infinity,t=0,start=0;
+ for(const s of segments){
+  const k=Math.max(0,Math.min(1,((x-s.a)*s.dx+(y-s.b)*s.dy)/(s.length**2))),d=Math.hypot(s.a+s.dx*k-x,s.b+s.dy*k-y);
+  if(d<best){best=d;t=(start+k*s.length)/pathLength;}
+  start+=s.length;
+ }
+ return t;
+}
+const stopT=CROSSING_STOPS.map(s=>crossingProject(s.x,90));
+export function bridgeCrossing(){
+ const [fx,fy]=CROSSING_PATH.at(-1),[sx,sy]=crossingPoint(0);
+ const markers=CROSSING_STOPS.map(s=>`<g class="crossing-marker" data-crossing-marker="${s.id}"><circle cx="${s.at[0]}" cy="${s.at[1]}" r="20"/><circle cx="${s.at[0]}" cy="${s.at[1]}" r="7"/></g>`).join('');
+ const callouts=CROSSING_STOPS.map(s=>`<div class="crossing-callout" data-crossing-callout="${s.id}" style="left:${s.at[0]/10}%;top:${(s.at[1]-34)/5.62}%"><b>${s.name}</b><span>${s.text}</span></div>`).join('');
+ const chips=CROSSING_STOPS.map(s=>`<span class="crossing-chip" data-crossing-chip="${s.id}">${s.name}</span>`).join('<i aria-hidden="true">→</i>');
+ return '<div class="bridge-map" data-bridge-phase="crossing" data-bridge-choice="checked"><figure class="bridge-photo crossing-view"><div class="crossing-zoom">'
+  +'<img src="/assets/art/river-field-clues-v3.webp" alt="점검한 다리가 놓인 강. 왼쪽 깎인 물가, 가운데 흙탕물, 오른쪽 모래톱이 보여요.">'
+  +'<svg class="bridge-overlay" viewBox="0 0 1000 562" aria-hidden="true"><g class="bridge-current">'+flow.map(d=>'<path d="'+d+'" pathLength="100"/>').join('')+'</g>'
+  +bridge(BRIDGE_SITES.checked,'held')+markers
+  +`<g class="crossing-start"><ellipse cx="${sx}" cy="${sy+4}" rx="34" ry="9"/></g>`
+  +`<g class="crossing-goal"><ellipse cx="${fx}" cy="${fy+4}" rx="36" ry="10"/><image href="/assets/tool-flag.webp" x="${fx-30}" y="${fy-74}" width="62" height="66"/></g></svg>`
+  +callouts
+  +`<div class="crossing-hint" style="left:${(sx+48)/10}%;top:${(sy-30)/5.62}%">리버를 끌어 봐 →</div>`
+  +'<button type="button" class="crossing-river" aria-label="리버. 끌거나 오른쪽 화살표를 눌러 다리를 건너요" aria-describedby="crossing-help"></button>'
+  +'</div></figure></div>'
+  +`<div class="bridge-tools crossing-tools"><div class="crossing-clues" aria-label="다리 위에서 다시 본 흔적">${chips}</div><button type="button" class="operation-action primary" data-crossing-step>리버 걷기 →</button><span id="crossing-help" class="bridge-sr">리버를 끌거나 리버 걷기 버튼, 오른쪽 화살표로 다리를 건너요.</span></div>`;
+}
+const WALK_ROW_EAST=6,WALK_ROWS=8,WALK_COLS=4;
+export function bindBridgeCrossing(board,{say,arrive,reduced}){
+ const zoom=board.querySelector('.crossing-zoom'),river=board.querySelector('.crossing-river'),step=board.querySelector('[data-crossing-step]');
+ if(!zoom||!river)return()=>{};
+ const speed=170/pathLength; // photo units per second, as a share of the walk
+ let t=0,target=0,pause=0,stride=0,raf=0,last=0,pointer=null,arrived=false,facing=1;
+ const reached=new Set();
+ function draw(walking){
+  const [x,y]=crossingPoint(t);
+  river.style.left=x/10+'%';river.style.top=y/5.62+'%';
+  const col=walking&&!reduced?Math.floor(stride/20)%WALK_COLS:1;
+  river.style.setProperty('--frame',`${col*100/(WALK_COLS-1)}% ${WALK_ROW_EAST*100/(WALK_ROWS-1)}%`);
+  river.classList.toggle('is-walking',walking);river.classList.toggle('is-back',facing<0);
+ }
+ function reach(i){
+  const s=CROSSING_STOPS[i];reached.add(i);pause=reduced?250:1100;
+  // Earlier bubbles shrink to their name so the newest one stays readable.
+  board.querySelectorAll('.crossing-callout.is-shown').forEach(el=>el.classList.add('is-past'));
+  board.querySelector(`[data-crossing-callout="${s.id}"]`)?.classList.add('is-shown');
+  board.querySelector(`[data-crossing-marker="${s.id}"]`)?.classList.add('is-seen');
+  board.querySelector(`[data-crossing-chip="${s.id}"]`)?.classList.add('is-seen');
+  say(`${s.name}: ${s.text}`);
+ }
+ function tick(now){
+  raf=0;const dt=last?Math.min(80,now-last):16;last=now;
+  if(arrived)return;
+  if(pause>0){pause-=dt;draw(false);raf=requestAnimationFrame(tick);return;}
+  if(Math.abs(target-t)<1e-4){draw(false);last=0;return;}
+  const dir=Math.sign(target-t);facing=dir;
+  let next=t+dir*Math.min(Math.abs(target-t),speed*dt/1000);
+  // River always stops at the next unseen trace before walking on.
+  const stop=stopT.findIndex((st,i)=>!reached.has(i)&&dir>0&&t<st&&next>=st);
+  stride+=Math.abs(next-t)*pathLength;
+  if(stop>=0){next=stopT[stop];t=next;draw(true);reach(stop);}
+  else t=next;
+  if(t>=1&&reached.size===CROSSING_STOPS.length){arrived=true;river.classList.add('is-arrived');river.classList.remove('is-walking');if(step)step.disabled=true;board.querySelector('.crossing-goal')?.classList.add('is-reached');arrive();return;}
+  draw(true);raf=requestAnimationFrame(tick);
+ }
+ function go(value){
+  if(arrived)return;
+  // Pointing at the flag end counts as the flag itself.
+  target=value>.95?1:Math.max(0,Math.min(1,value));
+  board.querySelector('.crossing-view')?.classList.add('is-started');
+  if(!raf){last=0;raf=requestAnimationFrame(tick);}
+ }
+ const toPhoto=e=>{const r=zoom.getBoundingClientRect();return [(e.clientX-r.left)/r.width*1000,(e.clientY-r.top)/r.height*562];};
+ const down=e=>{if(arrived||e.button>0||document.querySelector('dialog[open]'))return;pointer=e.pointerId;zoom.setPointerCapture?.(e.pointerId);go(crossingProject(...toPhoto(e)));board.dataset.crossingDragging='';};
+ const move=e=>{if(pointer===e.pointerId)go(crossingProject(...toPhoto(e)));};
+ const up=e=>{if(pointer===e.pointerId){pointer=null;delete board.dataset.crossingDragging;}};
+ zoom.addEventListener('pointerdown',down);zoom.addEventListener('pointermove',move);zoom.addEventListener('pointerup',up);zoom.addEventListener('pointercancel',up);
+ const nextStop=()=>{const i=stopT.findIndex((st,k)=>!reached.has(k)&&st>t-1e-4);return i<0?1:stopT[i];};
+ step?.addEventListener('click',()=>go(nextStop()));
+ const key=e=>{
+  if(arrived||e.altKey||e.ctrlKey||e.metaKey||document.querySelector('dialog[open]')||e.target.matches?.('input,textarea,select'))return;
+  if(e.key==='ArrowRight'){e.preventDefault();go(Math.min(nextStop(),t+.12));}
+  else if(e.key==='ArrowLeft'){e.preventDefault();go(t-.12);}
+  else if((e.key==='Enter'||e.key===' ')&&e.target===river){e.preventDefault();go(nextStop());}
+ };
+ window.addEventListener('keydown',key);
+ draw(false);
+ return()=>{cancelAnimationFrame(raf);window.removeEventListener('keydown',key);};
+}

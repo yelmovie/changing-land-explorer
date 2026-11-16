@@ -8,7 +8,7 @@ const out=process.env.CHECK_OUT||'.work/field-operations';
 await fs.mkdir(out,{recursive:true});
 const sizes=(process.env.CHECK_SIZES||'667x375,915x412,830x515,1024x600,1024x768,1280x800,1920x1080').split(',').map(size=>size.split('x').map(Number));
 const operations={
- river:['observe:erosion','observe:transport','observe:deposit','bridge:bank','test','bridge:sand','test','bridge:checked','test','move:east','move:east','move:east','move:east'],
+ river:['observe:erosion','observe:transport','observe:deposit','bridge:bank','test','bridge:sand','test','bridge:checked','test','cross'],
  volcano:['crater','signed','shelter','station'],
  city:['open','close','inside','notice'],
  safety:['run','cover','hold','stopped','assembly']
@@ -90,6 +90,12 @@ try{
      assert.equal(await page.locator('.bridge-map').getAttribute('data-bridge-choice'),site);
      await bridgeSprite(page,'placed');
      if(width===667||width===1024&&height===768)await page.screenshot({path:`${out}/${width}x${height}-${action.replace(':','-')}.png`});
+    }else if(action==='cross'){
+     // Walk River over the bridge stop by stop with the step button until the flag is reached.
+     for(let k=0;k<6&&!(await page.locator('#operation-finish').isVisible());k++){
+      if(await page.locator('[data-crossing-step]:not(:disabled)').count())await page.locator('[data-crossing-step]').click();
+      await page.waitForTimeout(2600);
+     }
     }else await page.locator(`[data-operation="${action}"]`).click();
     if(id==='river'&&action==='observe:deposit')assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
     if(id==='river'&&action==='test'){
@@ -98,9 +104,8 @@ try{
      if(!success)assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
      await bridgeSprite(page,success?'held':'washed');
      if(success){
-      await page.locator('[data-operation="move:east"]').waitFor();
-      await page.locator('.crossing-bridge').evaluate(img=>img.decode());
-      assert.match(await page.locator('.crossing-bridge').getAttribute('src'),/\/river-footbridge-v1\.webp$/);
+      await page.locator('.crossing-river').waitFor();
+      await bridgeSprite(page,'held');
      }
     }
     await inspect(page,`${width}x${height}-${id}-${n}`);

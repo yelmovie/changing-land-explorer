@@ -2,10 +2,10 @@ import {scienceText} from './science-learning.js';
 import {$,escapeHTML,icon} from './ui.js';
 import {OPERATIONS,operationState,operate,freshOperation} from './field-operation-model.js';
 import {createPlayback} from './adventure/playback.js';
-import {BRIDGE_ART,BRIDGE_SITES,bridgeExperiment,bindBridgePlacement} from './bridge-experiment.js';
+import {BRIDGE_SITES,bridgeExperiment,bindBridgePlacement,bridgeCrossing,bindBridgeCrossing} from './bridge-experiment.js';
 export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
  const spec=OPERATIONS[id];let model=operationState(data.fieldOperation,id),message=spec.goal,closed=false;
- let bridgePhase=null,bridgeTested=null,bridgeTimer=0,finishTimer=0;
+ let bridgePhase=null,bridgeTested=null,bridgeTimer=0,finishTimer=0,crossingCleanup=()=>{},crossTimer=0;
  shell(spec.title,`<main class="field-operation" style="--operation-bg:url('/assets/art/${spec.background}.webp')"><section class="operation-scene" aria-label="직접 조작하는 현장 모형"><div class="operation-progress"></div><div id="operation-board"></div><img class="operation-hero" src="/assets/river-hero.webp" alt="함께 작전하는 리버"></section><footer class="operation-footer"><p id="operation-message" role="status"></p><div class="operation-playback" hidden><button id="operation-auto" class="primary">자동 관찰</button></div><div class="operation-navigation">${id==='river'?'':'<button class="secondary" id="operation-back">관찰로</button><button class="secondary" id="operation-retry">다시 도전</button>'}<button class="primary" id="operation-finish" hidden>스테이지 완료 ${icon('arrow')}</button></div></footer></main>`,'operation-app');
  const board=$('#operation-board'),hero=$('.operation-hero');
  const button=(key,label,cls='')=>`<button class="operation-action ${cls}" data-operation="${key}">${label}</button>`;
@@ -16,17 +16,8 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   return `<div class="operation-choice">${pair.map(([key,label])=>button(key,label)).join('')}</div>`;
  };
  const sceneLabel=text=>`<h2 class="operation-task" tabindex="-1">${text}</h2>`;
- function crossingBoard(){
-  const cells=Array.from({length:15},(_,i)=>{
-   const x=i%5,y=Math.floor(i/5),player=model.position[0]===x&&model.position[1]===y;
-   const bridge=x===2&&y===1,water=x===2&&!bridge,hazard=x===1&&y===0;
-   const contents=bridge?`<img class="crossing-bridge" src="${BRIDGE_ART}" alt="다리">`:!player?(x===4&&y===1?'⚑ 조사':water?'강물':hazard?'침식 위험':''):'';
-   return `<div class="${water?'water':bridge?'bridge':hazard?'hazard':'path'}">${contents}${player?'<img class="operation-walker" src="/assets/river-hero.webp" alt="리버 현재 위치">':''}</div>`;
-  }).join('');
-  return `<div class="operation-walk-grid" aria-label="강 조사 모형 지도">${cells}</div><div class="operation-move">${button('move:west','← 왼쪽')}${button('move:north','↑ 위')}${button('move:south','↓ 아래')}${button('move:east','오른쪽 →')}</div>`;
- }
-
  function render(){
+  crossingCleanup();crossingCleanup=()=>{};
   const background=id==='safety'&&model.step<2?'safety-island-classroom-v2':spec.background;
   $('.field-operation').style.setProperty('--operation-bg',`url('/assets/art/${background}.webp')`);
   $('.operation-progress').textContent=`현장 작전 ${Math.min(model.step+1,spec.steps)} / ${spec.steps}`;
@@ -38,7 +29,7 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   hero.style.left=(model.done?82:8+model.step*18)+'%';hero.src=model.done?'/assets/hero-cheer.webp':'/assets/river-hero.webp';
   if(model.done){board.innerHTML=`<div class="operation-win"><span>${icon('flag',54)}</span><h2>내 관찰로 작전 성공!</h2><p>${escapeHTML({river:'물길의 흔적을 읽고 점검된 다리로 건넜어.',volcano:'용암과 화산재를 피해 대피하고 모형과 실제의 차이를 전했어.',city:'화산재 관측 소식에 맞춰 주민을 도왔어.',safety:'몸 보호부터 안전한 집합까지 순서대로 해냈어.'}[id])}</p><strong>${model.attempts?'다시 살펴보고 해결했어':'관찰한 단서로 해결했어'}</strong></div>`;return;}
   if(id==='river'){
-   board.innerHTML=sceneLabel(['세 흔적을 눌러 물길을 읽어 봐','다리를 끌어 점선 자리에 놓아 봐','연결된 다리로 리버를 보내 줘'][model.step])+(model.step===0?illustration('art/river-field-clues-v3','왼쪽은 깎인 흙 물가, 가운데는 흙을 옮기는 물, 오른쪽은 쌓인 모래'):'')+(model.step===0?`<div class="operation-sites">${button('observe:erosion',(model.observed.includes('erosion')?'✓ ':'')+'깎인 물가','site-bank')}${button('observe:transport',(model.observed.includes('transport')?'✓ ':'')+'움직이는 흙','site-flow')}${button('observe:deposit',(model.observed.includes('deposit')?'✓ ':'')+'쌓인 모래','site-sand')}</div>`:model.step===1?bridgeExperiment(model.choice,bridgePhase,bridgeTested,`<div class="operation-center">${button('test',bridgePhase==='running'?'물이 흐르는 중…':bridgePhase==='held'?'다리가 버텼어':'물 흘려 시험하기','primary')}</div>`):crossingBoard());
+   board.innerHTML=sceneLabel(['세 흔적을 눌러 물길을 읽어 봐','다리를 끌어 점선 자리에 놓아 봐','리버를 끌어서 다리를 건너게 해 줘'][model.step])+(model.step===0?illustration('art/river-field-clues-v3','왼쪽은 깎인 흙 물가, 가운데는 흙을 옮기는 물, 오른쪽은 쌓인 모래'):'')+(model.step===0?`<div class="operation-sites">${button('observe:erosion',(model.observed.includes('erosion')?'✓ ':'')+'깎인 물가','site-bank')}${button('observe:transport',(model.observed.includes('transport')?'✓ ':'')+'움직이는 흙','site-flow')}${button('observe:deposit',(model.observed.includes('deposit')?'✓ ':'')+'쌓인 모래','site-sand')}</div>`:model.step===1?bridgeExperiment(model.choice,bridgePhase,bridgeTested,`<div class="operation-center">${button('test',bridgePhase==='running'?'물이 흐르는 중…':bridgePhase==='held'?'다리가 버텼어':'물 흘려 시험하기','primary')}</div>`):bridgeCrossing());
   }else if(id==='volcano'){
    const options=[['signed','용암을 피해 안내된 통로로','crater','용암 가까이로'],['shelter','화산재를 피해 지정 대피소로','ash','화산재 구역으로'],['station','실제 화산은 뜨거운 물질도 나와','crater','실제 화산도 붉은 물만 나와']][model.step];
    const tasks=['뜨거운 용암이 경사면을 따라 흘러. 어디로 갈까?','작은 고체 알갱이인 화산재가 날려. 어디로 갈까?','대피소에 도착했어. 모형과 실제의 차이를 알려 줘'];
@@ -52,6 +43,11 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
 
   }
   for(const b of board.querySelectorAll('[data-operation]'))b.onclick=()=>act(b.dataset.operation,true);
+  if(id==='river'&&model.step===2)crossingCleanup=bindBridgeCrossing(board,{
+   reduced:matchMedia('(prefers-reduced-motion: reduce)').matches,
+   say:text=>{message=text;$('#operation-message').innerHTML=scienceText(text,id);sound('good',{force:true});},
+   arrive:()=>{message='조사 깃발에 도착했어!';$('#operation-message').textContent=message;crossTimer=setTimeout(()=>{if(!closed)act('cross',true);},1300);}
+  });
   const testBridge=board.querySelector('[data-operation="test"]');
   if(testBridge){
    testBridge.disabled=!Object.hasOwn(BRIDGE_SITES,model.choice)||bridgePhase==='running'||bridgePhase==='held';
@@ -138,6 +134,5 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
  $('#operation-finish').onclick=finish;
  const stopPlayback=()=>{if(document.hidden)playback.stop();};
  document.addEventListener('visibilitychange',stopPlayback);
- const keydown=e=>{if(closed||id!=='river'||model.step!==2||model.done||document.querySelector('dialog[open]')||e.target.matches('input,textarea,select'))return;const dir={ArrowLeft:'west',ArrowRight:'east',ArrowUp:'north',ArrowDown:'south'}[e.key];if(dir){e.preventDefault();board.querySelector(`[data-operation="move:${dir}"]`)?.click();}};
- window.addEventListener('keydown',keydown);render();return()=>{closed=true;clearTimeout(bridgeTimer);clearTimeout(finishTimer);playback.stop();cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',stopPlayback);window.removeEventListener('keydown',keydown);};
+ render();return()=>{closed=true;crossingCleanup();clearTimeout(crossTimer);clearTimeout(bridgeTimer);clearTimeout(finishTimer);playback.stop();cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',stopPlayback);};
 }

@@ -49,16 +49,6 @@
 .operation-win p {font-size:22px;margin:8px 0}
 .operation-win strong {font-size:18px}
 .operation-win svg {color:#24785f}
-.operation-walk-grid {display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(3,minmax(32px,1fr));max-width:700px;width:100%;height:200px;min-height:0;align-self:center;gap:4px}
-.operation-walk-grid>div {border-radius:12px;background:#d0dea7dd;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;border:1px solid #fff9;min-height:0}
-.operation-walk-grid :is(.water,.bridge) {background:#71c6d7ec}
-.operation-walk-grid .bridge {position:relative}
-.operation-walk-grid .crossing-bridge {position:absolute;width:96%;height:92%;max-height:none}
-.operation-walk-grid .bridge .operation-walker {position:relative}
-.operation-walk-grid .hazard {background:#e9bc9be6}
-.operation-walk-grid img {height:100%;max-height:58px;width:60px;object-fit:contain}
-.operation-move {display:flex;justify-content:center;gap:8px;flex:none}
-.operation-move button {min-width:0;flex:1;max-width:150px}
 @media(hover:hover) and (pointer:fine) {.operation-action:hover {background:#e6f2db}}
 @media(prefers-reduced-motion:reduce) {
  .operation-hero {transition:none}
@@ -82,7 +72,6 @@
  .operation-win h2 {font-size:24px;margin:4px}
  .operation-win p {font-size:20px}
  .operation-win svg {width:36px;height:36px}
- .operation-walk-grid {height:150px}
 }
 @media(max-height:440px) and (orientation:landscape) {
  .operation-app .brand strong {font-size:20px}
@@ -95,8 +84,6 @@
  .operation-win {padding:8px}
  .operation-win svg {display:none}
  .operation-win p {font-size:18px}
- .operation-walk-grid {height:110px;grid-template-rows:repeat(3,minmax(24px,1fr))}
- .operation-walk-grid>div {font-size:14px}
 }
 
 /* Scientific evidence is shown in illustrations, with readable DOM captions. */
@@ -155,3 +142,46 @@
 @media(prefers-reduced-motion:reduce){
  .bridge-current path,.bridge-model[data-bridge-model=washed] {animation:none}
 }
+
+/* Step 3: River walks over the checked bridge on the same river photo. */
+.crossing-view {overflow:hidden;border-radius:16px;pointer-events:auto;box-shadow:0 6px 18px #102a2440}
+.crossing-zoom {position:absolute;inset:0;transform:scale(1.2);transform-origin:100% 0;animation:crossing-zoom-in 1s cubic-bezier(.3,.8,.3,1) both;touch-action:none;cursor:pointer}
+@keyframes crossing-zoom-in {from{transform:scale(1)}}
+.crossing-zoom>img,.crossing-zoom>.bridge-overlay {position:absolute;inset:0;width:100%;height:100%;border-radius:0}
+.crossing-zoom>img {object-fit:cover}
+.crossing-marker circle:first-child {fill:#fff6d633;stroke:#fff6d6;stroke-width:3;stroke-dasharray:5 4;transform-box:fill-box;transform-origin:center;animation:crossing-pulse 1.6s ease-in-out infinite}
+.crossing-marker circle:last-child {fill:#fff6d6}
+.crossing-marker.is-seen circle:first-child {fill:#7ed3a066;stroke:#e9ffdc;stroke-dasharray:none;animation:none}
+.crossing-marker.is-seen circle:last-child {fill:#2f7a55}
+@keyframes crossing-pulse {50%{transform:scale(1.25);opacity:.7}}
+.crossing-start ellipse {fill:#fff2c45c;stroke:#fff2c4;stroke-width:2}
+.crossing-goal ellipse {fill:#ffd25e66;stroke:#fff3c4;stroke-width:3;animation:crossing-pulse 1.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.crossing-goal image {filter:drop-shadow(0 3px 3px #182c2b80)}
+.crossing-goal.is-reached ellipse {fill:#7ed3a0aa;animation:none}
+.crossing-goal.is-reached image {animation:crossing-flag .6s cubic-bezier(.2,1.6,.4,1) both;transform-box:fill-box;transform-origin:20% 100%}
+@keyframes crossing-flag {from{transform:scale(.6) rotate(-12deg)}}
+.crossing-callout {position:absolute;transform:translate(-50%,-100%) scale(.7);opacity:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 11px 6px;border-radius:12px;background:#fffaf0f2;border:2px solid #2f7a55;color:#243e36;font-size:clamp(10px,1.25cqw,15px);line-height:1.25;white-space:nowrap;pointer-events:none;box-shadow:0 4px 10px #102a2455;transition:opacity .3s,transform .35s cubic-bezier(.2,1.5,.4,1)}
+.crossing-callout::after {content:'';position:absolute;left:50%;bottom:-8px;width:12px;height:12px;background:inherit;border:inherit;border-top:0;border-left:0;transform:translateX(-50%) rotate(45deg)}
+.crossing-callout b {font-size:1.25em;color:#246b58}
+.crossing-callout.is-shown {opacity:1;transform:translate(-50%,-100%) scale(1)}
+.crossing-callout.is-past {padding:3px 10px;background:#e6f3dcf0}
+.crossing-callout.is-past span {display:none}
+.crossing-hint {position:absolute;translate:0 -50%;padding:5px 12px;border-radius:999px;background:#f3cb6c;color:#3a2414;font-weight:800;font-size:clamp(11px,1.4cqw,17px);white-space:nowrap;pointer-events:none;box-shadow:0 3px 0 #7a5a20;animation:crossing-nudge .9s ease-in-out infinite alternate;z-index:3}
+.crossing-view.is-started .crossing-hint {opacity:0;transition:opacity .3s}
+@keyframes crossing-nudge {to{transform:translateX(10px)}}
+.crossing-river {--sprite:calc(min(100cqw,100cqh * 16 / 9) * .084);position:absolute;width:max(var(--sprite),48px);aspect-ratio:1;min-width:0;min-height:0;translate:-50% -72%;transform:none;padding:0;border:0;border-radius:50%;background:transparent;cursor:grab;touch-action:none;z-index:2}
+/* The button is a comfortable touch target; River himself is drawn at photo scale with feet on the deck. */
+.crossing-river::before {content:'';position:absolute;left:50%;bottom:calc(28% - var(--sprite) * .109);width:var(--sprite);aspect-ratio:128/160;translate:-50% 0;background:url('/assets/characters/river-walk.webp') var(--frame,33.33% 85.71%)/400% 800% no-repeat;filter:drop-shadow(0 0 2px #fffbe8) drop-shadow(0 0 2px #fffbe8) drop-shadow(0 4px 3px #182c2b99)}
+.crossing-river.is-back::before {scale:-1 1}
+.crossing-river.is-arrived::before {background:url('/assets/hero-cheer.webp') center bottom/contain no-repeat;width:calc(var(--sprite) * 1.08);animation:crossing-cheer .5s ease-out}
+@keyframes crossing-cheer {40%{translate:-50% -14%}}
+.crossing-river:active {transform:none}
+.crossing-river:focus-visible {outline:3px solid #ffe0a0;outline-offset:2px;border-radius:12px}
+#operation-board[data-crossing-dragging] .crossing-river {cursor:grabbing}
+.crossing-tools {gap:14px;flex-wrap:wrap}
+.crossing-clues {display:flex;align-items:center;gap:6px;color:#567366}
+.crossing-chip {padding:6px 13px;border-radius:999px;border:2px dashed #a9b79c;background:#fffdf3cc;color:#6d7b6a;font-weight:700;font-size:16px}
+.crossing-chip.is-seen {border-style:solid;border-color:#2f7a55;background:#dcefd2;color:#1f5a44}
+.crossing-chip.is-seen::before {content:'✓ '}
+@media(max-height:440px) {.crossing-chip{font-size:13px;padding:3px 9px}.crossing-tools{gap:8px}}
+@media(prefers-reduced-motion:reduce){.crossing-hint,.crossing-zoom,.crossing-marker circle,.crossing-goal ellipse,.crossing-goal image,.crossing-river.is-arrived::before{animation:none}.crossing-callout{transition:none}}
