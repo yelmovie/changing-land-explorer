@@ -123,6 +123,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
     page.classList.add('village-arriving');
     cueStops.push(playCue('workplace-open',250),playCue('lamp-light',1050),playCue('resident-pop',1650),playCue('village-wake',2050));
     arrivalTimer=setTimeout(()=>page.classList.remove('village-arriving'),3600);
+    if(s.residentStamps.length===5)cueStops.push(playCue('festival',2600));
   }
   if(newcomer){
     page.insertAdjacentHTML('beforeend',`<p class="sr-only restored-place-announcement" role="status">${newcomer.place} 다시 열림!${all?' 마을이 모두 깨어났어!':''}</p>`);

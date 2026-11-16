@@ -5,7 +5,7 @@ import {createPlayback} from './adventure/playback.js';
 import {BRIDGE_ART,BRIDGE_SITES,bridgeExperiment,bindBridgePlacement} from './bridge-experiment.js';
 export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
  const spec=OPERATIONS[id];let model=operationState(data.fieldOperation,id),message=spec.goal,closed=false;
- let bridgePhase=null,bridgeTested=null,bridgeTimer=0;
+ let bridgePhase=null,bridgeTested=null,bridgeTimer=0,finishTimer=0;
  shell(spec.title,`<main class="field-operation" style="--operation-bg:url('/assets/art/${spec.background}.webp')"><section class="operation-scene" aria-label="직접 조작하는 현장 모형"><div class="operation-progress"></div><div id="operation-board"></div><img class="operation-hero" src="/assets/river-hero.webp" alt="함께 작전하는 리버"></section><footer class="operation-footer"><p id="operation-message" role="status"></p><div class="operation-playback" hidden><button id="operation-auto" class="primary">자동 관찰</button></div><div class="operation-navigation">${id==='river'?'':'<button class="secondary" id="operation-back">관찰로</button><button class="secondary" id="operation-retry">다시 도전</button>'}<button class="primary" id="operation-finish" hidden>스테이지 완료 ${icon('arrow')}</button></div></footer></main>`,'operation-app');
  const board=$('#operation-board'),hero=$('.operation-hero');
  const button=(key,label,cls='')=>`<button class="operation-action ${cls}" data-operation="${key}">${label}</button>`;
@@ -30,7 +30,7 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   const background=id==='safety'&&model.step<2?'safety-island-classroom-v2':spec.background;
   $('.field-operation').style.setProperty('--operation-bg',`url('/assets/art/${background}.webp')`);
   $('.operation-progress').textContent=`현장 작전 ${Math.min(model.step+1,spec.steps)} / ${spec.steps}`;
-  $('#operation-message').innerHTML=scienceText(model.done?'스테이지 완료를 눌러 도구를 받고 다음 탐험을 이어 가자.':message,id);$('#operation-finish').hidden=!model.done;
+  $('#operation-message').innerHTML=scienceText(model.done?'작전 성공! 곧 도구를 받으러 가자.':message,id);$('#operation-finish').hidden=!model.done;
   $('.operation-scene').dataset.operation=id;
   $('.operation-scene').dataset.step=model.step;
   syncPlayback();
@@ -89,8 +89,10 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   applyResult(action,operate(id,model,action),manual);
  }
  function applyResult(action,result,manual){
-  const focusedAuto=document.activeElement===$('#operation-auto');
+  const focusedAuto=document.activeElement===$('#operation-auto'),wasDone=model.done;
   model=result.state;message=result.message;
+  // The win screen shows briefly, then the reward opens by itself; the finish button skips the wait.
+  if(model.done&&!wasDone){clearTimeout(finishTimer);finishTimer=setTimeout(finish,2400);}
   if(result.changed){data.fieldOperation=model;save();}
   sound(result.ok?'complete':'place',{force:true});
   render();
@@ -129,12 +131,13 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
  const back=$('#operation-back'),retry=$('#operation-retry');
  if(back)back.onclick=onBack;else if(id==='river')$('#back').onclick=onBack;
  if(retry)retry.onclick=()=>{
-  playback.stop();model=freshOperation();message=spec.goal;data.fieldOperation=model;save();render();
+  clearTimeout(finishTimer);playback.stop();model=freshOperation();message=spec.goal;data.fieldOperation=model;save();render();
   board.querySelector('.operation-task')?.focus({preventScroll:true});
  };
- $('#operation-finish').onclick=()=>{if(model.done&&!closed){closed=true;onComplete();}};
+ function finish(){clearTimeout(finishTimer);if(model.done&&!closed&&!document.querySelector('dialog[open]')){closed=true;onComplete();}}
+ $('#operation-finish').onclick=finish;
  const stopPlayback=()=>{if(document.hidden)playback.stop();};
  document.addEventListener('visibilitychange',stopPlayback);
  const keydown=e=>{if(closed||id!=='river'||model.step!==2||model.done||document.querySelector('dialog[open]')||e.target.matches('input,textarea,select'))return;const dir={ArrowLeft:'west',ArrowRight:'east',ArrowUp:'north',ArrowDown:'south'}[e.key];if(dir){e.preventDefault();board.querySelector(`[data-operation="move:${dir}"]`)?.click();}};
- window.addEventListener('keydown',keydown);render();return()=>{closed=true;clearTimeout(bridgeTimer);playback.stop();cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',stopPlayback);window.removeEventListener('keydown',keydown);};
+ window.addEventListener('keydown',keydown);render();return()=>{closed=true;clearTimeout(bridgeTimer);clearTimeout(finishTimer);playback.stop();cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',stopPlayback);window.removeEventListener('keydown',keydown);};
 }

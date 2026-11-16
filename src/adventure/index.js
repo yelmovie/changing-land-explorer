@@ -13,6 +13,7 @@ import {backgroundForAsset,STAGE_BACKGROUNDS,STAGE_ASSETS,SHARED_STAGE_ASSETS} f
 import {STAGES} from '../model.js';
 import {enter,navigate} from '../main.js';
 import {createPlayback} from './playback.js';
+import {voiceBusy} from '../sound.js';
 
 const SETUP={river,volcano,rocks,city,safety};
 const ACTION_CUES={
@@ -22,6 +23,8 @@ const ACTION_CUES={
  city:[['두 사진을 차례로 눌러 봐.','사진 위 손잡이를 좌우로 움직여 봐.','두 사진을 차례로 눌러 봐.'],['맞는 포스터를 안내판에 붙여 줘.','맞는 포스터를 안내판에 붙여 줘.','맞는 포스터를 안내판에 붙여 줘.']],
  safety:[['위험 표시를 위험한 곳에 붙여 줘.','리버를 책상 아래로 옮기거나, 책상 아래를 눌러 줘.','책상 다리를 잡고 기다려 줘.'],['가까운 통로를 눌러 리버를 출구와 운동장으로 안내해.','위험 구역을 피해 다시 운동장까지 직접 걸어 봐.','건물·담장·전신주를 피해 공터까지 걸어 봐.']]
 };
+// Menu alternatives to dragging stay available but never glow as the next step.
+const FALLBACK_ACTIONS=new Set(['volcano-build-choice','volcano-output-choice','volcano-compare-choice','river-field-connect']);
 const UI=name=>'art/ui/'+name;
 // Reading surfaces use a quiet, inset outline instead of artwork that competes with text.
 const PAPER_COLORS=new Set([0xfff8e8,0xfff7df,0xfff5d9,0xfff8e5,0xf8f0d8,0xfff4d8,0xfff7e2,0xfff8e6]);
@@ -66,7 +69,7 @@ export function mount(ctx) {
   const playback=createPlayback({onChange:paintAuto});
   function guideAction(){
     // Direction pads are free choices; never highlight one direction as the next step.
-    const candidates=[...ctx.controls.querySelectorAll('.action-buttons button:not(:disabled):not([id^="route-"])')];
+    const candidates=[...ctx.controls.querySelectorAll('.action-buttons button:not(:disabled):not([id^="route-"])')].filter(b=>!FALLBACK_ACTIONS.has(b.id));
     const suggested=phaseDone?next:auto&&playback.ready&&!auto.observed?autoButton:candidates.length===1?candidates[0]:candidates.find(b=>b.classList.contains('primary'));
     for(const button of [autoButton,next,...ctx.controls.querySelectorAll('.action-buttons button')]){
       const on=button===suggested; if(button.classList.contains('suggested')!==on)button.classList.toggle('suggested',on);
@@ -121,8 +124,33 @@ export function mount(ctx) {
     badge.innerHTML=scienceText(SCIENCE_LEARNING[ctx.s.id].focus[ctx.step][phase],ctx.s.id);
     page.classList.toggle('phase-complete',phaseDone);
   }
+  // A solved phase moves on by itself after the result is read (and its recorded line is heard).
+  // The next button stays as a shortcut; dialogs and hidden tabs hold the move.
+  let advanceTimer=0;
+  function cancelAdvance(){
+    clearTimeout(advanceTimer);advanceTimer=0;
+    next.classList.remove('auto-advance');$('.phase-stamp',ctx.root)?.remove();
+  }
+  function scheduleAdvance(phase,summary){
+    cancelAdvance();
+    const scene=activeScene,started=performance.now();
+    const wait=Math.min(4200,Math.max(2200,1600+String(summary||'').length*45));
+    next.style.setProperty('--advance-ms',wait+'ms');next.classList.add('auto-advance');
+    ctx.root.insertAdjacentHTML('beforeend','<div class="phase-stamp" aria-hidden="true"><span>발견!</span></div>');
+    const tick=()=>{
+      advanceTimer=0;
+      if(closed||restarting||activeScene!==scene||chapter.phase!==phase||!phaseDone){cancelAdvance();return;}
+      if(document.hidden||document.querySelector('dialog[open]')||(voiceBusy()&&performance.now()-started<15000)){advanceTimer=setTimeout(tick,300);return;}
+      const keyboard=document.activeElement===next;
+      cancelAdvance();
+      if(phase<2){chapter.phase++;ctx.save();restart(keyboard);}
+      else ctx.finishActivity();
+    };
+    advanceTimer=setTimeout(tick,wait);
+  }
   function restart(focus=false){
     if(closed||restarting||!activeScene)return;
+    cancelAdvance();
     restarting=true;focusInstruction=focus;phaseDone=false;next.disabled=true;
     stopAuto();auto=null;playback.configure(null);paintAuto();
     activeScene.scene.restart();
@@ -147,6 +175,7 @@ export function mount(ctx) {
   }
   next.onclick=event=>{
     if(!phaseDone||restarting||document.querySelector('dialog[open]'))return;
+    cancelAdvance();
     // The success chime already played when the phase was solved; moving on keeps the plain click.
     if(chapter.phase<2){chapter.phase++;ctx.save();restart(event.detail===0);}
     else ctx.finishActivity();
@@ -276,6 +305,7 @@ export function mount(ctx) {
             if(riverLab&&phase===0){
               chapter.phase=1;autoplayNext=!chapter.tasks[1]?.done;ctx.save();restart(true);
             }else if(riverLab&&phase===2)ctx.finishActivity();
+            else scheduleAdvance(phase,summary);
           }
         },
         image(key,x,y,w,h,{sceneBackground=true}={}){
@@ -494,5 +524,5 @@ export function mount(ctx) {
       callbacks:{postBoot(game){game.canvas.setAttribute('aria-label',`${ctx.s.place} · 손으로 도구를 움직이는 탐구 장면`);game.canvas.setAttribute('role','img');}}
     });
   });
-  return()=>{closed=true;stopAuto();auto=null;document.removeEventListener('pointerdown',manual,true);document.removeEventListener('keydown',manual,true);document.removeEventListener('input',manual,true);document.removeEventListener('pointerdown',closeTools,true);document.removeEventListener('keydown',closeTools,true);observer.disconnect();headingObserver.disconnect();footerObserver.disconnect();dockObserver.disconnect();cancelAnimationFrame(fitFrame);resizeObserver.disconnect();document.removeEventListener('visibilitychange',syncPause);destroyGame(game);ctx.save();};
+  return()=>{closed=true;cancelAdvance();stopAuto();auto=null;document.removeEventListener('pointerdown',manual,true);document.removeEventListener('keydown',manual,true);document.removeEventListener('input',manual,true);document.removeEventListener('pointerdown',closeTools,true);document.removeEventListener('keydown',closeTools,true);observer.disconnect();headingObserver.disconnect();footerObserver.disconnect();dockObserver.disconnect();cancelAnimationFrame(fitFrame);resizeObserver.disconnect();document.removeEventListener('visibilitychange',syncPause);destroyGame(game);ctx.save();};
 }

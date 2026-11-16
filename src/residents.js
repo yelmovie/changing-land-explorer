@@ -60,7 +60,7 @@ export function showResidents(modal,stages,{initial,onGreet,preview,stamps,colle
    dialog.classList.remove('resident-stage');
    delete dialog.dataset.speaker;
    heading.textContent=title;
-   body.innerHTML=`${stampBook(stamps)}<div class="resident-roster">${stages.map(st=>`<button class="resident-entry" data-talk="${st.id}"><img src="${residentArt(st.id)}" alt=""><strong>${RESIDENTS[st.id].name}</strong><small>${st.place}</small>${stamps.includes(st.id)?`<span class="entry-stamp" aria-label="도장 받음">${icon(RESIDENTS[st.id].symbol,14)}</span>`:''}</button>`).join('')}</div>${stamps.length===5?'<div class="resident-exit"><button class="primary" data-plaza>축제 광장 보기</button></div>':'<p class="stamp-hint">주민에게 감사 도장을 받아 봐. 다섯 개를 모으면 기록탑에 축제 깃발이 걸려!</p>'}`;
+   body.innerHTML=`${stampBook(stamps)}<div class="resident-roster">${stages.map(st=>`<button class="resident-entry" data-talk="${st.id}"><img src="${residentArt(st.id)}" alt=""><strong>${RESIDENTS[st.id].name}</strong><small>${st.place}</small>${stamps.includes(st.id)?`<span class="entry-stamp" aria-label="도장 받음">${icon(RESIDENTS[st.id].symbol,14)}</span>`:''}</button>`).join('')}</div>${stamps.length===5?'<div class="resident-exit"><button class="primary" data-plaza>축제 광장 보기</button></div>':'<p class="stamp-hint">장소를 되살리면 주민이 감사 도장을 찍어 줘. 다섯 개를 모으면 기록탑에 축제 깃발이 걸려!</p>'}`;
    $('[data-plaza]',body)?.addEventListener('click',()=>{close();visitPlaza();});
    $$('[data-talk]',body).forEach(b=>b.onclick=()=>talk(b.dataset.talk,true));
    if(focus)$(`[data-talk="${focus}"]`,body)?.focus();

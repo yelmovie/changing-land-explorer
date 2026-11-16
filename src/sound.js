@@ -93,6 +93,7 @@ export function playCue(name, delay = 0) {
 }
 // 주민 목소리. 새 대사가 나오면 앞 대사는 멈춘다. 파일이 없으면 조용히 넘어간다.
 let voice = null, releaseVoiceMusic = null, voiceState = null;
+export function voiceBusy() { return !!voice && !voice.paused && !voice.ended; }
 export function stopVoice() {
   const previous = voice, release = releaseVoiceMusic, notify = voiceState;
   voice = null; releaseVoiceMusic = null; voiceState = null;

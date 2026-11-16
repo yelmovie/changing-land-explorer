@@ -78,8 +78,12 @@ async function hazards(){
  for(const [i,p] of targets.entries())await stroke({x:400+i*360,y:565},{x:(p.x-canvas.x)*1200/canvas.width,y:(p.y-canvas.y)*640/canvas.height});
 }
 async function shelter(){await stroke({x:950,y:465},{x:700,y:482});await stroke({x:520,y:525},{x:724,y:389});}
-async function next(){await page.waitForSelector('#next.ready');await page.locator('#next').click();await settle();}
-async function concept(){if(!await page.locator('.concept-dialog').isVisible()){await page.waitForSelector('#next.ready');await page.locator('#next').click();}await page.waitForSelector('.concept-dialog');concepts++;await page.locator('#concept-continue').click();}
+// A solved phase shows its stamp and moves on without a click.
+async function next(){await page.waitForSelector('#next.ready');const phase=await page.locator('#activity').getAttribute('data-phase');
+ // A phase that was already solved before a reload keeps the button as the way on.
+ if(!await page.locator('.phase-stamp').count()){await page.locator('#next').click();await settle();return;}
+ await page.waitForFunction(p=>document.querySelector('#activity')?.dataset.phase!==p,phase,{timeout:20000});await settle();}
+async function concept(){await page.waitForSelector('.concept-dialog',{timeout:20000});concepts++;await page.locator('#concept-continue').click();}
 async function doneStage(index){
  await concept();
  if(index!==2)await page.waitForSelector('#operation-board');
@@ -88,10 +92,10 @@ async function doneStage(index){
   if(action.startsWith('bridge:'))await bridgeDrag(page,action.slice(7));
   else await page.locator(`[data-operation="${action}"]`).click();
  }
- if(index!==2){
-  const complete=page.getByRole('button',{name:'스테이지 완료'});await complete.waitFor();assert.equal(await complete.evaluate(e=>{const r=e.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;}),true);await complete.click();
- }
- await page.waitForSelector('#return-map');rewards++;
+ // The win screen opens the reward by itself.
+ if(index!==2)await page.waitForSelector('.operation-win');
+ await page.waitForSelector('#return-map',{timeout:10000});
+ assert.match(await page.locator('.reward-stamp').textContent(),/도장/);rewards++;
  if(index===2){assert.equal(await page.locator('#operation-board').count(),0);assert.match(await page.locator('.village-reward-dialog h2').textContent(),/탐구 완료/);}
  const colors=await page.locator('.reward-thanks').evaluate(p=>{const name=p.querySelector('.speaker-tag');return {name:getComputedStyle(name).color,badge:getComputedStyle(name).backgroundColor,line:getComputedStyle(p.querySelector('span')).color};});
  assert.notEqual(colors.name,colors.line);assert.notEqual(colors.badge,'rgba(0, 0, 0, 0)');
@@ -112,7 +116,7 @@ async function doneStage(index){
  await resident.click();await page.locator('[data-ask="0"]').click();
  assert.equal(await page.locator('[data-ask="0"]').getAttribute('aria-pressed'),'true');
  if(index===0)await page.screenshot({path:`${out}/first-resident-dialog.png`});
- await page.locator('[data-stamp]').click();assert.ok(await page.locator('[data-stamp]').isDisabled());
+ assert.ok(await page.locator('[data-stamp]').isDisabled(),'the reward already stamped this resident');
  await page.locator('[data-close]').click();
  assert.equal(await page.locator('.plaza-festival.celebrating').count(),index===4?1:0);
  if(index===0||index===4)await page.screenshot({path:`${out}/map-after-${id}.png`});

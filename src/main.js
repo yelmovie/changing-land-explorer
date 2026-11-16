@@ -269,11 +269,15 @@ function complete(index,fieldReady=false){
  const draft=state().drafts[stage.id],newArrival=!state().completed.includes(stage.id);
  const record={summary:`${stage.name}에서 내 관찰 ${Object.keys(draft.data.evidence||{}).length}개를 남겼어.`,data:structuredClone(draft.data)};
  if(admin)preview=award(preview,stage.id,record);else{student=award(student,stage.id,record);student.resumeActivity=null;}
+ // The resident's thanks stamp comes with the reward; talking on the map is optional.
+ const stamps=state().residentStamps??=[];
+ if(newArrival&&!stamps.includes(stage.id))stamps.push(stage.id);
  save();
  const resident=RESIDENTS[stage.id];
- modal(newArrival?`${stage.place} ${hasOperation?'현장 작전 성공!':'탐구 완료!'}`:'탐험 기록을 다시 남겼어!',`<div class="reward-reveal"><img class="reward-partner" src="${newArrival?residentArt(stage.id):'/assets/hero-cheer.webp'}" alt="${newArrival?resident.name:'리버'}"><img class="reward-item" src="/assets/${TOOL_ASSETS[stage.tool]}.webp" alt=""></div>${newArrival?`<p class="reward-thanks" data-speaker="${stage.id}"><strong class="speaker-tag">${resident.name}</strong><span>${resident.thanks}</span></p>`:''}<h3>${stage.reward}</h3>${newArrival?`<div class="relit-counter" aria-label="마을 불빛 ${state().completed.length}개, 전체 5개"><span>마을 불빛</span>${STAGES.map(st=>`<i class="${state().completed.includes(st.id)?'lit':''}"></i>`).join('')}<b>${state().completed.length}/5</b></div>`:''}<p class="world-change">${stage.change}</p>${newArrival?`<p><strong>${resident.name}</strong>에게 말을 걸면 ${resident.stamp} 도장을 받을 수 있어.</p>`:''}<button class="primary" id="return-map">${newArrival?`${resident.name} 만나러 가기`:'지도로 돌아가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
+ modal(newArrival?`${stage.place} ${hasOperation?'현장 작전 성공!':'탐구 완료!'}`:'탐험 기록을 다시 남겼어!',`<div class="reward-reveal"><img class="reward-partner" src="${newArrival?residentArt(stage.id):'/assets/hero-cheer.webp'}" alt="${newArrival?resident.name:'리버'}"><img class="reward-item" src="/assets/${TOOL_ASSETS[stage.tool]}.webp" alt=""></div>${newArrival?`<p class="reward-thanks" data-speaker="${stage.id}"><strong class="speaker-tag">${resident.name}</strong><span>${resident.thanks}</span></p>`:''}<h3>${stage.reward}</h3>${newArrival?`<div class="relit-counter" aria-label="마을 불빛 ${state().completed.length}개, 전체 5개"><span>마을 불빛</span>${STAGES.map(st=>`<i class="${state().completed.includes(st.id)?'lit':''}"></i>`).join('')}<b>${state().completed.length}/5</b></div>`:''}<p class="world-change">${stage.change}</p>${newArrival?`<p class="reward-stamp">${icon(resident.symbol,22)} <span>${escapeHTML(resident.stampLine)}</span> <b>친구 도장 ${stamps.length}/5</b></p>`:''}<button class="primary" id="return-map">${newArrival?'마을로 돌아가기':'지도로 돌아가기'} ${icon('arrow')}</button>`,(dialog,close)=>{
   dialog.classList.add('village-reward-dialog');
   playSound('tool-reward',{force:true,inDialog:true});
+  if(newArrival)setTimeout(()=>{if(dialog.open)playSound('stamp',{force:true,inDialog:true});},600);
   if(newArrival)setTimeout(()=>{if(dialog.open)playVoice(residentVoice(stage.id,'thanks'));},1100);
   $('#return-map',dialog).onclick=()=>{close();navigate('map',newArrival?{arrival:stage.id}:undefined);};
  });
