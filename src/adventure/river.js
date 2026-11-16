@@ -212,7 +212,8 @@ function markResults(scene,api) {
   for(const [i,[id,mark]]of Object.entries(RIVER_MARKS).entries()){
     const pos=targets[id].pos,disc=scene.add.graphics().fillStyle(colors[id]).fillCircle(0,0,36);
     // A glazed clay token replaces the flat disc once loaded; the symbol stays crisp vector on top.
-    const token=paintedArt(scene,'token-'+id,0,0,84,85,()=>disc.destroy());
+    // Cached art reports ready before the container exists, so hide the disc instead of destroying it.
+    const token=paintedArt(scene,'token-'+id,0,0,84,85,()=>disc.setVisible(false));
     const art=scene.add.graphics();
     // Draw the three symbols with graphics so a missing font cannot hide them.
     for(const [width,color,alpha] of [[8,0x4a2c14,.32],[4,0xfffaf0,1]]){
