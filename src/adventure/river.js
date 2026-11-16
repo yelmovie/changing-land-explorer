@@ -9,6 +9,16 @@ const clamp = (v,a=0,b=1) => Math.max(a,Math.min(b,v));
 const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
 const point = p => ({x:AREA.x+p.x*AREA.w,y:AREA.y+p.y*AREA.h});
 
+// Painted river-only props load here so the shared stage preload list stays untouched.
+// The placeholder keeps its place in the display list; code-drawn fallbacks stay until the art arrives.
+function paintedArt(scene,name,x,y,w,h,onReady){
+  const key='art/stages/river/'+name,img=scene.add.image(x,y,'__DEFAULT').setVisible(false);
+  const show=()=>{if(!img.active||!scene.textures.exists(key))return;img.setTexture(key).setDisplaySize(w,h).setVisible(true);onReady?.(img);};
+  if(scene.textures.exists(key))show();
+  else{scene.load.once('filecomplete-image-'+key,show);scene.load.image(key,'/assets/'+key+'.webp');scene.load.start();}
+  return img;
+}
+
 function tool(scene,api,type,x,y,label) {
   const key={lens:'tool-lens',can:'tool-water',flag:'tool-flag'}[type];
   if(scene.textures.exists(key)) {
@@ -200,13 +210,20 @@ function markResults(scene,api) {
   const short={erosion:'깎여요',transport:'옮겨져요',deposit:'쌓여요'};
   const colors={erosion:0xd17c45,transport:0x3e9ea8,deposit:0xb39544};
   for(const [i,[id,mark]]of Object.entries(RIVER_MARKS).entries()){
-    const pos=targets[id].pos,art=scene.add.graphics().fillStyle(colors[id]).fillCircle(0,0,36).lineStyle(4,0xfffaf0,1);
+    const pos=targets[id].pos,disc=scene.add.graphics().fillStyle(colors[id]).fillCircle(0,0,36);
+    // A glazed clay token replaces the flat disc once loaded; the symbol stays crisp vector on top.
+    const token=paintedArt(scene,'token-'+id,0,0,84,85,()=>disc.destroy());
+    const art=scene.add.graphics();
     // Draw the three symbols with graphics so a missing font cannot hide them.
-    if(id==='erosion')art.beginPath().moveTo(-14,-14).lineTo(12,10).lineTo(12,-2).moveTo(12,10).lineTo(0,10).strokePath().fillStyle(0xfffaf0).fillCircle(-10,15,3).fillCircle(0,20,2).fillCircle(10,19,3);
-    else if(id==='transport')art.beginPath().moveTo(-17,0).lineTo(17,0).lineTo(6,-11).moveTo(17,0).lineTo(6,11).strokePath();
-    else art.fillStyle(0xfffaf0).fillEllipse(0,13,36,7).fillEllipse(0,3,27,7).fillEllipse(0,-7,16,7);
+    for(const [width,color,alpha] of [[8,0x4a2c14,.32],[4,0xfffaf0,1]]){
+      art.lineStyle(width,color,alpha);
+      if(id==='erosion')art.beginPath().moveTo(-14,-14).lineTo(12,10).lineTo(12,-2).moveTo(12,10).lineTo(0,10).strokePath();
+      else if(id==='transport')art.beginPath().moveTo(-17,0).lineTo(17,0).lineTo(6,-11).moveTo(17,0).lineTo(6,11).strokePath();
+    }
+    if(id==='erosion')art.fillStyle(0xfffaf0).fillCircle(-10,15,3).fillCircle(0,20,2).fillCircle(10,19,3);
+    else if(id==='deposit')art.fillStyle(0x4a2c14,.32).fillEllipse(0,14,40,11).fillEllipse(0,4,31,11).fillEllipse(0,-6,20,11).fillStyle(0xfffaf0).fillEllipse(0,13,36,7).fillEllipse(0,3,27,7).fillEllipse(0,-7,16,7);
     const label=api.text(short[id],0,59,23).setBackgroundColor('#fff8e8').setPadding(12,5);
-    const badge=scene.add.container(275+i*325,535,[art,label]).setSize(144,148).setData('river-mark',id);
+    const badge=scene.add.container(275+i*325,535,[disc,token,art,label]).setSize(144,148).setData('river-mark',id);
     const drop=()=>{
       hover=null;paintTargets();
       if(time<.95){api.say('시간 막대를 오른쪽 끝으로 옮긴 뒤, 빈 원에 놓아 줘.');return false;}
@@ -348,7 +365,12 @@ function connectField(scene,api){
     api.counter(connected.size+Number(w.deposition),5,'지도 연결');
   }
   api.panel(600,320,1110,589,0xfff8e8,1);
+  // A pinned parchment map board covers the plain reading panel once loaded.
+  paintedArt(scene,'map-board',600,320,1110,589).setName('river-map-board');
   api.image('art/river-connection-map-v1',600,188,990,320).setName('river-connection-map');
+  // Wooden card holders sit under the slot outlines; a card placed in a slot rests inside the frame.
+  let holders=false,built=false;
+  for(const {x,y}of slots)paintedArt(scene,'card-slot',x,y,slotWidth+14,slotHeight+16,()=>{holders=true;if(built)paint();});
   const groupLabel=(text,x)=>api.text(text,x,351,23,'#fffaf0').setBackgroundColor('#24594b').setPadding(14,5);
   groupLabel('상류',305);groupLabel('하류',895);
   const places=scene.add.graphics();
@@ -362,7 +384,8 @@ function connectField(scene,api){
     places.clear();
     for(const [i,{x,y}]of slots.entries()){
       const occupied=[...connected.values()].includes(i),active=i===hover&&!occupied;
-      places.fillStyle(active?0xffe4a5:0xfffff0,active?.94:.63).fillRoundedRect(x-slotWidth/2,y-slotHeight/2,slotWidth,slotHeight,12);
+      // The painted holder already reads as an empty surface; only the hover glow is drawn over it.
+      if(active||!holders)places.fillStyle(active?0xffe4a5:0xfffff0,active?(holders?.7:.94):.63).fillRoundedRect(x-slotWidth/2,y-slotHeight/2,slotWidth,slotHeight,12);
       if(!occupied){
         places.lineStyle(active?4:2,active?0x9a632c:0x557e6d,.96);
         dashed(x-slotWidth/2,y-slotHeight/2,slotWidth,slotHeight);
@@ -442,7 +465,7 @@ function connectField(scene,api){
     if(finished||!allCards()||!w.deposition)return;
     finished=true;api.finish('상류와 하류의 모습이 달라. 물이 옮겨 온 모래와 고운 흙은 하류의 모래톱에 쌓여.');
   }
-  guide();paint();check();
+  built=true;guide();paint();check();
   api.actions([{id:'river-field-connect',label:'관찰 카드 연결',onClick:()=>{
     let selected=null;
     const labels=FIELD_POINTS.map(p=>'<button class="secondary" data-field-card="'+p.id+'" '+(connected.has(p.id)?'disabled':'')+'>'+p.text+'</button>').join('');

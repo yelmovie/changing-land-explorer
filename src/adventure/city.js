@@ -19,6 +19,39 @@ const inBox=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
 
 const FARM_VIEW={x:144,y:86,w:912,h:342};
 
+// Painted props for this stage (scripts/prepare-city-stage-art.mjs). They are not in the shared
+// preload list, so they are fetched here on first use and drawn once ready.
+const CITY_ART={barricade:'art/stages/city/barricade',ash:'art/stages/city/ash-fall',field:'art/stages/city/ash-field'};
+const ASH_FIELD='#817660',ASH_TINT=0x7a766f;
+function stageArt(scene,api){
+ const queue=[],missing=Object.values(CITY_ART).filter(k=>!scene.textures.exists(k));
+ let ready=!missing.length,alive=true;
+ api.listenCleanup(()=>{alive=false;queue.length=0;});
+ if(!ready){
+  missing.forEach(k=>scene.load.image(k,'/assets/'+k+'.webp'));
+  scene.load.once('complete',()=>{ready=true;if(alive&&scene.sys.isActive())queue.splice(0).forEach(f=>f());});
+  scene.load.start();
+ }
+ return fn=>ready?fn():queue.push(fn);
+}
+// Fills the code-described ash patches on the farm with painted ash-covered crops, feathered at the edges.
+function ashFieldTexture(scene,polys){
+ const key='city-ash-field-cut';
+ const xs=polys.flatMap(p=>p.points.map(q=>q.x)),ys=polys.flatMap(p=>p.points.map(q=>q.y));
+ const x0=Math.min(...xs)-4,y0=Math.min(...ys)-4,w=Math.max(...xs)+4-x0,h=Math.max(...ys)+4-y0;
+ if(!scene.textures.exists(key)){
+  const k=2,tex=scene.textures.createCanvas(key,Math.ceil(w*k),Math.ceil(h*k)),ctx=tex.getContext();
+  const path=()=>{ctx.beginPath();for(const p of polys){p.points.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.closePath();}};
+  ctx.scale(k,k);ctx.translate(-x0,-y0);
+  const pattern=ctx.createPattern(scene.textures.get(CITY_ART.field).getSourceImage(),'repeat');
+  pattern.setTransform?.(new DOMMatrix().translate(x0,y0).scale(.22));
+  path();ctx.fillStyle=pattern;ctx.fill();
+  ctx.globalCompositeOperation='destination-in';ctx.filter='blur(2px)';path();ctx.fillStyle='#000';ctx.fill();
+  tex.refresh();
+ }
+ return scene.add.image(x0+w/2,y0+h/2,key).setDisplaySize(w,h);
+}
+
 function pinToScene(scene,api,element,{x,y,w,h}){
  const canvas=scene.game?.canvas,parent=canvas?.parentElement;
  if(!parent)return false;
@@ -67,7 +100,7 @@ function airportSlot(scene,api,time,box){
 }
 
 export function setup(scene,api){
- const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,paint=stageArt(scene,api);
  const d=api.data,w=api.work,index=api.phase,s=CITY_SITES[index];d.evidence??={};d.notices??={};d.citySeen??={};
  api.image(api.step===0?'city-calm':'art/city-message-square-v2',600,320,1200,640);
  const hero=api.hero(105,510,160,'river-pose-1');
@@ -99,24 +132,36 @@ export function setup(scene,api){
    api.text(labels[j],center,58,26,later?'#285e42':'#7b432d',520);
    const description=cityScene(index,later);
    description.layers=description.layers.filter(p=>p.type!=='label'&&p.stroke!==10&&!(p.type==='line'&&(p.color==='#b75836'||p.color==='#cb6e4d')));
+   const fieldAt=description.layers.findIndex(p=>p.type==='poly'&&p.color===ASH_FIELD),fieldPolys=description.layers.filter(p=>p.type==='poly'&&p.color===ASH_FIELD);
+   description.layers=description.layers.filter(p=>!fieldPolys.includes(p));
    const picture=paintScene(scene,api,description,{x:(farm?600:center)-cx*zoom,y:258-focus.y*zoom,scale:zoom});
+   // Painted ash-covered crops sit where the scene's ash patches were (index +1 skips the background).
+   if(fieldPolys.length)paint(()=>{if(scene.textures.exists(CITY_ART.field))picture.addAt(ashFieldTexture(scene,fieldPolys).setAlpha(.92),fieldAt+1);});
    if(!later&&!farm){
-    const bx=focus.x,by=index===2?360:300,g=scene.add.graphics();
-    g.fillStyle(0x795336,1).fillRoundedRect(bx-65,by-8,10,46,3).fillRoundedRect(bx+55,by-8,10,46,3);
-    g.fillStyle(0xffd66b,1).fillRoundedRect(bx-82,by-18,164,29,4).lineStyle(3,0x765136,1).strokeRoundedRect(bx-82,by-18,164,29,4);
-    for(let k=0;k<5;k++)g.fillStyle(0xb86636,1).fillPoints([{x:bx-76+k*31,y:by-15},{x:bx-58+k*31,y:by-15},{x:bx-70+k*31,y:by+8},{x:bx-88+k*31,y:by+8}],true);
-    picture.add(g);
+    const bx=focus.x,by=index===2?360:300;
+    paint(()=>{
+     if(scene.textures.exists(CITY_ART.barricade)){picture.add(scene.add.image(bx,by-15,CITY_ART.barricade).setDisplaySize(150,107));return;}
+     const g=scene.add.graphics();
+     g.fillStyle(0x795336,1).fillRoundedRect(bx-65,by-8,10,46,3).fillRoundedRect(bx+55,by-8,10,46,3);
+     g.fillStyle(0xffd66b,1).fillRoundedRect(bx-82,by-18,164,29,4).lineStyle(3,0x765136,1).strokeRoundedRect(bx-82,by-18,164,29,4);
+     for(let k=0;k<5;k++)g.fillStyle(0xb86636,1).fillPoints([{x:bx-76+k*31,y:by-15},{x:bx-58+k*31,y:by-15},{x:bx-70+k*31,y:by+8},{x:bx-88+k*31,y:by+8}],true);
+     picture.add(g);
+    });
    }
    const mask=scene.add.graphics().setVisible(false);
    mask.fillStyle(0xffffff).fillRect(box.x,box.y,box.w,box.h);
    picture.setMask(mask.createGeometryMask());masks.push(mask);photoMasks.push(mask);
    if(!later){
+    let puff;
     for(const [offset,dy,size]of [[-.31,112,290],[0,128,320],[.33,106,290]]){
-     api.image('art/volcano-ash-puff-1-v1',box.x+box.w*(.5+offset),dy,size,150).setAlpha(.76).setMask(mask.createGeometryMask());
+     puff=api.image('art/volcano-ash-puff-1-v1',box.x+box.w*(.5+offset),dy,size,150).setAlpha(.76).setMask(mask.createGeometryMask());
     }
-    const ash=scene.add.graphics();
-    for(let k=0;k<72;k++)ash.fillStyle(0x5d5d5a,.7).fillEllipse(box.x+12+(k*79)%(box.w-24),144+(k*47)%245,3+k%3,4+k%4);
-    ash.setMask(mask.createGeometryMask());
+    // Painted falling ash over the eruption-time photo, kept just above the ash clouds.
+    paint(()=>{
+     if(!scene.textures.exists(CITY_ART.ash))return;
+     const ash=scene.add.tileSprite(box.x+box.w/2,box.y+box.h/2,box.w,box.h,CITY_ART.ash).setTileScale(.62).setTint(ASH_TINT).setAlpha(.85);
+     ash.setMask(mask.createGeometryMask());scene.children.moveAbove?.(ash,puff);
+    });
    }
    if(!farm){
     if(index===0)airportSlot(scene,api,later?'after':'before',box);
@@ -321,7 +366,11 @@ export function setup(scene,api){
    api.image('city-eruption',550,340,760,405).setMask(view.createGeometryMask());
    scene.add.rectangle(550,340,546,239,0x6f6a62,.42).setMask(view.createGeometryMask());
    const ash=scene.add.container(0,0);ash.setMask(view.createGeometryMask());
-   for(let i=0;i<40;i++){const flake=scene.add.circle(285+(i*73)%530,200+(i*37)%250,4+i%4,0x3f403e,.8);ash.add(flake);if(!reduced)scene.tweens.add({targets:flake,y:flake.y+90,x:flake.x-18,duration:2600+(i%5)*500,repeat:-1,delay:(i*190)%2000});}
+   paint(()=>{
+    if(!scene.textures.exists(CITY_ART.ash))return;
+    const fall=scene.add.tileSprite(550,340,546,239,CITY_ART.ash).setTileScale(.6).setTint(ASH_TINT);ash.add(fall);
+    if(!reduced)scene.tweens.add({targets:fall,tilePositionY:-430,duration:6000,repeat:-1});
+   });
    if(art)api.image('art/ui/window-frame',550,352,678,353);else scene.add.rectangle(550,340,545,300).setStrokeStyle(18,0x8e704a).setFillStyle(0xffffff,.04);
    api.card('실내에서 안전하게',600,62,320,60,28);
    const paneArt=()=>scene.textures.exists('art/ui/glass-pane')?api.paper('glass-pane',0,0,272,239):scene.add.rectangle(0,0,260,278,0xc4e3e5,.35).setStrokeStyle(9,0xc7ad82);

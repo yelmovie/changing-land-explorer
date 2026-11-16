@@ -9,7 +9,11 @@ export function setupEvacuation(scene,api){
   api.image('school',600,320,1200,640);
   // Walls stay a dark board; walkable floor and hazards are illustrated, but every
   // shape keeps the exact rectangles inspectRoute uses.
+  scene.add.graphics().fillStyle(0x1d2b22,.26).fillRoundedRect(89,76,1030,525,22);
   const board=scene.add.graphics().fillStyle(0x3f5f50,.96).fillRoundedRect(85,68,1030,525,22).lineStyle(6,0xd9b46a,1).strokeRoundedRect(85,68,1030,525,22);
+  // The painted slate board replaces the flat fallback once it arrives; it covers the same 1030 × 525 frame.
+  const boardArt=placeholder(scene,600,330.5);
+  stageArt(scene,api,'map-board',key=>{boardArt.setTexture(key).setDisplaySize(1030,525).setVisible(true);board.setVisible(false);});
   const floorKey=outside?'art/ui/town-ground':'art/ui/school-floor',areaMask=scene.make.graphics({add:false});
   config.areas.forEach(r=>areaMask.fillStyle(0xffffff).fillRoundedRect(ox+r.x,oy+r.y,r.w,r.h,12));
   if(scene.textures.exists(floorKey))api.image(floorKey,600,330,1030,560).setMask(areaMask.createGeometryMask());
@@ -31,7 +35,8 @@ export function setupEvacuation(scene,api){
   });
   config.gates.forEach(g=>{if(scene.textures.exists('art/ui/exit-mat'))api.image('art/ui/exit-mat',ox+g.x,oy+g.y,150,68);else api.panel(ox+g.x,oy+g.y,110,42,0x6f9e80,1);api.text('출구',ox+g.x,oy+g.y+46,19,'#ffffff').setBackgroundColor('#2f7a55').setPadding(8,2);});
   const start=toScreen(config.start),goal=toScreen(config.goal);
-  scene.add.circle(start.x,start.y,32,0xf6c45f,.55).setStrokeStyle(4,0xfffbdf);
+  const startRing=scene.add.circle(start.x,start.y,32,0xf6c45f,.55).setStrokeStyle(4,0xfffbdf),startPad=placeholder(scene,start.x,start.y+4);
+  stageArt(scene,api,'start-pad',key=>{startPad.setTexture(key).setDisplaySize(78,78).setVisible(true);startRing.setVisible(false);});
   api.text('출발',start.x,start.y-60,19,'#ffffff').setBackgroundColor('#735321').setPadding(8,2);
   if(scene.textures.exists('art/ui/playground'))api.image('art/ui/playground',goal.x,goal.y,104,104);else scene.add.circle(goal.x,goal.y,37,0x84bf85).setStrokeStyle(5,0xfffbdf);
   api.text(outside?'공터':'운동장',goal.x,goal.y+64,19,'#ffffff').setBackgroundColor('#2f7a55').setPadding(8,2);
@@ -83,6 +88,16 @@ export function setupEvacuation(scene,api){
    if(dx)hero.setFlipX(dx<0);draw(true);
    if(Math.hypot(current.x-config.goal.x,current.y-config.goal.y)<32&&gates.size===config.gates.length)arrive();
   }};
+}
+// Stage-only paintings are not in the shared preload list, so they load here. The placeholder
+// keeps their place in the display order while the code-drawn fallback stays visible.
+export function placeholder(scene,x,y){return scene.add.image(x,y,'__DEFAULT').setVisible(false);}
+export function stageArt(scene,api,name,ready){
+ const key='art/stages/safety/'+name,event='filecomplete-image-'+key;
+ if(scene.textures.exists(key)){ready(key);return;}
+ const done=()=>{if(scene.sys.isActive())ready(key);};
+ scene.load.once(event,done);api.listenCleanup(()=>scene.load.off(event,done));
+ scene.load.image(key,`/assets/${key}.webp`);scene.load.start();
 }
 export function evacuationCollision(a,b,config){
  const inside=(p,r,pad)=>p.x>=r.x-pad&&p.x<=r.x+r.w+pad&&p.y>=r.y-pad&&p.y<=r.y+r.h+pad;

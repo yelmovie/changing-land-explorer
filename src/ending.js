@@ -16,8 +16,16 @@ const TOWER_PHOTOS={
  safety:'/assets/art/safety-evacuation-garden-v2.webp'
 };
 const towerPhoto=st=>`<img class="tower-photo" src="${TOWER_PHOTOS[st.id]}" alt="${st.place} 대표 그림">`;
+const TOWER_SKETCHES={
+ river:'/assets/art/tower/sketch-river.webp',
+ volcano:'/assets/art/tower/sketch-volcano.webp',
+ rocks:'/assets/art/tower/sketch-rocks.webp',
+ city:'/assets/art/tower/sketch-city.webp',
+ safety:'/assets/art/tower/sketch-safety.webp'
+};
+const towerSketch=st=>`<img class="tower-sketch" src="${TOWER_SKETCHES[st.id]}" alt=""><span class="tower-empty-badge">${icon('camera',26)}</span>`;
 function frameContents(st,e,review){
- return `<span class="tower-mat" aria-hidden="true">${e?towerPhoto(st):icon('camera',34)}</span><span class="tower-plaque"><strong>${st.name}</strong><span class="tower-caption">${e?escapeHTML(e.label):review?'걸어 둔 기록 없음':'아직 빈 액자'}</span>${!review||e?`<span class="tower-frame-action">${review?'기록 펼치기':e?'기록 바꾸기':'내 기록 고르기'} ${icon('arrow',16)}</span>`:''}</span>`;
+ return `<span class="tower-mat" aria-hidden="true">${e?towerPhoto(st):towerSketch(st)}</span><span class="tower-plaque"><strong>${st.name}</strong><span class="tower-caption">${e?escapeHTML(e.label):review?'걸어 둔 기록 없음':'아직 빈 액자'}</span>${!review||e?`<span class="tower-frame-action">${review?'기록 펼치기':e?'기록 바꾸기':'내 기록 고르기'} ${icon('arrow',16)}</span>`:''}</span>`;
 }
 function towerFrames(chosen,review=false){
  return `<ol class="tower-frames" aria-label="다섯 장소의 사진틀">${STAGES.map(st=>{
@@ -33,7 +41,7 @@ function chooseTowerRecord(st,list,current,onSelect){
   return;
  }
  let index=Math.max(0,list.findIndex(e=>e.id===current));
- modal(`${st.name} 기록 고르기`,`<div class="tower-picker">${towerPhoto(st)}<div class="tower-note" aria-live="polite" aria-atomic="true"></div>${list.length>1?`<div class="tower-pager" aria-label="관찰 기록 넘기기">${btn('이전 기록','tower-prev')}<span id="tower-page"></span>${btn('다음 기록','tower-next')}</div>`:''}<button type="button" class="primary tower-hang" data-evidence-id>이 기록 걸기 ${icon('check',18)}</button></div>`,(d,close)=>{
+ modal(`${st.name} 기록 고르기`,`<div class="tower-picker"><span class="tower-mat">${towerPhoto(st)}</span><div class="tower-note" aria-live="polite" aria-atomic="true"></div>${list.length>1?`<div class="tower-pager" aria-label="관찰 기록 넘기기">${btn('이전 기록','tower-prev')}<span id="tower-page"></span>${btn('다음 기록','tower-next')}</div>`:''}<button type="button" class="primary tower-hang" data-evidence-id>이 기록 걸기 ${icon('check',18)}</button></div>`,(d,close)=>{
   const back=$('#tower-prev',d),forward=$('#tower-next',d),hang=$('[data-evidence-id]',d);
   const update=()=>{
    const e=list[index];

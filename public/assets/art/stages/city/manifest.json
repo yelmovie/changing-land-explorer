@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-16",
+  "generator": "Higgsfield gpt_image_2_6 (low)",
+  "assets": [
+    {
+      "key": "art/stages/city/barricade",
+      "file": "assets/art/stages/city/barricade.webp",
+      "width": 337,
+      "height": 240,
+      "bytes": 22906,
+      "original": "image/generated-20261116-city/barricade.png"
+    },
+    {
+      "key": "art/stages/city/ash-fall",
+      "file": "assets/art/stages/city/ash-fall.webp",
+      "width": 640,
+      "height": 430,
+      "bytes": 27690,
+      "original": "image/generated-20261116-city/ash-fall.png"
+    },
+    {
+      "key": "art/stages/city/ash-field",
+      "file": "assets/art/stages/city/ash-field.webp",
+      "width": 768,
+      "height": 430,
+      "bytes": 54820,
+      "original": "image/generated-20261116-city/ash-field.png"
+    }
+  ]
+}

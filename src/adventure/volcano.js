@@ -2,7 +2,7 @@ import {escapeHTML} from '../ui.js';
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const near=(x,y,p,r=75)=>Math.hypot(x-p.x,y-p.y)<r;
 import {observationTour} from './observation-tour.js';
-import {eruptionMotion} from '../volcano-motion.js';
+import {eruptionMotion,stageArt} from '../volcano-motion.js';
 import {hasModel,openModel3D} from '../rock3d.js';
 import {MODEL_MOUTH as MOUTH,MODEL_FLOW as FLOW,modelScene,paintScene,drawShapes,modelEvidence} from '../observation-scenes.js';
 const OUTPUTS=[
@@ -112,18 +112,29 @@ function inject(scene,api){
   let finished=!!api.completed,active=false,replay=null,flowClock=0;
   const art=model(scene,api),stem=scene.add.graphics();
   api.task('주사기 손잡이를 천천히 아래로 밀어 봐','손잡이를 밀거나 자동 재생으로 꼭대기와 경사면을 살펴봐.');
+  // Flat fallback until the painted push knob loads; the arrow stays as the drag cue.
   const cap=scene.add.graphics().fillStyle(0x284f44,.22).fillRoundedRect(-49,-15,102,38,16)
     .fillStyle(0x3a8975).fillRoundedRect(-52,-22,104,35,15).lineStyle(2,0x245b50,.9).strokeRoundedRect(-52,-22,104,35,15)
-    .lineStyle(2,0x88beaa,.8).lineBetween(-37,-16,35,-16)
-    .lineStyle(3,0xf6fff4,.95).beginPath().moveTo(0,-11).lineTo(0,5).lineTo(-6,-1).moveTo(0,5).lineTo(6,-1).strokePath();
-  const handle=scene.add.container(957,185+w.push*145,[cap]).setSize(115,64);
+    .lineStyle(2,0x88beaa,.8).lineBetween(-37,-16,35,-16);
+  const arrow=scene.add.graphics().lineStyle(3,0xf6fff4,.95).beginPath().moveTo(0,-11).lineTo(0,5).lineTo(-6,-1).moveTo(0,5).lineTo(6,-1).strokePath();
+  const handle=scene.add.container(957,185+w.push*145,[cap,arrow]).setSize(115,64);
+  stageArt(scene,'plunger',key=>{
+    if(!handle.scene)return;
+    const knob=scene.add.image(0,8,key).setDisplaySize(112,68);
+    const shade=scene.add.ellipse(1,-4,96,30,0x123b35,.18);
+    cap.destroy();handle.addAt(knob,0);handle.addAt(shade,0);
+    arrow.clear().lineStyle(5,0x17463f,.35).beginPath().moveTo(1,-14).lineTo(1,4).lineTo(-6,-3).moveTo(1,4).lineTo(8,-3).strokePath()
+      .lineStyle(3.5,0xf6fff4,.98).beginPath().moveTo(0,-15).lineTo(0,3).lineTo(-7,-4).moveTo(0,3).lineTo(7,-4).strokePath();
+  });
   const watch=api.text('붉은 물이 어디로 갈까?',560,535,24).setBackgroundColor('#fff8e8').setPadding(10,6);
   const view=()=>replay||w;
   function draw(){
     const v=view();handle.setPosition(957,185+v.push*145);
     art.draw(['tray','mountain','water'],v.flow,active?flowClock:0);
-    stem.clear().lineStyle(12,0x496e5e).lineBetween(957,handle.y+13,957,300+v.push*110)
-      .lineStyle(5,0xc8ded0,.85).lineBetween(955,handle.y+14,955,300+v.push*110);
+    // Rod colours follow the painted teal plunger.
+    stem.clear().lineStyle(14,0x1f625a).lineBetween(957,handle.y+13,957,300+v.push*110)
+      .lineStyle(9,0x2f8a7c).lineBetween(957,handle.y+14,957,300+v.push*110)
+      .lineStyle(3,0xa9dccd,.8).lineBetween(954,handle.y+16,954,298+v.push*110);
     watch.setText(v.flow>.7?'붉은 물이 경사면을 따라 아래로 흘러.':v.flow>.1?'꼭대기 구멍에서 나오는 물을 봐!':'붉은 물이 어디로 갈까?');
     api.counter(Math.round(v.flow*100),100,'붉은 물 관찰');
   }

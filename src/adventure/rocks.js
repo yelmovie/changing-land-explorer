@@ -4,7 +4,20 @@ import {hasRockModel,openRock3D} from '../rock3d.js';
 
 const near=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
 const TRAY={basalt:140,granite:1060},TRAY_Y=275;
+// Painted props for this stage (scripts/prepare-rocks-stage-art.mjs). They load on demand,
+// and the code-drawn shapes stay on screen until (or unless) the picture arrives.
+const PROPS={
+ magnifier:'/assets/art/stages/rocks/magnifier.webp',
+ ring:'/assets/art/stages/rocks/loupe-ring.webp',
+ tag:'/assets/art/stages/rocks/order-tag.webp'
+};
 export function setup(scene,api){
+ function prop(name,owner,ready){
+  const key='rocks-stage/'+name,go=()=>{if(owner.scene&&scene.textures.exists(key))ready(key);};
+  if(scene.textures.exists(key))return go();
+  scene.load.image(key,PROPS[name]);scene.load.once('filecomplete-image-'+key,go);
+  if(!scene.load.isLoading())scene.load.start();
+ }
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
  const d=api.data,w=api.work;d.evidence??={};d.rockNames??={};d.rockProofs??={};
  api.image(api.step===0?'rocks-lab':'art/rocks-quarry-atelier-v2',600,320,1200,640);
@@ -68,16 +81,28 @@ export function setup(scene,api){
   w.scanned??=[];w.proofs??=[];w.lens??={x:350,y:285};
   api.task(`${r.name}를 확대해서 살펴보자`,'왼쪽 돌의 숫자 세 곳을 눌러 확대해 봐. 오른쪽에서 색과 알갱이를 살펴봐.');
   api.panel(350,290,470,450,0xfff8e5,.88);api.panel(850,280,440,450,0xfff8e5,.9);
-  const specimen=api.image(r.asset,350,275,400,267);api.text(r.name,350,100,27);const detailTitle=api.text('내가 살핀 부분',850,100,24);
-  const maskShape=scene.add.graphics().fillStyle(0xffffff).fillCircle(850,282,156);maskShape.setVisible(false);
+  const specimen=api.image(r.asset,350,275,400,267);api.text(r.name,350,84,27);const detailTitle=api.text('내가 살핀 부분',850,82,24);
+  const maskShape=scene.add.graphics().fillStyle(0xffffff).fillCircle(850,282,141);maskShape.setVisible(false);
   const detail=api.image(r.asset,850,282,960,640).setMask(maskShape.createGeometryMask());
   const optics=scene.add.graphics();
-  optics.lineStyle(12,0x503f2b,.2).strokeCircle(852,286,159).lineStyle(8,0xc7a66a,1).strokeCircle(850,282,160).lineStyle(2,0xfff3c9,.9).strokeCircle(850,282,155);
+  optics.lineStyle(12,0x503f2b,.2).strokeCircle(852,286,144).lineStyle(8,0xc7a66a,1).strokeCircle(850,282,145).lineStyle(2,0xfff3c9,.9).strokeCircle(850,282,140);
   // A restrained glass reflection leaves the actual illustrated grains visible.
-  optics.lineStyle(3,0xfff8dc,.5).beginPath().arc(850,282,148,3.75,4.65).strokePath();
-  api.text('2.4배 확대',850,454,20);
+  optics.lineStyle(3,0xfff8dc,.5).beginPath().arc(850,282,133,3.75,4.65).strokePath();
+  // Painted brass loupe: its hollow centre (38% of the width) sits just inside the round view.
+  prop('ring',optics,key=>{
+   optics.clear();
+   scene.add.image(850,285,key).setOrigin(.4964,.4976).setDisplaySize(371,374).setTint(0x2d2114).setAlpha(.18);
+   scene.add.image(850,282,key).setOrigin(.4964,.4976).setDisplaySize(363,366);
+  });
+  api.text('2.4배 확대',850,484,20);
   const focusGuide=scene.add.graphics();
   const lens=scene.add.container(w.lens.x,w.lens.y);lens.add(scene.add.circle(0,0,43,0xe6f5f4,.055).setStrokeStyle(5,0xf4c85f));lens.add(scene.add.rectangle(39,46,14,61,0x82613f).setAngle(-38));lens.setSize(150,160);
+  // Painted magnifier: the image origin is the lens centre, so dragging and the hit area stay the same.
+  prop('magnifier',lens,key=>{
+   lens.removeAll(true);
+   lens.add(scene.add.image(5,8,key).setOrigin(.2935,.3034).setDisplaySize(160,160).setTint(0x2d2114).setAlpha(.2));
+   lens.add(scene.add.image(0,0,key).setOrigin(.2935,.3034).setDisplaySize(160,160));
+  });
   let compare=false;
   api.setToolHandler?.('camera',()=>{compare=!compare;detail.setTexture(compare?ROCKS[sample%2?0:1].asset:r.asset);focusGuide.setVisible(!compare);detailTitle.setText(compare?'다른 표본과 비교':'내가 살핀 부분');api.say(compare?'반대 특징의 표본을 같은 확대 크기로 꺼냈어. 카메라를 다시 누르면 내 돌로 돌아와.':'내 돌의 확대 관찰로 돌아왔어.');});
   const notes=api.text('',350,462,20,'#365548',420);
@@ -87,7 +112,7 @@ export function setup(scene,api){
   function drawLens(x,y,collect=true){
    const px=Math.max(230,Math.min(470,x)),py=Math.max(190,Math.min(360,y));lens.setPosition(px,py);focus={x:px,y:py};
    detail.setPosition(850-(px-350)*2.4,282-(py-275)*2.4);
-   focusGuide.clear().lineStyle(2,0x9f834f,.68).lineBetween(px+44,py,676,282).fillStyle(0xfff3cd,.9).fillCircle(676,282,4);
+   focusGuide.clear().lineStyle(2,0x9f834f,.68).lineBetween(px+48,py,666,282).fillStyle(0xfff3cd,.9).fillCircle(666,282,4);
    if(collect&&!compare&&!completed&&w.scanned.length<3){w.lens={...focus};const cell=Math.min(2,Math.floor((px-200)/101))+Math.min(1,Math.floor((py-130)/146))*3;if(!w.scanned.includes(cell)){w.scanned.push(cell);api.spark(px,py);api.save();}}
    scanMarkers.forEach((paint,i)=>paint(w.scanned.includes(scanSites[i][2])));
    paintClaims();
@@ -210,7 +235,12 @@ export function setup(scene,api){
    api.text(note,x,305,21,'#345546',262);
    tray(x,y,names[base.type],202);
   }
-  api.text(r.name,600,150,27).setBackgroundColor('#fff8e8').setPadding(14,7);
+  const nameTag=api.text(r.name,600,150,27).setBackgroundColor('#fff8e8').setPadding(14,7);
+  // Painted specimen tag: the writable paper starts right of the eyelet (centre at 60% of the width).
+  prop('tag',nameTag,key=>{
+   const width=Math.max(230,(nameTag.width+24)/.74),tag=scene.add.image(600-width*.1,150,key).setDisplaySize(width,width*242/520);
+   nameTag.setBackgroundColor(null).setDepth(1);tag.setDepth(.5);
+  });
   const specimen=api.image(r.asset,600,316,290,194);
   function check(){
    const done=w.classified&&hasRockEvidence(d,r.id)&&d.rockNames[r.id]===r.type;

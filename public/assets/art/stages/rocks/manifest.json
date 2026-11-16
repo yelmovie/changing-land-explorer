@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-16",
+  "generator": "Higgsfield gpt_image_2_6 (low, transparent)",
+  "assets": [
+    {
+      "key": "rocks-stage/magnifier",
+      "file": "assets/art/stages/rocks/magnifier.webp",
+      "width": 319,
+      "height": 320,
+      "bytes": 25832,
+      "original": "image/generated-20261116-rocks/magnifier.png",
+      "originX": 0.2935,
+      "originY": 0.3034,
+      "lensRadius": 0.2925
+    },
+    {
+      "key": "rocks-stage/loupe-ring",
+      "file": "assets/art/stages/rocks/loupe-ring.webp",
+      "width": 416,
+      "height": 420,
+      "bytes": 39084,
+      "original": "image/generated-20261116-rocks/loupe-ring.png"
+    },
+    {
+      "key": "rocks-stage/order-tag",
+      "file": "assets/art/stages/rocks/order-tag.webp",
+      "width": 520,
+      "height": 242,
+      "bytes": 20084,
+      "original": "image/generated-20261116-rocks/order-tag.png"
+    }
+  ]
+}

@@ -1,5 +1,19 @@
 // Reused material sprites and graphics aligned with the illustrated caldera.
 // Motion communicates the processes; particle speeds are not eruption measurements.
+
+// Volcano-only painted props are loaded on demand, so the shared stage preload list stays unchanged.
+// Absolute paths keep them visible to the offline precache.
+const STAGE_ART={plunger:'/assets/art/stages/volcano/plunger.webp',rock:'/assets/art/stages/volcano/rock.webp'};
+export function stageArt(scene,name,ready){
+ const key='art/stages/volcano/'+name;
+ // Cached art still arrives after the caller's setup finishes, like the loader path, so ready() never
+ // runs before the caller's own declarations.
+ if(scene.textures.exists(key)){queueMicrotask(()=>{if(scene.sys.isActive())ready(key);});return;}
+ const done=()=>{if(scene.sys.isActive()&&scene.textures.exists(key))ready(key);};
+ scene.load.once('filecomplete-image-'+key,done);
+ scene.load.image(key,STAGE_ART[name]);
+ if(!scene.load.isLoading())scene.load.start();
+}
 export function eruptionMotion(scene,api){
  const reduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
  const root=scene.add.container(0,0),g=scene.add.graphics();root.add(g);
@@ -14,7 +28,9 @@ export function eruptionMotion(scene,api){
  const blocks=Array.from({length:13},(_,i)=>({phase:seed(i+200),period:1900+seed(i+180)*1800,dx:85+seed(i+220)*195,rise:180+seed(i+240)*110,r:3+seed(i+260)*5,spin:i,
    vertices:Array.from({length:5},(_,j)=>({angle:j*Math.PI*.4,radius:.7+seed(i*9+j)*.4})),points:Array.from({length:5},()=>({x:0,y:0}))}));
  const fine=Array.from({length:38},(_,i)=>({phase:seed(i+300),drift:130+seed(i+320)*430,lift:40+seed(i+340)*115,fall:55+seed(i+350)*130,r:1+seed(i+360)*1.5,angle:i}));
- let clock=0,boost=0,focus=null,closed=false;
+ let clock=0,boost=0,focus=null,closed=false,rocks=null;
+ // Painted rock fragments replace the flat polygons once their texture is ready.
+ stageArt(scene,'rock',key=>{if(closed)return;rocks=blocks.map(()=>{const p=scene.add.image(0,0,key).setAlpha(0);root.add(p);return p;});draw();});
  function flow(t,p){const n=t*(path.length-1),i=Math.min(path.length-2,Math.floor(n)),f=n-i;p.x=path[i][0]+(path[i+1][0]-path[i][0])*f;p.y=path[i][1]+(path[i+1][1]-path[i][1])*f;return p;}
  const strength=kind=>boost>0?(focus===kind?1:(focus ? .45 : 1)):.7;
  function draw(){
@@ -37,8 +53,9 @@ export function eruptionMotion(scene,api){
    if(y>273)return;
    g.fillStyle(0xff8830,(1-t)*.7*force).fillEllipse(x,y,p.r*2,p.r*3).fillStyle(0xffe2a0,(1-t)*.7*force).fillCircle(x,y,p.r*.55);
   });
-  blocks.forEach(p=>{
+  blocks.forEach((p,i)=>{
    const t=(clock/p.period+p.phase)%1,x=581+p.dx*t,y=243-p.rise*t+365*t*t,angle=clock*.001+p.spin;
+   if(rocks){const size=p.r*3.4;rocks[i].setPosition(x,y).setDisplaySize(size,size*.9).setRotation(angle).setAlpha(Math.sin(t*Math.PI)*.95*strength('rock'));return;}
    for(let j=0;j<5;j++){const v=p.vertices[j],q=p.points[j],a=angle+v.angle;q.x=x+Math.cos(a)*p.r*v.radius;q.y=y+Math.sin(a)*p.r*v.radius;}
    const a=p.points[0],b=p.points[1];g.fillStyle(0x493c32,Math.sin(t*Math.PI)*.95*strength('rock')).fillPoints(p.points,true).lineStyle(1,0xc28d58,.6*strength('rock')).lineBetween(a.x,a.y,b.x,b.y);
   });

@@ -1,4 +1,4 @@
-import {setupEvacuation} from './evacuation.js';
+import {setupEvacuation,placeholder,stageArt} from './evacuation.js';
 import {SHELTER,shelterPoint,inShelter,createShelter} from './shelter.js';
 
 const inside=(x,y,cx,cy,w,h)=>Math.abs(x-cx)<w/2&&Math.abs(y-cy)<h/2;
@@ -147,6 +147,9 @@ export function setup(scene,api){
   api.panel(320,80,510,80,0xfff4d8,.96);const status=api.text(p.stopped?'흔들림이 멈췄어':'흔들리고 있어 · 몸을 보호해',320,80,26);
   if(p.head&&p.headMethod!=='arms')shelter.drawHead();
   const hand=chip('손으로 잡기',1030,550,190),vibration=scene.add.graphics();let elapsed=0,visualTime=0;
+  // A painted hand badge hangs off the chip's left edge, reaching toward the desk leg; the hit area stays the chip.
+  const handBadge=placeholder(scene,-100,-6);hand.add(handBadge);
+  stageArt(scene,api,'hand-badge',key=>{handBadge.setTexture(key).setDisplaySize(74,74).setFlipX(true).setVisible(true);hand.list.find(o=>o.type==='Text')?.setX(14);});
   function drawVibration(){
    vibration.clear();if(p.stopped)return;
    const alpha=reduced?.65:.4+Math.sin(visualTime/180)*.2;

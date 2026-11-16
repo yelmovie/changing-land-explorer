@@ -16,7 +16,7 @@ function experiment({prediction=true,completed=false,phase=0}={}){
       return()=>proxy;
     }});return proxy;
   };
-  const scene={add:{graphics:()=>object(),circle:(x,y)=>object(x,y),container:(x,y)=>object(x,y)},textures:{exists:()=>false},sys:{isActive:()=>true}};
+  const scene={add:{graphics:()=>object(),circle:(x,y)=>object(x,y),container:(x,y)=>object(x,y),image:(x,y)=>object(x,y)},textures:{exists:()=>false},load:{once(){},off(){},image(){},start(){},isLoading:()=>false},sys:{isActive:()=>true}};
   const data={evidence:{},runs:[],...(prediction?{prediction:{x:.75,y:.65}}:{})},work={pour:completed?1:0,sweeps:[]};
   const api={step:0,phase,data,work,completed,
     image:(_key,x,y)=>object(x,y),hero:(...args)=>{heroes.push(args);return object();},text:(_text,x,y)=>object(x,y),

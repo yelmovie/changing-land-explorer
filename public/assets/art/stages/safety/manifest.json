@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-16",
+  "generator": "Higgsfield gpt_image_2_6 (low)",
+  "assets": [
+    {
+      "key": "art/stages/safety/map-board",
+      "file": "assets/art/stages/safety/map-board.webp",
+      "width": 1144,
+      "height": 640,
+      "bytes": 25816,
+      "original": "image/generated-20261116-safety/map-board.png"
+    },
+    {
+      "key": "art/stages/safety/start-pad",
+      "file": "assets/art/stages/safety/start-pad.webp",
+      "width": 159,
+      "height": 160,
+      "bytes": 10060,
+      "original": "image/generated-20261116-safety/start-pad.png"
+    },
+    {
+      "key": "art/stages/safety/hand-badge",
+      "file": "assets/art/stages/safety/hand-badge.webp",
+      "width": 160,
+      "height": 160,
+      "bytes": 9452,
+      "original": "image/generated-20261116-safety/hand-badge.png"
+    }
+  ]
+}

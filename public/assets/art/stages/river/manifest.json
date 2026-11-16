@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-16",
+  "generator": "Higgsfield gpt_image_2_6 (low)",
+  "assets": [
+    {
+      "key": "art/stages/river/token-erosion",
+      "file": "assets/art/stages/river/token-erosion.webp",
+      "width": 166,
+      "height": 168,
+      "bytes": 9048,
+      "original": "image/generated-20261116-river/tokens.png"
+    },
+    {
+      "key": "art/stages/river/token-transport",
+      "file": "assets/art/stages/river/token-transport.webp",
+      "width": 166,
+      "height": 168,
+      "bytes": 9774,
+      "original": "image/generated-20261116-river/tokens.png"
+    },
+    {
+      "key": "art/stages/river/token-deposit",
+      "file": "assets/art/stages/river/token-deposit.webp",
+      "width": 165,
+      "height": 168,
+      "bytes": 9064,
+      "original": "image/generated-20261116-river/tokens.png"
+    },
+    {
+      "key": "art/stages/river/card-slot",
+      "file": "assets/art/stages/river/card-slot.webp",
+      "width": 420,
+      "height": 186,
+      "bytes": 12256,
+      "original": "image/generated-20261116-river/slot.png"
+    },
+    {
+      "key": "art/stages/river/map-board",
+      "file": "assets/art/stages/river/map-board.webp",
+      "width": 1200,
+      "height": 671,
+      "bytes": 21786,
+      "original": "image/generated-20261116-river/board.png"
+    }
+  ]
+}

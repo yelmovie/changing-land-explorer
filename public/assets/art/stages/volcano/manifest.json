@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-16",
+  "generator": "Higgsfield gpt_image_2_6 (low, 1k)",
+  "assets": [
+    {
+      "key": "art/stages/volcano/plunger",
+      "file": "assets/art/stages/volcano/plunger.webp",
+      "width": 256,
+      "height": 155,
+      "bytes": 6838,
+      "original": "image/generated-20261116-volcano/plunger.png"
+    },
+    {
+      "key": "art/stages/volcano/rock",
+      "file": "assets/art/stages/volcano/rock.webp",
+      "width": 128,
+      "height": 115,
+      "bytes": 8018,
+      "original": "image/generated-20261116-volcano/rock.png"
+    }
+  ]
+}

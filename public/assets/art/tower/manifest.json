@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-16",
+  "generator": "Higgsfield gpt_image_2_6 (medium, 1k)",
+  "assets": [
+    {
+      "key": "art/tower/wall",
+      "file": "assets/art/tower/wall.webp",
+      "width": 1344,
+      "height": 752,
+      "bytes": 48284,
+      "original": "image/generated-20261116-record-tower/wall.png"
+    },
+    {
+      "key": "art/tower/frame",
+      "file": "assets/art/tower/frame.webp",
+      "width": 448,
+      "height": 475,
+      "bytes": 45382,
+      "original": "image/generated-20261116-record-tower/frame.png"
+    },
+    {
+      "key": "art/tower/hook",
+      "file": "assets/art/tower/hook.webp",
+      "width": 120,
+      "height": 118,
+      "bytes": 5188,
+      "original": "image/generated-20261116-record-tower/hook.png"
+    },
+    {
+      "key": "art/tower/lamp-on",
+      "file": "assets/art/tower/lamp-on.webp",
+      "width": 64,
+      "height": 96,
+      "bytes": 5136,
+      "original": "image/generated-20261116-record-tower/lamp-on.png"
+    },
+    {
+      "key": "art/tower/lamp-off",
+      "file": "assets/art/tower/lamp-off.webp",
+      "width": 53,
+      "height": 96,
+      "bytes": 3512,
+      "original": "image/generated-20261116-record-tower/lamp-off.png"
+    },
+    {
+      "key": "art/tower/sketch-river",
+      "file": "assets/art/tower/sketch-river.webp",
+      "width": 637,
+      "height": 480,
+      "bytes": 27012,
+      "original": "image/generated-20261116-record-tower/sketch-river.png"
+    },
+    {
+      "key": "art/tower/sketch-volcano",
+      "file": "assets/art/tower/sketch-volcano.webp",
+      "width": 637,
+      "height": 480,
+      "bytes": 21794,
+      "original": "image/generated-20261116-record-tower/sketch-volcano.png"
+    },
+    {
+      "key": "art/tower/sketch-rocks",
+      "file": "assets/art/tower/sketch-rocks.webp",
+      "width": 637,
+      "height": 480,
+      "bytes": 30960,
+      "original": "image/generated-20261116-record-tower/sketch-rocks.png"
+    },
+    {
+      "key": "art/tower/sketch-city",
+      "file": "assets/art/tower/sketch-city.webp",
+      "width": 637,
+      "height": 480,
+      "bytes": 33870,
+      "original": "image/generated-20261116-record-tower/sketch-city.png"
+    },
+    {
+      "key": "art/tower/sketch-safety",
+      "file": "assets/art/tower/sketch-safety.webp",
+      "width": 637,
+      "height": 480,
+      "bytes": 29858,
+      "original": "image/generated-20261116-record-tower/sketch-safety.png"
+    },
+    {
+      "key": "art/tower/rail-tile",
+      "file": "assets/art/tower/rail-tile.webp",
+      "width": 83,
+      "height": 39,
+      "bytes": 1460,
+      "original": "image/generated-20261116-record-tower/rail.png"
+    }
+  ]
+}

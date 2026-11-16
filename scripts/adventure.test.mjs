@@ -5,7 +5,7 @@ import {SCHOOL_PATH,OUTSIDE_PATH,inspectRoute,SCHOOL_CONFIG,OUTSIDE_CONFIG} from
 function activity(phase=0,completed=false,data={}){
  const objects=[],handlers={},actions={};let finishes=0,clock=0;
  const object=(x=0,y=0)=>{const t={x,y};const p=new Proxy(t,{get:(t,k)=>k in t?t[k]:(...args)=>{if(k==='setPosition'){t.x=args[0];t.y=args[1];}if(k==='setText')t.text=args[0];return p;}});objects.push(p);return p;};
- const scene={add:new Proxy({},{get:()=>object}),make:new Proxy({},{get:()=>object}),textures:{exists:()=>false},input:{on:(e,f)=>handlers[e]=f,off(){}},time:{now:0}};
+ const scene={add:new Proxy({},{get:()=>object}),make:new Proxy({},{get:()=>object}),textures:{exists:()=>false},load:{once(){},off(){},image(){},start(){},isLoading:()=>false},input:{on:(e,f)=>handlers[e]=f,off(){}},time:{now:0}};
  const api={step:1,phase,data,completed,work:{},image:object,hero:object,panel:object,text:(t,x,y)=>object(x,y),card:object,task(){},say(){},save(){},counter(){},spark(){},record(){},listenCleanup(){},setToolHandler(){},actions:list=>list.forEach(a=>actions[a.id]=a.onClick),finish:()=>finishes++};
  const hooks=setup(scene,api),tick=ms=>{for(let n=0;n<ms;n+=20)hooks.update(clock+=20,20);};
  const walk=(p,ms=4000)=>{handlers.pointerdown({x:p.x+100,y:p.y+80});tick(ms);};
