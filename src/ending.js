@@ -9,7 +9,7 @@ const toolArt=(st,size)=>`<img src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt="$
 const TOWER_PHOTOS={
  river:'/assets/art/river-field-clues-v3.webp',
  volcano:'/assets/art/volcano-caldera-v2.webp',
- rocks:'/assets/art/rocks-crystal-cave-v2.webp',
+ rocks:'/assets/art/rocks-basalt-granite-v1.webp',
  city:'/assets/art/city-harbor-v2.webp',
  safety:'/assets/art/safety-evacuation-garden-v2.webp'
 };
