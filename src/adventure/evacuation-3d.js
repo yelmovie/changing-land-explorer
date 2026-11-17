@@ -5,7 +5,6 @@ import {hazardMargin} from '../learning-model.js';
 // saved route; this view only reads that state, sends walking targets and adds the game layer:
 // safe-footprint badges, rule boards, an aftershock to crouch through and the assembly flag.
 const S=50; // map units per world unit
-const BOARD={x:85,y:68,w:1030,h:516}; // part of the 1200 × 640 Phaser scene the view covers
 const reducedMotion=()=>typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 export const EVAC_PICKUPS={
  school:{
@@ -56,14 +55,13 @@ export async function mountEvacuation3D(scene,bridge){
   <span class="evac3d-chip"><img src="/assets/hero-protect.webp" alt=""><i>몸 낮추기</i> <b data-k="crouch">0/${AFTERSHOCKS.count}</b></span>
  </div>
  <canvas class="evac3d-mini" width="200" height="106" aria-hidden="true"></canvas>
- <div class="evac3d-banner" role="alert" hidden><strong>여진!</strong><span>멈추고 몸을 낮춰 머리를 보호해</span></div>
- <button class="evac3d-crouch" type="button" aria-keyshortcuts="Space">몸 낮추기 <kbd>Space</kbd></button>
- <p class="evac3d-help">WASD·방향키로 걷기 · 바닥을 누르면 그곳으로 걸어가 · Space 몸 낮추기</p>
+ <div class="evac3d-banner" role="alert" hidden><strong>여진!</strong></div>
+ <button class="evac3d-crouch" type="button" aria-keyshortcuts="Space" hidden>몸 낮추기 <kbd>Space</kbd></button>
  <div class="evac3d-result" hidden></div>`;
  const view=renderer.domElement;view.className='evac3d-canvas';view.tabIndex=0;
  view.setAttribute('role','img');view.setAttribute('aria-label',`3D ${outside?'학교 밖':'학교 안'} 대피길. 위험 구역을 피해 ${place}까지 걸어가요.`);
  host.prepend(view);stage.append(host);
- const $=s=>host.querySelector(s),mini=$('.evac3d-mini').getContext('2d'),banner=$('.evac3d-banner'),crouchButton=$('.evac3d-crouch'),help=$('.evac3d-help'),result=$('.evac3d-result');
+ const $=s=>host.querySelector(s),mini=$('.evac3d-mini').getContext('2d'),banner=$('.evac3d-banner'),crouchButton=$('.evac3d-crouch'),result=$('.evac3d-result');
 
  // ---------- scene ----------
  const world=new THREE.Scene();
@@ -223,7 +221,7 @@ export async function mountEvacuation3D(scene,bridge){
 
  // ---------- state ----------
  let visible=true,facing='south',stride=0,last={...bridge.current},clock=0,walked=0,held=new Set(),keyDriven=false,dragging=null;
- let flagTime=0,quake=null,quakesDone=0,crouchTimer=0,crouchHits=0,medalCount=0,ruleCount=0,arrived=false,frameNo=0,lastHazard={msg:'',at:-1e4},camPos=null,helpShown=true;
+ let flagTime=0,quake=null,quakesDone=0,crouchTimer=0,crouchHits=0,medalCount=0,ruleCount=0,arrived=false,frameNo=0,lastHazard={msg:'',at:-1e4},camPos=null;
  const camTarget=new THREE.Vector3();
  function chips(){
   $('[data-k="medal"]').textContent=`${medalCount}/${medals.length}`;
@@ -233,10 +231,11 @@ export async function mountEvacuation3D(scene,bridge){
 
  // ---------- layout ----------
  function fit(){
-  const c=canvas.getBoundingClientRect(),s=stage.getBoundingClientRect();
-  if(!c.width||!c.height)return;
-  const k=c.width/1200,w=Math.round(BOARD.w*k),h=Math.round(BOARD.h*c.height/640);
-  Object.assign(host.style,{left:`${c.left-s.left+BOARD.x*k}px`,top:`${c.top-s.top+BOARD.y*c.height/640}px`,width:`${w}px`,height:`${h}px`});
+  // The 3D walk fills the whole play surface; the flat board's frame and margins stay behind it.
+  const s=stage.getBoundingClientRect();
+  if(!s.width||!s.height)return;
+  const w=Math.round(s.width),h=Math.round(s.height);
+  Object.assign(host.style,{left:'0px',top:'0px',width:`${w}px`,height:`${h}px`});
   host.classList.toggle('is-compact',w<640);host.classList.toggle('is-tiny',w<420);
   renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
  }
@@ -249,7 +248,7 @@ export async function mountEvacuation3D(scene,bridge){
   ray.setFromCamera(ndc,camera);if(!ray.ray.intersectPlane(plane,hit))return null;
   return {x:hit.x*S+500,y:hit.z*S+265};
  }
- function walkTo(e){const q=toMap(e);if(q&&q.x>=40&&q.x<=960&&q.y>=40&&q.y<=490){keyDriven=false;bridge.aim(q);hideHelp();}}
+ function walkTo(e){const q=toMap(e);if(q&&q.x>=40&&q.x<=960&&q.y>=40&&q.y<=490){keyDriven=false;bridge.aim(q);}}
  const onDown=e=>{if(document.querySelector('dialog[open]'))return;view.setPointerCapture?.(e.pointerId);dragging=e.pointerId;walkTo(e);};
  const onMove=e=>{if(dragging===e.pointerId)walkTo(e);};
  const onUp=e=>{if(dragging===e.pointerId)dragging=null;};
@@ -259,7 +258,7 @@ export async function mountEvacuation3D(scene,bridge){
  const keydown=e=>{
   if(!visible||e.altKey||e.ctrlKey||e.metaKey||typing(e.target)||document.querySelector('dialog[open]'))return;
   const k=e.key.toLowerCase();
-  if(KEYS[k]){e.preventDefault();held.add(k);hideHelp();}
+  if(KEYS[k]){e.preventDefault();held.add(k);}
   else if(e.key===' '&&spaceTarget(e.target)){e.preventDefault();if(!e.repeat)crouch();}
  };
  // Space crouches even right after a route button was clicked, instead of pressing that button again.
@@ -268,7 +267,6 @@ export async function mountEvacuation3D(scene,bridge){
  const blur=()=>held.clear();
  window.addEventListener('keydown',keydown);window.addEventListener('keyup',keyup);window.addEventListener('blur',blur);
  crouchButton.addEventListener('click',()=>crouch());
- function hideHelp(){if(helpShown){helpShown=false;help.classList.add('is-faded');}}
 
  function steer(){
   if(!held.size){if(keyDriven){keyDriven=false;bridge.halt();}return;}
@@ -304,7 +302,7 @@ export async function mountEvacuation3D(scene,bridge){
    const due=AFTERSHOCKS.first+quakesDone*AFTERSHOCKS.gap;
    if(walked>=due&&bridge.moving){
     quake={t:0,crouched:false};bridge.setLocked(true);held.clear();keyDriven=false;
-    banner.hidden=false;crouchButton.classList.add('is-urgent');playSound('alert',{force:true});
+    banner.hidden=false;crouchButton.hidden=false;crouchButton.classList.add('is-urgent');playSound('alert',{force:true});
     bridge.say('여진이야! 걷지 말고 그 자리에서 몸을 낮춰 머리를 보호해.');
    }
    return;
@@ -313,7 +311,7 @@ export async function mountEvacuation3D(scene,bridge){
   if(quake.t>=AFTERSHOCKS.length){
    if(quake.crouched){crouchHits++;bridge.say('여진이 멈췄어. 잘 기다렸어! 다시 천천히 걸어가자.');}
    else bridge.say('여진이 올 때는 걷지 말고 몸을 낮춰 머리를 보호해. 이제 다시 천천히 걸어가자.');
-   quake=null;quakesDone++;crouchTimer=0;bridge.setLocked(false);banner.hidden=true;crouchButton.classList.remove('is-urgent');chips();
+   quake=null;quakesDone++;crouchTimer=0;bridge.setLocked(false);banner.hidden=true;crouchButton.hidden=true;crouchButton.classList.remove('is-urgent');chips();
   }
  }
 
@@ -384,7 +382,7 @@ export async function mountEvacuation3D(scene,bridge){
  }
  function reset(){
   arrived=false;quake=null;quakesDone=0;crouchHits=0;crouchTimer=0;walked=0;medalCount=0;ruleCount=0;held.clear();keyDriven=false;
-  banner.hidden=true;result.hidden=true;crouchButton.hidden=false;flagTime=0;crouchButton.classList.remove('is-urgent');
+  banner.hidden=true;result.hidden=true;crouchButton.hidden=true;flagTime=0;crouchButton.classList.remove('is-urgent');
   for(const m of medals){m.taken=false;m.pop=0;m.mesh.visible=true;m.mesh.scale.setScalar(1);m.mesh.material.forEach(x=>{x.opacity=1;});}
   for(const r of rules){r.read=false;paintRule(r);}
   placeBeacon();chips();last={...bridge.current};
@@ -398,7 +396,7 @@ export async function mountEvacuation3D(scene,bridge){
   get ownsKeys(){return visible;},
   setVisible(on){
    visible=on;host.hidden=!on;held.clear();keyDriven=false;
-   if(!on&&quake){quake=null;quakesDone++;banner.hidden=true;crouchButton.classList.remove('is-urgent');bridge.setLocked(false);}
+   if(!on&&quake){quake=null;quakesDone++;banner.hidden=true;crouchButton.hidden=true;crouchButton.classList.remove('is-urgent');bridge.setLocked(false);}
    if(on){fit();last={...bridge.current};frame(0);}
   },
   frame,reset,arrive,

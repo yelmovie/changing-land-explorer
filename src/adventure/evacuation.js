@@ -41,23 +41,22 @@ export function setupEvacuation(scene,api){
   api.text('출발',start.x,start.y-60,19,'#ffffff').setBackgroundColor('#735321').setPadding(8,2);
   if(scene.textures.exists('art/ui/playground'))api.image('art/ui/playground',goal.x,goal.y,104,104);else scene.add.circle(goal.x,goal.y,37,0x84bf85).setStrokeStyle(5,0xfffbdf);
   api.text(outside?'공터':'운동장',goal.x,goal.y+64,19,'#ffffff').setBackgroundColor('#2f7a55').setPadding(8,2);
-  api.card('가상 대피 게임 · 흔들림이 멈춘 뒤 선생님과 걸어요',600,40,650,52,20);
   const shadow=scene.add.ellipse(start.x,start.y+24,42,12,0x183d32,.24);
   const hero=api.hero(start.x,start.y,78,'river-pose-2').setDepth(8);
   const marker=scene.add.graphics().setDepth(7),prints=scene.add.graphics();
-  api.panel(225,610,265,48,0x55382c,.98);api.panel(780,610,580,48,0x234d3c,.98);
-  const hearts=api.text('',225,610,22,'#fff1e8'),status=api.text('',780,610,20,'#ffffff');
   let current={...config.start},points=[{...config.start}],target=null,lives=3,blockedUntil=0,clock=0,steps=0,complete=!!api.completed,won=false,paused=false,locked=false,view3d=null,alive=true;
   const gates=new Set(),trail=[];
-  function hud(){hearts.setText('천천히 · 다시 시도 가능');status.setText(won?'안전 도착!':lives===0?'다시 도전하면 하트 3개로 시작해요':outside?'건물 · 담장 · 전신주와 거리 두기':gates.size?'출구 통과! 운동장으로 걸어요':'위험을 피해 출구 → 운동장');api.counter(won?1:0,1,'안전 도착');}
+  // The goal stays in #instruction and the next move in #speech; the board itself carries no extra caption or status bar.
+  function hud(){api.counter(won?1:0,1,'안전 도착');}
   function stop(){target=null;marker.clear();hero.setAngle(0);paused=true;draw(false);}
   function reset(){current={...config.start};points=[{...config.start}];target=null;lives=3;blockedUntil=0;won=false;paused=false;locked=false;gates.clear();trail.length=0;prints.clear();marker.clear();hero.setAlpha(1).setAngle(0);view3d?.reset();hud();draw(false);api.say('다시 출발! 급하게 가지 않아도 괜찮아. 위험 구역 바깥의 통로를 골라 줘.');}
   function aim(p){if(locked||lives===0||won||globalThis.document?.hidden||globalThis.document?.querySelector('dialog[open]'))return;paused=false;target=p;marker.clear().lineStyle(3,0xffe28a,1).strokeCircle(ox+p.x,oy+p.y,15);}
   function moveBy(x,y){aim({x:current.x+x,y:current.y+y});}
   function controls(){
-   const list=[{id:'route-left',label:'← 왼쪽',onClick:()=>moveBy(-55,0)},{id:'route-up',label:'↑ 위',onClick:()=>moveBy(0,-55)},{id:'route-down',label:'↓ 아래',onClick:()=>moveBy(0,55)},{id:'route-right',label:'→ 오른쪽',onClick:()=>moveBy(55,0)},{id:'route-stop',label:'멈추기',onClick:stop},{id:'route-reset',label:'다시 도전',onClick:reset}];
+   // One direction pad in the toolbar; stop, retry and the view switch live in the tools menu.
+   const list=[{id:'route-left',label:'← 왼쪽',onClick:()=>moveBy(-55,0)},{id:'route-up',label:'↑ 위',onClick:()=>moveBy(0,-55)},{id:'route-down',label:'↓ 아래',onClick:()=>moveBy(0,55)},{id:'route-right',label:'→ 오른쪽',onClick:()=>moveBy(55,0)},{id:'route-stop',label:'멈추기',tool:true,onClick:stop},{id:'route-reset',label:'다시 도전',tool:true,onClick:reset}];
    // The 3D walk is an extra view over the same route rules; the flat map stays one tap away.
-   if(view3d)list.push({id:'route-view',label:view3d.visible?'지도로 보기':'3D로 보기',onClick:()=>{view3d.setVisible(!view3d.visible);controls();}});
+   if(view3d)list.push({id:'route-view',label:view3d.visible?'지도로 보기':'3D로 보기',tool:true,onClick:()=>{view3d.setVisible(!view3d.visible);controls();}});
    api.actions(list);
   }
   controls();

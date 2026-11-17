@@ -420,9 +420,13 @@ export function mount(ctx) {
           return object;
         },
         actions(actions){
-          const extras=actions.filter(a=>a.id.endsWith('-3d'));
-          actions=actions.filter(a=>!a.id.endsWith('-3d'));
+          // Secondary moves (3D views, retry, view switch) go to the tools menu so the toolbar keeps one job.
+          const toTools=a=>a.tool||a.id.endsWith('-3d');
+          const extras=actions.filter(toTools);
+          actions=actions.filter(a=>!toTools(a));
           for(const old of toolMenu.querySelectorAll('[data-extra-tool]'))old.remove();
+          // The menu stays hidden in activities unless a scene hands it its own secondary moves.
+          toolMenu.hidden=!extras.some(a=>a.tool);if(toolMenu.hidden)toolMenu.open=false;
           for(const action of extras){const b=document.createElement('button');b.type='button';b.id=action.id;b.dataset.extraTool='';b.className='secondary';b.textContent=action.label;b.onclick=()=>{dismissTools();action.onClick();};$('.adventure-side-tools',toolMenu).append(b);}
           let buttons=$('.action-buttons',ctx.controls);
           if(!buttons){buttons=document.createElement('div');buttons.className='action-buttons';ctx.controls.prepend(buttons);}

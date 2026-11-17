@@ -60,6 +60,8 @@
  right:calc(var(--hud-pad)*2 + var(--hud-icon)*2 + var(--hud-gap));
  width:auto;max-width:none;gap:8px;padding:5px 10px 5px 16px;
 }
+/* When a scene shows the tools menu (evacuation walk), the heading starts after the third icon. */
+#app.adventure:has(.topbar .activity-tools:not([hidden])) .adventure-heading{left:calc(var(--hud-pad)*2 + var(--hud-icon)*3 + var(--hud-gap)*2)}
 #app.adventure #quest-meter{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 #app.adventure .task-copy{flex-basis:auto}
 #app.adventure .task-copy h1{font-size:clamp(20px,1.8vw,30px);line-height:1.25;text-wrap:pretty}
@@ -110,7 +112,7 @@
  border:2px solid #8f7442;border-radius:999px;background:#fff9eb;color:#294f41;box-shadow:0 4px 0 #6e5428;
 }
 .activity-tools>summary::-webkit-details-marker{display:none}
-#app.adventure .activity-tools>summary>span{font-size:13px;font-weight:700;line-height:1}
+#app.adventure .activity-tools>summary>span{font-size:18px;font-weight:700;line-height:1}
 #app.adventure .activity-tools .adventure-side-tools{
  position:absolute;inset:calc(100% + 10px) auto auto 0;z-index:40;
  display:grid;grid-template-columns:1fr;width:220px;max-width:none;gap:8px;
