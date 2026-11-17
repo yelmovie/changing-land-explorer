@@ -17,7 +17,8 @@
   overflow: hidden;
 }
 #overlay dialog.resident-stage::backdrop {
-  background: #14282099;
+  /* Same light scrim as other dialogs (glass-ui.css, about .22) so the village stays visible. */
+  background: #14282038;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
 }
