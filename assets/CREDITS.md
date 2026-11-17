@@ -53,6 +53,7 @@
 | `brush.mp3` | `scratch_003.ogg` | Kenney Interface Sounds | CC0 1.0 |
 | `move.mp3` | `switch_002.ogg` | Kenney Interface Sounds | CC0 1.0 |
 | `water.mp3` | `bubbles-single3.wav` | Brian MacIntosh / BMacZero, Bubble Sound Effects | CC0 1.0 |
+| `map-*.mp3` 8개 (지도 전투음) | 과학34 공통 효과음 라이브러리 2026-11-17 | Freesound 제작자 7명, 파일별 출처는 `public/assets/audio/CREDITS.md` | CC0 1.0 (원본 페이지 재확인) |
 
 원본·라이선스 상세: `public/assets/audio/CREDITS.md`와 `Kenney-CC0.txt`. FFmpeg로 모노 MP3 변환했다.
 

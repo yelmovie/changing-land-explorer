@@ -3,7 +3,9 @@ import {openMapFinale} from './map-finale.js';
 import {syncMapHitLayout} from './map-hit-layout.js';
 import {MAP_VILLAINS,VILLAIN_HITS,defeatedVillains} from './map-villain-rules.js';
 import {createCombat,stepCombat,attackCombat,COMBAT,villainCellSize,riverCombatFrame} from './map-combat-engine.js';
-import {playSound} from './sound.js';
+import {playSound,playCue} from './sound.js';
+// Villains already announced in this page session; re-entering the map stays quiet.
+const announced=new Set();
 // Place speech in map space without covering interactive signs, icons or other speech.
 function layoutSpeech(host, entries){
  const visible=entries.filter(({el})=>!el.hidden&&el.closest('[hidden]')===null);
@@ -62,6 +64,10 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
  const syncDock=dockMapAttack(attack,()=>hand);
  syncDock();
  let closed=false,raf=0,last=0,lastPaint=0,lastPose=-1,flashUntil=0,lastNear=null;
+ const cueStops=[],cue=(name,delay)=>{cueStops.push(playCue(name,delay));if(cueStops.length>8)cueStops.shift();};
+ // One soft arrival sound once the map has settled, only for villains not heard yet.
+ const arrivals=roster.filter(v=>game.progress.hits[v.id]<VILLAIN_HITS&&!announced.has(v.id));
+ let appearAt=arrivals.length?performance.now()+700:0;
  const visibility=()=>{if(!document.hidden)game.invulnerableUntil=Math.max(game.invulnerableUntil,performance.now()+1000);};document.addEventListener('visibilitychange',visibility);
  function setFrame(el,frame,cols=3,rows=2){el.style.backgroundPosition=`${(frame%cols)/(cols-1)*100}% ${Math.floor(frame/cols)/(rows-1||1)*100}%`;}
  function commit(){state.mapVillains=game.progress;save();renderHud();}
@@ -118,6 +124,8 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
   if(!available()||cleared()||!game.enemies.some(enemy=>game.progress.hits[enemy.id]<VILLAIN_HITS&&(!targetId||enemy.id===targetId)&&inRange(enemy)))return;
   if(!targetId&&selectedEnemy&&game.progress.hits[selectedEnemy.id]<VILLAIN_HITS&&inRange(selectedEnemy))targetId=selectedEnemy.id;
   const now=performance.now(),hero=getHero(),event=attackCombat(game,hero,now,targetId,{reduced,clear:clearPoint});if(!event)return;
+  // Sound follows the accepted attack only, so cooldown, key repeat and touch+key share one hit.
+  cue('attack-swing');
   stopTravel();reveal(hero.x/1200,hero.y/675);wave.style.left=hero.x/12+'%';wave.style.top=hero.y/6.75+'%';wave.classList.remove('strike');void wave.offsetWidth;wave.classList.add('strike');flashUntil=now+(reduced?150:430);
   if(event.type==='miss'){say('아직 멀어! 악당을 눌러 가까이 가면 초록색 공격 표시가 떠.');playSound('retry');}
   else{
@@ -127,8 +135,8 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
    lastSpeechLayout=-Infinity;
    el.dataset.lineUntil=String(now+(event.type==='defeat'?2200:1800));
    callback.hidden=true;
-   if(event.type==='defeat'){if(defeatedVillains(game.progress)===MAP_VILLAINS.length)finaleAt=now+2350;if(document.activeElement===el)attack.focus({preventScroll:true});say(defeatedVillains(game.progress)===MAP_VILLAINS.length?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 지도를 둘러보며 남은 악당을 찾아봐.');playSound('defeat',{force:true});}
-   else{say(event.remaining===2?'앗, 바위에 금이 갔어! 두 번 남았어.':'자갈이 튀었어! 한 번 남았어.');playSound('hit',{force:true});}
+   if(event.type==='defeat'){if(defeatedVillains(game.progress)===MAP_VILLAINS.length)finaleAt=now+2350;if(document.activeElement===el)attack.focus({preventScroll:true});say(defeatedVillains(game.progress)===MAP_VILLAINS.length?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 지도를 둘러보며 남은 악당을 찾아봐.');cue('hit-heavy');cue('villain-exit',reduced?120:260);if(finaleAt)cue('victory-jingle',900);}
+   else{say(event.remaining===2?'앗, 바위에 금이 갔어! 두 번 남았어.':'자갈이 튀었어! 한 번 남았어.');cue(event.remaining===2?'hit-light':'hit-light-2');}
   }
   paint(now);
  }
@@ -181,9 +189,10 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
  }
  function tick(now){
   if(closed)return;raf=requestAnimationFrame(tick);if(now-lastPaint<33)return;const dt=last?now-last:0;last=now;lastPaint=now;
-  if(available())for(const e of stepCombat(game,getHero(),dt,now,{reduced,clear:clearPoint})){playSound('retry');say('돌먼지가 톡 닿았어. 떨어져서 파동을 써 봐!');}
+  if(appearAt&&now>=appearAt&&available()){appearAt=0;arrivals.forEach(v=>announced.add(v.id));cue('villain-appear');}
+  if(available())for(const e of stepCombat(game,getHero(),dt,now,{reduced,clear:clearPoint})){cue('hurt-bump');say('돌먼지가 톡 닿았어. 떨어져서 파동을 써 봐!');}
   paint(now);
  }
  renderHud();paint(performance.now());raf=requestAnimationFrame(tick);
- return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);heroPose(-1);layer.remove();attack.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
+ return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);cueStops.forEach(stop=>stop());spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);heroPose(-1);layer.remove();attack.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
 }

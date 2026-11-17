@@ -55,7 +55,17 @@ const effectClips = {
   'tool-reward':{file:'reward', volume:.5},
   'village-wake':{file:'village-rise', volume:.43},
   stamp:{file:'stamp-ding', volume:.42},
-  festival:{file:'fanfare', volume:.6}
+  festival:{file:'fanfare', volume:.6},
+  // 지도 돌먼지 대장 전투음(공통 CC0 효과음 라이브러리). 탁 → 우두둑 → 사각, 접촉은 툭.
+  // 라이브러리 원본은 -18~-28 LUFS로 이 프로젝트 합성음보다 작아서 음량 값을 더 높게 잡았다.
+  'attack-swing':{file:'map-swing', volume:.55},
+  'hit-light':{file:'map-hit-1', volume:.9},
+  'hit-light-2':{file:'map-hit-2', volume:.9},
+  'hit-heavy':{file:'map-hit-heavy', volume:.85},
+  'villain-exit':{file:'map-exit', volume:.5},
+  'villain-appear':{file:'map-appear', volume:.45},
+  'hurt-bump':{file:'map-bump', volume:.7},
+  'victory-jingle':{file:'map-victory', volume:.5}
 };
 const baseVolume = name => effectClips[name]?.volume ?? fieldSounds[name]?.volume ?? (name === 'water' ? .24 : .3);
 const sourceFor = (name, audio) => {

@@ -118,7 +118,7 @@ test('resident motion follows playing events and clears on interruption', async(
 test('achievement effects use the rising synthesized clips and climb on a streak', async()=>{
  const {existsSync}=await import('node:fs');
  audio.setSoundEnabled(true);audio.setEffectsVolume(100);document.hidden=false;
- const files={complete:'success',place:'good',pickup:'lift',retry:'retry','tool-reward':'reward','village-wake':'village-rise',festival:'fanfare',stamp:'stamp-ding',hit:'hit',defeat:'defeat',alert:'alert',coin:'coin',hint:'twinkle',observe:'capture'};
+ const files={complete:'success',place:'good',pickup:'lift',retry:'retry','tool-reward':'reward','village-wake':'village-rise',festival:'fanfare',stamp:'stamp-ding',hit:'hit',defeat:'defeat',alert:'alert',coin:'coin',hint:'twinkle',observe:'capture','attack-swing':'map-swing','hit-light':'map-hit-1','hit-light-2':'map-hit-2','hit-heavy':'map-hit-heavy','villain-exit':'map-exit','villain-appear':'map-appear','hurt-bump':'map-bump','victory-jingle':'map-victory'};
  for(const [name,file] of Object.entries(files)){
   audio.playSound(name,{force:true});const src=players.at(-1).src;
   assert.equal(src,`/assets/audio/${file}.mp3`,name);assert.ok(existsSync('public'+src),src);

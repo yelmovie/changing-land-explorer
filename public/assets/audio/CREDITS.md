@@ -71,8 +71,8 @@
 | twinkle.mp3 | hint | 힌트 열기 |
 | capture.mp3 | observe | 관찰 증거 기록 |
 | alert.mp3 | alert | 대피길 여진 경고 |
-| hit.mp3 | hit | 돌먼지 악당 맞히기 |
-| defeat.mp3 | defeat | 돌먼지 악당 퇴치 |
+| hit.mp3 | hit | (2026-11-17부터 지도 전투는 아래 라이브러리 소리 사용) |
+| defeat.mp3 | defeat | (2026-11-17부터 지도 전투는 아래 라이브러리 소리 사용) |
 | reward.mp3 | tool-reward | 장소를 마치고 새 도구 받기 |
 | village-rise.mp3 | village-wake | 마을이 깨어날 때 |
 | stamp-ding.mp3 | stamp | 친구 도장 찍기 |
@@ -81,3 +81,20 @@
 earshot으로 들어 본 결과: 새 성공음들은 "success chime" z +3.9~4.3, 분위기 "uplifting and hopeful" z +2.3~2.6으로 읽혔어(옛 정답음은 z +3.2에 "cheap synthesized beep" z +3.8, 옛 도구 보상음의 1순위는 "snare hit"). 사람 귀로 블라인드 비교한 건 아니야.
 
 위 표의 옛 파일(`complete.mp3`, `place.mp3`, `pickup.mp3`, `hint.mp3`, `observe.mp3`, `tool-reward.ogg`, `village-wake.ogg`, `stamp.ogg`, `festival.ogg`)은 더는 재생하지 않지만 기록용으로 남겨 뒀어.
+
+## 지도 돌먼지 대장 전투음 (2026-11-17 추가)
+
+과학34 공통 효과음 라이브러리(`_shared/sfx-library-20261117`)에서 골라 이름만 바꿔 복사했어. 모두 원본 페이지에서 CC0 1.0을 다시 확인한 파일이고(라이브러리 `manifest.json`의 `license_rechecked: true`), 라이브러리에서 앞뒤 무음 제거·짧은 페이드·음량 정규화·모노 MP3 변환만 했어. 게임에서는 음량만 조절해. 바위 단원에 맞춰 탁(돌) → 자갈 → 우두둑 → 먼지 퍽, 등장은 약한 땅울림으로 맞췄어.
+
+| 게임 파일 | 라이브러리 파일 | 원본 · 제작자 | 라이선스 | 쓰는 곳 |
+|---|---|---|---|---|
+| map-swing.mp3 | sfx/attack-swing-03.mp3 | [SWOSH-01 44.1kHz.flac](https://freesound.org/people/qubodup/sounds/59988) · qubodup | CC0 1.0 | 공격 시작(attack-swing) |
+| map-hit-1.mp3 | sfx/step-01.mp3 | [Footstep on Stone](https://freesound.org/people/sgossner/sounds/197778) · sgossner | CC0 1.0 | 1타 명중(hit-light) |
+| map-hit-2.mp3 | sfx/step-02.mp3 | [concrete footstep 4](https://freesound.org/people/Yoyodaman234/sounds/166506) · Yoyodaman234 | CC0 1.0 | 2타 명중(hit-light-2) |
+| map-hit-heavy.mp3 | sfx/hit-heavy-03.mp3 | [body_hit.wav](https://freesound.org/people/insanity54/sounds/276600) · insanity54 | CC0 1.0 | 3타 명중(hit-heavy) |
+| map-exit.mp3 | sfx/villain-exit-03.mp3 | [Dry Puff.wav](https://freesound.org/people/valeofhearts/sounds/532234) · valeofhearts | CC0 1.0 | 악당 퇴장(villain-exit) |
+| map-appear.mp3 | sfx/earth-rumble-01.mp3 | [Deep Ambient Rumble](https://freesound.org/people/IanStarGem/sounds/269592) · IanStarGem | CC0 1.0 | 악당 첫 등장, 세션당 한 번(villain-appear) |
+| map-bump.mp3 | sfx/hurt-bump-01.mp3 | [LowHit_01.wav](https://freesound.org/people/Faulkin/sounds/336495) · Faulkin | CC0 1.0 | 리버가 악당에 닿았을 때(hurt-bump) |
+| map-victory.mp3 | sfx/victory-jingle-02.mp3 | [WinBrass.wav](https://freesound.org/people/Fupicat/sounds/521639) · Fupicat | CC0 1.0 | 다섯 마리 모두 퇴치(victory-jingle). 피날레 영상은 음소거로 시작해 겹치지 않음 |
+
+예전 합성음 `hit.mp3`·`defeat.mp3`는 지도 전투에서 더 쓰지 않지만 `scripts/make-sfx.mjs` 결과물로 남겨 뒀어.
