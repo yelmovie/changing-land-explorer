@@ -106,3 +106,7 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 ## 도시 안내 포스터 — 2026-11-15
 
 공항·농장·온천의 행동 선택 그림 6장은 Codex 기본 이미지 생성 도구로 한 장씩 제작한 학습용 일러스트다. 배포용 불투명 WebP는 `public/assets/art/posters/`에 있고, 한글 문구는 게임에서 표시한다. [생성 프롬프트](generated/city-posters-20261115/prompts.md)
+
+## 기록탑 암석 액자 — 2026-11-17
+
+`public/assets/art/rocks-basalt-granite-v1.webp`는 Codex 기본 이미지 생성 도구(`gpt-imagegen`)로 만든 학습용 일러스트다. 프로젝트의 공방 배경과 현무암·화강암 학습 그림을 참고 그림으로 붙였다. 프롬프트: Wide 16:9 illustration for a children's earth science game, in the same bright painterly storybook style and warm lighting as the first reference image (a rock workshop inside a sunlit stone cave with small waterfalls, ferns and brass lanterns). Close-up view of the round stone display pedestal in the middle of the workshop: on top of it sit two large rock specimens side by side, clearly the main subject and filling the centre of the picture. On the left a dark grey-black basalt rock with a fine-grained, almost smooth dull surface and a few small round gas holes, exactly like the second reference image. On the right a light grey-white granite rock with large clearly visible speckled grains of white, pale pink and black, exactly like the third reference image. Each rock rests on its own small empty wooden tray, a small magnifying glass and a soft brush lie on the pedestal between them. The cave workshop is softly blurred behind them. Keep both rocks fully visible and centred with some margin, nothing cut off. No purple crystals, no gems, no people, no text, no letters, no labels, no numbers, no logo.

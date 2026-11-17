@@ -1,5 +1,6 @@
 # 지오밸리 인계
 프로젝트: 현재 체크아웃의 루트 (`package.json`이 있는 폴더). 드라이브 문자는 작업 환경마다 다르다.
+2026-11-17 기록탑 「돌 속의 단서」 액자: 공방 배경(`rocks-crystal-cave-v2`, 자수정 동굴)만 있고 현무암·화강암이 없다는 사용자 지적으로, 받침 위에 현무암·화강암 표본을 올린 그림을 새로 만들어 액자에만 연결했다(`src/ending.js`의 `TOWER_PHOTOS.rocks` → `public/assets/art/rocks-basalt-granite-v1.webp`, 4:3 1200×900). 공방 배경 파일은 다른 화면에서 쓰므로 그대로 뒀다. 생성은 `gpt-imagegen`에 공방 배경·현무암·화강암 학습 그림 세 장을 작은 PNG 참고 그림으로 붙여 한 번에 됐고, 원본은 `assets/raw-png/record-tower-20261117/rocks-basalt-granite-v1.png`(git 제외)다. 내장 임시 원본은 지웠다. 커밋 `ab6571a` → Cloudflare Pages `99cbad9c`(직전 `8c8720c8`, 8e9a158). `npm run check`, `npm test` 179/179, 운영 주소 파일 88개 해시 일치, 운영 기록탑 캡처 확인. `scripts/check-end-state.mjs`는 기록탑 캡처 뒤 지금 없는 `#transfer-time`을 기다리다 시간 초과로 끝난다(기존 스크립트가 낡은 것, 이번 변경과 무관).
 2026-11-16 안전훈련소 정리: 3D 대피 2단계는 학교 지도를 좌우로 뒤집은 `SCHOOL_DRILL_CONFIG`(오른쪽 교실 출발·위험 위치 바뀜·약속판 계단/머리 보호/인원 확인)라 1단계와 다른 장면이다. 학교 밖은 위험물별 `margin`(건물 40·담장 30·전신주 30)으로 거리를 두고, 발자국·약속판은 그 구역에서 30 이상 떨어져 있다. 옛 배치에서 끝낸 기록은 `routeConfigs`로 완료 유지. 3D 리버 걷기 시트는 밉맵 끄고 UV 1.5px 안쪽, 1단계 경고 표지는 원 안에 들어가게 84×78.
 
 2026-11-16 효과음 고도화: 성공 순간에 반음씩 내려가던 마을 깨어남·축제 소리, 흔들리던 도구 보상음, 8비트 정답음을 `scripts/make-sfx.mjs`로 직접 합성한 C장조 상승 효과음 14개로 바꿨다(`src/sound.js`의 `effectClips`). 악당 맞히기·퇴치·헛방, 대피 배지·여진 경고, 현장 작전 실패도 상황에 맞는 소리로 바꿨고, 연속 정답은 반음씩 오르는 콤보가 된다. 목록·검증은 `public/assets/audio/CREDITS.md` 맨 아래.
