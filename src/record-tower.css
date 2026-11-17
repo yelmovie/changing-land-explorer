@@ -13,10 +13,10 @@
 }
 .tower-heading {margin:clamp(12px,4dvh,48px) auto clamp(16px,3dvh,32px);color:var(--tower-paper);text-shadow:0 2px 10px #10211b;}
 .tower-heading h1 {margin:0 0 8px;font-size:clamp(32px,4vw,60px);line-height:1.08;font-weight:800;}
-.tower-heading p {font-size:clamp(16px,1.75vw,24px);line-height:1.45;text-wrap:balance;}
+.tower-heading p {font-size:clamp(18px,1.75vw,24px);line-height:1.45;text-wrap:balance;}
 /* Painted gallery wall: lanterns sit in the top corners, the frames hang on the open panelling. */
 .tower-display {max-width:1224px;margin-inline:auto;padding:clamp(14px,2.2vw,32px) clamp(14px,3vw,48px);border:2px solid var(--tower-brass);border-radius:16px;background:linear-gradient(#0c211bd0,#0c211b30 26%,#0c211b38 72%,#0c211be0),url('/assets/art/tower/wall.webp') center/cover #1e4434;box-shadow:inset 0 0 0 1px #ffe3a533,inset 0 0 40px #07130fb0,0 14px 35px #0c1b1775;}
-.tower-progress {display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 14px;width:fit-content;margin:0 auto 18px;padding:6px 18px 6px 12px;border:1px solid #b68e5399;border-radius:999px;background:#0b1d18c4;color:var(--tower-paper);font-size:clamp(15px,1.4vw,19px);box-shadow:0 4px 14px #050d0b80;}
+.tower-progress {display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 14px;width:fit-content;margin:0 auto 18px;padding:6px 18px 6px 12px;border:1px solid #b68e5399;border-radius:999px;background:#0b1d18c4;color:var(--tower-paper);font-size:clamp(18px,1.4vw,20px);box-shadow:0 4px 14px #050d0b80;}
 .tower-lights {display:flex;gap:6px;align-items:center;padding:2px;}
 .tower-lights i {width:18px;height:28px;background:url('/assets/art/tower/lamp-off.webp') center/contain no-repeat;transition:filter .3s,transform .3s;}
 .tower-lights i.lit {background-image:url('/assets/art/tower/lamp-on.webp');filter:drop-shadow(0 0 6px #ffc75ccc);}
@@ -42,9 +42,9 @@ button.tower-frame {cursor:pointer;}
 @media(hover:hover) {button.tower-frame:not(.mounted):hover .tower-empty-badge {background:var(--tower-gold);color:var(--tower-ink);}}
 .tower-plaque {flex:1;display:grid;align-content:start;justify-items:center;grid-template-rows:auto 1fr auto;gap:3px;width:calc(100% - 8px);margin-inline:auto;padding:8px 6px 6px;border:12px solid transparent;border-image:url('/assets/art/ui/paper-card.webp') 26 fill / 12px stretch;overflow-wrap:anywhere;filter:drop-shadow(0 4px 6px #050d0b80);}
 .tower-plaque>* {margin-inline:-6px;}
-.tower-plaque strong {font-size:clamp(16px,1.55vw,21px);line-height:1.2;word-break:keep-all;}
-.tower-caption {font-size:clamp(13px,1.2vw,17px);color:var(--tower-muted);line-height:1.3;}
-.tower-frame-action {display:flex;justify-content:center;align-items:center;gap:4px;min-height:30px;font-weight:800;font-size:clamp(13px,1.1vw,16px);line-height:1.25;color:#7a5427;}
+.tower-plaque strong {font-size:clamp(18px,1.55vw,22px);line-height:1.2;word-break:keep-all;}
+.tower-caption {font-size:clamp(18px,1.2vw,19px);color:var(--tower-muted);line-height:1.3;}
+.tower-frame-action {display:flex;justify-content:center;align-items:center;gap:4px;min-height:30px;font-weight:800;font-size:clamp(18px,1.1vw,19px);line-height:1.25;color:#7a5427;}
 .tower-frame.mounted .tower-frame-action {color:var(--tower-ink);}
 #app .tower-frame:focus-visible,#app .tower-actions button:focus-visible {outline:3px solid var(--tower-gold);outline-offset:4px;}
 .tower-actions {display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px;margin-top:20px;}
@@ -54,7 +54,7 @@ button.tower-frame {cursor:pointer;}
 .tower-picker>.tower-mat {height:clamp(120px,33dvh,330px);aspect-ratio:auto;}
 .tower-note {padding:6px 2px;text-align:center;}
 .tower-note h3 {margin:0 0 4px;font-size:clamp(18px,3vw,25px);}
-#overlay .tower-note p {margin:0;font-size:clamp(16px,2.1vw,20px);line-height:1.35;}
+#overlay .tower-note p {margin:0;font-size:clamp(18px,2.1vw,20px);line-height:1.35;}
 .tower-note small {color:var(--tower-muted);}
 .tower-pager {display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;text-align:center;}
 #overlay .tower-picker button {min-height:48px;padding-inline:8px;}
@@ -90,8 +90,8 @@ button.tower-frame {cursor:pointer;}
 .tower-review>.tower-mat {height:clamp(110px,26dvh,260px);aspect-ratio:auto}
 .tower-points {display:grid;gap:6px;margin:0;padding:0;list-style:none}
 .tower-points li {display:flex;align-items:baseline;gap:10px;padding:8px 12px;border-radius:12px;background:#f6efd9;border:1px solid #e0cfa2;animation:tower-point .45s cubic-bezier(.2,1.2,.4,1) both;animation-delay:calc(var(--i) * .18s + .1s)}
-.tower-points b {flex:none;min-width:5.5em;color:#246b58;font-size:clamp(16px,2vw,19px)}
-.tower-points span {font-size:clamp(15px,1.9vw,18px);line-height:1.4}
+.tower-points b {flex:none;min-width:5.5em;color:#246b58;font-size:clamp(18px,2vw,20px)}
+.tower-points span {font-size:clamp(18px,1.9vw,19px);line-height:1.4}
 @keyframes tower-point {from{opacity:0;transform:translateY(8px)}}
 .tower-mine {display:flex;gap:8px;align-items:baseline;justify-content:center;margin:0;color:var(--tower-muted,#526356)}
 .tower-mine strong {color:var(--tower-ink,#203e36)}

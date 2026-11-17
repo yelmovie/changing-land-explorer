@@ -27,7 +27,7 @@
  background:#f4fff0c9;
  overflow:hidden;
 }
-.operation-progress {position:absolute;top:10px;right:16px;background:#fffddd;border-radius:14px;padding:6px 12px;font-weight:800;font-size:16px}
+.operation-progress {position:absolute;top:10px;right:16px;background:#fffddd;border-radius:14px;padding:6px 12px;font-weight:800;font-size:var(--label-size)}
 .operation-hero {position:absolute;bottom:4px;width:90px;height:100px;object-fit:contain;transition:left .5s ease;pointer-events:none;z-index:2}
 #operation-board {display:flex;flex-direction:column;justify-content:center;gap:16px;padding:44px 24px 84px;height:100%;box-sizing:border-box;position:relative}
 .operation-task {flex:none;font-size:clamp(20px,2.1vw,27px);margin:0;text-align:center;word-break:keep-all}

@@ -21,7 +21,7 @@
 }
 .dialog-body .saved-evidence p,.dialog-body .bag-grid article p{font-size:var(--body-size)}
 /* Palette -> roles -> readable classroom components. */
-:root{--geo-forest:#294f41;--geo-cream:#fff8e8;--geo-sand:#d1b984;--geo-gold:#f3cc76;--ui-text:var(--geo-forest);--ui-panel:var(--geo-cream);--ui-line:var(--geo-sand);--ui-action:var(--geo-gold);--body-size:clamp(20px,1.35vw,27px);--title-size:clamp(28px,2vw,38px);--label-size:clamp(16px,1.05vw,21px);--space:clamp(12px,1.1vw,22px);--panel-radius:22px}
+:root{--geo-forest:#294f41;--geo-cream:#fff8e8;--geo-sand:#d1b984;--geo-gold:#f3cc76;--ui-text:var(--geo-forest);--ui-panel:var(--geo-cream);--ui-line:var(--geo-sand);--ui-action:var(--geo-gold);--body-size:clamp(20px,1.35vw,27px);--title-size:clamp(28px,2vw,38px);--label-size:clamp(18px,1.05vw,21px);--space:clamp(12px,1.1vw,22px);--panel-radius:22px}
 button:focus-visible,input:focus-visible{outline:4px solid #3d8d9c;outline-offset:4px}
 .secondary,.text-button{font-size:var(--label-size)}.eyebrow,.small{font-size:16px;letter-spacing:.02em}
 .atlas-page:before,dialog::backdrop{backdrop-filter:none}.atlas-footer p{font-size:var(--body-size);line-height:1.45}.atlas-title .eyebrow,.welcome-scroll span{font-size:16px}.atlas-title h1{font-size:var(--title-size)}.pin-sign small{font-size:16px}.pin-sign{font-size:clamp(20px,1.5vw,28px)}.atlas-route-help,.atlas-core small{font-size:16px}.welcome-scroll p{font-size:20px}.welcome-scroll{max-width:540px}.mission-reward span{font-size:18px}.mission-reward b{font-size:21px}
