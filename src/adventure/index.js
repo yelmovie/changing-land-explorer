@@ -14,6 +14,7 @@ import {STAGES} from '../model.js';
 import {enter,navigate} from '../main.js';
 import {createPlayback} from './playback.js';
 import {voiceBusy} from '../sound.js';
+import {playGuideText} from '../guide-voice.js';
 
 const SETUP={river,volcano,rocks,city,safety};
 const ACTION_CUES={
@@ -185,9 +186,9 @@ export function mount(ctx) {
     const cues=HINTS[ctx.s.id]?.[ctx.step]?.[chapter.phase]||[initialHint];
     ctx.sound('hint',{force:true});
     ctx.modal('리버의 탐구 힌트',`<div class="hint-card"><img src="/assets/hero-lens.webp" alt="힌트를 주는 리버"><div><span class="eyebrow">${escapeHTML(PHASES[ctx.s.id][ctx.step][chapter.phase])}</span><p id="hint-copy">${escapeHTML(cues[hintIndex%cues.length])}</p><span id="hint-progress">힌트 ${hintIndex%cues.length+1} / ${cues.length}</span></div></div><div class="hint-actions"><button class="secondary" id="hint-more"${hintIndex>=cues.length-1?' disabled':''}>한 걸음 더</button><button class="primary" id="hint-return">직접 해 볼게</button></div>`,(dialog,close)=>{
-      workHint();
+      workHint();playGuideText(cues[hintIndex%cues.length]);
       function workHint(){const w=chapter.work[chapter.phase]??={};recordHint(w,ctx.s.id,ctx.step,chapter.phase,hintIndex%cues.length);ctx.save();}
-      $('#hint-more',dialog).onclick=()=>{hintIndex=Math.min(cues.length-1,hintIndex+1);workHint();$('#hint-copy',dialog).textContent=cues[hintIndex];$('#hint-more',dialog).disabled=hintIndex===cues.length-1;$('#hint-progress',dialog).textContent=`힌트 ${hintIndex+1} / ${cues.length}`;};
+      $('#hint-more',dialog).onclick=()=>{hintIndex=Math.min(cues.length-1,hintIndex+1);workHint();$('#hint-copy',dialog).textContent=cues[hintIndex];playGuideText(cues[hintIndex]);$('#hint-more',dialog).disabled=hintIndex===cues.length-1;$('#hint-progress',dialog).textContent=`힌트 ${hintIndex+1} / ${cues.length}`;};
       $('#hint-return',dialog).onclick=close;
     });
   }

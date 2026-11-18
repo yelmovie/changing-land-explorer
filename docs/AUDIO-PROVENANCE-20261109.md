@@ -17,3 +17,7 @@
 - `npm run build`: 통과. `npm run check` 구문 검사도 통과.
 - 실제 설치된 Chrome: 각 프로젝트 음성 모듈과 실제 NPC 파일로 사용자 클릭 후 재생 시간 증가, 음소거 즉시 정지 확인. 미디어 오류와 페이지 오류 0. 재현 명령은 5magnet에서 `node scripts/audio-series-lifecycle.cjs`이다. 테스트 서버는 루프백 주소만 사용하고 종료 시 닫는다.
 - 파일 전체의 청감·모든 대사 끝까지 듣기·iPad 실제 장치 출력은 이번 검사 범위가 아니다.
+
+## 2026-11-18 현재 음성 출처
+
+- 위 기록의 Qwen3-TTS·Supertonic 음성은 지금 앱에서 재생하지 않는다. 리버와 주민 대사는 모두 ElevenLabs 캐릭터별 고정 목소리(eleven_v4, 유료 요금제 상업 이용)다. 줄별 출처는 `docs/VOICE-FILL-20261118.json`.

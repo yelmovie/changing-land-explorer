@@ -5,6 +5,7 @@ import {btn} from './explore-ui.js';
 import {scienceText} from './science-learning.js';
 import {CONCEPTS,showConcept} from './concepts.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
+import {playGuideText} from './guide-voice.js';
 const toolArt=(st,size)=>`<img src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt="${st.reward}" width="${size}" height="${size}">`;
 const TOWER_PHOTOS={
  river:'/assets/art/river-field-clues-v3.webp',
@@ -33,6 +34,8 @@ const playConcept=(id,step)=>showConcept({s:{id},step,modal},null,{replay:true})
 function reviewScene(st,mine,onLight){
  const k=KEY_SCENES[st.id];
  modal(`${st.place} · ${k.title}`,`<div class="tower-review"><span class="tower-mat">${towerPhoto(st)}</span><ol class="tower-points">${k.points.map(([term,text],i)=>`<li style="--i:${i}"><b>${term}</b><span>${scienceText(text,st.id)}</span></li>`).join('')}</ol>${mine?`<p class="tower-mine"><small>내가 남긴 기록</small><strong>${escapeHTML(mine.label)}</strong></p>`:''}<div class="tower-films" aria-label="개념 영상">${[0,1].map(step=>`<button type="button" class="tower-film" data-film="${step}"><img src="/assets/concepts/${st.id}-${step}.webp" alt=""><span>${icon('play',16)} ${escapeHTML(CONCEPTS[st.id][step].title)}</span></button>`).join('')}</div><button type="button" class="primary tower-light">기억났어! 불 켜기 ${icon('check',18)}</button></div>`,(d,close)=>{
+  // One recording reads the three frame points (docs/VOICE-FILL-20261118.json).
+  playGuideText(k.points.map(([term,text])=>term+' — '+text).join(' '));
   $$('[data-film]',d).forEach(b=>b.onclick=()=>{close();onLight();playConcept(st.id,Number(b.dataset.film));});
   $('.tower-light',d).onclick=()=>{close();onLight();};
  });

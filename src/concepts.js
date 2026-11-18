@@ -2,7 +2,8 @@ import {OPERATIONS} from './field-operation-model.js';
 import {bindConceptFocus,emphasizeConcept} from './concept-focus.js';
 import {holdMusic} from './music.js';
 import {$, icon, escapeHTML} from './ui.js';
-import {playSound, stopSounds} from './sound.js';
+import {playSound, stopSounds, voiceBusy} from './sound.js';
+import {guideFileForText, playVoiceSequence} from './guide-voice.js';
 
 // All captions remain DOM text, so a teacher can read them from a whiteboard.
 // Each 15-second film (films/concepts) shows one caption per 5 seconds: question and experiment,
@@ -44,14 +45,28 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     let reachedEnd = false, departed = false, unavailable = false, lastCue = -1;
     let releaseFocus=()=>{};
     let failedSources=0;
+    // The film stays muted; each caption is read in River's voice when it appears. If a line is
+    // longer than its 5-second cue, the film waits at the cue boundary until the line ends.
+    let spoken = -1, held = false;
+    const speak = i => {
+      spoken = i;
+      playVoiceSequence([guideFileForText(i < concept.cues.length ? concept.cues[i] : concept.summary)], {alive: () => dialog.open, onDone: () => {
+        if (held) { held = false; video.play().catch(() => { play.hidden = false; }); }
+        else if (reachedEnd && i === concept.cues.length - 1) speak(concept.cues.length);
+      }});
+    };
     const update = () => {
       if (unavailable) return;
       const cue = CONCEPT_CUES.reduce((n,at,i)=>video.currentTime+0.001>=at?i:n,0);
+      if (!video.paused && cue !== spoken) {
+        if (cue > spoken && spoken >= 0 && voiceBusy()) { held = true; video.pause(); video.currentTime = Math.max(0, CONCEPT_CUES[cue] - 0.05); return; }
+        speak(cue);
+      }
       if (cue !== lastCue) { caption.textContent = concept.cues[cue]; lastCue = cue; }
       dialog.querySelectorAll('[data-cue]').forEach((label,i) => label.classList.toggle('active', i === cue));
     };
-    const end = () => { reachedEnd = true; play.hidden = true; update(); };
-    const start = () => { if(unavailable)return;stopSounds(); reachedEnd = false; play.hidden = true; video.currentTime = 0; video.play().catch(() => { if(!unavailable)play.hidden = false; }); };
+    const end = () => { reachedEnd = true; play.hidden = true; update(); if (!voiceBusy() && spoken === concept.cues.length - 1) speak(concept.cues.length); };
+    const start = () => { if(unavailable)return;stopSounds(); reachedEnd = false; spoken = -1; held = false; play.hidden = true; video.currentTime = 0; video.play().catch(() => { if(!unavailable)play.hidden = false; }); };
     cleanup = () => { releaseFocus();releaseMusic();video.pause(); video.removeAttribute('src'); video.querySelectorAll('source').forEach(s=>s.removeAttribute('src')); video.load(); document.removeEventListener('visibilitychange', visibility); };
     const visibility = () => { if (document.hidden) video.pause(); else if (!reachedEnd&&!unavailable) play.hidden = false; };
     const proceed = () => { if (departed) return; departed = true; close(); if (!replay) onContinue?.(); };
