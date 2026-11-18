@@ -9,9 +9,9 @@
     {
       "scene": "intro",
       "seconds": 17.252,
-      "videoStream": "0,v,SHA256=23b964f1afce26a2bfaa2c4c207315714c1ee97babd1806cb3c291065d6c1afe",
+      "videoStream": "0,v,SHA256=a91ec159cc30fea35ce12b4c73aab4b16637fb9e0f96dd375c940a44cfeba7f5",
       "file": "public/assets/story/intro.mp4",
-      "sha256": "e2a3cfedfe35097ac922caf715c4ceedde5bf23b08239c9e9c4b7b7553181a97",
+      "sha256": "5f610be6080ea50b93383ca80d6a60a1cabfb5b7686e184aaaeb3a1b91227376",
       "lufs": -19.9,
       "truePeakDbtp": -5.5,
       "timeline": [
@@ -90,14 +90,19 @@
           "offsetMs": 12194,
           "speed": 1
         }
-      ]
+      ],
+      "uncaptioned": {
+        "sha256": "e2a3cfedfe35097ac922caf715c4ceedde5bf23b08239c9e9c4b7b7553181a97",
+        "videoStream": "0,v,SHA256=23b964f1afce26a2bfaa2c4c207315714c1ee97babd1806cb3c291065d6c1afe"
+      },
+      "captions": "2026-11-18: captions burned in (audio stream unchanged); cues in docs/film-captions-20261118/07-intro.json/.ass"
     },
     {
       "scene": "final",
       "seconds": 17.276,
-      "videoStream": "0,v,SHA256=700cc3ec43e40aab96972263ee469513b8930aaf5ada7062c1321924a9940d00",
+      "videoStream": "0,v,SHA256=4036bd166baa5aca89336d19c208c88a0fe8549b8bd93435b6d4fd8625c25296",
       "file": "public/assets/story/final.mp4",
-      "sha256": "34e3178943e9bd7a3ea2a37f03299e7ae272d48fa96da8bd1f2db4d23e832ef7",
+      "sha256": "ca2374793edb0cf33d2d4970eed0846dd67f11ff51ff1900b8833c7495f174fd",
       "lufs": -20.0,
       "truePeakDbtp": -5.4,
       "timeline": [
@@ -176,7 +181,12 @@
           "offsetMs": 13984,
           "speed": 1.137
         }
-      ]
+      ],
+      "uncaptioned": {
+        "sha256": "34e3178943e9bd7a3ea2a37f03299e7ae272d48fa96da8bd1f2db4d23e832ef7",
+        "videoStream": "0,v,SHA256=700cc3ec43e40aab96972263ee469513b8930aaf5ada7062c1321924a9940d00"
+      },
+      "captions": "2026-11-18: captions burned in (audio stream unchanged); cues in docs/film-captions-20261118/07-final.json/.ass"
     }
   ]
 }

@@ -29,15 +29,17 @@ export function openStory(kind,{onFinish,replay=false,soundOn,toggleSound}){
  dialog.className='story-film';dialog.setAttribute('aria-labelledby','story-heading');
  dialog.innerHTML=`<header class="film-head"><div><small>${film.chapter}</small><h2 id="story-heading">${film.title}</h2></div><button id="story-skip" class="film-button">${replay?'돌아가기':'건너뛰기'} ${icon('arrow',18)}</button></header>
  <div class="film-picture"><video playsinline preload="metadata" poster="/assets/story/${kind}.webp" aria-label="${film.title}" aria-describedby="story-caption"></video><p class="film-caption" id="story-caption" hidden></p><p class="film-error" role="status" hidden></p></div>
- <footer class="film-controls"><button class="film-button" id="story-play">재생</button><input type="range" id="story-seek" min="0" max="${film.duration}" step=".05" value="0" aria-label="영상 재생 위치"><span class="film-time"></span><button class="film-button" id="story-caption-toggle" aria-pressed="true">자막 켜짐</button><button class="film-button" id="story-sound"></button></footer>`;
+ <footer class="film-controls"><button class="film-button" id="story-play">재생</button><input type="range" id="story-seek" min="0" max="${film.duration}" step=".05" value="0" aria-label="영상 재생 위치"><span class="film-time"></span><button class="film-button" id="story-sound"></button></footer>`;
  document.body.append(dialog);dialog.showModal();
  const el=id=>dialog.querySelector(id),video=el('video'),caption=el('#story-caption'),hint=el('.film-error');
- const play=el('#story-play'),seek=el('#story-seek'),cc=el('#story-caption-toggle'),sound=el('#story-sound'),skip=el('#story-skip');
+ const play=el('#story-play'),seek=el('#story-seek'),sound=el('#story-sound'),skip=el('#story-skip');
  const events=new AbortController(),on=(target,name,fn)=>target.addEventListener(name,fn,{signal:events.signal});
- let closed=false,captions=true;
+ // The films carry their own captions in the bottom 22%. Once a frame is on screen, the DOM caption stays
+ // only for screen readers and the controls fade away while playing, so nothing covers the burned-in text.
+ let closed=false,burned=false,idle;
  const releaseScore=scoreFilm(video,film.theme,replay,voiceVolume);
  function finish(advance){
-  if(closed)return;closed=true;dismiss=undefined;events.abort();
+  if(closed)return;closed=true;dismiss=undefined;events.abort();clearTimeout(idle);
   video.pause();releaseScore();video.removeAttribute('src');video.load();
   dialog.close();dialog.remove();if(previous?.isConnected)previous.focus({preventScroll:true});
   if(advance)onFinish?.();
@@ -46,10 +48,16 @@ export function openStory(kind,{onFinish,replay=false,soundOn,toggleSound}){
  function refresh(){
   const t=video.currentTime,total=Number.isFinite(video.duration)?video.duration:film.duration;
   const line=film.cues.find(([from,to])=>t>=from&&t<to)?.[2]||'';
-  caption.hidden=!captions||!line;if(caption.textContent!==line)caption.textContent=line;
+  caption.hidden=!line;caption.classList.toggle('is-burned',burned);if(caption.textContent!==line)caption.textContent=line;
   seek.max=String(total);seek.value=String(t);el('.film-time').textContent=clock(t)+' / '+clock(total);
   play.textContent=video.paused?'재생':'일시 정지';
+  if(video.paused)wake(false);
  }
+ function wake(fade=true){
+  clearTimeout(idle);dialog.classList.remove('controls-hidden');
+  if(fade&&!video.paused&&burned)idle=setTimeout(()=>{if(!video.paused&&burned)dialog.classList.add('controls-hidden');},2600);
+ }
+ function shown(){if(burned||closed||!hint.hidden)return;burned=true;refresh();wake();}
  function volume(){
   video.muted=!soundOn();video.volume=.86 * voiceVolume()/100;
   sound.innerHTML=icon(soundOn()?'sound':'mute',21);
@@ -58,16 +66,19 @@ export function openStory(kind,{onFinish,replay=false,soundOn,toggleSound}){
  function start(){video.play().catch(()=>{if(!closed)refresh();});}
  function failed(){
   hint.textContent=kind==='intro'?'강가에 쌓인 모래는 어디서 왔을까? 리버와 물길을 조사하러 가자.':'물과 암석에서 찾은 단서로 안전한 길까지 완성했어. 내 탐험 기록을 펼쳐 보자.';
+  burned=false;clearTimeout(idle);dialog.classList.remove('controls-hidden');caption.classList.remove('is-burned');
   hint.hidden=false;caption.hidden=true;play.disabled=true;seek.disabled=true;
   skip.textContent=replay?'돌아가기':film.next;
  }
  on(play,'click',()=>video.paused?start():video.pause());
  on(seek,'input',()=>{if(video.readyState){video.currentTime=Number(seek.value);refresh();}});
- on(cc,'click',()=>{captions=!captions;cc.setAttribute('aria-pressed',String(captions));cc.textContent=captions?'자막 켜짐':'자막 꺼짐';refresh();});
  on(sound,'click',()=>{toggleSound();volume();});
  on(skip,'click',()=>finish(true));on(dialog,'cancel',e=>{e.preventDefault();finish(true);});
  for(const event of ['timeupdate','play','pause','seeked','loadedmetadata'])on(video,event,refresh);
  on(video,'ended',()=>finish(true));on(video,'error',failed);
+ for(const event of ['loadeddata','playing'])on(video,event,shown);
+ on(video,'play',()=>wake());
+ for(const event of ['pointerdown','pointermove','keydown','focusin'])on(dialog,event,()=>wake());
  on(document,'visibilitychange',()=>{if(document.hidden)video.pause();});
  if(window.VTTCue){const track=video.addTextTrack('captions','한국어','ko');for(const [a,b,s] of film.cues)track.addCue(new VTTCue(a,b,s));track.mode='hidden';}
  volume();refresh();video.src=`/assets/story/${kind}.mp4`;
