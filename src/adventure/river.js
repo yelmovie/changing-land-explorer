@@ -414,7 +414,7 @@ function connectField(scene,api){
     const slot=slots[index];
     if(!slot){api.say('상류와 하류의 점선 칸 중 한 곳에 놓아 줘.');return false;}
     if(slot.side!==point.side){api.say('카드에 적힌 강의 특징을 다시 보고 상류와 하류 중 맞는 곳을 찾아 줘.');return false;}
-    if([...connected.values()].includes(index)){api.say('카드가 놓인 칸이야. 같은 쪽의 다른 빈 칸을 골라 줘.');return false;}
+    if([...connected.values()].includes(index)){api.say('카드가 놓인 칸이야. 같은 쪽의 다른 빈칸을 골라 줘.');return false;}
     connected.set(point.id,index);
     cards.get(point.id).setPosition(slot.x,slot.y).setScale(.92).disableInteractive();
     persist();paint();guide();api.spark(slot.x,slot.y);

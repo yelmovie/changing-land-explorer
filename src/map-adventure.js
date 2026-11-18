@@ -21,6 +21,7 @@ const LINKS=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[5,7],[7,8],[8,9],[9,10],[10,11
 const DOORS=[6,9,15,19,24];
 const LABELS=[[.122,.253],[.31,.105],[.65,.09],[.84,.33],[.704,.571]];
 const CORE_LABEL=[.5,.245];
+const hasBatchim=word=>(word.charCodeAt(word.length-1)-0xac00)%28>0;
 const POINTS=XY.map(([x,y])=>({x:x*1200,y:y*675}));
 export function findRoute(from,to){
   const queue=[[from]],seen=new Set([from]);
@@ -206,7 +207,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
     if(!marker)return;
     marker.classList.remove('arrived');
     $('.resident-tag',marker).innerHTML=`${icon('chat',16)} ${RESIDENTS[id].name}`;
-    $('#map-speech').textContent=nextStage?`다음 탐험은 ${nextStage.place}야. 지도에서 이름표를 눌러 봐!`:'다섯 주민이 돌아왔어! 이제 기록탑에서 발견을 연결하자.';
+    $('#map-speech').textContent=nextStage?`다음 탐험은 ${nextStage.place}${hasBatchim(nextStage.place)?'이야':'야'}. 지도에서 이름표를 눌러 봐!`:'다섯 주민이 돌아왔어! 이제 기록탑에서 발견을 연결하자.';
   }
   function collectStamp(id){
     if(!residents.some(st=>st.id===id)||s.residentStamps.includes(id))return false;
