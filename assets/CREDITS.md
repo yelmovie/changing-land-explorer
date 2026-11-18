@@ -91,7 +91,7 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 ## 현재 글꼴과 안내 음성 · 2026-11-11 확인
 
 - 화면·Canvas·SVG의 현재 글꼴은 NanumSquare Neo Regular/Bold다. 배포 글꼴과 OFL 원문, 공급처·해시는 `public/assets/fonts/NanumSquareNeo-SOURCE.json`과 `NanumSquareNeo-OFL.txt`에 보관한다. 위 Jua 기록은 이전 화면의 제작 이력이다.
-- 2026-11-18부터 안내 음성(리버)과 주민 음성은 모두 ElevenLabs(eleven_v4, 유료 요금제·상업 이용 가능) 캐릭터별 고정 목소리다. 리버는 Hun 훈(AjALR5PRxl87zOoe9Q31). 기록: `public/assets/voices/river-elevenlabs-manifest.json`, `public/assets/voices/npc-elevenlabs/manifest.json`, `docs/VOICE-FILL-20261118.json`. `momo-manifest-20261110.json`(Momo/Qwen3-TTS)과 주민 `.m4a`, `npc-reward/*-thanks.mp3`(Higgsfield)는 예전 기록이며 앱에서 재생하지 않는다.
+- 2026-11-18부터 안내 음성(리버)과 주민 음성은 모두 ElevenLabs(eleven_v4, 유료 요금제·상업 이용 가능) 캐릭터별 고정 목소리다. 리버는 Hun 훈(AjALR5PRxl87zOoe9Q31), 돌먼지 대장은 Harry - Character(wMrz30qBeYiSkAtnZGtn). 2026-11-18 밤 추가분은 ElevenLabs 공식 API로 생성(줄별 requestId 기록). 기록: `public/assets/voices/river-elevenlabs-manifest.json`, `public/assets/voices/npc-elevenlabs/manifest.json`, `docs/VOICE-FILL-20261118.json`. `momo-manifest-20261110.json`(Momo/Qwen3-TTS)과 주민 `.m4a`, `npc-reward/*-thanks.mp3`(Higgsfield)는 예전 기록이며 앱에서 재생하지 않는다.
 - 기존 제공 이미지·음악의 최종 이용 조건 확인 항목은 계속 유지한다.
 
 ### 과학 관찰 삽화 추가 · 2026-11-12

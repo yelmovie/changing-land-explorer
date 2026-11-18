@@ -79,6 +79,22 @@ test('each resident reward reads thanks then stamp in that resident\'s own Eleve
  }
 });
 
+test('reward popups read the village change and each villain line has its own shipped recording',async()=>{
+ const{MAP_VILLAINS}=await import('../src/map-villain-rules.js');
+ const{lines}=JSON.parse(readFileSync(new URL('../docs/VOICE-FILL-20261118.json',import.meta.url),'utf8'));
+ for(const stage of STAGES){const file=guideFileForText(stage.change);assert.ok(file,'no recording for: '+stage.change);assert.ok(statSync(new URL('../public/assets/voices/'+file,import.meta.url)).size>1000);}
+ const voices=new Set();
+ for(const v of MAP_VILLAINS){
+  const parts=[...v.lines.map((t,i)=>['line'+i,t]),...v.hit.map((t,i)=>['hit'+i,t]),['finish',v.finish]];
+  for(const[kind,text]of parts){
+   const file=`villain/${v.id}-${kind}.mp3`,row=lines.find(line=>line.file==='public/assets/voices/'+file);
+   assert.ok(row,'no provenance for '+file);assert.equal(row.text,text);voices.add(row.voiceId);
+   assert.equal(createHash('sha256').update(readFileSync(new URL('../public/assets/voices/'+file,import.meta.url))).digest('hex'),row.sha256);
+  }
+ }
+ assert.equal(voices.size,1);
+});
+
 test('intro, concept, tower and hint popups point at shipped recordings of their exact text',async()=>{
  const{HINTS}=await import('../src/adventure/hints.js');
  const{OPERATIONS}=await import('../src/field-operation-model.js');
@@ -90,8 +106,7 @@ test('intro, concept, tower and hint popups point at shipped recordings of their
   ...Object.values(HINTS).flat(3),
   ...Object.values(scenes).map(k=>k.points.map(([term,text])=>term+' — '+text).join(' ')),
   ...Object.values(CONCEPTS).flat().flatMap(c=>[...c.cues,c.summary])];
- // Waiting for regeneration (ASR mismatch): see _scratch/voice-fill-20261118/07/remaining.json.
- const pending=new Set(['위험이 사라졌는지 확인하고, 관찰한 사실과 까닭을 연결해 행동해.']);
+ const pending=new Set();
  for(const text of lines){
   if(pending.has(text))continue;
   const file=guideFileForText(text);

@@ -3,7 +3,14 @@ import {openMapFinale} from './map-finale.js';
 import {syncMapHitLayout} from './map-hit-layout.js';
 import {MAP_VILLAINS,VILLAIN_HITS,defeatedVillains} from './map-villain-rules.js';
 import {createCombat,stepCombat,attackCombat,COMBAT,villainCellSize,riverCombatFrame} from './map-combat-engine.js';
-import {playSound,playCue} from './sound.js';
+import {playSound,playCue,playVoice,voiceBusy} from './sound.js';
+// Villain lines (ElevenLabs Harry, docs/VOICE-FILL-20261118.json) wait until River's line ends so two voices never overlap.
+let villainVoiceTimer=0;
+function villainVoice(file,el){
+ clearTimeout(villainVoiceTimer);const started=performance.now();
+ const tick=()=>{if(!el.isConnected||document.querySelector('dialog[open]'))return;if(!voiceBusy()){playVoice(file);return;}if(performance.now()-started<8000)villainVoiceTimer=setTimeout(tick,200);};
+ villainVoiceTimer=setTimeout(tick,350);
+}
 import {holdRewardCard,showRewardCard} from './map-rewards.js';
 // Villains already announced in this page session; re-entering the map stays quiet.
 const announced=new Set();
@@ -135,6 +142,7 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
    commit();const el=foes.get(event.id);el.classList.remove('hit');void el.offsetWidth;el.classList.add('hit');el.dataset.flashUntil=String(now+430);el.querySelector('.villain-result').textContent=event.type==='defeat'?'퇴치!':`${VILLAIN_HITS-event.remaining} / ${VILLAIN_HITS} 명중`;
    const v=roster.find(v=>v.id===event.id);const line=el.querySelector('.villain-line');
    line.textContent=event.type==='defeat'?v.finish:v.hit[VILLAIN_HITS-event.remaining-1];
+   villainVoice(`villain/${v.id}-${event.type==='defeat'?'finish':'hit'+(VILLAIN_HITS-event.remaining-1)}.mp3`,el);
    lastSpeechLayout=-Infinity;
    el.dataset.lineUntil=String(now+(event.type==='defeat'?2200:1800));
    callback.hidden=true;
@@ -168,7 +176,7 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
    if(near)nearby++;el.hidden=gone;el.disabled=!remaining;el.classList.toggle('villain-departed',!remaining&&now-enemy.deadAt>(reduced?120:550));el.dataset.remaining=String(remaining);el.dataset.frame=String(enemy.frame);el.style.left=enemy.x/12+'%';el.style.top=enemy.y/6.75+'%';el.style.zIndex=String(Math.round(enemy.y));el.style.setProperty('--facing',enemy.facing||1);
    setFrame(el.querySelector('.villain-art'),reduced&&enemy.frame<3?0:enemy.frame);el.querySelector('.villain-hp').textContent='●'.repeat(remaining)+'○'.repeat(VILLAIN_HITS-remaining);
    const line=el.querySelector('.villain-line');
-   if(!speaking&&enemy===nearest&&!enemy.wasNear){line.textContent=enemy.lines[(enemy.lineCount??0)%enemy.lines.length];enemy.lineCount=(enemy.lineCount??0)+1;enemy.lineUntil=now+2300;}
+   if(!speaking&&enemy===nearest&&!enemy.wasNear){line.textContent=enemy.lines[(enemy.lineCount??0)%enemy.lines.length];villainVoice(`villain/${enemy.id}-line${(enemy.lineCount??0)%enemy.lines.length}.mp3`,el);enemy.lineCount=(enemy.lineCount??0)+1;enemy.lineUntil=now+2300;}
    enemy.wasNear=enemy===nearest;line.hidden=!(speaking||enemy.wasNear&&now<=(enemy.lineUntil??0)&&!el.classList.contains('hit'))||!canTalk;
    el.dataset.play=String(!reduced&&enemy.frame>0&&enemy.frame<4);
    el.classList.toggle('defeated',!remaining);el.classList.toggle('in-range',near&&canTalk);el.setAttribute('aria-label',enemy.name+(near?', 공격하기, '+remaining+'번 남음':', 가까이 가기'));

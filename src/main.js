@@ -1,6 +1,6 @@
 import {scienceText} from './science-learning.js';
 import {preserveRecoveryOriginal,RECOVERY_KEY} from './storage-recovery.js';
-import {playGuideText,playVoiceSequence,watchGuideText} from './guide-voice.js';
+import {guideFileForText,playGuideText,playVoiceSequence,watchGuideText} from './guide-voice.js';
 import {audioSettingsHTML,bindAudioSettings} from "./audio-settings.js";
 import {learningGuideHTML} from "./learning-guide.js";
 import {openStory,stopStory} from './story.js';
@@ -279,8 +279,8 @@ function complete(index,fieldReady=false){
   dialog.classList.add('village-reward-dialog');
   playSound('tool-reward',{force:true,inDialog:true});
   if(newArrival)setTimeout(()=>{if(dialog.open)playSound('stamp',{force:true,inDialog:true});},600);
-  // The resident reads the thanks line, then the stamp line shown below it, in the same voice.
-  if(newArrival)setTimeout(()=>{if(dialog.open)playVoiceSequence([residentVoice(stage.id,'thanks'),residentVoice(stage.id,'stamp')],{alive:()=>dialog.open});},1100);
+  // Popup order: the resident's thanks, River reads the village change, then the resident's stamp line.
+  if(newArrival)setTimeout(()=>{if(dialog.open)playVoiceSequence([residentVoice(stage.id,'thanks'),guideFileForText(stage.change),residentVoice(stage.id,'stamp')],{alive:()=>dialog.open});},1100);
   $('#return-map',dialog).onclick=()=>{close();navigate('map',newArrival?{arrival:stage.id}:undefined);};
  });
 }
