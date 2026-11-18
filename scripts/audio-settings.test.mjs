@@ -88,6 +88,21 @@ test('field effects duck under NPC speech and restore after it ends', async()=>{
  audio.stopAllSounds();audio.setSoundEnabled(false);
 });
 
+test('map fight cues keep playing at 80% or more while a villain or River line plays', async()=>{
+ audio.setSoundEnabled(true);audio.setEffectsVolume(100);audio.setVoiceVolume(100);document.hidden=false;
+ audio.playCue('attack-swing');await tick();const swing=players.at(-1);
+ assert.equal(swing.paused,false);assert.equal(swing.volume,.55);
+ audio.playVoice('villain/volcano-hit0.mp3');
+ assert.equal(swing.paused,false,'a voice never stops a fight cue');assert.ok(swing.volume>=.55*.7);
+ audio.playCue('hit-light');audio.playCue('villain-exit',20);await tick();await tick();
+ const [hit,exit]=players.slice(-2);
+ for(const [cue,base] of [[hit,.9],[exit,.5]]){assert.equal(cue.paused,false);assert.ok(cue.volume>0&&cue.volume>=base*.7,cue.src+' '+cue.volume);}
+ // Card and interface sounds still duck to 30% under a voice.
+ audio.playCue('card-reveal');await tick();assert.equal(players.at(-1).volume,.5*.3);
+ audio.stopVoice();assert.equal(swing.volume,.55);
+ audio.stopAllSounds();audio.setSoundEnabled(false);
+});
+
 test('resident motion follows playing events and clears on interruption', async()=>{
  audio.setSoundEnabled(true);audio.setVoiceVolume(100);document.hidden=false;
  const states=[];

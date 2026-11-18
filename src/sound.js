@@ -11,10 +11,13 @@ function readVolume(key) {
 }
 let effectsLevel = readVolume(effectsKey), voiceLevel = readVolume(voiceKey);
 const baseVolumes = new WeakMap();
+// 지도 전투음은 목소리가 나와도 80%까지만 줄인다(VILLAIN-VOICE-SFX-FIX-20261118). 나머지 효과음은 기존대로 30%.
+const COMBAT_CUES = new Set(['attack-swing','hit-light','hit-light-2','hit-heavy','villain-exit','villain-appear','hurt-bump','victory-jingle']);
+const combatAudio = new WeakSet();
 export const effectsVolume = () => effectsLevel;
 export const voiceVolume = () => voiceLevel;
 function saveVolume(key, value) { try { localStorage.setItem(key, String(value)); } catch {} }
-function effectVolume(audio, base) { baseVolumes.set(audio, base); audio.volume = base * effectsLevel / 100 * (voice ? .3 : 1); }
+function effectVolume(audio, base) { baseVolumes.set(audio, base); audio.volume = base * effectsLevel / 100 * (voice ? (combatAudio.has(audio) ? .8 : .3) : 1); }
 function refreshEffectLevels() {
   if (active) effectVolume(active, baseVolumes.get(active));
   cues.forEach(cue => effectVolume(cue, baseVolumes.get(cue)));
@@ -127,6 +130,7 @@ export function playCue(name, delay = 0) {
     if (!enabled || !effectsLevel || document.hidden) return;
     cue = new Audio();
     cue.src = sourceFor(name, cue);
+    if (COMBAT_CUES.has(name)) combatAudio.add(cue);
     effectVolume(cue, baseVolume(name));
     cues.add(cue);
     cue.onended = () => cues.delete(cue);
