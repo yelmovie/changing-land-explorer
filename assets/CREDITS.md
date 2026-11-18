@@ -98,7 +98,7 @@ OpenAI 내장 이미지 생성 도구로 프로젝트용 배경 3장과 소품 7
 
 - `public/assets/art/river-field-clues-v3.webp`는 깎인 물가, 흙을 옮기는 물, 모래가 쌓인 안쪽 물가를 보여 준다.
 - `public/assets/art/ash-classroom-v3.webp`는 창문을 닫은 실내와 화산재가 날리는 바깥을 비교한다.
-- ElevenLabs 연결 도구의 `gpt-image-2.5-sunburst`로 생성하고, 각각 4안 중 과학 단서가 구별되는 1안을 선택했다. 글자와 조작 요소는 DOM으로 표시한다.
+- ElevenLabs 연결 도구의 `gpt-image-2.5-sunburst`로 생성하고, 각각 4안 중 과학 단서가 구별되는 1안을 선택했다. 생성 당시 ElevenLabs Starter 유료 요금제를 구독 중이었다(상업 이용 가능, 2026-11-18 사용자 확인). 글자와 조작 요소는 DOM으로 표시한다.
 - 프롬프트, 생성 ID, 원본 위치는 `assets/generated/science-20261112/generation.json`에 기록했다. 원본 PNG는 외장 SSD의 `image/generated-20261112/`에 보관한다.
 - 두 그림은 학습용 재현이다. 생성 서비스의 납품 조건과 기존 자산의 원권리 확인은 별도 검토 대상으로 유지한다.
 
