@@ -226,3 +226,15 @@
 .rc-album-item .rc-card.is-mini { --h: var(--mh); }
 .rc-album-row .rc-locked { width: calc(var(--mh) * 2 / 3); height: var(--mh); }
 .rc-card.is-mini .rc-rarity { display: none; }
+
+/* Older Safari without color-mix(): plain fallbacks so the buttons never lose their background. */
+@supports not (color: color-mix(in srgb, red, blue)) {
+  .rc-slots, .rc-slots:hover, .rc-slots:focus { border-color: var(--rc-accent); background: #fffdf6; box-shadow: 0 3px 0 #0003, 0 6px 14px #0002; }
+  .rc-take, .rc-layer .rc-take:hover, .rc-layer .rc-take:focus { background: var(--rc-accent); box-shadow: 0 5px 0 #0005, 0 10px 22px #0005; }
+  .rc-new { -webkit-text-stroke-color: var(--rc-accent2); text-shadow: 0 4px 0 var(--rc-accent2), 0 0 22px var(--rc-glow); }
+  .rc-plate span, .rc-locked small { color: var(--rc-ink); }
+  .rc-album-head span { background: #0000001a; }
+  .rc-locked { border-color: #0004; background: #0000000d; }
+  .rc-locked i { color: #0006; }
+  .rc-rays { background: repeating-conic-gradient(from 0deg, #ffffff55 0deg 7deg, #0000 7deg 22deg); }
+}
