@@ -425,8 +425,8 @@ export function mount(ctx) {
           const extras=actions.filter(toTools);
           actions=actions.filter(a=>!toTools(a));
           for(const old of toolMenu.querySelectorAll('[data-extra-tool]'))old.remove();
-          // The menu stays hidden in activities unless a scene hands it its own secondary moves.
-          toolMenu.hidden=!extras.some(a=>a.tool);if(toolMenu.hidden)toolMenu.open=false;
+          // The menu stays hidden in activities unless a scene hands it its own secondary moves (3D views, retry).
+          toolMenu.hidden=!extras.length;if(toolMenu.hidden)toolMenu.open=false;
           for(const action of extras){const b=document.createElement('button');b.type='button';b.id=action.id;b.dataset.extraTool='';b.className='secondary';b.textContent=action.label;b.onclick=()=>{dismissTools();action.onClick();};$('.adventure-side-tools',toolMenu).append(b);}
           let buttons=$('.action-buttons',ctx.controls);
           if(!buttons){buttons=document.createElement('div');buttons.className='action-buttons';ctx.controls.prepend(buttons);}

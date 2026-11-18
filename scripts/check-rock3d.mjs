@@ -20,7 +20,7 @@ try{
   const shown=await page.locator('#rock-3d').count()>0;
   ok(`rock-${asset} 버튼 표시가 모델 유무와 같음`,shown===models[asset],`모델 ${models[asset]?'있음':'없음'} · 버튼 ${shown?'있음':'없음'}`);
   if(!shown)continue;
-  await page.click('#rock-3d');await page.waitForSelector('dialog.rock3d-dialog');
+  await page.click('.topbar .activity-tools>summary');await page.click('#rock-3d');await page.waitForSelector('dialog.rock3d-dialog');
   const loaded=await page.waitForFunction(()=>document.querySelector('.rock3d-status')?.hidden||/못했어|쓸 수 없어/.test(document.querySelector('.rock3d-status')?.textContent),null,{timeout:20000}).then(()=>page.evaluate(()=>document.querySelector('.rock3d-status').hidden));
   ok(`rock-${asset} 3D 표본 불러오기`,loaded,await page.evaluate(()=>document.querySelector('.rock3d-status').textContent));
   await page.waitForTimeout(600);await page.screenshot({path:`${out}/rock-${asset}-open.png`});
