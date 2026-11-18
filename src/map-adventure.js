@@ -47,6 +47,8 @@ export function renderMap({arrival,engine,loadEngine}={}){
   </main>`,'atlas');
   $('.brand').innerHTML='<img class="brand-logo" src="/assets/title-logo.webp" alt="움직이는 지오밸리">';
   const world=$('.atlas-world'),page=$('.atlas-page'),nextButton=$('#stage-shortcuts'),residentButtons=$$('.map-resident',world);
+  // An open achievement card or card album makes #app inert (map-rewards.js); River and the map hold still until it closes.
+  const cardOpen=()=>!!page.closest('[inert]');
   const retry=document.createElement('button');retry.type='button';retry.className='secondary map-engine-retry';retry.hidden=true;retry.textContent='지도 다시 열기';
   const engineStatus=document.createElement('span');engineStatus.className='map-engine-status';engineStatus.setAttribute('role','status');
   $('.map-secondary-tools',page).append(retry,engineStatus);
@@ -275,7 +277,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
     }
     update(time,delta){
       if(!hero)return;
-      if(document.querySelector('dialog[open]')||document.hidden){walker.stop();return;}
+      if(document.querySelector('dialog[open]')||document.hidden||cardOpen()){walker.stop();return;}
       if(follow&&!grab&&!overview&&!glide){const [tx,ty]=cameraFor(hero.x/1200,hero.y/675),blend=reduced?1:1-Math.exp(-Math.min(delta,50)/115);
         const x=clampMapAxis(tx,view.pw,view.w),y=clampMapAxis(ty,view.ph,view.h);
         if(Math.hypot(x-view.x,y-view.y)>.3)place(view.x+(x-view.x)*blend,view.y+(y-view.y)*blend);}
@@ -301,12 +303,12 @@ export function renderMap({arrival,engine,loadEngine}={}){
   function stepToward(v,quiet=false){if(document.querySelector('dialog[open]'))return;leaveOverview();follow=true;syncViewControls();cancelAnimationFrame(glide);glide=0;if(moving)return;const neighbors=LINKS.flatMap(([a,b])=>a===current?[b]:b===current?[a]:[]);const score=n=>{const p=POINTS[n],a=POINTS[current];return((p.x-a.x)*v[0]+(p.y-a.y)*v[1])/Math.hypot(p.x-a.x,p.y-a.y);};neighbors.sort((a,b)=>score(b)-score(a));if(score(neighbors[0])>0)go(neighbors[0],null);else if(!quiet)toast('그쪽으로는 길이 없어. 다른 방향을 눌러 봐.');}
   const heldDirections=new Map();
   const clearDirections=()=>heldDirections.clear();
-  const inputBlocked=()=>closed||document.hidden||!!document.querySelector('dialog[open]')||!!combat?.blocked();
+  const inputBlocked=()=>closed||document.hidden||!!document.querySelector('dialog[open]')||cardOpen()||!!combat?.blocked();
   const repeatDirection=setInterval(()=>{if(inputBlocked()){clearDirections();return;}const d=[...heldDirections.values()].at(-1);if(d)stepToward(DIRS[d],true);},80);
   const key=e=>{
     const target=e.target instanceof Element?e.target:null;
     // Closing a dialog restores focus to its opener. Map buttons must still accept movement keys.
-    if(closed||document.hidden||e.defaultPrevented||e.isComposing||e.ctrlKey||e.metaKey||e.altKey||document.querySelector('dialog[open]'))return;
+    if(closed||document.hidden||e.defaultPrevented||e.isComposing||e.ctrlKey||e.metaKey||e.altKey||document.querySelector('dialog[open]')||cardOpen())return;
     if(target?.closest('input,textarea,select,[role="textbox"],[role="slider"]')||target?.isContentEditable)return;
     if(e.key==='Enter'){
       // Preserve native Enter activation for the focused UI control.

@@ -5,6 +5,7 @@ import {RESIDENTS,residentArt} from '../src/residents.js';
 import {PHASER_URL} from '../src/engine-loader.js';
 import {TOOL_ASSETS} from '../src/adventure/rules.js';
 import {backgroundForAsset,SHARED_STAGE_ASSETS,STAGE_ASSETS} from '../src/stage-art.js';
+import {REWARD_CARDS} from '../src/map-rewards.js';
 // macOS writes ._* sidecar files on the exFAT SSD; they must not reach dist or the precache list.
 const isSidecar=f=>path.basename(f).startsWith('._');
 await rm('dist',{recursive:true,force:true});await mkdir('dist',{recursive:true});
@@ -16,8 +17,11 @@ const srcFiles=(await readdir('src',{recursive:true})).map(f=>f.split(path.sep).
 const refs=(await Promise.all(['index.html',...srcFiles.map(f=>f.slice(1))].map(f=>readFile(f,'utf8')))).join('\n').match(/\/assets\/[\w./-]+\.(?:webp|png|jpe?g|svg|woff2|js)/g)||[];
 const textures=[...new Set([...SHARED_STAGE_ASSETS,...Object.values(STAGE_ASSETS).flat()])].map(n=>`/assets/${backgroundForAsset(n)}.webp`);
 for(const url of textures)if(!existsSync(path.join('dist',url)))throw new Error(`Missing stage texture: ${url}`);
+// Achievement card art and slot thumbnails: map-rewards.js builds these paths, so the reference scan above cannot see them.
+const cards=REWARD_CARDS.flatMap(card=>[card.art,card.thumb]);
+for(const url of cards)if(!existsSync(path.join('dist',url)))throw new Error(`Missing achievement card: ${url}`);
 const posters=[...Object.keys(STAGE_ASSETS).flatMap(id=>[0,1].map(step=>`/assets/concepts/${id}-${step}.webp`)),'/assets/story/intro.webp','/assets/story/final.webp'];
-const core=[...new Set(['/','/index.html',...srcFiles,...refs,...textures,...posters,...Object.keys(RESIDENTS).map(residentArt),...Object.values(TOOL_ASSETS).map(n=>`/assets/${n}.webp`)])].filter(u=>existsSync(path.join('dist',u))&&u!=='/assets/og-image.jpg'&&u!==PHASER_URL); // the share card is for link previews only
+const core=[...new Set(['/','/index.html',...srcFiles,...refs,...textures,...posters,...cards,...Object.keys(RESIDENTS).map(residentArt),...Object.values(TOOL_ASSETS).map(n=>`/assets/${n}.webp`)])].filter(u=>existsSync(path.join('dist',u))&&u!=='/assets/og-image.jpg'&&u!==PHASER_URL); // the share card is for link previews only
 const name='geovalley-v3-'+Date.now();
 await writeFile('dist/sw.js',`const CACHE=${JSON.stringify(name)},CORE=${JSON.stringify(core)},PHASER=${JSON.stringify(PHASER_URL)};
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE))));

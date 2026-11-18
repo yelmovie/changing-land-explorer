@@ -10,6 +10,8 @@ async function setup(width,height,{node=0,reduce=true,fallback=false,stages=comp
  const p=await context.newPage();p.setDefaultTimeout(12000);p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url());});await p.goto(url);await p.waitForSelector(fallback?'.map-fallback':'.map-ready');return {context,p};
 }
 const state=p=>p.evaluate(k=>JSON.parse(localStorage.getItem(k)),SAVE_KEY);
+// A defeated villain hands over its achievement card; the map holds still until the card is put away (the fifth card also shows the full set).
+const takeCard=async(p,last=false)=>{await p.locator('.rc-layer .rc-take.is-ready').click({force:true});if(last){await p.waitForFunction(()=>document.activeElement?.textContent==='멋져요!');await p.getByRole('button',{name:'멋져요!'}).click({force:true});}await p.locator('.rc-layer').waitFor({state:'detached'});};
 const showFoe=async(p,foe)=>{await p.keyboard.press('Tab');await foe.focus();await p.waitForTimeout(450);};
 try{
  const first=await setup(1024,768,{stages:[]});
@@ -34,7 +36,7 @@ try{
   await p.locator('#map-attack').focus();await p.keyboard.press('KeyJ');await p.waitForTimeout(60);assert.equal((await state(p)).mapVillains.hits.river,1);assert.equal(await p.locator('.map-combat-river').isVisible(),true);assert.equal(await foe.getAttribute('data-frame'),'4');
   await p.keyboard.press('KeyJ');assert.equal((await state(p)).mapVillains.hits.river,1,'cooldown rejects repeat');await p.screenshot({path:out+'/'+width+'-attack.png'});
   for(let n=2;n<=3;n++){await p.waitForTimeout(610);if(n===2)await p.locator('#map-attack').tap();else{await p.evaluate(()=>document.activeElement?.blur());await p.keyboard.press('Space');}assert.equal((await state(p)).mapVillains.hits.river,n);}
-  await foe.waitFor({state:'hidden'});assert.equal(await p.evaluate(()=>window.__audioPlays),0);assert.deepEqual((await state(p)).completed,completed);
+  await foe.waitFor({state:'hidden'});await takeCard(p);assert.equal(await p.locator('.topbar .rc-slot.is-filled').count(),1,'the defeated villain fills one card slot');assert.equal(await p.evaluate(()=>window.__audioPlays),0);assert.deepEqual((await state(p)).completed,completed);
   await p.reload();await p.waitForSelector('.map-ready');assert.equal(await p.locator('[data-villain="river"]').isVisible(),false);assert.equal((await state(p)).mapVillains.hits.river,3);
   // Every foe can be approached with a native button and defeated through attack, not click removal.
   for(const id of ['volcano','rocks','city','safety']){
@@ -42,6 +44,7 @@ try{
    await p.locator('#map-attack').waitFor({state:'visible',timeout:22000});
    for(let i=(await state(p)).mapVillains.hits[id];i<3;i++){await p.locator('#map-attack[data-ready="true"]').tap();await p.waitForFunction(({key,id,hits})=>JSON.parse(localStorage.getItem(key)).mapVillains.hits[id]===hits,{key:SAVE_KEY,id,hits:i+1});}
    assert.equal((await state(p)).mapVillains.hits[id],3,id+' defeated');
+   assert.equal(await p.locator('.map-finale-dialog').count(),0,'the finale waits for the card');await takeCard(p,id==='safety');
   }
   assert.deepEqual((await state(p)).completed,completed);assert.equal((await state(p)).finished,false);
   await p.getByRole('dialog',{name:'지도 모험 피날레'}).getByRole('button',{name:'지도로 돌아가기'}).click();

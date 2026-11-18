@@ -95,6 +95,18 @@ earshot으로 들어 본 결과: 새 성공음들은 "success chime" z +3.9~4.3,
 | map-exit.mp3 | sfx/villain-exit-03.mp3 | [Dry Puff.wav](https://freesound.org/people/valeofhearts/sounds/532234) · valeofhearts | CC0 1.0 | 악당 퇴장(villain-exit) |
 | map-appear.mp3 | sfx/earth-rumble-01.mp3 | [Deep Ambient Rumble](https://freesound.org/people/IanStarGem/sounds/269592) · IanStarGem | CC0 1.0 | 악당 첫 등장, 세션당 한 번(villain-appear) |
 | map-bump.mp3 | sfx/hurt-bump-01.mp3 | [LowHit_01.wav](https://freesound.org/people/Faulkin/sounds/336495) · Faulkin | CC0 1.0 | 리버가 악당에 닿았을 때(hurt-bump) |
-| map-victory.mp3 | sfx/victory-jingle-02.mp3 | [WinBrass.wav](https://freesound.org/people/Fupicat/sounds/521639) · Fupicat | CC0 1.0 | 다섯 마리 모두 퇴치(victory-jingle). 피날레 영상은 음소거로 시작해 겹치지 않음 |
+| map-victory.mp3 | sfx/victory-jingle-02.mp3 | [WinBrass.wav](https://freesound.org/people/Fupicat/sounds/521639) · Fupicat | CC0 1.0 | 다섯 마리를 모두 물리치고 마지막 성취 카드를 닫은 뒤 피날레 영상이 열릴 때(victory-jingle, 2026-11-18부터). 피날레 영상은 음소거로 시작해 겹치지 않음 |
 
 예전 합성음 `hit.mp3`·`defeat.mp3`는 지도 전투에서 더 쓰지 않지만 `scripts/make-sfx.mjs` 결과물로 남겨 뒀어.
+
+## 성취 카드 효과음 (2026-11-18 추가)
+
+돌먼지 대장을 물리치면 받는 성취 카드(`src/map-rewards.js`, `src/reward-cards.js`)의 소리야. 위 전투음과 같은 과학34 공통 효과음 라이브러리(`_shared/sfx-library-20261117`)에서 이름만 바꿔 복사했어. 모두 원본 페이지에서 CC0 1.0을 다시 확인한 파일이고(라이브러리 `manifest.json`의 `license_rechecked: true`), 가공은 라이브러리에서 한 앞뒤 무음 제거·짧은 페이드·음량 정규화·모노 MP3 변환뿐이야. 게임에서는 음량만 조절하고, `playCue`로 재생해서 전체 소리 끄기와 효과음 크기를 따라.
+
+| 게임 파일 | 라이브러리 파일 | 원본 · 제작자 | 라이선스 | 쓰는 곳 |
+|---|---|---|---|---|
+| card-whoosh.mp3 | sfx/wind-whoosh-03.mp3 | [Slow Swosh 40](https://freesound.org/people/qubodup/sounds/60027) · qubodup | CC0 1.0 | 카드가 날아올 때와 보관함 칸으로 날아갈 때(card-whoosh) |
+| card-reveal.mp3 | sfx/reward-01.mp3 | [Fantasy_ui_Button_3.wav](https://freesound.org/people/ZenithInfinitiveStudios/sounds/376745) · ZenithInfinitiveStudios | CC0 1.0 | 카드 공개, 브론즈·실버·골드(card-reveal) |
+| card-epic.mp3 | sfx/reward-03.mp3 | [Achievement Happy Beeps Jingle](https://freesound.org/people/CogFireStudios/sounds/619838) · CogFireStudios | CC0 1.0 | 카드 공개, 홀로·레전드(card-epic) |
+| card-slot.mp3 | sfx/pickup-01.mp3 | [item-pickup-v1.wav](https://freesound.org/people/DeltaCode/sounds/678384) · DeltaCode | CC0 1.0 | 카드가 보관함 칸에 들어갈 때(card-slot) |
+| card-complete.mp3 | sfx/victory-jingle-01.mp3 | [Game Success Fanfare Short](https://freesound.org/people/el_boss/sounds/677858) · el_boss | CC0 1.0 | 다섯 장을 모두 모았을 때(card-complete). 피날레 영상이 열리면 멈춤 |

@@ -4,6 +4,7 @@ import {syncMapHitLayout} from './map-hit-layout.js';
 import {MAP_VILLAINS,VILLAIN_HITS,defeatedVillains} from './map-villain-rules.js';
 import {createCombat,stepCombat,attackCombat,COMBAT,villainCellSize,riverCombatFrame} from './map-combat-engine.js';
 import {playSound,playCue} from './sound.js';
+import {holdRewardCard,showRewardCard} from './map-rewards.js';
 // Villains already announced in this page session; re-entering the map stays quiet.
 const announced=new Set();
 // Place speech in map space without covering interactive signs, icons or other speech.
@@ -54,6 +55,8 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
  page.append(hud);
  const callback=document.createElement('p');callback.className='map-encounter-clear';callback.hidden=true;callback.setAttribute('role','status');page.append(callback);
  let clearReady=null,clearPlayed=false,lastSpeechLayout=-Infinity,finaleAt=0;
+ // Achievement cards waiting for their villain's exit (map-rewards.js). While a card or the card album is open #app is inert and the map holds still.
+ const cardsDue=[],cardOpen=()=>!!page.closest('[inert]');
  const clearLine=roster.find(v=>v.id===clearStage);
  const actor=document.createElement('div');actor.className='map-combat-river';actor.hidden=true;actor.setAttribute('aria-hidden','true');layer.append(actor);
  const wave=document.createElement('div');wave.className='combat-wave';wave.setAttribute('aria-hidden','true');layer.append(wave);
@@ -75,7 +78,7 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
   const n=defeatedVillains(game.progress);
   attack.disabled=cleared();page.classList.toggle('combat-cleared',n===MAP_VILLAINS.length);
  }
- const available=()=>!closed&&!document.hidden&&!document.querySelector('dialog[open]')&&!paused()&&!page.classList.contains('map-overview');
+ const available=()=>!closed&&!document.hidden&&!document.querySelector('dialog[open]')&&!paused()&&!page.classList.contains('map-overview')&&!cardOpen();
  const inRange=enemy=>{const h=getHero();return !!h&&Math.hypot(enemy.x-h.x,enemy.y-h.y)<=COMBAT.attackRange;};
  for(const v of roster){
   const el=document.createElement('button');el.type='button';el.className='map-villain';el.dataset.villain=v.id;el.setAttribute('aria-label',v.name+' 가까이 가기');
@@ -135,7 +138,7 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
    lastSpeechLayout=-Infinity;
    el.dataset.lineUntil=String(now+(event.type==='defeat'?2200:1800));
    callback.hidden=true;
-   if(event.type==='defeat'){if(defeatedVillains(game.progress)===MAP_VILLAINS.length)finaleAt=now+2350;if(document.activeElement===el)attack.focus({preventScroll:true});say(defeatedVillains(game.progress)===MAP_VILLAINS.length?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 지도를 둘러보며 남은 악당을 찾아봐.');cue('hit-heavy');cue('villain-exit',reduced?120:260);if(finaleAt)cue('victory-jingle',900);}
+   if(event.type==='defeat'){if(defeatedVillains(game.progress)===MAP_VILLAINS.length)finaleAt=now+2350;if(document.activeElement===el)attack.focus({preventScroll:true});say(defeatedVillains(game.progress)===MAP_VILLAINS.length?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 지도를 둘러보며 남은 악당을 찾아봐.');cue('hit-heavy');cue('villain-exit',reduced?120:260);cardsDue.push({id:event.id,at:now+(reduced?520:760)});holdRewardCard(event.id);}
    else{say(event.remaining===2?'앗, 바위에 금이 갔어! 두 번 남았어.':'자갈이 튀었어! 한 번 남았어.');cue(event.remaining===2?'hit-light':'hit-light-2');}
   }
   paint(now);
@@ -149,6 +152,8 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
   if(e.code==='KeyJ'||e.key?.toLowerCase()==='j'||space){if(!available()||!game.enemies.some(enemy=>game.progress.hits[enemy.id]<VILLAIN_HITS&&inRange(enemy)))return;e.preventDefault();if(!e.repeat)strike();}
  };window.addEventListener('keydown',key);
  function paint(now){
+  // The card opens before canTalk is read below, so the finale waits until the card is closed.
+  if(cardsDue.length&&now>=cardsDue[0].at&&!cardOpen()&&!document.querySelector('dialog[open]')){const {id}=cardsDue.shift(),box=foes.get(id).getBoundingClientRect();showRewardCard(id,game.progress,box.width?{x:box.left+box.width/2,y:box.top+box.height/2}:undefined,cue);}
   const h=getHero();if(h){actor.style.left=h.x/12+'%';actor.style.top=h.y/6.75+'%';}
   actor.style.setProperty('--facing',game.heroFacing||1);
   const celebrating=now>=game.celebrateAt&&now<game.celebrateUntil;
@@ -176,7 +181,7 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
   }
   if(!canTalk&&clearPlayed){clearPlayed=false;callback.hidden=true;}
   if(clearPlayed&&now-clearReady>=5450)callback.hidden=true;
-  if(finaleAt&&now>=finaleAt&&canTalk){finaleAt=0;openMapFinale(page,"/assets/story/final.mp4");}
+  if(finaleAt&&now>=finaleAt&&canTalk){finaleAt=0;cueStops.forEach(stop=>stop());cue('victory-jingle');openMapFinale(page,"/assets/story/final.mp4");}
   const n=defeatedVillains(game.progress),guideKey=n===5?'clear':nearby?'near':'far';
   if(lastNear!==guideKey){lastNear=guideKey;hud.querySelector('.combat-guide').innerHTML=guideKey==='clear'?'<b>5마리 모두 퇴치!</b><small>관찰 기록을 계속 모아 보자</small>':guideKey==='near'?'<b>지금 공격할 수 있어!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>':'다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>';}
   const ready=now-game.attackAt>=COMBAT.attackCooldown;attack.dataset.ready=String(ready);attack.dataset.inRange=String(nearby>0);attack.setAttribute('aria-disabled',String(attack.disabled||!ready));
@@ -194,5 +199,5 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
   paint(now);
  }
  renderHud();paint(performance.now());raf=requestAnimationFrame(tick);
- return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);cueStops.forEach(stop=>stop());spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);heroPose(-1);layer.remove();attack.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
+ return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);cueStops.forEach(stop=>stop());cardsDue.forEach(({id})=>holdRewardCard(id,false));spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);heroPose(-1);layer.remove();attack.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
 }

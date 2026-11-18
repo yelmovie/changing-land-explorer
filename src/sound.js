@@ -65,7 +65,13 @@ const effectClips = {
   'villain-exit':{file:'map-exit', volume:.5},
   'villain-appear':{file:'map-appear', volume:.45},
   'hurt-bump':{file:'map-bump', volume:.7},
-  'victory-jingle':{file:'map-victory', volume:.5}
+  'victory-jingle':{file:'map-victory', volume:.5},
+  // 성취 카드(src/map-rewards.js, 같은 CC0 라이브러리): 휙 날아오기 → 공개(별 4·5개는 긴 징글) → 보관함 칸에 톡 → 5장 완성.
+  'card-whoosh':{file:'card-whoosh', volume:.5},
+  'card-reveal':{file:'card-reveal', volume:.5},
+  'card-epic':{file:'card-epic', volume:.5},
+  'card-slot':{file:'card-slot', volume:.6},
+  'card-complete':{file:'card-complete', volume:.5}
 };
 const baseVolume = name => effectClips[name]?.volume ?? fieldSounds[name]?.volume ?? (name === 'water' ? .24 : .3);
 const sourceFor = (name, audio) => {
