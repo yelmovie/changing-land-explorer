@@ -191,3 +191,8 @@
 #overlay dialog.learning-dialog.concept-dialog.science-focus-player.concept-film > .concept-footer{right:max(16px,env(safe-area-inset-right))}
 /* Very narrow portrait (≤360px): three scene buttons share ~78px each, so "기다리기"-length words need a little more room. */
 @media (max-width:360px){#overlay .science-focus-player .science-focus-steps button{padding:8px 5px;font-size:16px}}
+/* Short screens: River's map line (20px) gets up to three lines, and in the teacher preview it sits above "시연 목록" instead of under it. */
+@media(max-height:620px){
+ #app.atlas:not(.welcome) .atlas-page .atlas-footer #map-speech:not(:empty){max-height:90px}
+ #app.atlas:not(.welcome) .atlas-page .atlas-footer:has(#preview-nav) #map-speech:not(:empty){bottom:calc(var(--map-cta-h) + 68px)}
+}
