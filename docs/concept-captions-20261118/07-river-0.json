@@ -1,0 +1,33 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/07/src/river-0.mp4",
+ "out": "../../public/assets/concepts/river-0.mp4",
+ "out_webm": "../../public/assets/concepts/river-0.webm",
+ "theme": {
+  "box": "#122a30",
+  "accent": "#ffd35c",
+  "hot": "#ffd35c"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.9,
+   "text": "흐르는 물이 땅을 깎아. 이것을 [침식]이라고 해."
+  },
+  {
+   "s": 5,
+   "e": 9.9,
+   "text": "물이 흙과 돌을 다른 곳으로 옮겨. 이것을 [운반]이라고 해."
+  },
+  {
+   "s": 10,
+   "e": 15,
+   "text": "물의 흐름이 느려진 곳에 흙이나 모래가 쌓일 수 있어.\n이렇게 쌓이는 것을 [퇴적]이라고 해.",
+   "bottom": 840,
+   "left": 96,
+   "minw": 1076,
+   "opaque": true
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/07/src/city-1.mp4",
+ "out": "../../public/assets/concepts/city-1.mp4",
+ "out_webm": "../../public/assets/concepts/city-1.webm",
+ "theme": {
+  "box": "#122a30",
+  "accent": "#ffd35c",
+  "hot": "#ffd35c"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.9,
+   "text": "관찰한 사실을 먼저 확인해. [화산재]가 남아 있니?"
+  },
+  {
+   "s": 5,
+   "e": 9.9,
+   "text": "[화산재]는 비행과 건강에 영향을 줄 수 있어."
+  },
+  {
+   "s": 10,
+   "e": 15,
+   "text": "위험할 때는 출입을 피하고\n어른과 함께 공식 [안전] 안내를 확인해.",
+   "bottom": 840,
+   "left": 96,
+   "minw": 1135,
+   "opaque": true
+  }
+ ]
+}

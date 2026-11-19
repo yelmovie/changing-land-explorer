@@ -65,7 +65,21 @@ try{
  const context=await browser.newContext({viewport:{width:1024,height:768},serviceWorkers:'block'});
  const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(base);await page.waitForSelector('#settings');
  await open(page,'river',0);await page.waitForFunction(()=>document.querySelector('video').currentTime>.1);
- await page.locator('.science-focus-toggle').click();const paused=await page.locator('video').evaluate(v=>v.currentTime);await page.waitForTimeout(300);assert.equal(await page.locator('video').evaluate(v=>v.currentTime),paused);
+ // A playing film fills the screen; its burned-in captions (bottom 30%) are not covered and the DOM caption is screen-reader only.
+ await page.waitForSelector('dialog.concept-film');
+ const film=await page.locator('dialog').evaluate(d=>{
+  const found=[],v=d.querySelector('video').getBoundingClientRect(),r=d.querySelector('.concept-reading').getBoundingClientRect();
+  if(Math.abs(v.width-innerWidth)>1||Math.abs(v.height-innerHeight)>1)found.push('video is not full screen');
+  if(getComputedStyle(d.querySelector('video')).objectFit!=='contain')found.push('video is not contain');
+  if(r.width>1||r.height>1)found.push('reading panel visible while playing');
+  if(!d.querySelector('.concept-caption').textContent.trim())found.push('screen-reader caption empty');
+  const scale=Math.min(innerWidth/1280,innerHeight/720),top=(innerHeight-720*scale)/2+720*scale*.7,bottom=(innerHeight+720*scale)/2;
+  for(let y=top;y<bottom-1;y+=(bottom-top)/5)for(let x=innerWidth*.1;x<innerWidth*.95;x+=innerWidth*.1){const el=document.elementFromPoint(x,y);if(el&&el.tagName!=='VIDEO')found.push('caption band covered by '+el.className);}
+  if(!d.querySelector('#concept-continue').checkVisibility()||!d.querySelector('#concept-film-pause').checkVisibility())found.push('top controls missing');
+  return [...new Set(found)];
+ });
+ assert.deepEqual(film,[],'full-screen film');
+ await page.locator('#concept-film-pause').click();assert.equal(await page.locator('dialog.concept-film').count(),0,'pause shows the reading panel');const paused=await page.locator('video').evaluate(v=>v.currentTime);await page.waitForTimeout(300);assert.equal(await page.locator('video').evaluate(v=>v.currentTime),paused);
  await page.locator('[data-science-step="1"]').click();await page.locator('video').click();await page.waitForFunction(()=>document.querySelector('video').currentTime>3);assert.ok(await page.locator('video').evaluate(v=>v.currentTime>5),'video tap resumes rather than restarts');
  await page.locator('#concept-replay').click();assert.ok(await page.locator('video').evaluate(v=>v.currentTime<1));
  await page.waitForFunction(()=>document.querySelector('video').ended,{},{timeout:20000}); // films are 15 sassert.equal(await page.locator('.concept-scene-count').textContent(),'3 / 3');

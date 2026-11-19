@@ -1,0 +1,33 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/07/src/volcano-1.mp4",
+ "out": "../../public/assets/concepts/volcano-1.mp4",
+ "out_webm": "../../public/assets/concepts/volcano-1.webm",
+ "theme": {
+  "box": "#122a30",
+  "accent": "#ffd35c",
+  "hot": "#ffd35c"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.9,
+   "text": "[모형]의 [붉은 물]처럼 [용암]도 아래로 흘러."
+  },
+  {
+   "s": 5,
+   "e": 9.9,
+   "text": "실제 화산에서는 [용암]과 [기체], [화산재], 암석 조각이 나올 수 있어.\n눈에 보이지 않는 [기체]는 나오는 곳을 표시했어."
+  },
+  {
+   "s": 10,
+   "e": 15,
+   "text": "[모형]은 흐름을 보여 주지만\n실제 화산의 모든 현상을 나타내지는 못해.",
+   "bottom": 840,
+   "left": 96,
+   "minw": 1268,
+   "opaque": true
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/07/src/volcano-0.mp4",
+ "out": "../../public/assets/concepts/volcano-0.mp4",
+ "out_webm": "../../public/assets/concepts/volcano-0.webm",
+ "theme": {
+  "box": "#122a30",
+  "accent": "#ffd35c",
+  "hot": "#ffd35c"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.9,
+   "text": "주사기 [손잡이]를 밀면 [붉은 물]이 관을 따라 올라가."
+  },
+  {
+   "s": 5,
+   "e": 9.9,
+   "text": "[붉은 물]이 산 [모형] 꼭대기로 나와."
+  },
+  {
+   "s": 10,
+   "e": 15,
+   "text": "[붉은 물]이 경사면을 따라 아래로 흘러.",
+   "bottom": 920,
+   "left": 96,
+   "minw": 1076,
+   "opaque": true
+  }
+ ]
+}

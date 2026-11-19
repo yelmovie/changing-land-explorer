@@ -1,0 +1,33 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/07/src/rocks-1.mp4",
+ "out": "../../public/assets/concepts/rocks-1.mp4",
+ "out_webm": "../../public/assets/concepts/rocks-1.webm",
+ "theme": {
+  "box": "#122a30",
+  "accent": "#ffd35c",
+  "hot": "#ffd35c"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.9,
+   "text": "이 탐험에서 고를 이름은 [현무암]과 [화강암]이야."
+  },
+  {
+   "s": 5,
+   "e": 9.9,
+   "text": "전체 색과 [알갱이], 두 가지 증거를 모아."
+  },
+  {
+   "s": 10,
+   "e": 15,
+   "text": "기준 표본과 비교하면 알맞은 이름으로 분류할 수 있어.",
+   "bottom": 920,
+   "left": 96,
+   "minw": 959,
+   "opaque": true
+  }
+ ]
+}

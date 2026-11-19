@@ -1,0 +1,33 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/07/src/rocks-0.mp4",
+ "out": "../../public/assets/concepts/rocks-0.mp4",
+ "out_webm": "../../public/assets/concepts/rocks-0.webm",
+ "theme": {
+  "box": "#122a30",
+  "accent": "#ffd35c",
+  "hot": "#ffd35c"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.9,
+   "text": "왼쪽 [현무암]은 어두운색이고 작은 [알갱이]가 잘 보이지 않아."
+  },
+  {
+   "s": 5,
+   "e": 9.9,
+   "text": "오른쪽 [화강암]은 대체로 밝고 여러 색의 [알갱이]가 뚜렷해."
+  },
+  {
+   "s": 10,
+   "e": 15,
+   "text": "두 돌의 색과 [알갱이]를 함께 비교해 봐.",
+   "bottom": 920,
+   "left": 96,
+   "minw": 826,
+   "opaque": true
+  }
+ ]
+}

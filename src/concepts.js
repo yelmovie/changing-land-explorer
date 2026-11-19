@@ -8,7 +8,12 @@ import {guideFileForText, playVoiceSequence} from './guide-voice.js';
 // All captions remain DOM text, so a teacher can read them from a whiteboard.
 // Each 15-second film (films/concepts) shows one caption per 5 seconds: question and experiment,
 // a close look with a name tag, then the conclusion. The name tags are drawn inside the film.
+// Since 2026-11-18 the films also carry the same captions burned into their bottom 30%
+// (docs/concept-captions-20261118): a playing film fills the screen and the DOM caption is read by screen readers only.
 export const CONCEPT_CUES=[0,5,10];
+// While River is still speaking, the film waits this far before the next cue, inside the current burned caption
+// (each burned caption ends 0.1 s before the next cue and fades out over 0.2 s).
+const HOLD_BEFORE=0.6;
 export const CONCEPTS = {
   river: [
     {title:'물이 땅을 바꾸는 세 가지 일', labels:['깎임','이동','쌓임'], cues:['흐르는 물이 땅을 깎아. 이것을 침식이라고 해.','물이 흙과 돌을 다른 곳으로 옮겨. 이것을 운반이라고 해.','물의 흐름이 느려진 곳에 흙이나 모래가 쌓일 수 있어. 이렇게 쌓이는 것을 퇴적이라고 해.'], summary:'같은 지형에서 물의 양을 바꾸면, 깎이고 옮겨지는 흙의 양도 달라져.'},
@@ -35,7 +40,7 @@ export const CONCEPTS = {
 export function showConcept(ctx, onContinue, {replay = false} = {}) {
   const concept = CONCEPTS[ctx.s.id][ctx.step], key = `${ctx.s.id}-${ctx.step}`;
   let cleanup = () => {};
-  ctx.modal(concept.title, `<section class="concept-player"><div class="concept-visual"><video playsinline muted preload="metadata" poster="/assets/concepts/${key}.webp" aria-label="${escapeHTML(concept.title)} 모션 그래픽"><source src="/assets/concepts/${key}.webm" type="video/webm"><source src="/assets/concepts/${key}.mp4" type="video/mp4"></video><div class="concept-labels">${concept.labels.map((label,i)=>`<span data-cue="${i}">${escapeHTML(label)}</span>`).join('')}</div><button class="concept-play primary" id="concept-play">${icon('arrow')} 영상 재생</button></div><div class="concept-reading"><div class="concept-scene-heading"><h3 class="concept-current-term"></h3><span class="concept-scene-count" aria-label="현재 장면"></span></div><p class="concept-caption" aria-live="polite" aria-atomic="true"></p><div class="concept-takeaway"><strong>기억해 두기</strong><p class="concept-summary">${escapeHTML(concept.summary)}</p></div></div><div class="concept-actions"><button class="secondary" id="concept-replay">다시 보기</button><button class="primary" id="concept-continue">${replay?'탐구로 돌아가기':ctx.step===0?'다음 활동으로':OPERATIONS[ctx.s.id]?'현장 임무로':'스테이지 완료'} ${icon('arrow')}</button></div><p class="concept-error" role="status" hidden>영상을 불러오지 못했어. 아래 핵심 내용을 확인하고 계속할 수 있어.</p></section>`, (dialog, close) => {
+  ctx.modal(concept.title, `<section class="concept-player"><div class="concept-visual"><video playsinline muted preload="metadata" poster="/assets/concepts/${key}.webp" aria-label="${escapeHTML(concept.title)} 모션 그래픽"><source src="/assets/concepts/${key}.webm" type="video/webm"><source src="/assets/concepts/${key}.mp4" type="video/mp4"></video><div class="concept-labels">${concept.labels.map((label,i)=>`<span data-cue="${i}">${escapeHTML(label)}</span>`).join('')}</div><button class="concept-play primary" id="concept-play">${icon('arrow')} 영상 재생</button></div><div class="concept-reading"><div class="concept-scene-heading"><h3 class="concept-current-term"></h3><span class="concept-scene-count" aria-label="현재 장면"></span></div><p class="concept-caption" aria-live="polite" aria-atomic="true"></p><div class="concept-takeaway"><strong>기억해 두기</strong><p class="concept-summary">${escapeHTML(concept.summary)}</p></div></div><div class="concept-actions"><button class="secondary concept-film-pause" id="concept-film-pause" title="일시 정지">일시 정지</button><button class="secondary" id="concept-replay">다시 보기</button><button class="primary" id="concept-continue">${replay?'탐구로 돌아가기':ctx.step===0?'다음 활동으로':OPERATIONS[ctx.s.id]?'현장 임무로':'스테이지 완료'} ${icon('arrow')}</button></div><p class="concept-error" role="status" hidden>영상을 불러오지 못했어. 아래 핵심 내용을 확인하고 계속할 수 있어.</p></section>`, (dialog, close) => {
     dialog.classList.add('concept-dialog');
     const actions=$('.concept-actions',dialog);
     actions.classList.add('concept-footer');
@@ -51,32 +56,46 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     const speak = i => {
       spoken = i;
       playVoiceSequence([guideFileForText(i < concept.cues.length ? concept.cues[i] : concept.summary)], {alive: () => dialog.open, onDone: () => {
-        if (held) { held = false; video.play().catch(() => { play.hidden = false; }); }
+        if (held) { held = false; video.play().catch(() => { play.hidden = false; film(false); }); }
         else if (reachedEnd && i === concept.cues.length - 1) speak(concept.cues.length);
       }});
     };
     const update = () => {
       if (unavailable) return;
       const cue = CONCEPT_CUES.reduce((n,at,i)=>video.currentTime+0.001>=at?i:n,0);
-      if (!video.paused && cue !== spoken) {
-        if (cue > spoken && spoken >= 0 && voiceBusy()) { held = true; video.pause(); video.currentTime = Math.max(0, CONCEPT_CUES[cue] - 0.05); return; }
+      if (!video.paused && cue === spoken && CONCEPT_CUES[cue + 1] !== undefined && video.currentTime >= CONCEPT_CUES[cue + 1] - HOLD_BEFORE && voiceBusy()) { held = true; video.pause(); }
+      else if (!video.paused && cue !== spoken) {
+        if (cue > spoken && spoken >= 0 && voiceBusy()) { held = true; video.pause(); video.currentTime = Math.max(0, CONCEPT_CUES[cue] - HOLD_BEFORE); return; }
         speak(cue);
       }
       if (cue !== lastCue) { caption.textContent = concept.cues[cue]; lastCue = cue; }
       dialog.querySelectorAll('[data-cue]').forEach((label,i) => label.classList.toggle('active', i === cue));
     };
-    const end = () => { reachedEnd = true; play.hidden = true; update(); if (!voiceBusy() && spoken === concept.cues.length - 1) speak(concept.cues.length); };
+    // Full screen only while a frame is really playing (or waiting for River's line); paused, ended or failed films show the reading panel.
+    const pause = $('#concept-film-pause', dialog);
+    const film = on => {
+      on = on && !unavailable;
+      if (dialog.classList.contains('concept-film') === on) return;
+      const focused = dialog.contains(document.activeElement) ? document.activeElement : null;
+      dialog.classList.toggle('concept-film', on);
+      // Keep keyboard focus on a visible control when the layout switches.
+      if (focused && !focused.checkVisibility?.()) (on ? pause : $('.science-focus-toggle', dialog) || $('#concept-replay', dialog))?.focus({preventScroll: true});
+    };
+    video.addEventListener('playing', () => film(true));
+    video.addEventListener('pause', () => { if (!held) film(false); });
+    pause.onclick = () => { held = false; video.pause(); film(false); };
+    const end = () => { film(false); reachedEnd = true; play.hidden = true; update(); if (!voiceBusy() && spoken === concept.cues.length - 1) speak(concept.cues.length); };
     const start = () => { if(unavailable)return;stopSounds(); reachedEnd = false; spoken = -1; held = false; play.hidden = true; video.currentTime = 0; video.play().catch(() => { if(!unavailable)play.hidden = false; }); };
     cleanup = () => { releaseFocus();releaseMusic();video.pause(); video.removeAttribute('src'); video.querySelectorAll('source').forEach(s=>s.removeAttribute('src')); video.load(); document.removeEventListener('visibilitychange', visibility); };
     const visibility = () => { if (document.hidden) video.pause(); else if (!reachedEnd&&!unavailable) play.hidden = false; };
     const proceed = () => { if (departed) return; departed = true; close(); if (!replay) onContinue?.(); };
     video.addEventListener('timeupdate', update); video.addEventListener('ended', end);
-    const fail = () => { if(!dialog.open)return;unavailable=true;play.hidden=true;$('#concept-replay',dialog).disabled=true;$('.concept-error',dialog).hidden=false;video.pause();caption.classList.add('concept-fallback-cues');caption.innerHTML=concept.cues.map((text,i)=>'<span><b>'+String(i+1)+'.</b> '+emphasizeConcept(text,terms)+'</span>').join(''); };
+    const fail = () => { if(!dialog.open)return;unavailable=true;film(false);play.hidden=true;$('#concept-replay',dialog).disabled=true;$('.concept-error',dialog).hidden=false;video.pause();caption.classList.add('concept-fallback-cues');caption.innerHTML=concept.cues.map((text,i)=>'<span><b>'+String(i+1)+'.</b> '+emphasizeConcept(text,terms)+'</span>').join(''); };
     video.addEventListener('error', fail);
     // When child <source> URLs all fail, browsers may emit errors only on them.
     video.querySelectorAll('source').forEach(source=>source.addEventListener('error',()=>{if(++failedSources===video.querySelectorAll('source').length)fail();}));
     document.addEventListener('visibilitychange', visibility);
-    play.onclick = start; video.onclick = () => { if(unavailable)return;if (video.paused) {stopSounds();video.play().catch(()=>{play.hidden=false;});} else video.pause(); };
+    play.onclick = start; video.onclick = () => { if(unavailable)return;if (video.paused && !held) {stopSounds();video.play().catch(()=>{play.hidden=false;});} else { held = false; video.pause(); film(false); } };
     $('#concept-replay', dialog).onclick = start;
     $('#concept-continue', dialog).onclick = proceed;
     // Closing never advances a learner. The saved activity remains complete.

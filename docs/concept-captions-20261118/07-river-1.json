@@ -1,0 +1,33 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/07/src/river-1.mp4",
+ "out": "../../public/assets/concepts/river-1.mp4",
+ "out_webm": "../../public/assets/concepts/river-1.webm",
+ "theme": {
+  "box": "#122a30",
+  "accent": "#ffd35c",
+  "hot": "#ffd35c"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.9,
+   "text": "[상류]는 대체로 물길이 좁고 경사가 급해."
+  },
+  {
+   "s": 5,
+   "e": 9.9,
+   "text": "물은 흙과 돌을 아래쪽으로 옮겨."
+  },
+  {
+   "s": 10,
+   "e": 15,
+   "text": "[하류]는 대체로 넓고 완만해.\n흐름이 느려진 곳에 모래와 고운 흙이 쌓일 수 있어.",
+   "bottom": 840,
+   "left": 96,
+   "minw": 1194,
+   "opaque": true
+  }
+ ]
+}

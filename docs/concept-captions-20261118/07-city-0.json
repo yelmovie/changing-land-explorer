@@ -1,0 +1,33 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/07/src/city-0.mp4",
+ "out": "../../public/assets/concepts/city-0.mp4",
+ "out_webm": "../../public/assets/concepts/city-0.webm",
+ "theme": {
+  "box": "#122a30",
+  "accent": "#ffd35c",
+  "hot": "#ffd35c"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.9,
+   "text": "분출 당시 [화산재]는 비행과 농작물에 피해를 줄 수 있어."
+  },
+  {
+   "s": 5,
+   "e": 9.9,
+   "text": "피해를 복구하고 [안전]을 확인하는 과정이 필요해."
+  },
+  {
+   "s": 10,
+   "e": 15,
+   "text": "아주 [오랜 시간]이 지나 화산 물질이 변하면 식물이 자라기 좋은 흙이 될 수 있어.",
+   "bottom": 840,
+   "left": 96,
+   "minw": 1327,
+   "opaque": true
+  }
+ ]
+}

@@ -153,3 +153,29 @@ dialog.concept-dialog.science-focus-player > .concept-footer {
   flex:none; width:100%; margin:0; padding:9px 18px; border-top:1px solid var(--science-line); background:var(--science-paper,#fffaf0);
 }
 @media(max-width:480px){dialog.concept-dialog.science-focus-player > .concept-footer{padding:8px 10px;gap:6px;}}
+
+/* Full-screen concept film (2026-11-18). The films carry their captions in the bottom 30% of the frame, so while a
+   film plays it fills the screen (contain, black bars) and nothing in the DOM covers that band. Round pause / replay /
+   next / close buttons sit at the top right; the reading panel (current term, caption, summary, scene buttons)
+   comes back as soon as the film is paused or ends. The DOM caption stays for screen readers only. */
+#overlay dialog .concept-actions .concept-film-pause { display: none; }
+#overlay dialog.learning-dialog.concept-dialog.science-focus-player.concept-film { position: fixed; inset: 0; display: block; width: 100dvw; height: var(--app-height, 100dvh); max-width: none; max-height: none; margin: 0; padding: 0; border: 0; border-radius: 0; overflow: hidden; color: #fff8df; background: #000; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film::backdrop { background: #000; }
+/* Top-right round buttons only: the title is read by screen readers, and on 16:9 screens the last scene's caption
+   (top-left, at most 74% of the width) never runs under the buttons. */
+#overlay dialog.learning-dialog.concept-dialog.concept-film > .dialog-heading { position: absolute; top: max(8px, env(safe-area-inset-top)); right: max(16px, env(safe-area-inset-right)); z-index: 3; display: block; min-height: 0; padding: 0; border: 0; background: none; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film > .dialog-heading h2 { position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film > .dialog-heading .dialog-close { color: #fff6e3; background: #0f221ecc; border: 1px solid #aec4ac; border-radius: 50%; box-shadow: none; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film > .dialog-body { position: absolute; inset: 0; padding: 0; overflow: hidden; scrollbar-gutter: auto; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film .concept-player { display: block; height: 100%; }
+#overlay dialog.learning-dialog.concept-dialog.science-focus-player.concept-film .concept-visual { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; min-height: 0; aspect-ratio: auto; margin: 0; border: 0; border-radius: 0; background: #000; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film .concept-visual video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film .concept-reading { position: absolute; left: 0; top: 0; width: 1px; height: 1px; padding: 0; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film :is(.science-focus-progress, .science-focus-rail, .science-focus-hint, .concept-error) { display: none; }
+#overlay dialog.learning-dialog.concept-dialog.science-focus-player.concept-film > .concept-footer { position: absolute; top: max(8px, env(safe-area-inset-top)); right: calc(max(16px, env(safe-area-inset-right)) + 56px); z-index: 3; display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; width: auto; margin: 0; padding: 0; border: 0; background: none; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film > .concept-footer button { position: relative; display: inline-grid; place-items: center; width: 48px; min-width: 48px; height: 48px; min-height: 48px; padding: 0; overflow: hidden; border-radius: 50%; font-size: 0; color: #fff6e3; background: #0f221ecc; border: 1px solid #aec4ac; box-shadow: none; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film > .concept-footer .primary { color: #354433; background: #f6d589; border-color: #eac278; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film > .concept-footer button svg { width: 22px; height: 22px; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film .concept-actions .concept-film-pause { display: inline-grid; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film #concept-film-pause::before { content: ''; width: 14px; height: 16px; border-inline: 5px solid currentColor; box-sizing: border-box; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film #concept-replay::before { content: '\21BB'; font: 700 24px/1 system-ui, sans-serif; }

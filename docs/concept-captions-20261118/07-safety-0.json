@@ -1,0 +1,33 @@
+{
+ "src": "../../../_scratch/caption-motion-20261118/concepts/07/src/safety-0.mp4",
+ "out": "../../public/assets/concepts/safety-0.mp4",
+ "out_webm": "../../public/assets/concepts/safety-0.webm",
+ "theme": {
+  "box": "#122a30",
+  "accent": "#ffd35c",
+  "hot": "#ffd35c"
+ },
+ "bottom": 64,
+ "sweep": false,
+ "cues": [
+  {
+   "s": 0,
+   "e": 4.9,
+   "text": "[흔들릴 때]는 튼튼한 책상 아래에서 몸을 보호해."
+  },
+  {
+   "s": 5,
+   "e": 9.9,
+   "text": "팔이나 곁에 있는 물건으로 [머리]를 보호하고\n책상 다리를 잡아."
+  },
+  {
+   "s": 10,
+   "e": 15,
+   "text": "[흔들림이 멈춘] 뒤 [선생님]의 안내에 따라 이동해.",
+   "bottom": 920,
+   "left": 96,
+   "minw": 1002,
+   "opaque": true
+  }
+ ]
+}
