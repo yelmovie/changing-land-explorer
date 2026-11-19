@@ -6,17 +6,25 @@ import {createCombat,stepCombat,attackCombat,COMBAT,villainCellSize,riverCombatF
 import {playSound,playCue,playVoice,voiceBusy,voiceWaiting,reactionBusy,cueBusy} from './sound.js';
 // Villain lines (ElevenLabs Harry, docs/VOICE-FILL-20261118.json) wait until River's line ends so two voices never overlap.
 // Once started they are marked as a reaction, so River's next map line waits for them instead of cutting them (sound.js playVoiceAfterReaction).
-// River's line can start up to 2 s late that way, so the wait here is 10 s (was 8 s).
+// The exit line of a defeated villain comes first (River's summary follows the card), so it only replaces the villain's own unfinished line.
 let villainVoiceTimer=0;
 // The bubble of the line being spoken: while its voice plays the bubble is up (again), until the voice ends (+0.2 s), 6 s at most.
 // The voice often starts after River's line, when the bubble's own 1.8-2.3 s are over. With the voice off the bubble keeps its usual time.
-let spoken={el:null,kind:'',at:0,until:0};
-function villainVoice(file,el,kind){
- clearTimeout(villainVoiceTimer);const started=performance.now();
- spoken={el,kind,at:0,until:0};
- const tick=()=>{if(!el.isConnected||document.querySelector('dialog[open]'))return;if(!voiceBusy()&&!voiceWaiting()){playVoice(file,{reaction:true});spoken.at=performance.now();return;}if(performance.now()-started<10000)villainVoiceTimer=setTimeout(tick,200);};
+// settled: the line has started, or it never will (voice off, dialog open, waited too long).
+let spoken={el:null,kind:'',at:0,until:0,settled:true};
+function villainVoice(file,el,kind,exit=false){
+ clearTimeout(villainVoiceTimer);const started=performance.now(),line=spoken={el,kind,at:0,until:0,settled:false};
+ const tick=()=>{
+  villainVoiceTimer=0;
+  if(!el.isConnected||document.querySelector('dialog[open]')){line.settled=true;return;}
+  if((!voiceBusy()||exit&&reactionBusy())&&!voiceWaiting()){playVoice(file,{reaction:true});line.at=performance.now();line.settled=true;return;}
+  if(performance.now()-started<8000)villainVoiceTimer=setTimeout(tick,200);else line.settled=true;
+ };
  villainVoiceTimer=setTimeout(tick,350);
+ return line;
 }
+// True once that line is over: it was spoken to the end, replaced by a later villain line, or will not be spoken at all.
+const lineOver=line=>(line!==spoken||line.settled)&&!reactionBusy();
 function lineSpoken(el,kind,now){
  if(spoken.el!==el||spoken.kind!==kind||!spoken.at||now-spoken.at>=6000)return false;
  if(reactionBusy())spoken.until=now+200;
@@ -72,7 +80,7 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
  hud.innerHTML='<p class="combat-guide" id="combat-guide">다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small></p><button type="button" id="map-attack" aria-label="주변 돌먼지 대장 공격, J 또는 Space" aria-keyshortcuts="J Space" aria-describedby="combat-guide" hidden></button>';
  page.append(hud);
  const callback=document.createElement('p');callback.className='map-encounter-clear';callback.hidden=true;callback.setAttribute('role','status');page.append(callback);
- let clearReady=null,clearPlayed=false,lastSpeechLayout=-Infinity,finaleAt=0,finaleReady=0,cardJingle=false;
+ let clearReady=null,clearPlayed=false,lastSpeechLayout=-Infinity,finaleAt=0,finaleReady=0,cardJingle=false,finaleSay='';
  // Achievement cards waiting for their villain's exit (map-rewards.js). While a card or the card album is open #app is inert and the map holds still.
  const cardsDue=[],cardOpen=()=>!!page.closest('[inert]');
  const clearLine=roster.find(v=>v.id===clearStage);
@@ -89,6 +97,8 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
  // One soft arrival sound once the map has settled, only for villains not heard yet.
  const arrivals=roster.filter(v=>game.progress.hits[v.id]<VILLAIN_HITS&&!announced.has(v.id));
  let appearAt=arrivals.length?performance.now()+700:0;
+ // River's summary of the last defeat is spoken once the finale dialog has closed (map-finale.js announces it).
+ const finaleClosed=event=>{if(event.detail?.open||closed||!finaleSay)return;const text=finaleSay;finaleSay='';say(text);};document.addEventListener('map-finale',finaleClosed);
  const visibility=()=>{if(!document.hidden)game.invulnerableUntil=Math.max(game.invulnerableUntil,performance.now()+1000);};document.addEventListener('visibilitychange',visibility);
  function setFrame(el,frame,cols=3,rows=2){el.style.backgroundPosition=`${(frame%cols)/(cols-1)*100}% ${Math.floor(frame/cols)/(rows-1||1)*100}%`;}
  function commit(){state.mapVillains=game.progress;save();renderHud();}
@@ -153,11 +163,20 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
    commit();const el=foes.get(event.id);el.classList.remove('hit');void el.offsetWidth;el.classList.add('hit');el.dataset.flashUntil=String(now+430);el.querySelector('.villain-result').textContent=event.type==='defeat'?'퇴치!':`${VILLAIN_HITS-event.remaining} / ${VILLAIN_HITS} 명중`;
    const v=roster.find(v=>v.id===event.id);const line=el.querySelector('.villain-line');
    line.textContent=event.type==='defeat'?v.finish:v.hit[VILLAIN_HITS-event.remaining-1];
-   villainVoice(`villain/${v.id}-${event.type==='defeat'?'finish':'hit'+(VILLAIN_HITS-event.remaining-1)}.mp3`,el,'hit');
+   const exitLine=villainVoice(`villain/${v.id}-${event.type==='defeat'?'finish':'hit'+(VILLAIN_HITS-event.remaining-1)}.mp3`,el,'hit',event.type==='defeat');
    lastSpeechLayout=-Infinity;
    el.dataset.lineUntil=String(now+(event.type==='defeat'?2200:1800));
    callback.hidden=true;
-   if(event.type==='defeat'){if(defeatedVillains(game.progress)===MAP_VILLAINS.length)finaleAt=now+2350;if(document.activeElement===el)attack.focus({preventScroll:true});say(defeatedVillains(game.progress)===MAP_VILLAINS.length?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 지도를 둘러보며 남은 악당을 찾아봐.');cue('hit-heavy');cue('villain-exit',reduced?120:260);cardsDue.push({id:event.id,at:now+(reduced?520:760)});holdRewardCard(event.id);}
+   if(event.type==='defeat'){
+    // After a defeat: hit and exit sounds -> the villain's exit line -> its card once that line is over (6 s after the hit at most)
+    // -> River's summary, words and voice together, once the card is put away. Until then River's last hit line is cleared.
+    // The last villain's summary waits for the finale dialog to close: the dialog says the same thing, and "you can keep exploring" belongs to the moment back on the map.
+    const all=defeatedVillains(game.progress)===MAP_VILLAINS.length,summary=all?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 지도를 둘러보며 남은 악당을 찾아봐.';
+    if(all){finaleAt=now+2350;finaleSay=summary;}
+    if(document.activeElement===el)attack.focus({preventScroll:true});
+    say('');cue('hit-heavy');cue('villain-exit',reduced?120:260);
+    cardsDue.push({id:event.id,at:now+(reduced?520:760),cap:now+6000,line:exitLine,summary:all?'':summary});holdRewardCard(event.id);
+   }
    else{say(event.remaining===2?'앗, 바위에 금이 갔어! 두 번 남았어.':'자갈이 튀었어! 한 번 남았어.');cue(event.remaining===2?'hit-light':'hit-light-2');}
   }
   paint(now);
@@ -172,7 +191,11 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
  };window.addEventListener('keydown',key);
  function paint(now){
   // The card opens before canTalk is read below, so the finale waits until the card is closed.
-  if(cardsDue.length&&now>=cardsDue[0].at&&!cardOpen()&&!document.querySelector('dialog[open]')){const {id}=cardsDue.shift(),box=foes.get(id).getBoundingClientRect();showRewardCard(id,game.progress,box.width?{x:box.left+box.width/2,y:box.top+box.height/2}:undefined,name=>{if(name==='card-complete')cardJingle=true;cue(name);});}
+  const due=cardsDue[0];
+  if(due&&now>=due.at&&(now>=due.cap||lineOver(due.line))&&!cardOpen()&&!document.querySelector('dialog[open]')){
+   cardsDue.shift();const box=foes.get(due.id).getBoundingClientRect(),after=()=>{if(!closed&&due.summary)say(due.summary);};
+   try{showRewardCard(due.id,game.progress,box.width?{x:box.left+box.width/2,y:box.top+box.height/2}:undefined,name=>{if(name==='card-complete')cardJingle=true;cue(name);}).then(after,after);}catch{after();}
+  }
   const h=getHero();if(h){actor.style.left=h.x/12+'%';actor.style.top=h.y/6.75+'%';}
   actor.style.setProperty('--facing',game.heroFacing||1);
   const celebrating=now>=game.celebrateAt&&now<game.celebrateUntil;
@@ -202,9 +225,9 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
   if(clearPlayed&&now-clearReady>=5450)callback.hidden=true;
   // Celebration order: the fifth card's complete jingle is the "all defeated" sound; the victory jingle only stands in when no card jingle played.
   // The finale dialog and its final theme open after that jingle and any line still being spoken have ended (4 s at most). Nothing is cut.
-  if(finaleAt&&now>=finaleAt&&canTalk){
+  if(finaleAt&&now>=finaleAt&&canTalk&&!cardsDue.length){
    if(!finaleReady){finaleReady=now;if(!cardJingle)cue('victory-jingle');}
-   if(now-finaleReady>4000||!(cueBusy('card-complete')||cueBusy('victory-jingle')||voiceBusy()||voiceWaiting())){finaleAt=0;openMapFinale(page,"/assets/story/final.mp4");}
+   if(now-finaleReady>4000||!(cueBusy('card-complete')||cueBusy('victory-jingle')||voiceBusy()||voiceWaiting())){finaleAt=0;openMapFinale(page,"/assets/story/final.mp4");if(!document.querySelector('.map-finale-dialog'))finaleClosed({detail:{open:false}});}
   }
   const n=defeatedVillains(game.progress),guideKey=n===5?'clear':nearby?'near':'far';
   if(lastNear!==guideKey){lastNear=guideKey;hud.querySelector('.combat-guide').innerHTML=guideKey==='clear'?'<b>5마리 모두 퇴치!</b><small>관찰 기록을 계속 모아 보자</small>':guideKey==='near'?'<b>지금 공격할 수 있어!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>':'다가가서 <b>3번 공격!</b><small>악당 누르기 · 공격 버튼 · J / Space</small>';}
@@ -223,5 +246,5 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
   paint(now);
  }
  renderHud();paint(performance.now());raf=requestAnimationFrame(tick);
- return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);cueStops.forEach(stop=>stop());cardsDue.forEach(({id})=>holdRewardCard(id,false));spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);heroPose(-1);layer.remove();attack.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
+ return {blocked:()=>false,destroy(){closed=true;cancelAnimationFrame(raf);cueStops.forEach(stop=>stop());cardsDue.forEach(({id})=>holdRewardCard(id,false));spriteResize.disconnect();callback.remove();window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);document.removeEventListener('map-finale',finaleClosed);heroPose(-1);layer.remove();attack.remove();hud.remove();page.classList.remove('combat-cleared','combat-knockout');}};
 }
