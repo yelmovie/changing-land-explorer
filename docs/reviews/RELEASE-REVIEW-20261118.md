@@ -146,4 +146,10 @@
 
 ## 6. 배포 결과
 
-(배포 뒤 채움)
+- 커밋 `883cb42`(개념 영상 자막 세션의 `d3eeae5` 위)를 main에 푸시하고 `_scratch/deploy-20261118/deploy.sh 07 "7 earthchange" pages geovalley`로 `origin/main`만 빌드해 올렸다. Pages 배포 `b0d287b0` (https://b0d287b0.geovalley.pages.dev), 8파일 새로 올림·897파일 재사용.
+- 운영 주소 해시 대조: `src/residents.js`·`index.html`(cmp.sh) MATCH, `src/record-tower.css`·`src/layout-fixes.css`·`src/rounded-ui.css`·`src/field-operation.css`·`src/resident-stage.css`·`src/main.js`·`src/concepts.js`·`sw.js` MATCH.
+- 운영 주소 화면: 아래 7절.
+
+## 7. 운영 주소 화면 확인
+
+https://geovalley.pages.dev 를 서비스워커 없이 열어 같은 측정을 돌렸다(`.tmp/layout-balance-20261118/after-prod/`): 기록탑 1280×800 면적 .642·「기록탑 완성하기」 아래 끝 764/800px, 1920×1080 면적 .542, 작전 판 .697/.765, 주민 대화에 X 없음, 콘솔 오류 0. 보상 카드 화면은 운영 파일 해시(`src/layout-fixes.css`, `src/main.js`) 일치로 확인했다.

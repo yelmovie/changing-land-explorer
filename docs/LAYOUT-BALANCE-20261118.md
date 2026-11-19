@@ -69,3 +69,7 @@
 - 측정 25화면 × 5크기 콘솔 오류 0
 - 초기 로딩(빌드본, 10Mbps·RTT 40ms·CPU 4배): 1.51초 × 3, 55요청, 외부 요청 0
 - 변경 전 HEAD에서도 똑같이 실패하는 낡은 검사: `check-learning-flow`(사라진 `[data-operation="move:east"]`), `check-safety-touch`(`#safety-mark-window`), `check-requested-fixes`(`#confirm-stop`), `check-guide-arrivals`(음성 27 → 437), `check-learning-ui`(도구 메뉴 단정, 설정 창 48px 미만 버튼, 영상 3개 선택자). 작업본과 HEAD 결과가 같아 이번 변경의 회귀는 없다. 검사 갱신은 별도 작업으로 남긴다.
+
+## 5. 배포
+
+`883cb42` 푸시 → Pages `geovalley` 배포 `b0d287b0`. 운영 파일 해시 MATCH(바뀐 CSS 5개·`main.js`·`residents.js`·`index.html`·`sw.js`), 운영 주소에서 기록탑·작전 판·주민 대화 재측정 일치, 콘솔 오류 0.
