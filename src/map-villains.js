@@ -26,6 +26,8 @@ function villainVoice(file,el,kind,exit=false){
 }
 // True once that line is over: it was spoken to the end, replaced by a later villain line, or will not be spoken at all.
 const lineOver=line=>(line!==spoken||line.settled)&&!reactionBusy();
+// A line still waiting for its turn when its card opens is dropped, so it never starts over the card.
+function dropLine(line){if(line===spoken&&!line.settled){clearTimeout(villainVoiceTimer);villainVoiceTimer=0;line.settled=true;}}
 function lineSpoken(el,kind,now){
  if(spoken.el!==el||spoken.kind!==kind||!spoken.at||now-spoken.at>=6000)return false;
  if(reactionBusy())spoken.until=now+200;
@@ -169,14 +171,16 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
    el.dataset.lineUntil=String(now+(event.type==='defeat'?2200:1800));
    callback.hidden=true;
    if(event.type==='defeat'){
-    // After a defeat: hit and exit sounds -> the villain's exit line -> its card once that line is over (6 s after the hit at most)
+    // After a defeat: hit and exit sounds -> the villain's exit line -> its card once that line is over. River's contact line can come
+    // first and push the exit line back (AUDIO-FIX3-BRIEF-20261120): the line may wait up to 8 s after the hit to start; one that has
+    // started by then is heard to its end (4 s more at most), one that has not is dropped when the card opens.
     // -> River's summary, words and voice together, once the card is put away. Until then River's last hit line is cleared.
     // The last villain's summary waits for the finale dialog to close: the dialog says the same thing, and "you can keep exploring" belongs to the moment back on the map.
     const all=defeatedVillains(game.progress)===MAP_VILLAINS.length,summary=all?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 지도를 둘러보며 남은 악당을 찾아봐.';
     if(all){finaleAt=now+2350;finaleSay=summary;}
     if(document.activeElement===el)attack.focus({preventScroll:true});
     say('');cue('hit-heavy');cue('villain-exit',reduced?120:260);
-    cardsDue.push({id:event.id,at:now+(reduced?520:760),cap:now+6000,line:exitLine,summary:all?'':summary});holdRewardCard(event.id);
+    cardsDue.push({id:event.id,at:now+(reduced?520:760),cap:now+8000,line:exitLine,summary:all?'':summary});holdRewardCard(event.id);
    }
    else{say(event.remaining===2?'앗, 바위에 금이 갔어! 두 번 남았어.':'자갈이 튀었어! 한 번 남았어.');cue(event.remaining===2?'hit-light':'hit-light-2');}
   }
@@ -193,8 +197,8 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
  function paint(now){
   // The card opens before canTalk is read below, so the finale waits until the card is closed.
   const due=cardsDue[0];
-  if(due&&now>=due.at&&(now>=due.cap||lineOver(due.line))&&!cardOpen()&&!document.querySelector('dialog[open]')){
-   cardsDue.shift();const box=foes.get(due.id).getBoundingClientRect(),after=()=>{if(!closed&&due.summary)say(due.summary);};
+  if(due&&now>=due.at&&(lineOver(due.line)||now>=due.cap&&!(due.line===spoken&&due.line.at&&reactionBusy()&&now<due.cap+4000))&&!cardOpen()&&!document.querySelector('dialog[open]')){
+   cardsDue.shift();if(!due.line.at)dropLine(due.line);const box=foes.get(due.id).getBoundingClientRect(),after=()=>{if(!closed&&due.summary)say(due.summary);};
    try{showRewardCard(due.id,game.progress,box.width?{x:box.left+box.width/2,y:box.top+box.height/2}:undefined,name=>{if(name==='card-complete')cardJingle=true;cue(name);}).then(after,after);}catch{after();}
   }
   const h=getHero();if(h){actor.style.left=h.x/12+'%';actor.style.top=h.y/6.75+'%';}
@@ -242,7 +246,8 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
  }
  function tick(now){
   if(closed)return;raf=requestAnimationFrame(tick);if(now-lastPaint<33)return;const dt=last?now-last:0;last=now;lastPaint=now;
-  if(appearAt&&now>=appearAt&&available()){appearAt=0;arrivals.forEach(v=>announced.add(v.id));cue('villain-appear');}
+  // Right after loading, before any press or key, the browser refuses sound: the arrival sound waits for that first input.
+  if(appearAt&&now>=appearAt&&available()&&navigator.userActivation?.hasBeenActive!==false){appearAt=0;arrivals.forEach(v=>announced.add(v.id));cue('villain-appear');}
   if(available())for(const e of stepCombat(game,getHero(),dt,now,{reduced,clear:clearPoint})){cue('hurt-bump');say('돌먼지가 톡 닿았어. 떨어져서 파동을 써 봐!');}
   paint(now);
  }

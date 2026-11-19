@@ -48,6 +48,8 @@ test('audio preferences, live gain, cancellation and UI integration',async()=>{
   assert.equal(stored.get('moving-geovalley-effects-volume'),'0');assert.equal(stored.get('moving-geovalley-voice-volume'),'100');
   assert.equal(stored.size,2);
   assert.match(ui.audioSettingsHTML(),/효과음 크기/);assert.match(ui.audioSettingsHTML(),/주민 목소리 크기/);assert.match(ui.audioSettingsHTML(),/음소거/);
+  // The voice slider covers River, the residents and the villains; the note says so and the slider points to it.
+  assert.match(ui.audioSettingsHTML(),/id="voice-volume"[^>]*aria-describedby="voice-volume-note"/);assert.match(ui.audioSettingsHTML(),/id="voice-volume-note">주민 목소리 크기는 리버와 주민, 악당의 말소리/);
   const input={value:'35',setAttribute(key,value){this[key]=value;}},output={};
   ui.bindAudioSettings({querySelector:selector=>selector==='#effects-volume'?input:selector==='output[for="effects-volume"]'?output:null});
   input.oninput();assert.equal(audio.effectsVolume(),35);assert.equal(output.textContent,'35%');assert.equal(input['aria-valuetext'],'35%');
