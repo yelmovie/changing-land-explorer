@@ -44,3 +44,7 @@
 
 - 커밋 `550c5d9`, Cloudflare Pages `geovalley` 배포 `715d71e4` (https://geovalley.pages.dev)
 - `cmp.sh`: `src/dialogue-text.js`, `src/concept-focus.css`, `src/korean-linebreak.css`, `index.html` 빌드=운영 해시 MATCH
+
+## 추가 수정 (2026-11-20, 지침 8절): 성취 카드 보관함 잠긴 문구
+
+- `src/reward-cards.css` `.rc-locked small` 아래에 공통 네 줄(`container: rc-locked`, 높이 600px 이상 + 안쪽 폭 152px 이하에서 `max-width: 4.6em`) 추가. 커밋 `42d7a4c`, Pages 배포 `5b184f3c`, `cmp.sh` `src/reward-cards.css`·`index.html` 운영 해시 MATCH. 확인(`.tmp/linebreak-20261119/album.mjs`, 로컬·운영): 1280×800·1920×1080 한 줄, 1024×768 「악당을 / 물리치면 / 열려요」 세 줄(측정 도구 3자 규칙 오탐, 끝줄 75%), 다섯 장 모두 카드 넘침 없음.
