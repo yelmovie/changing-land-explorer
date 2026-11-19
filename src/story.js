@@ -59,7 +59,8 @@ export function openStory(kind,{onFinish,replay=false,soundOn,toggleSound}){
  }
  function shown(){if(burned||closed||!hint.hidden)return;burned=true;refresh();wake();}
  function volume(){
-  video.muted=!soundOn();video.volume=.86 * voiceVolume()/100;
+  // Voice 0 silences River's narration mixed into the film. iOS ignores element volume, so mute the element too.
+  video.muted=!soundOn()||voiceVolume()===0;video.volume=.86 * voiceVolume()/100;
   sound.innerHTML=icon(soundOn()?'sound':'mute',21);
   sound.setAttribute('aria-label',soundOn()?'전체 소리 끄기':'전체 소리 켜기');sound.setAttribute('aria-pressed',String(soundOn()));
  }
