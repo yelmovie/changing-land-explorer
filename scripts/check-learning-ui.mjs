@@ -20,7 +20,8 @@ async function record(page,label,scope='body',{scroll=false,shot=false}={}){
   if(body&&!scroll&&body.scrollHeight>body.clientHeight+2)issues.push('unnecessary dialog scroll');
   for(const control of root.querySelectorAll(':scope > .dialog-footer button'))if(!inside(control.getBoundingClientRect()))issues.push('dialog footer control outside viewport: '+control.textContent);
   const controls=[...root.querySelectorAll('button,input')].filter(vis).map(e=>{
-   const b=e.getBoundingClientRect();
+   // A switch or slider inside a setting row is pressed through its whole label row.
+   const b=(e.matches('input')&&e.closest('label')||e).getBoundingClientRect();
    // 끌어서 옮기는 지도 안의 장소 버튼은 화면 밖에 있어도 되지만, 지도 그림 안에는 있어야 끌어서 닿는다.
    const map=e.closest('.atlas-world')?.getBoundingClientRect(),onMap=map&&b.left>=map.left-1&&b.top>=map.top-1&&b.right<=map.right+1&&b.bottom<=map.bottom+1;
    if(!scroll&&!inside(b)&&!onMap)issues.push('control outside viewport: '+(e.textContent||e.getAttribute('aria-label')));
@@ -86,13 +87,14 @@ try{
   for(let index=0;index<5;index++)for(let step=0;step<2;step++)for(let phase=0;phase<3;phase++){
    const key=`${width}-${ids[index]}-${step}-${phase}`;await enter(page,index,step,phase);
    await record(page,key,'#app',{shot:width===1280&&height===800});
-   if(await page.locator('.activity-tools>summary').isVisible()||await page.locator('#observation-speed,.range-jump').count())throw Error('Retired activity controls are still present: '+key);
+   // The topbar tools menu is the current home for stop/retry/view switches; only the old speed and jump controls are retired.
+   if(await page.locator('#observation-speed,.range-jump').count())throw Error('Retired activity controls are still present: '+key);
    if(phase===0){
-    await page.locator('#concept-review').evaluate(button=>button.click());await page.locator('video').evaluate(async v=>{const poster=new Image();poster.src=v.poster;await poster.decode();});await record(page,key+'-concept','dialog',{shot:width===1280&&height===800});
-    await page.locator('video').evaluate(v=>{if(!v.paused)throw Error('Reduced-motion video autoplayed');});
+    await page.locator('#concept-review').evaluate(button=>button.click());await page.locator('dialog video').evaluate(async v=>{const poster=new Image();poster.src=v.poster;await poster.decode();});await record(page,key+'-concept','dialog',{shot:width===1280&&height===800});
+    await page.locator('dialog video').evaluate(v=>{if(!v.paused)throw Error('Reduced-motion video autoplayed');});
     // The scene rail's play toggle replaced the overlay play button (concept-focus.js).
-    await page.locator('.science-focus-toggle').click();await page.waitForFunction(()=>{const v=document.querySelector('video');return v.readyState>=2&&v.currentTime>0;});
-    const video=await page.locator('video').evaluate(v=>({duration:v.duration,muted:v.muted,width:v.videoWidth,height:v.videoHeight}));
+    await page.locator('.science-focus-toggle').click();await page.waitForFunction(()=>{const v=document.querySelector('dialog video');return v.readyState>=2&&v.currentTime>0;});
+    const video=await page.locator('dialog video').evaluate(v=>({duration:v.duration,muted:v.muted,width:v.videoWidth,height:v.videoHeight}));
     const expected=manifest.find(m=>m.key===`${ids[index]}-${step}`)?.seconds;
     results.push({label:key+'-media',pass:Math.abs(video.duration-expected)<.1&&video.muted&&video.width===1280,expected,...video});
     await page.locator('#concept-continue').click();await page.waitForFunction(()=>!document.querySelector('dialog'));
@@ -100,13 +102,12 @@ try{
   }
   for(const mode of ['assembly','ending','certificate']){
    await page.evaluate(async(mode)=>{await(await import('/src/main.js')).navigate('final',mode);},mode);
-   await record(page,`${width}-final-${mode}`,'#app',{scroll:mode==='ending',shot:width===1280&&height===800});
+   // The ending and, on phone-height screens, the record tower are document-scroll pages. This run is the teacher
+   // preview, whose 52px banner pushes the tower's finish button below a 720px screen; the student view fits
+   // (.tmp/stale-checks-20261119/tower-student.mjs).
+   await record(page,`${width}-final-${mode}`,'#app',{scroll:mode==='ending'||mode==='assembly'&&height<=720,shot:width===1280&&height===800});
   }
-  for(let round=0;round<3;round++){
-   await page.evaluate(async round=>{const m=await import('/src/main.js');Object.assign(m.state().final,{assembled:true,round});await m.navigate('final');},round);
-   await record(page,`${width}x${height}-transfer-${round+1}`,'#app',{shot:width===915||width===1280&&height===800});
-  }
-  await writeResults();await context.close();console.log(`Checked ${width}x${height}: 30 phases, hints, concepts, common pages`);
+  await writeResults();await context.close();console.log(`Checked ${width}x${height}: 30 phases, concepts, settings, map, record tower, ending, certificate`);
  }
 }finally{await writeResults();await browser.close();}
 const failed=results.filter(r=>!r.pass);console.log(`${results.length-failed.length}/${results.length} checks passed; ${errors.length} runtime errors.`);

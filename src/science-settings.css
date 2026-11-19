@@ -27,7 +27,7 @@ html [data-science-settings] .science-settings-audio :is(.sound-row,.settings-ro
 html [data-science-settings] .science-settings-audio input[type=range]{width:100%;min-width:0;accent-color:var(--settings-green)}
 html [data-science-settings] .science-settings-audio label:has(input[type=range]){font-weight:700}
 html [data-science-settings] .science-settings-audio :is(output,.settings-volume){font-variant-numeric:tabular-nums}
-html [data-science-settings] .science-settings-actions :is(button,a){min-height:47px;white-space:normal;word-break:keep-all}
+html [data-science-settings] .science-settings-actions :is(button,a){min-height:48px;white-space:normal;word-break:keep-all}
 html [data-science-settings] .science-settings-actions> :is(p,small,.settings-wide,.science-settings-full,.wide){grid-column:1/-1}
 html [data-science-settings] .science-settings-body details{
  margin:0;padding:0 13px;border:1px solid var(--settings-line);border-radius:10px;background:var(--settings-pale);color:var(--settings-ink);
@@ -44,7 +44,7 @@ html [data-science-settings] .science-settings-body :is(p,li,dd,dt){word-break:k
 html [data-science-settings] .science-settings-footer,html .science-settings-footer[data-science-settings],html :has(> [data-science-settings])>.science-settings-footer{
  display:flex;flex:none;justify-content:space-between;align-items:center;gap:10px;padding-top:10px;margin:0;border-top:1px solid var(--settings-line);background:var(--settings-paper);
 }
-html .science-settings-footer button{min-height:44px;white-space:normal}
+html .science-settings-footer button{min-height:48px;white-space:normal}
 html [data-science-settings] :focus-visible{outline:3px solid #477b58;outline-offset:2px}
 @media(max-width:600px){
  html :is(dialog[data-science-settings],dialog:has([data-science-settings]),[role=dialog][data-science-settings],[role=dialog]:has([data-science-settings])){padding:10px 12px;gap:8px}

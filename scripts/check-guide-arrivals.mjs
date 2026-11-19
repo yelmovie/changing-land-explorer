@@ -67,10 +67,10 @@ try{
   }
  }
  assert.equal(results.filter(r=>r.issues.length).length,0,JSON.stringify(results.filter(r=>r.issues.length)));
- assert.equal(decoded.length,27);
+ assert.equal(decoded.length,Object.keys(guideRecordings).length);
  assert.ok(decoded.every(r=>r.ok&&Math.abs(r.duration-r.expected)<.2));
  assert.deepEqual(errors,[]);
- console.log(`PASS ${results.length} arrival dialogs, matching captions, real playback, stop on close; 27 audio files decoded.`);
+ console.log(`PASS ${results.length} arrival dialogs, matching captions, real playback, stop on close; ${decoded.length} audio files decoded.`);
 }finally{
  await browser.close();
  await fs.writeFile(`${out}/results.json`,JSON.stringify({base,results,decoded,errors},null,2)+'\n');

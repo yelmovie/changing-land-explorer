@@ -74,7 +74,7 @@
   #app.atlas:not(.welcome) .atlas-page { --map-key:64px; --map-key-gap:10px; --map-cta-font:25px; }
 }
 @media (max-width:640px), (max-height:620px) {
-  #app.atlas:not(.welcome) .atlas-page { --map-key:44px; --map-key-gap:4px; --map-cta-h:52px; --map-cta-font:18px; }
+  #app.atlas:not(.welcome) .atlas-page { --map-key:48px; --map-key-gap:4px; --map-cta-h:52px; --map-cta-font:18px; }
 }
 #app.atlas:not(.welcome) .atlas-page .map-dpad {
   grid-template:repeat(2,var(--map-key)) / repeat(3,var(--map-key));
@@ -107,7 +107,7 @@
 #app.atlas:not(.welcome) .atlas-page .atlas-footer .map-river { display:none; }
 #app.atlas:not(.welcome) .atlas-page .atlas-footer #map-speech:not(:empty) {
   position:absolute; left:0; bottom:calc(var(--map-pad-height) + var(--map-key) + 20px);
-  max-width:min(550px,100%); font-size:clamp(15px,2.3vw,18px); padding:6px 10px;
+  max-width:min(550px,100%); font-size:20px; line-height:1.25; padding:6px 10px;
 }
 @media(max-height:620px) {
   #app.atlas:not(.welcome) .atlas-page .atlas-footer #map-speech:not(:empty) {
@@ -184,3 +184,10 @@
 @media(max-height:600px){.village-reward-dialog .reward-stamp{margin:2px auto 6px;font-size:15px}}
 /* Layout balance 2026-11-18: the reward card's only exit is "마을로 돌아가기"; the X did the same job, so it is hidden. */
 #overlay .village-reward-dialog .dialog-close{display:none}
+/* 2026-11-19: one close per dialog. Settings keep only the footer "닫기" (16-project rule); the concept
+   player keeps "다음 활동으로", which also closes it. Esc still closes both. */
+#overlay dialog.settings-dialog > .dialog-heading .dialog-close,
+#overlay dialog.concept-dialog > .dialog-heading .dialog-close{display:none}
+#overlay dialog.learning-dialog.concept-dialog.science-focus-player.concept-film > .concept-footer{right:max(16px,env(safe-area-inset-right))}
+/* Very narrow portrait (≤360px): three scene buttons share ~78px each, so "기다리기"-length words need a little more room. */
+@media (max-width:360px){#overlay .science-focus-player .science-focus-steps button{padding:8px 5px;font-size:16px}}

@@ -169,7 +169,7 @@ export function setup(scene,api){
   const leg=shelterPoint(SHELTER.leg);
   const legHint=scene.add.ellipse(leg.x,leg.y,88,161,0xe4fec9,.11).setStrokeStyle(4,0xcaf5a1).setVisible(!p.leg);
   touchZone(leg.x,leg.y,94,155,()=>{if(!p.leg){hold();legHint.setVisible(!p.leg);}});
-  touchZone(320,80,485,78,()=>{if(p.stopped)confirm();}).setName('classroom-stop-target');
+  touchZone(320,80,485,96,()=>{if(p.stopped)confirm();}).setName('classroom-stop-target');
   sceneKey('숫자 1로 책상 다리 잡기, 멈춘 뒤 2로 확인하기.', '1 2',key=>{if(key==='1'){hold();legHint.setVisible(!p.leg);}else confirm();});
   api.actions([]);progress();if(p.confirmed)api.finish('선생님의 안내를 따라 걸어서 안전한 곳으로 이동하자.');
   return {update(time,delta){visualTime+=Math.min(delta,100);drawVibration();if(p.stopped||!p.leg)return;elapsed+=Math.min(delta,100);shelter.shake(reduced?0:Math.sin(elapsed/80)*2);if(elapsed>=2400){p.stopped=true;shelter.shake(0);vibration.clear();legHint.setVisible(false);status.setText('흔들림이 멈췄어 · 여기를 눌러 줘');api.save();api.say('흔들림이 멈췄어. 멈춤을 확인한 뒤 선생님 안내를 따라가자.');progress();}}};

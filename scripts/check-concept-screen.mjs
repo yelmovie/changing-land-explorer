@@ -110,7 +110,7 @@ try{
  await noRange.locator('[data-science-step="2"]').click();
  await noRange.waitForFunction(()=>Math.abs(document.querySelector('video').currentTime-10)<.02);
  assert.equal(await noRange.locator('.concept-current-term').textContent(),'퇴적');
- await noRange.locator('.dialog-close').click();await noRangeContext.close();
+ await noRange.keyboard.press('Escape');await noRange.waitForSelector('dialog',{state:'detached'});await noRangeContext.close();
  await fs.writeFile(`${out}/results.json`,JSON.stringify({results,errors},null,2));
  assert.equal(results.filter(r=>r.issues.length).length,0);assert.deepEqual(errors,[]);
  console.log(`PASS: ${results.length} concept/scene/viewport cases, playback, resume, replay, keyboard, repeated continue, close, failed-media fallback, and storage preservation.`);

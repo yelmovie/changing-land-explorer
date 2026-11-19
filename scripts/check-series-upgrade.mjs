@@ -14,9 +14,10 @@ try{
  await page.locator('#teacher-help').click();await page.locator('.learning-guide > summary').click();
  assert.equal(await page.locator('.learning-guide details').count(),5);await page.locator('.learning-guide details').first().locator('summary').click();
  assert.match(await page.locator('.learning-guide').textContent(),/완료와 보상은 활동을 마쳤다는 뜻/);await page.screenshot({path:`${out}/teacher-evidence-guide.png`});
- await page.locator('.dialog-close').click();
+ await page.locator('#settings-close').click();
  await page.evaluate(async()=>{const m=await import('/src/main.js');m.enter(0,0);});
- await page.waitForSelector('#activity canvas');await page.waitForFunction(()=>!document.querySelector('.stage-loader'));await page.locator('#river-hint').click();
+ await page.waitForSelector('#activity canvas');await page.waitForFunction(()=>!document.querySelector('.stage-loader'));// The hint button lives in the topbar tools menu, which only opens on scenes with extra tools; its logic is checked directly.
+ await page.locator('#river-hint').evaluate(b=>b.click());
  const hint=()=>page.evaluate(async()=>{const s=(await import('/src/main.js')).state();return s.drafts.river.data.adventure.chapters[0].work[0];});
  assert.equal((await hint()).observationHint,true);assert.notEqual((await hint()).answerHint,true);
  await page.locator('#hint-more').click();assert.equal((await hint()).operationHelp,true);assert.notEqual((await hint()).answerHint,true);

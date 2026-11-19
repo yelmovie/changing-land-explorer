@@ -178,4 +178,4 @@ dialog.concept-dialog.science-focus-player > .concept-footer {
 #overlay dialog.learning-dialog.concept-dialog.concept-film > .concept-footer button svg { width: 22px; height: 22px; }
 #overlay dialog.learning-dialog.concept-dialog.concept-film .concept-actions .concept-film-pause { display: inline-grid; }
 #overlay dialog.learning-dialog.concept-dialog.concept-film #concept-film-pause::before { content: ''; width: 14px; height: 16px; border-inline: 5px solid currentColor; box-sizing: border-box; }
-#overlay dialog.learning-dialog.concept-dialog.concept-film #concept-replay::before { content: '\21BB'; font: 700 24px/1 system-ui, sans-serif; }
+#overlay dialog.learning-dialog.concept-dialog.concept-film #concept-replay::before { content: '\21BB'; font: 700 24px/1 'NanumSquareNeo', system-ui, sans-serif; }
