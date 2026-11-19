@@ -98,4 +98,4 @@
 
 배포: `f3a9d21` → Pages `cf0e6e47`, `e8907f1` → `b88fd5f8`. 운영 해시 MATCH(`index`·바뀐 CSS 4개·`safety.js`·`sw.js`), 운영 주소에서 설정·개념 창 X 0개·48px 미만 0개·Esc 닫기, 안전 터치 검사, 지도 말풍선 검사 통과.
 
-남은 것: `check-evacuation-game`은 `window.Phaser.Game`을 기다리는 옛 방식이라 여전히 실패(이번 5개 밖). `check-volcano-touch`의 `waitForFunction(async …)`는 늘 참이 되는 같은 함정이 있어 고칠 대상.
+남은 것: 없음. `check-evacuation-game`(옛 `window.Phaser.Game` 대기)과 `check-volcano-touch`(`waitForFunction(async …)` 함정)도 11-20에 현재 설계로 고쳐 통과(`11ddf12`, `RELEASE-REVIEW-20261118.md` 8절).
