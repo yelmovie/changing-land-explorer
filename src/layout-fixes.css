@@ -182,3 +182,5 @@
 .village-reward-dialog .reward-stamp svg{color:#c2563b;flex:none}
 .village-reward-dialog .reward-stamp b{padding:2px 10px;border-radius:999px;background:#c2563b;color:#fff8e8;font-size:.9em}
 @media(max-height:600px){.village-reward-dialog .reward-stamp{margin:2px auto 6px;font-size:15px}}
+/* Layout balance 2026-11-18: the reward card's only exit is "마을로 돌아가기"; the X did the same job, so it is hidden. */
+#overlay .village-reward-dialog .dialog-close{display:none}

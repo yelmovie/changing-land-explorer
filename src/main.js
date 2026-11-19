@@ -282,6 +282,8 @@ function complete(index,fieldReady=false){
   // Popup order: the resident's thanks, River reads the village change, then the resident's stamp line.
   if(newArrival)setTimeout(()=>{if(dialog.open)playVoiceSequence([residentVoice(stage.id,'thanks'),guideFileForText(stage.change),residentVoice(stage.id,'stamp')],{alive:()=>dialog.open});},1100);
   $('#return-map',dialog).onclick=()=>{close();navigate('map',newArrival?{arrival:stage.id}:undefined);};
+  // The reward ends with one way out; its X is hidden (layout-fixes.css), so focus starts on that button.
+  $('#return-map',dialog).focus({preventScroll:true});
  });
 }
 window.addEventListener('pagehide',save);

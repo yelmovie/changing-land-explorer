@@ -148,7 +148,8 @@ export function showResidents(modal,stages,{initial,onGreet,preview,stamps,colle
    back.onclick=()=>{stopTalk();close();if(stamps.length===5)visitPlaza();};
    $('[data-roster]',body).onclick=()=>roster(id);
    present(r.hello,'hello','greeting');
-   if(fromList)(motion.matches?buttons[0]:next).focus({preventScroll:true});
+   // The X is hidden in a conversation, so focus always starts on the conversation itself.
+   (motion.matches?buttons[0]:next).focus({preventScroll:true});
   }
   if(initial)talk(initial,false);else roster();
  });

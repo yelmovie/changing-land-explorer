@@ -61,7 +61,8 @@
  width:auto;max-width:none;gap:8px;padding:5px 10px 5px 16px;
 }
 /* When a scene shows the tools menu (evacuation walk), the heading starts after the third icon. */
-#app.adventure:has(.topbar .activity-tools:not([hidden])) .adventure-heading{left:calc(var(--hud-pad)*2 + var(--hud-icon)*3 + var(--hud-gap)*2)}
+/* #back in the selector outranks the #observation-auto rule above, so the heading also moves when auto-play is shown (2026-11-18). */
+#app.adventure:has(.topbar #back ~ .activity-tools:not([hidden])) .adventure-heading{left:calc(var(--hud-pad)*2 + var(--hud-icon)*3 + var(--hud-gap)*2)}
 #app.adventure #quest-meter{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 #app.adventure .task-copy{flex-basis:auto}
 #app.adventure .task-copy h1{font-size:clamp(20px,1.8vw,30px);line-height:1.25;text-wrap:pretty}

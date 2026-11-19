@@ -24,9 +24,13 @@
  min-height:0;
  border:1px solid #fff9;
  border-radius:22px;
- background:#f4fff0c9;
+ /* Glass, not a sheet: the field picture behind the board stays visible (layout balance 2026-11-18). */
+ background:rgba(244,255,240,.36);
+ -webkit-backdrop-filter:blur(3px);
+ backdrop-filter:blur(3px);
  overflow:hidden;
 }
+.operation-scene .operation-task {text-shadow:0 0 8px #fffff4,0 0 3px #fffff4,0 0 1px #fffff4}
 .operation-progress {position:absolute;top:10px;right:16px;background:#fffddd;border-radius:14px;padding:6px 12px;font-weight:800;font-size:var(--label-size)}
 .operation-hero {position:absolute;bottom:4px;width:90px;height:100px;object-fit:contain;transition:left .5s ease;pointer-events:none;z-index:2}
 #operation-board {display:flex;flex-direction:column;justify-content:center;gap:16px;padding:44px 24px 84px;height:100%;box-sizing:border-box;position:relative}
