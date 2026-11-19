@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import {MODEL_MOUTH,MODEL_FLOW} from '../src/observation-scenes.js';
-const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_PATH||'/Volumes/T7 Shield/iscreammedia_sc34/8 creatures/node_modules/playwright/index.mjs').href);
+const {chromium}=await import(pathToFileURL(process.env.PLAYWRIGHT_PATH||'/Users/yel/.local/node/lib/node_modules/playwright/index.mjs').href);
 const out=process.env.CHECK_OUT||'.work/volcano-touch';await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({channel:'chrome',headless:true});const context=await browser.newContext({viewport:{width:915,height:412},hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
 const work=()=>page.evaluate(async()=>{const s=(await import('/src/main.js')).state(),d=s.drafts.volcano;return d.data.adventure.chapters[d.step].work[d.data.adventure.chapters[d.step].phase];});
@@ -10,9 +10,10 @@ async function enter(step,phase){await page.evaluate(async({step,phase})=>{const
 async function choose(i){const b=page.locator(`[data-volcano-choice="${i}"]`);await b.scrollIntoViewIfNeeded();const r=await b.boundingBox();assert.ok(r.height>=48&&r.width>=48);assert.ok(Number(await b.evaluate(e=>parseFloat(getComputedStyle(e).fontSize)))>=20);await b.tap();}
 async function tapScene({x,y}){const b=await page.locator('#activity canvas').boundingBox();await page.touchscreen.tap(b.x+x*b.width/1200,b.y+y*b.height/640);}
 try{
- await page.goto(process.env.CHECK_URL||'http://localhost:5397');await page.locator('#settings').click();await page.locator('#admin-setting').evaluate(e=>e.click());
+ await page.goto(process.env.CHECK_URL||'http://localhost:5177');await page.locator('#settings').click();await page.locator('#admin-setting').evaluate(e=>e.click());
  await enter(0,0);await page.locator('#volcano-build-choice').click();await choose(1);assert.equal((await work()).parts.length,0);await choose(0);for(const i of [1,2]){await page.locator('#volcano-build-choice').click();await choose(i);}assert.equal((await work()).parts.length,3);
- await enter(0,1);const slider=page.getByRole('slider',{name:'주사기 손잡이 밀기'});await slider.focus();await slider.press('End');await page.waitForFunction(async()=>{const s=(await import('/src/main.js')).state();return s.drafts.volcano.data.adventure.chapters[0].work[1].flow===1;},{timeout:15000});assert.equal((await work()).push,1);await page.screenshot({path:out+'/syringe.png'});
+ await enter(0,1);const slider=page.getByRole('slider',{name:'주사기 손잡이 밀기'});await slider.focus();await slider.press('End');// waitForFunction would take the returned Promise as truthy at once, so poll the saved work from here.
+ for(let t=0;t<75&&(await work()).flow!==1;t++)await page.waitForTimeout(200);assert.equal((await work()).flow,1,'the syringe pushes the flow all the way');assert.equal((await work()).push,1);await page.screenshot({path:out+'/syringe.png'});
  await enter(0,2);await tapScene({x:957,y:362});assert.notEqual((await work()).mouth,true);await tapScene(MODEL_MOUTH);
  await tapScene(MODEL_FLOW[2]);assert.equal((await work()).path,0);for(const point of MODEL_FLOW)await tapScene(point);
  await page.locator('#next.ready').waitFor();assert.equal((await work()).path,5);assert.equal(await page.locator('dialog,#volcano-trace-choice').count(),0);
