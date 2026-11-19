@@ -11,12 +11,17 @@ globalThis.Audio=class {
   canPlayType(){return 'probably';}
   play(){this.paused=false;if(rejectNextVoice && this.src?.includes('/voices/')){rejectNextVoice=false;return Promise.reject(Error('autoplay blocked'));}return Promise.resolve();}
   pause(){this.paused=true;}
-  addEventListener(){}
+  addEventListener(name,fn){(this.listeners[name]??=[]).push(fn);}
+  listeners={};
 };
 const audio=await import('../src/sound.js');
 const ui=await import('../src/audio-settings.js');
 const music=await import('../src/music.js');
 const tick=()=>new Promise(resolve=>setTimeout(resolve,15));
+// Music level changes glide for 180 ms.
+const settle=()=>new Promise(resolve=>setTimeout(resolve,260));
+const near=(actual,expected,label)=>assert.ok(Math.abs(actual-expected)<1e-6,`${label??'level'}: ${actual} is not ${expected}`);
+const MAIN='/assets/audio/main-theme.mp3',FINAL='/assets/audio/final-theme.mp3';
 test('audio preferences, live gain, cancellation and UI integration',async()=>{
   assert.equal(audio.effectsVolume(),70);assert.equal(audio.voiceVolume(),80);
   audio.playSound('click',{force:true});const effect=players.at(-1);
@@ -50,32 +55,76 @@ test('audio preferences, live gain, cancellation and UI integration',async()=>{
   audio.stopAllSounds();
 });
 
-test('voice holds BGM and releases exactly once without stale playback', async()=>{
+test('a voice line turns the BGM down to a quarter without stopping it and every tag is returned', async()=>{
   audio.setSoundEnabled(true);audio.setVoiceVolume(100);document.hidden=false;
-  events.get('click').forEach(fn=>fn({isTrusted:true}));
-  const bgm=players.find(player=>player.src==='/assets/audio/main-theme.mp3');
-  assert.ok(bgm);assert.equal(bgm.paused,false);
+  for(const type of ['pointerdown','pointerup','keydown','click'])assert.ok(events.get(type)?.length,type+' can start the music');
+  events.get('pointerdown').forEach(fn=>fn({isTrusted:false}));
+  assert.equal(players.some(player=>player.src===MAIN),false,'scripted input does not start the music');
+  events.get('pointerdown').forEach(fn=>fn({isTrusted:true}));
+  const bgm=players.find(player=>player.src===MAIN);
+  assert.ok(bgm);assert.equal(bgm.paused,false);near(bgm.volume,.3,'normal');
   audio.playVoice('first.mp3');const first=players.at(-1);const oldEnd=first.onended;
-  assert.equal(bgm.paused,true);
+  assert.equal(bgm.paused,false,'a line never stops the music');
+  assert.ok(bgm.volume>.075,'the level glides instead of jumping');await settle();near(bgm.volume,.075,'under a line');
   audio.playVoice('second.mp3');const second=players.at(-1);
-  oldEnd();assert.equal(bgm.paused,true);assert.equal(second.paused,false);
-  second.onended();assert.equal(bgm.paused,false);
-  oldEnd();audio.stopVoice();assert.equal(bgm.paused,false);
-  audio.playVoice('error.mp3');players.at(-1).onerror();assert.equal(bgm.paused,false);
-  rejectNextVoice=true;audio.playVoice('reject.mp3');assert.equal(bgm.paused,true);
-  await tick();assert.equal(bgm.paused,false);
-  // An old rejected promise must not release a newer voice's music hold.
+  oldEnd();await settle();near(bgm.volume,.075,'a replaced line cannot release the newer tag');assert.equal(second.paused,false);
+  second.onended();assert.equal(bgm.paused,false);await settle();near(bgm.volume,.3,'after the line');
+  oldEnd();audio.stopVoice();await settle();near(bgm.volume,.3);
+  audio.playVoice('error.mp3');players.at(-1).onerror();await settle();near(bgm.volume,.3,'a broken clip returns its tag');
+  rejectNextVoice=true;audio.playVoice('reject.mp3');await settle();near(bgm.volume,.3,'a refused clip returns its tag');
+  // An old rejected promise must not release a newer voice's tag.
   rejectNextVoice=true;audio.playVoice('stale-reject.mp3');audio.playVoice('new.mp3');
-  await tick();assert.equal(bgm.paused,true);
-  audio.setVoiceVolume(0);const count=players.length;assert.equal(bgm.paused,false);
-  audio.setVoiceVolume(100);assert.equal(players.length,count);assert.equal(bgm.paused,false);
-  audio.playVoice('muted.mp3');audio.setSoundEnabled(false);assert.equal(bgm.paused,true);
-  audio.setSoundEnabled(true);assert.equal(bgm.paused,false);
+  await settle();near(bgm.volume,.075);assert.equal(bgm.paused,false);
+  audio.setVoiceVolume(0);const count=players.length;await settle();near(bgm.volume,.3,'muting the voice returns its tag');
+  audio.setVoiceVolume(100);assert.equal(players.length,count);
+  audio.playVoice('muted.mp3');audio.setSoundEnabled(false);assert.equal(bgm.paused,true,'the master switch still stops the music');
+  audio.setSoundEnabled(true);assert.equal(bgm.paused,false);near(bgm.volume,.3,'the line was stopped with the switch');
   audio.playVoice('hidden.mp3');document.hidden=true;events.get('visibilitychange').forEach(fn=>fn());assert.equal(bgm.paused,true);
-  document.hidden=false;events.get('visibilitychange').forEach(fn=>fn());assert.equal(bgm.paused,false);
-  const releaseExternal=music.holdMusic();audio.playVoice('external.mp3');audio.stopVoice();assert.equal(bgm.paused,true);
-  releaseExternal();assert.equal(bgm.paused,false);
+  document.hidden=false;events.get('visibilitychange').forEach(fn=>fn());assert.equal(bgm.paused,false);near(bgm.volume,.3);
+  // Tags are separate: an open concept film keeps the music low after a line inside it ends, and they do not stack.
+  const releaseConcept=music.duckMusic('concept');audio.playVoice('caption.mp3');await settle();near(bgm.volume,.075,'two reasons, one level');
+  audio.stopVoice();await settle();near(bgm.volume,.075,'the concept film still holds its tag');assert.equal(bgm.paused,false);
+  releaseConcept();releaseConcept();await settle();near(bgm.volume,.3,'all tags returned');
+  const extra=music.duckMusic('voice');await settle();near(bgm.volume,.075,'a second release of an old tag removed nothing else');
+  extra();await settle();near(bgm.volume,.3);
   audio.stopAllSounds();audio.setSoundEnabled(false);
+});
+
+test('the map finale plays the final theme while its dialog is open and hands the main theme back', async()=>{
+  audio.setSoundEnabled(true);audio.setVoiceVolume(100);document.hidden=false;
+  const bgm=players.find(player=>player.listeners.ended);
+  const finale=open=>events.get('map-finale').forEach(fn=>fn({detail:{open}}));
+  assert.equal(bgm.src,MAIN);bgm.readyState=4;bgm.currentTime=40;
+  finale(true);
+  assert.equal(bgm.src,FINAL);assert.equal(bgm.loop,false);assert.equal(bgm.currentTime,0,'the final theme starts from the top');
+  assert.equal(bgm.paused,false);near(bgm.volume,.3,'final theme');
+  audio.playVoice('villain/safety-exit.mp3');await settle();near(bgm.volume,.075,'a line over the final theme');
+  audio.stopVoice();await settle();near(bgm.volume,.3);
+  bgm.currentTime=6;finale(false);
+  assert.equal(bgm.src,MAIN);assert.equal(bgm.loop,true);assert.equal(bgm.currentTime,40,'the main theme returns where it left off');near(bgm.volume,.3);
+  // The final theme is 24 s. When it runs out the main theme carries on quietly until the dialog closes.
+  finale(true);finale(true);bgm.currentTime=24;bgm.listeners.ended.forEach(fn=>fn());
+  assert.equal(bgm.src,MAIN);assert.equal(bgm.loop,true);assert.equal(bgm.paused,false);near(bgm.volume,.135,'after the final theme');
+  finale(false);assert.equal(bgm.src,MAIN);await settle();near(bgm.volume,.3,'back on the map');
+  // Ending screens: the same hand-over, and moving between them does not restart the finished theme.
+  music.musicScene('final');assert.equal(bgm.src,FINAL);near(bgm.volume,.3);
+  bgm.listeners.ended.forEach(fn=>fn());assert.equal(bgm.src,MAIN);near(bgm.volume,.135);
+  music.musicScene('final');assert.equal(bgm.src,MAIN);
+  music.musicScene('main');await settle();assert.equal(bgm.src,MAIN);near(bgm.volume,.3);
+  music.musicScene('final');assert.equal(bgm.src,FINAL);music.musicScene('main');assert.equal(bgm.src,MAIN);
+  audio.stopAllSounds();audio.setSoundEnabled(false);
+});
+
+test('where element volume cannot change, a spoken line still pauses the music', async()=>{
+  const Settable=globalThis.Audio,before=events.get('pointerdown').length;
+  globalThis.Audio=class extends Settable{get volume(){return 1;}set volume(value){}};
+  const fixed=await import('../src/music.js?fixed-volume');
+  events.get('pointerdown').slice(before).forEach(fn=>fn({isTrusted:true}));
+  globalThis.Audio=Settable;
+  const bgm=players.at(-1);assert.equal(bgm.src,MAIN);assert.equal(bgm.paused,false);
+  const release=fixed.duckMusic('voice');assert.equal(bgm.paused,true);
+  release();assert.equal(bgm.paused,false);
+  fixed.setMusicMaster(false);assert.equal(bgm.paused,true);
 });
 
 test('field effects duck under NPC speech and restore after it ends', async()=>{

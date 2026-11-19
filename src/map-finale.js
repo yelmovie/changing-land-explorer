@@ -1,6 +1,7 @@
 // The map award plays once on the last hit. It never changes learning or certificate progress.
 // The film carries its captions in the bottom 22%, so it fills the screen (contain) and stays muted;
 // the title and close button sit at the top where they never cover the captions.
+// music.js plays the final theme while this dialog is open and returns to the main theme when it closes.
 export function openMapFinale(host, source) {
  const doc=host.ownerDocument;
  if(!host.isConnected||doc.querySelector('.map-finale-dialog'))return;
@@ -13,8 +14,9 @@ export function openMapFinale(host, source) {
  const status=doc.createElement('p');status.hidden=true;status.role='status';Object.assign(status.style,{position:'absolute',left:'50%',top:'50%',transform:'translate(-50%,-50%)',zIndex:'1',margin:'0',padding:'10px 18px',maxWidth:'min(88%,600px)',borderRadius:'10px',background:'#12221ded',textAlign:'center'});
  const close=doc.createElement('button');close.type='button';close.textContent='지도로 돌아가기';Object.assign(close.style,{position:'absolute',top:'max(10px,env(safe-area-inset-top))',right:'max(16px,env(safe-area-inset-right))',zIndex:'2',minHeight:'48px',padding:'6px 18px',border:'1px solid #eac278',borderRadius:'12px',background:'#f6d589',color:'#354433',font:'normal clamp(16px,1.4vw,21px) NanumSquareNeo,system-ui,sans-serif',cursor:'pointer'});
  dialog.append(title,video,status,close);doc.body.append(dialog);dialog.showModal();
+ const announce=open=>doc.dispatchEvent(new CustomEvent('map-finale',{detail:{open}}));announce(true);
  close.addEventListener('click',()=>dialog.close());
  video.addEventListener('error',()=>{status.hidden=false;status.textContent='지금은 영상을 열 수 없어. 지도 퇴치 기록은 저장됐어.';});
- dialog.addEventListener('close',()=>{video.pause();dialog.remove();},{once:true});
+ dialog.addEventListener('close',()=>{video.pause();dialog.remove();announce(false);},{once:true});
  video.play().catch(()=>{});
 }

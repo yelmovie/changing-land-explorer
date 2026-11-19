@@ -1,5 +1,5 @@
 // CC0 source audio and license are bundled in /assets/audio/CREDITS.md.
-import {setMusicMaster, holdMusic} from './music.js';
+import {setMusicMaster, duckMusic} from './music.js';
 const players = new Map();
 // Audio preferences are independent from student progress and BGM preferences.
 const effectsKey = 'moving-geovalley-effects-volume';
@@ -156,8 +156,8 @@ export function stopVoice() {
 }
 export function playVoice(file, {onState} = {}) {
   if (!enabled || !voiceLevel || document.hidden || !file) { stopVoice(); onState?.(false); return; }
-  // Acquire the next hold before releasing the previous one to avoid a BGM blip.
-  const release = holdMusic();
+  // Music turns down while a line plays. Take the next tag before dropping the previous one to avoid a BGM blip.
+  const release = duckMusic('voice');
   stopVoice();
   const clip = new Audio('/assets/voices/'+file);
   voice = clip; releaseVoiceMusic = release; voiceState = onState;

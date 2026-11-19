@@ -1,6 +1,6 @@
 import {OPERATIONS} from './field-operation-model.js';
 import {bindConceptFocus,emphasizeConcept} from './concept-focus.js';
-import {holdMusic} from './music.js';
+import {duckMusic} from './music.js';
 import {$, icon, escapeHTML} from './ui.js';
 import {playSound, stopSounds, voiceBusy} from './sound.js';
 import {guideFileForText, playVoiceSequence} from './guide-voice.js';
@@ -45,7 +45,7 @@ export function showConcept(ctx, onContinue, {replay = false} = {}) {
     const actions=$('.concept-actions',dialog);
     actions.classList.add('concept-footer');
     dialog.append(actions);
-    const releaseMusic=holdMusic();
+    const releaseMusic=duckMusic('concept');
     const video = $('video', dialog), caption = $('.concept-caption', dialog), play = $('#concept-play', dialog);
     let reachedEnd = false, departed = false, unavailable = false, lastCue = -1;
     let releaseFocus=()=>{};
