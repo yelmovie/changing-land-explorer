@@ -20,7 +20,8 @@ function villainVoice(file,el,kind,exit=false){
   if((!voiceBusy()||exit&&reactionBusy())&&!voiceWaiting()){playVoice(file,{reaction:true});line.at=performance.now();line.settled=true;return;}
   if(performance.now()-started<8000)villainVoiceTimer=setTimeout(tick,200);else line.settled=true;
  };
- villainVoiceTimer=setTimeout(tick,350);
+ // The hit sound itself starts a few frames after the hit, so an exit line waits 400 ms to come 0.3 s after it.
+ villainVoiceTimer=setTimeout(tick,exit?400:350);
  return line;
 }
 // True once that line is over: it was spoken to the end, replaced by a later villain line, or will not be spoken at all.
