@@ -305,7 +305,11 @@ export function mount(ctx) {
             if(!reduced)$('#river-status').animate([{transform:'translateY(3px)',opacity:.65},{transform:'translateY(0)',opacity:1}],{duration:240,easing:'ease-out'});
             if(riverLab&&phase===0){
               chapter.phase=1;autoplayNext=!chapter.tasks[1]?.done;ctx.save();restart(true);
-            }else if(riverLab&&phase===2)ctx.finishActivity();
+            }else if(riverLab&&phase===2){
+              // The concept film clears the effects when it opens, so the success chime (1.15 s, plus its start-up) is heard out first.
+              const scene=activeScene;
+              advanceTimer=setTimeout(()=>{advanceTimer=0;if(!closed&&!restarting&&activeScene===scene&&chapter.phase===phase&&!document.querySelector('dialog[open]'))ctx.finishActivity();},1400);
+            }
             else scheduleAdvance(phase,summary);
           }
         },

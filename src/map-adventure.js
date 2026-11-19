@@ -7,7 +7,7 @@ import {guideRecordings} from './guide-recordings.js';
 import {OPERATIONS} from './field-operation-model.js';
 import {villageLights} from './village-lights.js';
 import {RESIDENTS,residentMarker,showResidents} from './residents.js';
-import {playSound,playCue} from './sound.js';
+import {playSound,playCue,playStep} from './sound.js';
 import {$,$$,icon} from './ui.js';
 import {shell,state,isAdmin,save,enter,navigate,toast,modal} from './main.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
@@ -199,7 +199,6 @@ export function renderMap({arrival,engine,loadEngine}={}){
     if(fallback){current=node;place(...cameraFor(...XY[node]));const river=$('.atlas-fallback-river');river.style.left=`${XY[node][0]*100}%`;river.style.top=`${XY[node][1]*100}%`;destination=target;arrive();return;}
     if(!mapScene){pendingTravel={node,target,auto};travelControls(true);return;}
     queue=findRoute(current,node);destination=target;moving=queue.length>0;travelControls(moving);
-    if(moving&&!reduced)playSound('trail-step',{force:true});
     if(reduced&&queue.length){current=node;walker.face(POINTS[node].x-hero.x,POINTS[node].y-hero.y);hero.setPosition(POINTS[node].x,POINTS[node].y);place(...cameraFor(...XY[node]));queue=[];arrive();return;}
     if(!moving)arrive();
   }
@@ -283,6 +282,8 @@ export function renderMap({arrival,engine,loadEngine}={}){
         if(Math.hypot(x-view.x,y-view.y)>.3)place(view.x+(x-view.x)*blend,view.y+(y-view.y)*blend);}
       if(!moving||!queue.length){walker.stop();return;}
       const target=POINTS[queue[0]],dx=target.x-hero.x,dy=target.y-hero.y,distance=Math.hypot(dx,dy),speed=180*Math.min(delta,40)/1000;
+      // Footsteps only while River really walks: sound.js paces them (one about every 0.3 s) and they end with the walk.
+      playStep();
       if(distance<=speed){current=queue.shift();hero.setPosition(target.x,target.y);walker.move(dx,dy,distance);if(!queue.length)arrive();}else{hero.x+=dx/distance*speed;hero.y+=dy/distance*speed;walker.move(dx,dy,speed);syncResidents(hero);}
     }
   }

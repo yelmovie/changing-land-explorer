@@ -1,5 +1,5 @@
 import {guideRecordings} from './guide-recordings.js';
-import {playVoice,stopVoice,voiceBusy} from './sound.js';
+import {playVoice,playVoiceAfterReaction,voiceBusy} from './sound.js';
 const normalize=text=>String(text||'').replace(/\s+/g,' ').trim();
 const byText=new Map(Object.values(guideRecordings).map(line=>[normalize(line.text),line.file]));
 /** Only exact displayed lines with shipped audio may be spoken. */
@@ -22,7 +22,8 @@ export function watchGuideText(root){
   if(document.querySelector('dialog[open]'))return;
   for(const node of nodes){if(!node.isConnected)continue;const text=normalize(node.textContent);if(previous.get(node)===text)continue;previous.set(node,text);const file=guideFileForText(text);
    // Mission descriptions are read once in their arrival dialog, not again during the walk.
-   if(file&&!(node.id==='map-speech'&&file.startsWith('guide-intro-')))playVoice(file);else stopVoice();}
+   // A villain's line that has already started is not cut: River's line waits for it (2 s at most).
+   playVoiceAfterReaction(file&&!(node.id==='map-speech'&&file.startsWith('guide-intro-'))?file:'');}
  };
  const observer=new MutationObserver(read);
  for(const node of nodes)observer.observe(node,{childList:true,characterData:true,subtree:true});

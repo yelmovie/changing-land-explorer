@@ -21,11 +21,12 @@ function effectVolume(audio, base) { baseVolumes.set(audio, base); audio.volume 
 function refreshEffectLevels() {
   if (active) effectVolume(active, baseVolumes.get(active));
   cues.forEach(cue => effectVolume(cue, baseVolumes.get(cue)));
+  steps.forEach(step => { step.volume = stepVolume(); });
 }
 export function setEffectsVolume(value) {
   effectsLevel = clampVolume(value); saveVolume(effectsKey, effectsLevel);
   refreshEffectLevels();
-  if (!effectsLevel) { stopSounds(); stopCues(); }
+  if (!effectsLevel) { stopSounds(); stopCues(); stopSteps(); }
 }
 export function setVoiceVolume(value) {
   voiceLevel = clampVolume(value); saveVolume(voiceKey, voiceLevel);
@@ -33,13 +34,13 @@ export function setVoiceVolume(value) {
   if (!voiceLevel) stopVoice();
 }
 const fieldSounds = {
-  'trail-step': {volume:.22, fallback:'move'},
+  'trail-step': {volume:.16, fallback:'move'},
   'notebook-open': {volume:.32, fallback:'capture'},
   'notebook-page': {volume:.28, fallback:'move'},
   'workplace-open': {volume:.3, fallback:'move'},
   'lamp-light': {volume:.3, fallback:'capture'},
   'resident-pop': {volume:.26, fallback:'lift'},
-  'letter-open': {volume:.3, fallback:'notebook-page'}
+  'letter-open': {volume:.3, fallback:'move'}
 };
 // 성취 효과음은 scripts/make-sfx.mjs가 C장조로 위로 오르게 합성한 MP3다. 이름은 부르는 쪽이 쓰는 이름, file은 실제 파일이다.
 // 크기는 작은 반응(집기·딩동·다시 해 보기) < 정답 < 보상·축제 순으로 들리게 맞췄다.
@@ -116,8 +117,37 @@ export function playSound(name = 'click', {force = false, inDialog = false} = {}
   active = sound;
   sound.play().catch(() => {});
 }
+// 발자국은 따로 난다(AUDIO-FIX2-BRIEF-20261119 1-4): 다른 소리를 끊지 않고 다른 소리에 끊기지도 않으며, 목소리가 나오면 절반 크기.
+// 주인공이 실제로 움직인 프레임마다 playStep()을 부른다. 걷는 동안 약 0.3초마다 한 번 나고, 움직임이 0.1초 넘게 끊기면 그친다
+// (방향키를 누르고 있을 때 길목마다 생기는 짧은 쉼은 한 걸음으로 이어 준다). 타이머가 늦게 도는 만큼 간격이 늘어나므로 기준을 290ms로 잡아 280~320ms 안에 들게 한다.
+// 왼발·오른발 플레이어를 번갈아 쓰고 높이를 ±6% 안에서 바꾼다.
+const STEP_MS = 290, STEP_HOLD = 100, steps = [];
+let stepAt = -Infinity, stepCount = 0, walkingUntil = 0, stepTimer = 0;
+const stepVolume = () => fieldSounds['trail-step'].volume * effectsLevel / 100 * (voice ? .5 : 1);
+export function playStep() {
+  walkingUntil = performance.now() + STEP_HOLD;
+  if (!stepTimer) nextStep();
+}
+function nextStep() {
+  stepTimer = 0;
+  const now = performance.now();
+  if (now > walkingUntil || !enabled || !effectsLevel || document.hidden || document.querySelector('dialog[open]')) return;
+  if (now - stepAt < STEP_MS) { stepTimer = setTimeout(nextStep, stepAt + STEP_MS - now); return; }
+  stepAt = now; stepTimer = setTimeout(nextStep, STEP_MS);
+  const foot = stepCount++ % 2;
+  let step = steps[foot];
+  if (!step) { step = steps[foot] = new Audio(); step.src = sourceFor('trail-step', step); }
+  step.currentTime = 0;
+  step.volume = stepVolume();
+  step.preservesPitch = step.webkitPreservesPitch = false;
+  step.playbackRate = (foot ? 1.03 : .97) + (Math.random() - .5) * .06;
+  step.play().catch(() => {});
+}
+function stopSteps() { clearTimeout(stepTimer); stepTimer = 0; walkingUntil = 0; steps.forEach(step => { step.pause(); step.currentTime = 0; }); }
 // 지도 연출처럼 여러 소리가 겹쳐야 할 때 쓴다. 효과음 하나만 남기는 playSound와 달리 앞 소리를 끊지 않는다.
-const cues = new Set(),pendingCues = new Set();
+const cues = new Set(),pendingCues = new Set(),cueNames = new WeakMap();
+// 그 이름의 소리가 예약됐거나 아직 나는 중인지. 지도 파이널 창이 축하 징글이 끝나기를 기다릴 때 쓴다.
+export const cueBusy = name => [...pendingCues].some(stop => stop.cue === name) || [...cues].some(cue => cueNames.get(cue) === name && !cue.paused && !cue.ended);
 export function playCue(name, delay = 0) {
   if (!enabled || !effectsLevel || document.hidden) return () => {};
   let cue;
@@ -125,11 +155,13 @@ export function playCue(name, delay = 0) {
     clearTimeout(timer);pendingCues.delete(stop);
     if (cue) { cue.pause(); cue.currentTime = 0; cues.delete(cue); }
   };
+  stop.cue = name;
   const timer = setTimeout(() => {
     pendingCues.delete(stop);
     if (!enabled || !effectsLevel || document.hidden) return;
     cue = new Audio();
     cue.src = sourceFor(name, cue);
+    cueNames.set(cue, name);
     if (COMBAT_CUES.has(name)) combatAudio.add(cue);
     effectVolume(cue, baseVolume(name));
     cues.add(cue);
@@ -140,11 +172,16 @@ export function playCue(name, delay = 0) {
   return stop;
 }
 // 주민 목소리. 새 대사가 나오면 앞 대사는 멈춘다. 파일이 없으면 조용히 넘어간다.
-let voice = null, releaseVoiceMusic = null, voiceState = null;
+let voice = null, releaseVoiceMusic = null, voiceState = null, voiceReaction = false, voiceWait = 0, voiceWaitSince = 0;
 export function voiceBusy() { return !!voice && !voice.paused && !voice.ended; }
-export function stopVoice() {
+// 악당의 짧은 반응 대사(reaction)가 나오는 중인지, 그 뒤로 미뤄 둔 안내 대사가 있는지.
+export const reactionBusy = () => voiceReaction && voiceBusy();
+export const voiceWaiting = () => !!voiceWait;
+export function stopVoice() { clearTimeout(voiceWait); voiceWait = 0; endVoice(); }
+// A line that ends on its own keeps the line waiting behind it; stopVoice (a newer line, mute, leaving) drops that one too.
+function endVoice() {
   const previous = voice, release = releaseVoiceMusic, notify = voiceState;
-  voice = null; releaseVoiceMusic = null; voiceState = null;
+  voice = null; releaseVoiceMusic = null; voiceState = null; voiceReaction = false; voiceWaitSince = 0;
   if (previous) {
     previous.onended = null; previous.onerror = null;
     previous.onplaying = previous.onpause = previous.onwaiting = previous.onemptied = null;
@@ -154,22 +191,38 @@ export function stopVoice() {
   release?.();
   notify?.(false);
 }
-export function playVoice(file, {onState} = {}) {
+export function playVoice(file, {onState, reaction = false} = {}) {
   if (!enabled || !voiceLevel || document.hidden || !file) { stopVoice(); onState?.(false); return; }
   // Music turns down while a line plays. Take the next tag before dropping the previous one to avoid a BGM blip.
   const release = duckMusic('voice');
   stopVoice();
   const clip = new Audio('/assets/voices/'+file);
-  voice = clip; releaseVoiceMusic = release; voiceState = onState;
+  voice = clip; releaseVoiceMusic = release; voiceState = onState; voiceReaction = reaction;
   refreshEffectLevels();
   clip.volume = .9 * voiceLevel / 100;
-  const finish = () => { if (voice === clip) stopVoice(); };
+  const finish = () => { if (voice === clip) endVoice(); };
   clip.onended = finish;
   clip.onerror = finish;
   clip.onplaying = () => { if (voice === clip) onState?.(!clip.paused && !document.hidden); };
   clip.onpause = clip.onwaiting = clip.onemptied = () => { if (voice === clip) onState?.(false); };
   try { clip.play().catch(finish); } catch { finish(); }
 }
+// 지도 안내 대사는 이미 시작된 악당 대사를 끊지 않고 그 뒤에 낸다(AUDIO-FIX2-BRIEF-20261119 1-1). 2초를 넘기면 더 기다리지 않는다.
+// 기다리는 동안 안내문이 또 바뀌어도 2초는 처음 기다리기 시작한 때부터 센다.
+// 음성이 없는 안내문(file이 빈 값)은 앞 안내 대사만 멈추고 악당 대사는 그대로 둔다.
+export function playVoiceAfterReaction(file) {
+  clearTimeout(voiceWait); voiceWait = 0;
+  if (!reactionBusy()) { if (file) playVoice(file); else stopVoice(); return; }
+  if (!file) return;
+  const started = voiceWaitSince ||= performance.now();
+  const tick = () => {
+    voiceWait = 0;
+    const left = 2000 - (performance.now() - started);
+    if (reactionBusy() && left > 0) { voiceWait = setTimeout(tick, Math.min(100, left)); return; }
+    playVoice(file);
+  };
+  voiceWait = setTimeout(tick, 100);
+}
 function stopCues() { pendingCues.forEach(stop => stop()); cues.forEach(cue => { cue.pause(); cue.currentTime = 0; }); cues.clear(); }
-export function stopAllSounds() { stopSounds(); stopVoice(); stopCues(); }
+export function stopAllSounds() { stopSounds(); stopVoice(); stopCues(); stopSteps(); }
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopAllSounds(); });

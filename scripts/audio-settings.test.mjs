@@ -194,3 +194,88 @@ test('achievement effects use the rising synthesized clips and climb on a streak
  audio.playSound('retry',{force:true});audio.playSound('coin',{force:true});assert.equal(players.find(p=>p.src.endsWith('/coin.mp3')).playbackRate,1,'a retry resets the combo');
  audio.stopAllSounds();audio.setSoundEnabled(false);
 });
+
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+// The walker calls playStep() on every frame it really moves.
+const walk=async ms=>{const end=performance.now()+ms;while(performance.now()<end){audio.playStep();await pause(15);}};
+test('footsteps come about every 0.3 s while walking, never cut or get cut by other sounds, and follow the switches', async()=>{
+ audio.setSoundEnabled(true);audio.setEffectsVolume(100);audio.setVoiceVolume(100);document.hidden=false;
+ const proto=globalThis.Audio.prototype,own=Object.hasOwn(proto,'play'),play=proto.play,stamps=[];
+ proto.play=function(){if(this.src.includes('trail-step'))stamps.push(performance.now());return play.call(this);};
+ try{
+  audio.playSound('click',{force:true});const click=players.find(p=>p.src.endsWith('/click.mp3'));assert.equal(click.paused,false);
+  audio.playCue('hit-heavy');await tick();const hit=players.at(-1);
+  const before=players.length;
+  await walk(950);
+  assert.equal(stamps.length,4,'steps at 0, 290, 580 and 870 ms');
+  for(let i=1;i<stamps.length;i++){const gap=stamps[i]-stamps[i-1];assert.ok(gap>=280&&gap<=320,'gap '+gap);}
+  assert.equal(players.length,before+2,'a left and a right step player');const [left,right]=players.slice(-2);
+  assert.equal(left.src,'/assets/audio/trail-step.ogg');assert.equal(left.volume,.16);
+  assert.ok(left.playbackRate>=.94&&left.playbackRate<=1,'left foot '+left.playbackRate);assert.ok(right.playbackRate>=1&&right.playbackRate<=1.06,'right foot '+right.playbackRate);
+  assert.equal(click.paused,false,'steps leave the interface sound alone');assert.equal(hit.paused,false,'steps leave the fight cue alone');
+  await pause(450);assert.equal(stamps.length,4,'no step once the walk has stopped');
+  audio.playSound('retry',{force:true});assert.equal(click.paused,true,'interface sounds replace each other');
+  assert.equal(right.paused,false,'an interface sound never cuts a step');assert.equal(hit.paused,false,'an interface sound never cuts a fight cue');
+  audio.playVoice('guide.mp3');assert.equal(right.volume,.08,'half under a voice');
+  await walk(100);assert.equal(stamps.length,5);assert.equal(players.filter(p=>p.src.includes('trail-step')).length,2,'the two step players are reused');assert.equal(left.volume,.08);
+  audio.stopVoice();assert.equal(left.volume,.16);
+  await pause(350);const open=document.querySelector;document.querySelector=()=>({});
+  await walk(350);assert.equal(stamps.length,5,'no steps behind a dialog');document.querySelector=open;
+  audio.setEffectsVolume(0);assert.equal(left.paused,true);await walk(350);assert.equal(stamps.length,5,'effects volume 0');
+  audio.setEffectsVolume(100);audio.setSoundEnabled(false);await walk(350);assert.equal(stamps.length,5,'sound off');
+  audio.setSoundEnabled(true);document.hidden=true;await walk(350);assert.equal(stamps.length,5,'hidden tab');document.hidden=false;
+  await walk(100);assert.equal(stamps.length,6);audio.stopAllSounds();assert.equal(left.paused&&right.paused,true);
+  await pause(350);assert.equal(stamps.length,6,'stopping everything also ends the pacing');
+ }finally{if(own)proto.play=play;else delete proto.play;audio.setSoundEnabled(false);}
+});
+
+test('River\'s map line waits up to 2 s for a villain line that has already started', async()=>{
+ audio.setSoundEnabled(true);audio.setVoiceVolume(100);document.hidden=false;
+ audio.playVoice('villain/river-line0.mp3',{reaction:true});const villain=players.at(-1);
+ assert.equal(audio.reactionBusy(),true);
+ const count=players.length;
+ audio.playVoiceAfterReaction('guide-a.mp3');
+ assert.equal(players.length,count);assert.equal(villain.paused,false,'the villain keeps talking');assert.equal(audio.voiceWaiting(),true);
+ audio.playVoiceAfterReaction('');
+ assert.equal(villain.paused,false,'unrecorded text leaves the villain line alone');assert.equal(audio.voiceWaiting(),false);
+ audio.playVoiceAfterReaction('guide-b.mp3');villain.onended();
+ await pause(130);const guide=players.at(-1);
+ assert.equal(guide.src,'/assets/voices/guide-b.mp3');assert.equal(guide.paused,false);assert.equal(audio.reactionBusy(),false);assert.equal(audio.voiceWaiting(),false);
+ audio.playVoiceAfterReaction('guide-c.mp3');assert.equal(guide.paused,true,'an ordinary line is replaced at once');assert.equal(players.at(-1).src,'/assets/voices/guide-c.mp3');
+ audio.playVoiceAfterReaction('');assert.equal(players.at(-1).paused,true,'unrecorded text still ends River\'s previous line');
+ audio.playVoice('villain/river-hit0.mp3',{reaction:true});const long=players.at(-1);
+ audio.playVoiceAfterReaction('guide-d.mp3');
+ await pause(1800);assert.equal(long.paused,false);
+ await pause(450);assert.equal(long.paused,true,'after 2 s River speaks anyway');assert.equal(players.at(-1).src,'/assets/voices/guide-d.mp3');
+ // A line that replaces the waiting one does not restart the 2 s.
+ audio.playVoice('villain/river-line1.mp3',{reaction:true});const steady=players.at(-1);
+ audio.playVoiceAfterReaction('guide-f.mp3');await pause(1200);audio.playVoiceAfterReaction('guide-g.mp3');
+ await pause(500);assert.equal(steady.paused,false);
+ await pause(550);assert.equal(steady.paused,true,'2 s count from the first wait');assert.equal(players.at(-1).src,'/assets/voices/guide-g.mp3');
+ audio.playVoice('villain/river-hit1.mp3',{reaction:true});audio.playVoiceAfterReaction('guide-e.mp3');
+ const last=players.length;audio.stopAllSounds();await pause(130);assert.equal(players.length,last,'leaving drops the waiting line');
+ audio.setSoundEnabled(false);
+});
+
+test('a celebration jingle reports itself until it ends and interface sounds do not cut it', async()=>{
+ audio.setSoundEnabled(true);audio.setEffectsVolume(100);document.hidden=false;
+ assert.equal(audio.cueBusy('card-complete'),false);
+ audio.playCue('card-complete');assert.equal(audio.cueBusy('card-complete'),true,'queued counts');
+ await tick();const jingle=players.at(-1);assert.equal(jingle.src,'/assets/audio/card-complete.mp3');
+ assert.equal(audio.cueBusy('card-complete'),true);assert.equal(audio.cueBusy('victory-jingle'),false);
+ audio.playSound('click',{force:true});await walk(100);assert.equal(jingle.paused,false);
+ jingle.onended();assert.equal(audio.cueBusy('card-complete'),false);
+ const stop=audio.playCue('victory-jingle',30);stop();assert.equal(audio.cueBusy('victory-jingle'),false);
+ audio.stopAllSounds();audio.setSoundEnabled(false);
+});
+
+test('every field sound has an existing MP3 for browsers without Ogg Vorbis', async()=>{
+ const {existsSync}=await import('node:fs');
+ audio.setSoundEnabled(true);audio.setEffectsVolume(100);document.hidden=false;
+ const Plain=globalThis.Audio;globalThis.Audio=class extends Plain{canPlayType(){return '';}};
+ for(const name of ['trail-step','notebook-open','notebook-page','workplace-open','lamp-light','resident-pop','letter-open']){
+  audio.playCue(name);await tick();const src=players.at(-1).src;
+  assert.match(src,/\.mp3$/,name);assert.ok(existsSync('public'+src),name+' -> '+src);
+ }
+ globalThis.Audio=Plain;audio.stopAllSounds();audio.setSoundEnabled(false);
+});

@@ -39,8 +39,8 @@ export async function mountEvacuation3D(scene,bridge){
  const canvas=scene.game?.canvas,stage=canvas?.parentElement;
  if(!stage||!globalThis.document)return null;
  // The scene may still be in create() here; evacuation.js destroys this view if the scene ended meanwhile.
- let THREE,playSound;
- try{THREE=await import('three');({playSound}=await import('../sound.js'));}catch{return null;}
+ let THREE,playSound,playStep,playCue;
+ try{THREE=await import('three');({playSound,playStep,playCue}=await import('../sound.js'));}catch{return null;}
  const host=document.createElement('div');host.className='evac3d';
  let renderer;
  try{renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'low-power'});}catch{return null;}
@@ -321,7 +321,8 @@ export async function mountEvacuation3D(scene,bridge){
   clock+=dt;frameNo++;
   steer();
   const cur=bridge.current,dx=cur.x-last.x,dy=cur.y-last.y,moved=Math.hypot(dx,dy);
-  if(moved>.01){facing=walkDirection(dx,dy,facing);stride+=moved;walked+=dt;}
+  // Footsteps follow the real walk (sound.js paces them); a reset that jumps River back to the start is not a step.
+  if(moved>.01){facing=walkDirection(dx,dy,facing);stride+=moved;walked+=dt;if(moved<30)playStep();}
   last={...cur};
   updateQuake(dt);
   if(crouchTimer!==Infinity)crouchTimer=Math.max(0,crouchTimer-dt);
@@ -402,7 +403,8 @@ export async function mountEvacuation3D(scene,bridge){
   frame,reset,arrive,
   pause(){held.clear();keyDriven=false;},
   gate(){placeBeacon();burst(W(config.gates[0]).setY(1.6),0x9fdcb8,16);},
-  blocked(msg){lastHazard={msg,at:clock};const h=hazardMeshes.get(msg);if(h)h.flash=900;},
+  // A soft bump when River walks into a wall or a hazard zone in this view.
+  blocked(msg){lastHazard={msg,at:clock};const h=hazardMeshes.get(msg);if(h)h.flash=900;if(visible)playCue('hurt-bump');},
   destroy(){
    resize.disconnect();scene.scale.off('resize',fit);
    window.removeEventListener('keydown',keydown);window.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);

@@ -30,7 +30,7 @@
 
 | 게임 파일 | 원본 파일 | 쓰는 곳 |
 |---|---|---|
-| trail-step.ogg | OGG/footstep01.ogg | 지도를 걸어서 출발할 때 한 번 |
+| trail-step.ogg | OGG/footstep01.ogg | 지도와 3D 대피 길에서 리버가 걷는 동안 발자국(약 0.3초마다, 2026-11-19부터) |
 | notebook-open.ogg | OGG/bookOpen.ogg | 관찰 수첩 열기 |
 | notebook-page.ogg | OGG/bookFlip2.ogg | 수첩이나 기록 목록에서 장 넘기기 |
 | tool-reward.ogg | OGG/jingles_PIZZA/jingles_PIZZA03.ogg | 장소를 마치고 새 도구 받기 |
@@ -94,7 +94,7 @@ earshot으로 들어 본 결과: 새 성공음들은 "success chime" z +3.9~4.3,
 | map-hit-heavy.mp3 | sfx/hit-heavy-03.mp3 | [body_hit.wav](https://freesound.org/people/insanity54/sounds/276600) · insanity54 | CC0 1.0 | 3타 명중(hit-heavy) |
 | map-exit.mp3 | sfx/villain-exit-03.mp3 | [Dry Puff.wav](https://freesound.org/people/valeofhearts/sounds/532234) · valeofhearts | CC0 1.0 | 악당 퇴장(villain-exit) |
 | map-appear.mp3 | sfx/earth-rumble-01.mp3 | [Deep Ambient Rumble](https://freesound.org/people/IanStarGem/sounds/269592) · IanStarGem | CC0 1.0 | 악당 첫 등장, 세션당 한 번(villain-appear) |
-| map-bump.mp3 | sfx/hurt-bump-01.mp3 | [LowHit_01.wav](https://freesound.org/people/Faulkin/sounds/336495) · Faulkin | CC0 1.0 | 리버가 악당에 닿았을 때(hurt-bump) |
+| map-bump.mp3 | sfx/hurt-bump-01.mp3 | [LowHit_01.wav](https://freesound.org/people/Faulkin/sounds/336495) · Faulkin | CC0 1.0 | 리버가 악당에 닿았을 때, 3D 대피 길에서 벽·위험 구역에 막혔을 때(hurt-bump) |
 | map-victory.mp3 | sfx/victory-jingle-02.mp3 | [WinBrass.wav](https://freesound.org/people/Fupicat/sounds/521639) · Fupicat | CC0 1.0 | 다섯 마리를 모두 물리치고 마지막 성취 카드를 닫은 뒤 피날레 영상이 열릴 때(victory-jingle, 2026-11-18부터). 피날레 영상은 음소거로 시작해 겹치지 않음 |
 
 예전 합성음 `hit.mp3`·`defeat.mp3`는 지도 전투에서 더 쓰지 않지만 `scripts/make-sfx.mjs` 결과물로 남겨 뒀어.
