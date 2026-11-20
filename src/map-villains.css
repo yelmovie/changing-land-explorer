@@ -73,6 +73,8 @@
 #app.atlas .map-villain.villain-departed > :not(.villain-line){visibility:hidden}
 /* While a villain speaks, its layer rises over the resident markers (z 12) so the 18px bubble stays readable. */
 #app.atlas .map-villains:has(.villain-line:not([hidden])){z-index:13}
+/* The speaking villain also rises over River's attack pose (z 700), so its bubble is never under her. */
+#app.atlas .map-villain:has(> .villain-line:not([hidden])){z-index:701}
 
 /* Patrol bounce belongs to the artwork; the body and the hit target stay together. */
 .map-villain[data-play="true"]:not(.hit) .villain-art{animation:map-rubble-patrol .35s ease-in-out infinite alternate}
