@@ -55,14 +55,16 @@ function layoutSpeech(host, entries){
   occupied.push({l:b.l-7,r:b.r+7,t:b.t-7,b:b.b+7});
  }
  const clamp=(x,min,max)=>Math.max(min,Math.min(x,max));
+ // Speech never rises into the top HUD bar (its centre has no buttons to avoid).
+ const hud=host.ownerDocument.querySelector('.topbar'),minT=hud?Math.max(8,rect(hud.getBoundingClientRect()).b+8):8;
  for(const {el,anchor} of visible){
   const ew=el.offsetWidth,eh=el.offsetHeight;if(!ew||!eh)continue;
   const a=anchor?rect(anchor.getBoundingClientRect()):null,ea=rect(el.offsetParent?.getBoundingClientRect()??bounds);
   const x=a?(a.l+a.r)/2:w/2,top=a?a.t-18:12,bottom=a?a.b+18:20,gap=14;
-  const preferred=a?[[x-ew/2,top-eh],[a.r+gap,top-eh/3],[a.l-gap-ew,top-eh/3],[x-ew/2,bottom]]:[[x-ew/2,12],[x-ew/2,h-95-eh],[12,85],[w-ew-12,85]];
+  const preferred=a?[[x-ew/2,top-eh],[a.r+gap,top-eh/3],[a.l-gap-ew,top-eh/3],[x-ew/2,bottom]]:[[x-ew/2,minT],[x-ew/2,h-95-eh],[12,Math.max(85,minT)],[w-ew-12,Math.max(85,minT)]];
   const pts=preferred.slice();
-  for(let y=12;y<h-eh-6;y+=22)for(let i=0;i<=8;i++)pts.push([12+(w-ew-24)*i/8,y]);
-  const fit=pts.map(([l,t])=>({l:clamp(l,8,w-ew-8),t:clamp(t,8,h-eh-8)})).map(p=>({...p,r:p.l+ew,b:p.t+eh}));
+  for(let y=minT;y<h-eh-6;y+=22)for(let i=0;i<=8;i++)pts.push([12+(w-ew-24)*i/8,y]);
+  const fit=pts.map(([l,t])=>({l:clamp(l,8,w-ew-8),t:clamp(t,Math.min(minT,h-eh-8),h-eh-8)})).map(p=>({...p,r:p.l+ew,b:p.t+eh}));
   const overlap=p=>occupied.reduce((area,c)=>area+Math.max(0,Math.min(p.r,c.r)-Math.max(p.l,c.l))*Math.max(0,Math.min(p.b,c.b)-Math.max(p.t,c.t)),0);
   let best=fit[0],score=Infinity;
   for(const p of fit){const s=overlap(p)*1000+Math.hypot(p.l-preferred[0][0],p.t-preferred[0][1]);if(s<score){best=p;score=s;}if(s===0)break;}
