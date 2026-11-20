@@ -342,11 +342,15 @@ export function mount(ctx) {
           // number of lines but narrow the wrap until the lines come out even (like CSS text-wrap: balance).
           if(wrapWidth){
             const balance=()=>{
+              // A scene that has ended may still update its captions; a destroyed text has no canvas to redraw.
+              if(!label.scene||!label.canvas||!label.context)return;
               label.style.wordWrapWidth=wrapWidth;const count=label.getWrappedText().length;let hi=wrapWidth;
               if(count>1)for(let lo=wrapWidth/count,k=0;k<9;k++){const mid=(lo+hi)/2;label.style.wordWrapWidth=mid;if(label.getWrappedText().length>count)lo=mid;else hi=mid;}
               label.setWordWrapWidth(hi,true);
             };
-            const setText=label.setText;label.setText=function(value){setText.call(this,value);balance();return this;};
+            // Re-balance only a live label whose text really changed; Phaser itself skips same-text updates, and a
+            // finished scene can still call setText on its destroyed labels.
+            const setText=label.setText;label.setText=function(value){if(!this.scene)return this;const before=this.text;setText.call(this,value);if(this.text!==before)balance();return this;};
             balance();
           }
           return label;

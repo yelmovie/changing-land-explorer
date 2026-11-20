@@ -6,7 +6,7 @@ import {learningGuideHTML} from "./learning-guide.js";
 import {openStory,stopStory} from './story.js';
 import {musicScene,musicVolume,setMusicVolume} from './music.js';
 import {RESIDENTS,residentArt,residentVoice} from './residents.js';
-import {playSound,setSoundEnabled,stopAllSounds,playVoice,stopVoice} from './sound.js';
+import {playSound,setSoundEnabled,stopAllSounds,stopVoice} from './sound.js';
 import {showConcept,CONCEPTS} from './concepts.js';
 import {STAGES,SAVE_KEY,LEGACY_SAVE_KEY,fresh,loadProgress,award,canEnter,activityLocation,saveDecision,seedPreview} from './model.js';
 import {SETTINGS_CONTENT} from './settings-content.js';

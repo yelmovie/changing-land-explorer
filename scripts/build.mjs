@@ -10,8 +10,9 @@ import {REWARD_CARDS} from '../src/map-rewards.js';
 const isSidecar=f=>path.basename(f).startsWith('._');
 await rm('dist',{recursive:true,force:true});await mkdir('dist',{recursive:true});
 for(const p of ['index.html','src'])await cp(p,path.join('dist',p),{recursive:true,filter:f=>!isSidecar(f)});
-// PNG originals stay in public/ for the asset scripts; the app only loads WebP.
-await cp('public/assets','dist/assets',{recursive:true,filter:f=>!f.endsWith('.png')&&!isSidecar(f)});
+// PNG originals stay in public/ for the asset scripts; the app only loads WebP. The old Jua web fonts are no longer
+// referenced (the app uses NanumSquare Neo), so they stay out of the build.
+await cp('public/assets','dist/assets',{recursive:true,filter:f=>!f.endsWith('.png')&&!/^jua-.*\.woff2$/.test(path.basename(f))&&!isSidecar(f)});
 // Precache the shell, playable scenes and video posters. Films and music still stream on demand.
 const srcFiles=(await readdir('src',{recursive:true})).map(f=>f.split(path.sep).join('/')).filter(f=>/\.(m?js|css)$/.test(f)&&!isSidecar(f)).map(f=>'/src/'+f);
 const refs=(await Promise.all(['index.html',...srcFiles.map(f=>f.slice(1))].map(f=>readFile(f,'utf8')))).join('\n').match(/\/assets\/[\w./-]+\.(?:webp|png|jpe?g|svg|woff2|js)/g)||[];

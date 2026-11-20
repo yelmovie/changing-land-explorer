@@ -1,6 +1,6 @@
 import {observationTour} from './observation-tour.js';
 import {CITY_SITES} from '../learning-model.js';
-import {CITY_POINTS,CITY_OBSERVATIONS as OBSERVATIONS,cityTimeLabel,cityScene,paintScene,cityEvidence,cityMarker} from '../observation-scenes.js';
+import {CITY_POINTS,CITY_OBSERVATIONS as OBSERVATIONS,cityTimeLabel,cityScene,paintScene,cityEvidence} from '../observation-scenes.js';
 import {AIRPORT_CLIPS} from '../airport-clips.js';
 import {cityPosterAsset} from '../stage-art.js';
 

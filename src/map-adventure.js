@@ -1,4 +1,4 @@
-import {bindDirectionPad,mapKeyDirection} from './map-controls.js';
+import {bindDirectionPad} from './map-controls.js';
 import {syncMapHitLayout} from './map-hit-layout.js';
 import {mountMapVillains} from './map-villains.js';
 import {RIVER_WALK,createRiverWalker} from './river-walk.js';
