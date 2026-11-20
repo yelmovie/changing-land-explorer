@@ -48,3 +48,21 @@
 ## 추가 수정 (2026-11-20, 지침 8절): 성취 카드 보관함 잠긴 문구
 
 - `src/reward-cards.css` `.rc-locked small` 아래에 공통 네 줄(`container: rc-locked`, 높이 600px 이상 + 안쪽 폭 152px 이하에서 `max-width: 4.6em`) 추가. 커밋 `42d7a4c`, Pages 배포 `5b184f3c`, `cmp.sh` `src/reward-cards.css`·`index.html` 운영 해시 MATCH. 확인(`.tmp/linebreak-20261119/album.mjs`, 로컬·운영): 1280×800·1920×1080 한 줄, 1024×768 「악당을 / 물리치면 / 열려요」 세 줄(측정 도구 3자 규칙 오탐, 끝줄 75%), 다섯 장 모두 카드 넘침 없음.
+
+## 남은 것 정리 (2026-11-20, 지침 9절)
+
+잰 화면과 결과(스크립트는 `.tmp/linebreak-20261119/`, 커밋 안 함):
+
+| 대상 | 방법 | 전 | 후 |
+|---|---|---|---|
+| ① 지도 악당 말풍선 `.villain-line`(07은 `.map-encounter-say`가 아님)·퇴치 후 알림 `.map-encounter-clear` | `villains.mjs`: 교사 시연 지도에 같은 구조(버튼 `.map-villain` 안 `.villain-line`, `#app.atlas` 스타일 그대로)를 띄워 대사 30줄(평소 10·맞을 때 10·퇴치 5·알림 5)을 한 줄씩 넣어 잼, 1280×800·1024×768 | 0 | 0 (수정 없음) |
+| ② 성취 카드 획득 장면 5장, 현장 작전 4곳(암석은 작전 없음), 마지막 도전 `celebration`·`retry` | `dom2.mjs`, 1280×800·1024×768·1920×1080 | — | 기록탑 이름표 4자 규칙 오탐만(끝줄 60~100%) |
+| ③ Phaser 활동 글(`wordWrap`) | `phaser.mjs`: 30과정에 들어가 Phaser Text의 실제 줄(`getWrappedText`)을 읽어 같은 기준으로 판정 | 14개 중 1개 진짜 외톨이 「화산의 구멍으로 분출물이 / 나와.」(20%) | 0 (남은 3개는 4자 규칙 오탐, 끝줄 64~100%) |
+| ③ 3D 대피 안내판 제목(캔버스 텍스처) | 코드 점검 | 낱말 수로 반을 갈라 「선생님 안내를 / 따라요」「엘리베이터 대신 / 계단으로」 | 「선생님 / 안내를 따라요」「엘리베이터 / 대신 계단으로」 |
+
+- 악당 말풍선은 버튼(`.map-villain`) 안이라 공통 규칙의 `balance`를 이미 물려받아 보정이 필요 없었다. 화면 안에 들어오는지도 함께 확인함(밖으로 나간 것 0).
+- 고친 곳: `src/adventure/index.js` `api.text` — `wordWrap` 글은 같은 줄 수를 지키면서 감쌀 폭을 가장 좁게 다시 맞춘다(Phaser 기본은 앞에서부터 채워 끝줄이 짧아짐). 나중에 `setText`로 바뀌는 글도 같이 맞춘다. `src/adventure/evacuation-3d.js` 안내판 제목 — 두 줄 중 긴 줄이 가장 짧아지는 낱말 자리에서 나눈다. 문구·글자 크기·놀이 영역은 그대로.
+- 짧은 이름표(`ui.js` `text()`, 3D `label()`, 「넘어진\n책장」)는 한 줄이거나 뜻 단위 두 줄이라 그대로 둠.
+- 검증: `npm test` 190/190, `check:layout` 1280×800·1024×768·1920×1080 각 57/57, `check:activity` 90/90 장면 스크롤 없이 맞음, 런타임 오류 0.
+- 배포: 커밋 `30f4295`, Pages `geovalley` 배포 `7363c0f9`, `cmp.sh` `src/adventure/index.js`·`src/adventure/evacuation-3d.js`·`index.html` 운영 해시 MATCH. 운영 주소로 `phaser.mjs`·`villains.mjs` 다시 잼: 결과 같음.
+- 참고: 측정하는 동안 다른 세션이 `src/map-villains.css`(악당 글자 14→18px, 말풍선 최대 폭 184→280px)를 미커밋으로 고치고 있었다. 이 기록의 악당 말풍선 결과는 커밋된(운영) CSS 기준이다. 그 변경이 커밋되면 그 세션에서 다시 재야 한다.
