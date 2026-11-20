@@ -29,7 +29,8 @@ async function record(page,label,scope='body',{scroll=false,shot=false}={}){
    return {text:(e.textContent||e.getAttribute('aria-label')||'').trim(),w:b.width,h:b.height};
   });
   if(!scroll){
-   for(const a of root.querySelectorAll('p'))if(vis(a)&&parseFloat(getComputedStyle(a).fontSize)<19.9)issues.push('body text under 20px: '+a.textContent);
+   // The start screen's credit line is 10–13px by the shared credit spec (_shared/CREDIT-LINE-20261120.md), not body text.
+   for(const a of root.querySelectorAll('p:not(.expedition-credit)'))if(vis(a)&&parseFloat(getComputedStyle(a).fontSize)<19.9)issues.push('body text under 20px: '+a.textContent);
   }
   const heading=root.querySelector('.adventure-heading');
   const activity=root.querySelector('#activity'),canvas=activity?.querySelector('canvas');
