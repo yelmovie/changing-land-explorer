@@ -66,3 +66,10 @@
 - 검증: `npm test` 190/190, `check:layout` 1280×800·1024×768·1920×1080 각 57/57, `check:activity` 90/90 장면 스크롤 없이 맞음, 런타임 오류 0.
 - 배포: 커밋 `30f4295`, Pages `geovalley` 배포 `7363c0f9`, `cmp.sh` `src/adventure/index.js`·`src/adventure/evacuation-3d.js`·`index.html` 운영 해시 MATCH. 운영 주소로 `phaser.mjs`·`villains.mjs` 다시 잼: 결과 같음.
 - 참고: 측정하는 동안 다른 세션이 `src/map-villains.css`(악당 글자 14→18px, 말풍선 최대 폭 184→280px)를 미커밋으로 고치고 있었다. 이 기록의 악당 말풍선 결과는 커밋된(운영) CSS 기준이다. 그 변경이 커밋되면 그 세션에서 다시 재야 한다.
+
+## 악당 글자 18px 뒤 말풍선 다시 재기 (2026-11-20 밤, 지침 10절)
+
+- 기준: 18px 커밋 `dc70e23`과 `b8bf79f`(말풍선을 공격 자세·이름표 위로 올림)가 들어간 `origin/main` `b8bf79f`. 운영 `src/map-villains.css` 해시가 origin/main과 같아 18px 작업이 이미 배포된 것을 확인한 뒤 로컬 빌드로 쟀다.
+- 방법: `.tmp/linebreak-20261119/villains.mjs`를 학생 모드(다섯 곳 완료)로 바꿔 진짜 악당 5명이 나온 지도에서 잼. 실제 악당 버튼을 그대로 복제해 대사 25줄(평소 10·맞을 때 10·퇴치 5)을 넣고, 퇴치 후 알림 `.map-encounter-clear`(role=status) 5줄, 공격 버튼 「공격!」 5개, 소품 이름표 5개, 공격 안내 `.combat-guide`까지 1280×800·1024×768·1920×1080에서 `measure.js`로 쟀다.
+- 결과: 세 크기 모두 문제 0개(18px 전에도 0개). 글자 18px, 말풍선은 1줄 14개·2줄 11개, 알림은 5개 모두 2줄이라 3줄 넘는 것 없음. 화면 밖으로 나간 것 없음. 말풍선은 버튼 안이라 공통 `balance`를 받고, 알림은 `role="status"`라 역시 `balance`를 받는다.
+- 고친 것 없음 → 배포하지 않음.
