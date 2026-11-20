@@ -1,0 +1,13 @@
+{
+  "no": "07", "name": "움직이는 지오밸리", "appCommit": "802af00", "measuredAt": "2026-11-21T08:40+09:00",
+  "score": {"total": 88, "noDevice": 93,
+    "items": {"learning": 10, "fun": 9, "function": 9, "code": 7, "design": 10, "a11y": 8, "perf": 8, "firstScreen": 10, "data": 7, "deploy": 10}},
+  "structure": {"zones": 5, "activities": 10, "stepsPerActivityMedian": 3, "autoRunSeconds": 244},
+  "interaction": {"kinds": ["누르기", "끌기", "그리기(물길·대피 길)", "문지르기(조흔)", "막대 밀기(사진 비교)", "지도 걷기", "지도 전투", "3D 걷기"], "kindsCount": 8, "zonesWithOwnInteraction": 5},
+  "feedback": {"wrongAnswerLevels": 3, "hintBeforeAnswer": true, "retryGoal": true, "rewardEffects": 4, "transitionEffects": 3},
+  "screen": {"playAreaHeightPctMedian": 71, "playAreaAreaPctMedian": 60, "bodyTextMinPx": 18, "bodyTextMedianPx": 19, "imagesOnScreenMedian": null},
+  "sound": {"bgm": true, "sfx": true, "voice": true, "voiceLines": 522},
+  "weight": {"firstScreenKB": 1586, "distMB": 173},
+  "robust": {"reloadRestores": true, "corruptSaveHandled": true, "offlineRevisit": true, "backButtonStaysInApp": true, "certificatePrintsOnePage": true},
+  "notes": "운영 Pages d2dcc9a5에서 잼. 놀이 영역·글자는 1280×800 강·화산·도시 활동 3개(Phaser 1200×640 캔버스, 학생 화면 글자 최소 18px; 12~16px는 교사 미리보기 띠뿐). imagesOnScreen은 그림이 캔버스 안에 그려져 DOM에서 셀 수 없어 null. autoRunSeconds는 운영 check-learning-flow(30 발견·개념 10·보상 5·기록탑·인증서) 244초. 손상 저장 3종(깨진 JSON·이상한 값·null) 오류 0. 첫 화면 56요청 1586KB(캐시 없음). distMB 173은 영상·목소리(522개 67MB) 포함, 영상·음악은 필요할 때 받음. 보상 효과: 성취 카드 공개·주민 도장·기록탑 등불·인증서. 전환 효과: 지도 도착 걷기·장면 로더·마을 도착 연출. retryGoal은 기록탑 「새 상황 다시 도전」."
+}
