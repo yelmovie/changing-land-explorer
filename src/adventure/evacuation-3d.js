@@ -197,7 +197,9 @@ export async function mountEvacuation3D(scene,bridge){
   if(boardImage.complete&&boardImage.naturalWidth)g.drawImage(boardImage,0,0,w,w*566/760);else{g.fillStyle='#b98b55';g.fillRect(30,40,320,200);}
   g.textAlign='center';g.textBaseline='middle';g.fillStyle=rule.read?'#2f6e52':'#5b3a22';
   g.font=`700 26px NanumSquareNeo,'Malgun Gothic',sans-serif`;g.fillText(rule.read?'✔ 약속 확인':`안전 약속 ${rule.n}`,w/2,104);
-  const words=rule.title.length>7?rule.title.split(' '):[rule.title],mid=Math.ceil(words.length/2),lines=words.length>1?[words.slice(0,mid).join(' '),words.slice(mid).join(' ')]:words;
+  // Long titles break between words where the two lines come out most even, so no short word hangs alone on the last line.
+  const words=rule.title.length>7?rule.title.split(' '):[rule.title];let lines=words;
+  for(let i=1;i<words.length;i++){const pair=[words.slice(0,i).join(' '),words.slice(i).join(' ')];if(lines===words||Math.max(...pair.map(t=>t.length))<Math.max(...lines.map(t=>t.length)))lines=pair;}
   g.font=`700 38px NanumSquareNeo,'Malgun Gothic',sans-serif`;g.fillStyle='#3a2414';lines.forEach((t,i)=>g.fillText(t,w/2,152+(i-(lines.length-1)/2)*44));
   if(!rule.read){g.fillStyle='#f3b63c';g.beginPath();g.arc(w-46,46,30,0,Math.PI*2);g.fill();g.fillStyle='#4a2c14';g.font=`700 40px NanumSquareNeo,sans-serif`;g.fillText('!',w-46,48);}
   rule.tex.needsUpdate=true;

@@ -338,6 +338,17 @@ export function mount(ctx) {
             else fillRect.call(this,left,top,width,height);
           };
           label.once('destroy',()=>{context.fillRect=fillRect;});
+          // Phaser fills each line greedily, which can leave one short word alone on the last line. Keep the same
+          // number of lines but narrow the wrap until the lines come out even (like CSS text-wrap: balance).
+          if(wrapWidth){
+            const balance=()=>{
+              label.style.wordWrapWidth=wrapWidth;const count=label.getWrappedText().length;let hi=wrapWidth;
+              if(count>1)for(let lo=wrapWidth/count,k=0;k<9;k++){const mid=(lo+hi)/2;label.style.wordWrapWidth=mid;if(label.getWrappedText().length>count)lo=mid;else hi=mid;}
+              label.setWordWrapWidth(hi,true);
+            };
+            const setText=label.setText;label.setText=function(value){setText.call(this,value);balance();return this;};
+            balance();
+          }
           return label;
         },
         // Text stays inside the usable surface: no decorative corners cross the content.
