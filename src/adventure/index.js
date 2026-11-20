@@ -8,7 +8,7 @@ import {setup as rocks} from './rocks.js';
 import {setup as city} from './city.js';
 import {setup as safety} from './safety.js';
 import {HINTS,recordHint} from './hints.js';
-import {destroyGame} from '../phaser-lifecycle.js';
+import {createGame,destroyGame} from '../phaser-lifecycle.js';
 import {backgroundForAsset,STAGE_BACKGROUNDS,STAGE_ASSETS,SHARED_STAGE_ASSETS} from '../stage-art.js';
 import {STAGES} from '../model.js';
 import {enter,navigate} from '../main.js';
@@ -539,7 +539,7 @@ export function mount(ctx) {
   document.addEventListener('visibilitychange',syncPause);
   document.fonts.ready.then(()=>{
     if(closed)return;
-    game=new window.Phaser.Game({
+    game=createGame(window.Phaser,{
       type:window.Phaser.AUTO,parent:'phaser-stage',width:1200,height:640,
       transparent:true,antialias:true,
       scale:{mode:window.Phaser.Scale.FIT,autoCenter:window.Phaser.Scale.CENTER_BOTH},

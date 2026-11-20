@@ -11,7 +11,7 @@ import {playSound,playCue,playStep} from './sound.js';
 import {$,$$,icon} from './ui.js';
 import {shell,state,isAdmin,save,enter,navigate,toast,modal} from './main.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
-import {destroyGame} from './phaser-lifecycle.js';
+import {createGame,destroyGame} from './phaser-lifecycle.js';
 import {backgroundForAsset} from './stage-art.js';
 import {bindMapZoom} from './map-gestures.js';
 import {overviewFrame,clampMapAxis} from './map-camera.js';
@@ -287,7 +287,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
       if(distance<=speed){current=queue.shift();hero.setPosition(target.x,target.y);walker.move(dx,dy,distance);if(!queue.length)arrive();}else{hero.x+=dx/distance*speed;hero.y+=dy/distance*speed;walker.move(dx,dy,speed);syncResidents(hero);}
     }
   }
-  game=new P.Game({type:P.CANVAS,parent:'atlas-canvas',width:1920,height:1080,transparent:true,scale:{mode:P.Scale.FIT,autoCenter:P.Scale.CENTER_BOTH},audio:{noAudio:true},scene:Atlas,callbacks:{postBoot(g){g.canvas.setAttribute('role','img');g.canvas.setAttribute('aria-label','리버가 연결된 길을 따라 걷는 지오밸리 지도');}}});
+  game=createGame(P,{type:P.CANVAS,parent:'atlas-canvas',width:1920,height:1080,transparent:true,scale:{mode:P.Scale.FIT,autoCenter:P.Scale.CENTER_BOTH},audio:{noAudio:true},scene:Atlas,callbacks:{postBoot(g){g.canvas.setAttribute('role','img');g.canvas.setAttribute('aria-label','리버가 연결된 길을 따라 걷는 지오밸리 지도');}}});
   if(!mapScene)bootTimer=setTimeout(useFallback,7000);
   }
   async function openMapEngine(initial){
