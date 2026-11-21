@@ -40,7 +40,8 @@ test('damaged nested notebook fields recover without changing the saved original
  source.drafts.volcano={step:0,passed:[],data};source.records.volcano={summary:'완성한 내 기록',data:structuredClone(data)};
  const raw=JSON.stringify(source),storage=new Map([[SAVE_KEY,raw]]),recovered=loadProgress({getItem:k=>storage.get(k)??null});
  assert.equal(storage.get(SAVE_KEY),raw,'loading does not overwrite the stored original');
- assert.deepEqual(recovered.completed,source.completed);assert.deepEqual(recovered.residentStamps,source.residentStamps);
+ // F15 (2026-11-21): the saved volcano record also opens volcano; the saved flags themselves are all kept.
+ assert.deepEqual(recovered.completed,[...source.completed,'volcano']);assert.deepEqual(recovered.residentStamps,source.residentStamps);
  assert.deepEqual(recovered.drafts.river.data.runs,source.drafts.river.data.runs);
  for(const repaired of [recovered.drafts.volcano.data,recovered.records.volcano.data]){
   assert.deepEqual(repaired.evidence.model.parts,source.drafts.volcano.data.assembly);

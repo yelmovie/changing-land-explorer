@@ -100,3 +100,31 @@ test('resident stamps survive replay and only belong to completed workplaces',()
  assert.deepEqual(sanitize({...old,residentStamps:{river:true}}).residentStamps,[]);
 });
 test('every place carries curriculum goals and review metadata',async()=>{const {STAGES}=await import('../src/model.js');for(const s of STAGES){assert.match(s.standard,/^4과11-0[1-4]$/);assert.ok(Array.isArray(s.learningObjectives)&&s.learningObjectives.length>=2,s.id);for(const goal of s.learningObjectives)assert.ok(goal.trim().length>10,s.id);assert.equal(typeof s.review.needsReview,'boolean');assert.match(s.review.source,/4과11-0[1-4]/);}});
+
+// F15 (2026-11-21): unlocks are recomputed from saved records, and old saved unlock flags are still honoured
+// (the more open of the two), so no existing save loses a place.
+test('unlocks recompute from records without dropping saved unlock flags',async()=>{
+ const {canEnter}=await import('../src/model.js');
+ const rec={summary:'done',data:{evidence:{}}};
+ // Current production save shape (all five places finished) restores exactly.
+ const all=['river','volcano','rocks','city','safety'];
+ const finished=sanitize({version:3,started:true,completed:all,records:Object.fromEntries(all.map(id=>[id,rec])),finished:true});
+ assert.deepEqual(finished.completed,all);for(let i=0;i<5;i++)assert.equal(canEnter(i,finished),true);
+ // A record without its flag (e.g. the tab closed between the two writes) now unlocks the next place.
+ const lost=sanitize({version:3,completed:['river'],records:{river:rec,volcano:rec}});
+ assert.deepEqual(lost.completed,['river','volcano']);assert.equal(canEnter(2,lost),true);assert.equal(canEnter(3,lost),false);
+ // Old saves whose flags have no record (v2 summaries, older builds) keep every place they had.
+ const flagsOnly=sanitize({version:3,completed:['river','volcano','rocks'],records:{}});
+ assert.deepEqual(flagsOnly.completed,['river','volcano','rocks']);assert.equal(canEnter(3,flagsOnly),true);
+ const v2=sanitize({version:2,started:true,completed:['river'],records:{river:{summary:'original'}}});
+ assert.deepEqual(v2.completed,['river']);
+ // Never fewer than the saved flags, in saved order, unknown ids and broken records ignored.
+ const mixed=sanitize({version:3,completed:['city','river','dragon'],records:{volcano:rec,rocks:'broken',safety:null,dragon:rec}});
+ assert.deepEqual(mixed.completed,['city','river','volcano']);
+ for(const bad of [{records:null},{records:'x'},{records:[rec]},{completed:'river',records:{river:rec}}]){
+  const d=sanitize({version:3,...bad});assert.ok(Array.isArray(d.completed));
+  for(const id of d.completed)assert.ok(all.includes(id));
+ }
+ // Resident stamps still only follow places that are completed.
+ assert.deepEqual(sanitize({version:3,completed:['river'],records:{river:rec,volcano:rec},residentStamps:['river','volcano','city']}).residentStamps,['river','volcano']);
+});

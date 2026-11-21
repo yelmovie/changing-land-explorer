@@ -34,6 +34,10 @@ export function sanitize(value){
  const stamps=Array.isArray(value.residentStamps)?value.residentStamps:[];
  base.residentStamps=base.completed.filter(id=>stamps.includes(id));
  for(const s of STAGES){const record=value.records?.[s.id];if(object(record)){base.records[s.id]=cleanData(record);if(object(base.records[s.id].data))base.records[s.id].data=normalizeActivityData(base.records[s.id].data);}const draft=value.drafts?.[s.id];if(object(draft)){base.drafts[s.id]={step:value.version===2?Math.min(1,Math.floor((Number(draft.step)||0)/2)):Math.min(1,Math.max(0,Number(draft.step)||0)),passed:[],data:{}};if(value.version===3){base.drafts[s.id].data=normalizeActivityData(object(draft.data)?cleanData(draft.data):{});base.drafts[s.id].passed=(Array.isArray(draft.passed)?draft.passed:[]).filter(n=>n===0||n===1);}else base.drafts[s.id].legacy=cleanData(draft);}}
+ // Unlocks are recomputed from the saved records too (F15, 2026-11-21): a place with a record counts as completed even
+ // if its flag was lost, and old saved flags still count, so a save only ever opens as much as before or more.
+ for(const s of STAGES)if(object(value.records?.[s.id])&&!base.completed.includes(s.id))base.completed.push(s.id);
+ base.residentStamps=base.completed.filter(id=>stamps.includes(id));
  base.finished=value.finished===true;if(value.version===3&&object(value.final))base.final={...base.final,...cleanData(value.final)};
  const loc=value.location;if(object(loc)&&['home','map','stage','operation','final'].includes(loc.type)){if(!['stage','operation'].includes(loc.type)||(Number.isInteger(loc.arg?.index)&&loc.arg.index>=0&&loc.arg.index<5)){base.location=cleanData(loc);if(value.version===2&&base.location.type==='stage')base.location.arg.step=Math.min(1,Math.floor((base.location.arg.step||0)/2));}}
  // Once stored, the activity is independent of the screen the student last left open.
