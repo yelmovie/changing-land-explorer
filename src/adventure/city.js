@@ -91,15 +91,29 @@ function airportSlot(scene,api,time,box){
  const slot=document.createElement('div');
  slot.className='airport-media-slot';slot.dataset.airportMedia=time;slot.setAttribute('aria-hidden','true');
  const src=AIRPORT_CLIPS[time];
+ let paint=null;
  if(src){
-  const video=document.createElement('video');
-  video.muted=true;video.loop=true;video.playsInline=true;video.preload='metadata';
-  video.addEventListener('playing',()=>{video.style.visibility='visible';});
-  video.addEventListener('error',()=>{video.style.visibility='hidden';});
-  video.src=src;slot.append(video);
+  // A playing <video> on screen makes Chrome slow the whole page to the clip's rate (24fps clips → 30fps updates).
+  // The video stays off screen and its frames are painted into a canvas, so the activity keeps 60fps (D9, 2026-11-21).
+  const video=document.createElement('video'),frame=document.createElement('canvas');
+  video.muted=true;video.loop=true;video.playsInline=true;video.preload='metadata';video.hidden=true;
+  frame.style.visibility='hidden';
+  let playing=false,last=-1;
+  video.addEventListener('playing',()=>{playing=true;});
+  video.addEventListener('error',()=>{playing=false;frame.style.visibility='hidden';});
+  paint=()=>{
+   if(!slot.isConnected)return;
+   if(playing&&video.readyState>=2&&video.currentTime!==last){
+    last=video.currentTime;
+    if(frame.width!==video.videoWidth||frame.height!==video.videoHeight){frame.width=video.videoWidth;frame.height=video.videoHeight;}
+    frame.getContext('2d').drawImage(video,0,0,frame.width,frame.height);frame.style.visibility='visible';
+   }
+   requestAnimationFrame(paint);
+  };
+  video.src=src;slot.append(video,frame);
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(()=>{});
  }
- pinToScene(scene,api,slot,box);
+ if(pinToScene(scene,api,slot,box)&&paint)requestAnimationFrame(paint);
 }
 
 export function setup(scene,api){
