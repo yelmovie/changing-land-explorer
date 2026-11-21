@@ -32,7 +32,7 @@
 아래 파일의 제작 서비스·날짜·상업 이용 조건 상세는 현재 파일에서 확인되지 않아 추가 원본 기록 확인이 필요하다.
 
 - 지도·제목: `map-original.png`, `map.webp`, `title-logo.webp`.
-- 리버: `river-hero.webp`, `river-sprite.webp`, `river-pose-0.webp`~`river-pose-3.webp`.
+- 리버: `river-hero.webp`, `river-pose-0.webp`~`river-pose-3.webp`.
 - 강: `river-field.webp`, `river-lab.webp`.
 - 화산: `volcano-eruption.webp`, `volcano-field.webp`, `volcano-lab.webp`.
 - 암석: `rocks-lab.webp`, `rocks-table.webp`, `rock-0.webp`~`rock-3.webp`.
