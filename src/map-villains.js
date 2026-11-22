@@ -177,12 +177,12 @@ export function mountMapVillains({world,page,hand,state,save,reveal,go,getHero,h
     // first and push the exit line back (AUDIO-FIX3-BRIEF-20261120): the line may wait up to 8 s after the hit to start; one that has
     // started by then is heard to its end (4 s more at most), one that has not is dropped when the card opens.
     // -> River's summary, words and voice together, once the card is put away. Until then River's last hit line is cleared.
-    // The last villain's summary waits for the finale dialog to close: the dialog says the same thing, and "you can keep exploring" belongs to the moment back on the map.
+    // Defeating villains only collects cards (2026-11-22): even the last one opens no finale film. The final film plays once, when the
+    // last stage is finished (ending.js -> navigate('final','celebration')). The last villain's summary is said after its card, like the others.
     const all=defeatedVillains(game.progress)===MAP_VILLAINS.length,summary=all?'5마리 모두 퇴치! 리버가 지오밸리의 길을 지켰어. 탐구 활동은 계속할 수 있어.':'돌먼지 대장 퇴치! '+defeatedVillains(game.progress)+' / 5마리. 지도를 둘러보며 남은 악당을 찾아봐.';
-    if(all){finaleAt=now+2350;finaleSay=summary;}
     if(document.activeElement===el)attack.focus({preventScroll:true});
     say('');cue('hit-heavy');cue('villain-exit',reduced?120:260);
-    cardsDue.push({id:event.id,at:now+(reduced?520:760),cap:now+8000,line:exitLine,summary:all?'':summary});holdRewardCard(event.id);
+    cardsDue.push({id:event.id,at:now+(reduced?520:760),cap:now+8000,line:exitLine,summary});holdRewardCard(event.id);
    }
    else{say(event.remaining===2?'앗, 바위에 금이 갔어! 두 번 남았어.':'자갈이 튀었어! 한 번 남았어.');cue(event.remaining===2?'hit-light':'hit-light-2');}
   }

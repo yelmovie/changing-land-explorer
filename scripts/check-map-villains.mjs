@@ -47,7 +47,8 @@ try{
    assert.equal(await p.locator('.map-finale-dialog').count(),0,'the finale waits for the card');await takeCard(p,id==='safety');
   }
   assert.deepEqual((await state(p)).completed,completed);assert.equal((await state(p)).finished,false);
-  await p.getByRole('dialog',{name:'지도 모험 피날레'}).getByRole('button',{name:'지도로 돌아가기'}).click();
+  // Defeating every villain only collects cards; the final film waits for the last stage (2026-11-22).
+  await p.waitForTimeout(6000);assert.equal(await p.locator('.map-finale-dialog,.story-film').count(),0,'no finale film after the last villain');
   await p.locator('#map-overview').tap();assert.equal(await p.locator('#map-overview').getAttribute('aria-pressed'),'true');await p.locator('#map-hand').tap();
   await p.screenshot({path:out+'/'+width+'-clear.png'});await p.reload();await p.waitForSelector('.map-ready');assert.equal(await p.locator('.map-villain:not([hidden])').count(),0);
   await p.locator('#stage-shortcuts').tap();await p.waitForSelector('.final-scene');assert.equal((await state(p)).location.type,'final');
