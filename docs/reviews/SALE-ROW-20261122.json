@@ -15,7 +15,7 @@
   "minutes": null,
   "stages": 5,
   "thumbnail": "7 earthchange/thumbnails/thumbnail-16x8.png",
-  "appCommit": "c78bb85",
+  "appCommit": "bccb1c4",
   "host": "pages",
   "consistency": {
     "creditLine": {
@@ -54,14 +54,19 @@
     },
     "certificate": {
       "fields": [
-        "나의 탐험가 별명 입력(16자)",
-        "완료 날짜(자동, 2026. 11. 22. 형식)"
+        "학교·학년·반·번호·이름 손기입 밑줄 빈칸(화면 입력 없음)",
+        "완료 날짜(자동, 2026. 11. 22. 형식)",
+        "기존 수여 문장·탐험 도구·주는 이",
+        "제작 표기(화면·인쇄·PNG)"
       ],
       "buttons": [
         "인증서 인쇄 / PDF 저장",
+        "PNG 저장",
         "탐험 기록으로"
       ],
-      "credit": "기획·제작: 옐샘 & ⓒ 아이스크림미디어(인증서 안 아래쪽, 인쇄 포함)"
+      "credit": "기획·제작: 옐샘 & ⓒ 아이스크림미디어",
+      "format": "기존 지오밸리 테두리·팔레트 유지, A4 가로 297:210, PNG 2400×1697",
+      "verification": "1280×800·1024×768·1920×1080 종이·버튼 전체 표시, 학교59.4mm·이름65.3mm·쓰기높이11.28mm, PDF1쪽, 화면·PNG 제목900+0.02em획, 진행숫자요약0, reduced-motion·설정진입·돌아가기·오류0"
     },
     "rewardCards": {
       "count": 5,
@@ -113,8 +118,16 @@
     "teacherGuide": "docs/TEACHER-GUIDE.md",
     "handoff": "docs/DELIVERY-HANDOFF.md"
   },
-  "note": "인증서에는 제작·저작권 표기가 없다(코드에서 시작 화면과 설정 앱 정보에만 있음). 설정 닫기는 x 버튼·Esc·바깥 누르기 모두 가능(dialog 공용). 설정 항목은 코드 순서이고 소리 3행은 audio-settings.js에서 이어 붙는다.",
+  "note": "인증서에는 완료 날짜·제작 표기가 화면·인쇄·PNG에 표시된다. 설정 창은 아래 닫기 버튼·Esc로 닫고 x 버튼과 바깥 누르기로는 닫지 않는다. 설정 항목은 코드 순서이고 소리 3행은 audio-settings.js에서 이어 붙는다.",
   "gradeRepo": "4학년",
   "unitRepo": "3단원 땅의 변화 (교과서별 단원 번호 확인 필요)",
-  "gradeUnitSource": "운영 시트 「이예리 선생님」 탭, 2026-11-22 확인"
+  "gradeUnitSource": "운영 시트 「이예리 선생님」 탭, 2026-11-22 확인",
+  "productionVerification": {
+    "checkedAt": "2026-11-22",
+    "url": "https://geovalley.pages.dev/",
+    "appCommit": "bccb1c4",
+    "deployment": "5429697d",
+    "result": "공식 운영 index·JS·CSS·인증서 PNG 모듈·기존 테두리 SHA-256 MATCH. 세 화면·PDF·PNG·설정 진입·동작 줄이기 확인.",
+    "evidence": "docs/DELIVERY-HANDOFF.md 최신 인증서 운영 마무리"
+  }
 }

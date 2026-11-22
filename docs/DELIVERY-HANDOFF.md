@@ -9,7 +9,7 @@
 | 이름 | 움직이는 지오밸리 (패키지 이름 `moving-geovalley` 0.2.0) |
 | 운영 주소 | https://geovalley.pages.dev |
 | 저장소 | https://github.com/yelmovie/changing-land-explorer (`main`) |
-| 현재 앱 커밋 | `c78bb85` (2026-11-21). 그 뒤 커밋은 문서만 바뀜 |
+| 현재 앱 커밋 | `bccb1c4` (2026-11-22, 인증서 손기입·PNG·굵은 제목). Pages `5429697d`, 공식 운영 파일 SHA-256 일치 |
 | 대상 | 초등 4학년 과학 「땅의 변화」, 5장소 · 활동 10개 · 발견 30개 |
 
 ## 2. 폴더 구조
@@ -39,7 +39,7 @@ Node.js 20 이상, 별도 패키지 설치 없이 실행합니다(`package.json`
 | `npm run build` | `dist/` 정적 빌드 (`scripts/build.mjs`) |
 | `PORT=5197 npm run preview` | 빌드 미리보기 |
 | `npm run check` | JavaScript 문법 검사 |
-| `npm test` | 학습·저장·진행 규칙 회귀 검사 (190개) |
+| `npm test` | 학습·저장·진행 규칙 회귀 검사 (192개) |
 | `npm run check:layout` `check:flow` `check:keyboard` 등 | 브라우저 검사. 실행 중인 서버와 Playwright + Chrome 필요 |
 
 개념 영상을 다시 만들 때만 `npm run concepts:render`를 씁니다(FFmpeg·Sharp 필요, 앱 실행에는 불필요).
@@ -100,3 +100,11 @@ wrangler pages deploy dist --project-name=geovalley --branch=main
 
 - 조율 세션이 운영 주소의 `index`와 스크립트·스타일 파일 40개를 저장소 `origin/main`과 대조했습니다. 결과는 모두 일치입니다(불일치 0).
 - 위 본문에 「운영 반영 확인 필요」로 적힌 칸은 이 대조로 확인된 것입니다. 이후 앱을 다시 배포하면 `_scratch/final-recheck-20261120/prodcmp.sh 07`로 다시 대조합니다.
+
+## 최신 인증서 운영 마무리 (2026-11-22)
+
+- 앱 `bccb1c4`: 기존 지오밸리 테두리·색·수여 문장·탐험 도구를 유지하고 학교·학년·반·번호·이름을 출력 후 손으로 쓰는 빈칸과 「PNG 저장」을 추가했습니다. A4 가로 비율이며 진행·성취 숫자 요약은 없고 제목은 900 굵기와 동색 얇은 획으로 표시합니다. PNG에도 화면의 굵기·획·배치를 적용합니다.
+- `npm run check`, `npm test` 192/192, `npm run build` 통과. 세 화면 크기(1280×800·1024×768·1920×1080)에서 종이·버튼 전체 표시, 1280px 화면에서 종이 폭 66.7%, 입력 칸·진행 숫자 요약·겹침·콘솔/HTTP 오류 0입니다.
+- A4 가로 PDF 1쪽, PNG 2400×1697을 실제로 열어 확인했습니다. PDF 기준 학교 밑줄 59.4mm·이름 65.3mm·쓰기 높이 11.28mm입니다. 설정에서 인증서 진입·탐험 기록으로 돌아가기·동작 줄이기도 확인했습니다.
+- 기존 Pages `geovalley` 배포 `5429697d`. 공식 운영 https://geovalley.pages.dev/ 의 index·실제 JS/CSS·인증서 PNG 모듈·기존 테두리를 최신 빌드와 SHA-256으로 대조해 일치했습니다. 운영에서도 세 화면·PDF·PNG·설정 진입·동작 줄이기를 다시 확인했습니다.
+- 새 그림·의존성은 없고 학습 판정·진행 저장 형식을 바꾸지 않았습니다. 교사 확인·권리 증빙·실기기·실물 인쇄·수업 대기는 별도 미확인으로 유지합니다.
