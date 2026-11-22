@@ -1,0 +1,97 @@
+{
+  "no": 7,
+  "name": "움직이는 지오밸리",
+  "folder": "7 earthchange",
+  "grade": "4학년",
+  "semester": "1학기",
+  "subject": "과학",
+  "unit": "3단원 땅의 변화 (교과서별 단원 번호 확인 필요)",
+  "standards": [
+    "4과11-01 흐르는 물의 작용과 강 주변 지형의 특징을 관련지을 수 있다.",
+    "4과11-02 화산의 의미와 화산 활동으로 나오는 물질을 알고, 화산 활동을 모형으로 표현할 수 있다.",
+    "4과11-03 화성암을 관찰하고 분류할 수 있다.",
+    "4과11-04 화산 활동과 지진이 우리 생활에 미치는 영향을 조사하여, 대처 방법을 실천할 수 있다."
+  ],
+  "minutes": null,
+  "stages": 5,
+  "thumbnail": "7 earthchange/thumbnails/thumbnail-16x8.png",
+  "appCommit": "c78bb85",
+  "host": "pages",
+  "consistency": {
+    "creditLine": {
+      "text": "기획·제작: 옐샘 & ⓒ 아이스크림미디어",
+      "where": ["settings", "start"]
+    },
+    "settings": {
+      "items": [
+        "전체 소리",
+        "배경 음악 크기",
+        "효과음 크기",
+        "주민 목소리 크기",
+        "인트로 영상 다시 보기",
+        "엔딩 영상 다시 보기",
+        "내 탐험 가방",
+        "인증서 받기",
+        "개념 영상 다시 보기",
+        "현장 작전 다시 도전",
+        "앱 정보 · 배움과 보상",
+        "학생용 가이드",
+        "교사용 가이드",
+        "이미지·소리·저작권 고지",
+        "교사용 전체 해금",
+        "탐험 기록 초기화",
+        "닫기"
+      ],
+      "close": ["x-button", "esc", "backdrop"],
+      "closeLabel": "닫기"
+    },
+    "certificate": {
+      "fields": ["나의 탐험가 별명 입력(16자)"],
+      "buttons": ["인증서 인쇄 / PDF 저장", "탐험 기록으로"]
+    },
+    "rewardCards": {
+      "count": 5,
+      "textPx": 18,
+      "lockedText": "악당을 물리치면 열려요"
+    },
+    "modalButtons": {
+      "primarySide": "right",
+      "order": ["취소", "기록 지우기"]
+    },
+    "startScreen": {
+      "buttons": ["리버와 탐험 시작 (기록이 있으면 탐험 이어 하기)"]
+    }
+  },
+  "ledger": {
+    "rows": 54,
+    "open": 7,
+    "openItems": [
+      "V-1b 이야기 영상 속 원음 출처 미확인",
+      "M-1 메인·파이널 테마 음악 출처 미확인",
+      "I-16 art/ui 23장 근거 약함(Higgsfield 기록)",
+      "I-28 활동 소품 16장 근거 약함(Higgsfield 기록)",
+      "I-29 기록탑 11장 근거 약함(Higgsfield 기록)",
+      "VO-5 옛 주민 음성 근거 약함(모모 로컬 TTS)",
+      "VO-6 옛 주민 감사 음원 근거 약함(Higgsfield Seed Audio)"
+    ],
+    "userPending": [
+      "메인·파이널 테마 음악 작곡자 계약 또는 생성 도구 곡 페이지와 요금제",
+      "이야기 영상 속 원음이 영상 생성물에 함께 나온 소리인지 확인",
+      "Higgsfield 요금제·상업 조건 화면 캡처",
+      "VO-5 옛 주민 음성을 빌드에서 뺄지 결정",
+      "ChatGPT·제미나이 요금제 화면 캡처(납품 증빙)"
+    ]
+  },
+  "teacherGuide": {
+    "needsConfirm": [
+      "교과서별 단원 번호",
+      "예상 수업 시간(40분 수업 미시험)",
+      "교사 검토표 15행 확인 필요(도시 7행·암석 3행·안전 2행·강 1행·화산 1행·기록탑 1행)"
+    ]
+  },
+  "files": {
+    "teacherGuide": "docs/TEACHER-GUIDE.md",
+    "handoff": "docs/DELIVERY-HANDOFF.md"
+  },
+  "note": "인증서에는 제작·저작권 표기가 없다(코드에서 시작 화면과 설정 앱 정보에만 있음). 설정 닫기는 x 버튼·Esc·바깥 누르기 모두 가능(dialog 공용). 설정 항목은 코드 순서이고 소리 3행은 audio-settings.js에서 이어 붙는다."
+}
