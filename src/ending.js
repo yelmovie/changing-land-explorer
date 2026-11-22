@@ -6,6 +6,7 @@ import {scienceText} from './science-learning.js';
 import {CONCEPTS,showConcept} from './concepts.js';
 import {TOOL_ASSETS} from './adventure/rules.js';
 import {playGuideText} from './guide-voice.js';
+import {saveCertificatePng} from './certificate-png.js';
 const toolArt=(st,size)=>`<img src="/assets/${TOOL_ASSETS[st.tool]}.webp" alt="${st.reward}" width="${size}" height="${size}">`;
 const TOWER_PHOTOS={
  river:'/assets/art/river-field-clues-v3.webp',
@@ -59,7 +60,39 @@ export function renderFinal(mode='assembly'){
   // Saves finished before the date was recorded get the day the certificate is first opened.
   if(s.finished&&!s.finishedAt&&!isAdmin()){s.finishedAt=localDate();save();}
   const doneDate=certificateDate(s.finishedAt||localDate());
-  shell('지오밸리 탐험 인증서',`<main class="final-scene certificate-page"><div class="certificate-viewport"><article class="certificate"><span class="eyebrow">관찰 · 비교 · 설명 · 실천</span><img class="certificate-medal" src="/assets/art/expedition-medallion.webp" alt="지오밸리 탐험 메달"><h1>지오밸리 탐험 인증서</h1>${isAdmin()?'<p>관리자 미리보기 · 실제 완료 인증서가 아니야</p>':''}<input aria-label="인증서에 쓸 별명" maxlength="16" placeholder="나의 탐험가 별명"><p>강의 변화와 화산, 암석을 관찰하고<br>생활과 안전을 연결한 탐험가에게 이 인증서를 줘.</p><div class="cert-tools">${STAGES.map(st=>toolArt(st,56)).join('')}</div><strong>리버와 함께한 지오밸리 탐험대</strong><p class="cert-date">${doneDate}</p><small>별명은 저장하거나 전송하지 않아.</small><p class="cert-credit">기획·제작: 옐샘 &amp; ⓒ 아이스크림미디어</p></article></div><div class="certificate-tools">${btn('인증서 인쇄 / PDF 저장','print','primary')}${btn('탐험 기록으로','ending-back')}</div></main>`,'final');$('#print').onclick=()=>window.print();$('#ending-back').onclick=()=>navigate('final','ending');return()=>{};
+  shell('지오밸리 탐험 인증서',`
+   <main class="final-scene certificate-page">
+    <div class="certificate-viewport">
+     <article class="certificate">
+      <img class="cert-frame" src="/assets/art/ui/certificate-frame.webp" alt="">
+      <div class="cert-content">
+       <span class="eyebrow certificate-overline">관찰 · 비교 · 설명 · 실천</span>
+       <h1 class="cert-title">지오밸리 탐험 인증서</h1>
+       ${isAdmin()?'<p class="certificate-preview">관리자 미리보기 · 실제 완료 인증서가 아니야</p>':''}
+       <div class="cert-recipient" aria-label="인쇄한 뒤 손으로 적는 받는 사람 빈칸">
+        <div class="cert-ident-row"><span class="cert-blank cert-school" data-cert-blank="school"></span><span>학교</span><span class="cert-blank" data-cert-blank="grade"></span><span>학년</span><span class="cert-blank" data-cert-blank="class"></span><span>반</span><span class="cert-blank" data-cert-blank="number"></span><span>번</span></div>
+        <div class="cert-ident-row"><span>이름</span><span class="cert-blank cert-name" data-cert-blank="name"></span></div>
+       </div>
+       <p class="cert-award">강의 변화와 화산, 암석을 관찰하고<br>생활과 안전을 연결한 탐험가에게 이 인증서를 줘.</p>
+       <div class="cert-tools">${STAGES.map(st=>toolArt(st,56)).join('')}</div>
+       <strong class="cert-issuer">리버와 함께한 지오밸리 탐험대</strong>
+       <p class="cert-date">${doneDate}</p>
+       <p class="cert-credit">기획·제작: 옐샘 &amp; ⓒ 아이스크림미디어</p>
+      </div>
+     </article>
+    </div>
+    <p class="cert-note">인쇄한 뒤 학교·반·번호·이름을 직접 적어요.</p>
+    <div class="certificate-tools">${btn('인증서 인쇄 / PDF 저장','print','primary')}${btn('PNG 저장','cert-png')}${btn('탐험 기록으로','ending-back')}</div>
+   </main>`,'final');
+  $('#print').onclick=()=>window.print();
+  $('#cert-png').onclick=async()=>{
+   const button=$('#cert-png');button.disabled=true;
+   try{await saveCertificatePng($('.certificate'));}
+   catch{toast('인증서 그림을 저장하지 못했어. 잠시 후 다시 눌러 줘.');}
+   finally{if(button.isConnected)button.disabled=false;}
+  };
+  $('#ending-back').onclick=()=>navigate('final','ending');
+  return()=>{};
  }
  if(mode==='ending'){
   if(!s.finished&&!isAdmin()){navigate('final');return()=>{};}

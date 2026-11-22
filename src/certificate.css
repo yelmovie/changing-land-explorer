@@ -1,0 +1,38 @@
+/* Preserve the existing GeoValley frame and palette; make one A4 landscape sheet. */
+#app.final .certificate-page {height:calc(var(--app-height,100dvh) - var(--hud-top,80px));min-height:0;padding:10px 18px 8px;gap:6px;align-items:center;}
+#app.final .certificate-viewport {display:grid;place-items:center;width:100%;overflow:visible;}
+#app.final .certificate {
+ position:relative;container-type:inline-size;flex:none;
+ width:min(calc(100vw - 40px),calc((var(--app-height,100dvh) - var(--hud-top,80px) - 116px)*297/210));
+ max-width:none;aspect-ratio:297/210;padding:0;margin:0;border:0;background:none;
+ animation:geovalley-certificate-arrive .7s cubic-bezier(.16,1,.3,1) both;
+}
+#app.final .certificate .cert-frame {position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;}
+#app.final .certificate .cert-content {position:absolute;inset:0;padding:7.5% 13% 10.5%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.55cqw;text-align:center;}
+#app.final .certificate .certificate-overline {font-size:1.75cqw;line-height:1.3;margin:0;letter-spacing:.1em;}
+#app.final .certificate h1.cert-title {padding:0;margin:.15cqw 0 .35cqw;font-size:3.8cqw;line-height:1.25;font-weight:900;-webkit-text-stroke:.02em currentColor;}
+#app.final .certificate .certificate-preview {font-size:1.5cqw;line-height:1.3;margin:0;}
+#app.final .certificate .cert-recipient {width:100%;margin:0 0 .6cqw;}
+#app.final .certificate .cert-ident-row {display:flex;align-items:flex-end;justify-content:center;gap:.55cqw;min-height:3.8cqw;font-size:1.75cqw;line-height:1.35;}
+#app.final .certificate .cert-blank {display:inline-block;flex:none;width:5.3cqw;height:3.8cqw;border-bottom:.14cqw solid #8a7848;}
+#app.final .certificate .cert-school {width:20cqw;}
+#app.final .certificate .cert-name {width:22cqw;}
+#app.final .certificate p.cert-award {font-size:2.05cqw;line-height:1.4;margin:.2cqw 0;}
+#app.final .certificate .cert-tools {gap:1.1cqw;margin:.3cqw 0;}
+#app.final .certificate .cert-tools img {width:4.9cqw;height:4.9cqw;object-fit:contain;}
+#app.final .certificate .cert-issuer {font-size:1.95cqw;line-height:1.35;font-weight:700;}
+#app.final .certificate p.cert-date {font-size:1.85cqw;line-height:1.3;margin:0;font-weight:700;}
+#app.final .certificate p.cert-credit {font-size:1.28cqw;line-height:1.3;margin:.4cqw 0 0;font-weight:600;}
+#app.final p.cert-note {flex:none;margin:0;color:#fff8dd;font-size:16px;line-height:1.4;}
+#app.final .certificate-tools {flex:none;gap:12px;padding:0;margin:0;}
+#app.final .certificate-tools button {min-height:48px;padding:10px 18px;font-size:18px;}
+@keyframes geovalley-certificate-arrive {from{opacity:.7;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce) {#app.final .certificate {animation:none!important;}}
+@media print {
+ @page {size:A4 landscape;margin:0;}
+ html:has(.certificate),body:has(.certificate) {width:297mm;height:210mm;margin:0!important;padding:0!important;}
+ #app.final:has(.certificate),#app.final .certificate-page {display:block!important;height:auto!important;min-height:0!important;padding:0!important;margin:0!important;overflow:visible!important;}
+ #app.final .certificate-viewport {display:block!important;width:297mm;height:210mm;padding:0;margin:0;overflow:visible!important;}
+ #app.final .certificate {display:block!important;width:297mm!important;height:210mm!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0!important;animation:none!important;break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+ #app.final .certificate-tools,#app.final .cert-note,#app.final .certificate-preview,#overlay {display:none!important;}
+}
