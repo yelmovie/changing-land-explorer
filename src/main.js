@@ -73,7 +73,8 @@ export function modal(title,content,setup){
  if(dialog.querySelector('.evidence-list,.bag-grid,.preview-links,.tool-comparison'))dialog.classList.add('wide-dialog');
  const close=()=>{if(dialog.open)dialog.close();};
  $('.dialog-close',dialog).onclick=close;
- dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close();}});
+ // Settings closes only with its 「닫기」 button or Esc (2026-11-22, the same in all 16 projects).
+ dialog.addEventListener('click',e=>{if(e.target===dialog&&!dialog.classList.contains('settings-dialog')){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close();}});
  dialog.addEventListener('close',()=>{stopVoice();dialog.remove();if(!document.querySelector('dialog[open]'))(previous?.isConnected&&previous.checkVisibility()?previous:previous?.closest('.activity-tools')?.querySelector('summary')||$('#settings'))?.focus();},{once:true});
  dialog.showModal();
  const list=$('.evidence-list',dialog);
