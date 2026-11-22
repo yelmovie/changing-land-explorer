@@ -140,6 +140,8 @@
 #app.final .certificate .cert-tools img{width:clamp(40px,4vw,56px);height:clamp(40px,4vw,56px);object-fit:contain}
 #app.final .certificate h1{font-size:clamp(24px,2.6vw,40px)}#app.final .certificate p{font-size:max(20px,1.5vw);line-height:1.3;margin:clamp(1px,.5vw,8px) 0}#app.final .certificate input{min-height:48px;font-size:clamp(17px,1.6vw,24px)}
 #app.final .certificate-tools{justify-content:center}
+/* 2026-11-22: production credit inside the certificate, on screen and in print (16 projects share this line). */
+#app.final .certificate .cert-credit{font-size:13px;line-height:1.3;margin:clamp(4px,.8vw,10px) 0 0;color:#6b5a3e;font-weight:600}
 @media print{
  @page{size:A4 landscape;margin:10mm}
  html:has(.certificate),body:has(.certificate){background:#fff!important}
