@@ -38,7 +38,9 @@ export function sanitize(value){
  // if its flag was lost, and old saved flags still count, so a save only ever opens as much as before or more.
  for(const s of STAGES)if(object(value.records?.[s.id])&&!base.completed.includes(s.id))base.completed.push(s.id);
  base.residentStamps=base.completed.filter(id=>stamps.includes(id));
- base.finished=value.finished===true;if(value.version===3&&object(value.final))base.final={...base.final,...cleanData(value.final)};
+ base.finished=value.finished===true;
+ // Completion date for the certificate (2026-11-22). Kept only for a finished save with a plain YYYY-MM-DD value.
+ if(base.finished&&typeof value.finishedAt==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value.finishedAt))base.finishedAt=value.finishedAt;if(value.version===3&&object(value.final))base.final={...base.final,...cleanData(value.final)};
  const loc=value.location;if(object(loc)&&['home','map','stage','operation','final'].includes(loc.type)){if(!['stage','operation'].includes(loc.type)||(Number.isInteger(loc.arg?.index)&&loc.arg.index>=0&&loc.arg.index<5)){base.location=cleanData(loc);if(value.version===2&&base.location.type==='stage')base.location.arg.step=Math.min(1,Math.floor((base.location.arg.step||0)/2));}}
  // Once stored, the activity is independent of the screen the student last left open.
  const fallback=STAGES.findLastIndex((stage,index)=>{
@@ -74,6 +76,8 @@ export function activityLocation(state,location){
  if(!draft||!canEnter(index,state)||!['stage','operation'].includes(type))return null;
  return {type,arg:type==='stage'?{index,step:draft.step===1?1:0}:{index}};
 }
+export const localDate=(date=new Date())=>`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+export const certificateDate=value=>{const [y,m,d]=value.split('-').map(Number);return `${y}. ${m}. ${d}.`;};
 export function award(state,id,record){if(!STAGES.some(s=>s.id===id))return state;return {...state,completed:[...new Set([...state.completed,id])],records:{...state.records,[id]:structuredClone(record)}};}
 export const clamp=(v,min=0,max=1)=>Math.max(min,Math.min(max,v));
 export function pointInRect(p,r,pad=0){return p.x>=r.x-pad&&p.x<=r.x+r.w+pad&&p.y>=r.y-pad&&p.y<=r.y+r.h+pad;}

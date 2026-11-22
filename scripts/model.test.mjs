@@ -128,3 +128,13 @@ test('unlocks recompute from records without dropping saved unlock flags',async(
  // Resident stamps still only follow places that are completed.
  assert.deepEqual(sanitize({version:3,completed:['river'],records:{river:rec,volcano:rec},residentStamps:['river','volcano','city']}).residentStamps,['river','volcano']);
 });
+
+// Certificate completion date (2026-11-22): kept only on a finished save, shown as 2026. 11. 22.
+test('finished saves keep a plain completion date for the certificate',async()=>{
+ const {localDate,certificateDate}=await import('../src/model.js');
+ assert.equal(sanitize({version:3,finished:true,finishedAt:'2026-11-22'}).finishedAt,'2026-11-22');
+ assert.equal(sanitize({version:3,finished:false,finishedAt:'2026-11-22'}).finishedAt,undefined);
+ for(const bad of ['22/11/2026','2026-11-22T10:00','',7,null])assert.equal(sanitize({version:3,finished:true,finishedAt:bad}).finishedAt,undefined);
+ assert.equal(certificateDate('2026-11-22'),'2026. 11. 22.');assert.equal(certificateDate('2027-01-05'),'2027. 1. 5.');
+ assert.equal(localDate(new Date(2026,10,22,23,59)),'2026-11-22');
+});

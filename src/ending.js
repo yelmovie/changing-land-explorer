@@ -1,4 +1,4 @@
-import {STAGES} from './model.js';
+import {STAGES,localDate,certificateDate} from './model.js';
 import {$,$$,escapeHTML,icon} from './ui.js';
 import {shell,state,isAdmin,save,navigate,toast,chime,modal,showFilm} from './main.js';
 import {btn} from './explore-ui.js';
@@ -56,7 +56,10 @@ export function renderFinal(mode='assembly'){
  const isLit=id=>!!f.lit[id];
  if(mode==='certificate'){
   if(!s.finished&&!isAdmin()){navigate('final');return()=>{};}
-  shell('지오밸리 탐험 인증서',`<main class="final-scene certificate-page"><div class="certificate-viewport"><article class="certificate"><span class="eyebrow">관찰 · 비교 · 설명 · 실천</span><img class="certificate-medal" src="/assets/art/expedition-medallion.webp" alt="지오밸리 탐험 메달"><h1>지오밸리 탐험 인증서</h1>${isAdmin()?'<p>관리자 미리보기 · 실제 완료 인증서가 아니야</p>':''}<input aria-label="인증서에 쓸 별명" maxlength="16" placeholder="나의 탐험가 별명"><p>강의 변화와 화산, 암석을 관찰하고<br>생활과 안전을 연결한 탐험가에게 이 인증서를 줘.</p><div class="cert-tools">${STAGES.map(st=>toolArt(st,56)).join('')}</div><strong>리버와 함께한 지오밸리 탐험대</strong><small>별명은 저장하거나 전송하지 않아.</small><p class="cert-credit">기획·제작: 옐샘 &amp; ⓒ 아이스크림미디어</p></article></div><div class="certificate-tools">${btn('인증서 인쇄 / PDF 저장','print','primary')}${btn('탐험 기록으로','ending-back')}</div></main>`,'final');$('#print').onclick=()=>window.print();$('#ending-back').onclick=()=>navigate('final','ending');return()=>{};
+  // Saves finished before the date was recorded get the day the certificate is first opened.
+  if(s.finished&&!s.finishedAt&&!isAdmin()){s.finishedAt=localDate();save();}
+  const doneDate=certificateDate(s.finishedAt||localDate());
+  shell('지오밸리 탐험 인증서',`<main class="final-scene certificate-page"><div class="certificate-viewport"><article class="certificate"><span class="eyebrow">관찰 · 비교 · 설명 · 실천</span><img class="certificate-medal" src="/assets/art/expedition-medallion.webp" alt="지오밸리 탐험 메달"><h1>지오밸리 탐험 인증서</h1>${isAdmin()?'<p>관리자 미리보기 · 실제 완료 인증서가 아니야</p>':''}<input aria-label="인증서에 쓸 별명" maxlength="16" placeholder="나의 탐험가 별명"><p>강의 변화와 화산, 암석을 관찰하고<br>생활과 안전을 연결한 탐험가에게 이 인증서를 줘.</p><div class="cert-tools">${STAGES.map(st=>toolArt(st,56)).join('')}</div><strong>리버와 함께한 지오밸리 탐험대</strong><p class="cert-date">${doneDate}</p><small>별명은 저장하거나 전송하지 않아.</small><p class="cert-credit">기획·제작: 옐샘 &amp; ⓒ 아이스크림미디어</p></article></div><div class="certificate-tools">${btn('인증서 인쇄 / PDF 저장','print','primary')}${btn('탐험 기록으로','ending-back')}</div></main>`,'final');$('#print').onclick=()=>window.print();$('#ending-back').onclick=()=>navigate('final','ending');return()=>{};
  }
  if(mode==='ending'){
   if(!s.finished&&!isAdmin()){navigate('final');return()=>{};}
@@ -89,7 +92,7 @@ export function renderFinal(mode='assembly'){
  $('#final-connect').onclick=()=>{
   const missing=STAGES.find(st=>!isLit(st.id));
   if(missing&&!isAdmin()){toast(`${missing.place} 액자를 눌러 장면을 다시 봐 줘.`);$(`[data-scene="${missing.id}"]`).focus();return;}
-  s.finished=true;delete f.relight;save();navigate('final','celebration');
+  s.finished=true;s.finishedAt??=localDate();delete f.relight;save();navigate('final','celebration');
  };
  updateProgress();
  return()=>{};
