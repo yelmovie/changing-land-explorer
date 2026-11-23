@@ -1,3 +1,4 @@
+import {finishCertificateWax} from './certificate-wax.js';
 // Export the displayed A4 sheet at 2400px using its actual text/line/image geometry.
 const WIDTH=2400,HEIGHT=Math.round(WIDTH*210/297);
 
@@ -21,6 +22,7 @@ function drawText(ctx,node,box,scale){
 }
 
 export async function saveCertificatePng(paper){
+ finishCertificateWax(paper);
  await document.fonts.ready;
  for(const animation of paper.getAnimations({subtree:true}))if(Number.isFinite(animation.effect?.getComputedTiming().endTime))animation.finish();
  const box=paper.getBoundingClientRect(),scale=WIDTH/box.width;

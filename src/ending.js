@@ -1,3 +1,5 @@
+import {mountCertificateWax} from './certificate-wax.js';
+import {playCue} from './sound.js';
 import {STAGES,localDate,certificateDate} from './model.js';
 import {$,$$,escapeHTML,icon} from './ui.js';
 import {shell,state,isAdmin,save,navigate,toast,chime,modal,showFilm} from './main.js';
@@ -75,6 +77,7 @@ export function renderFinal(mode='assembly'){
        </div>
        <p class="cert-award">강의 변화와 화산, 암석을 관찰하고<br>생활과 안전을 연결한 탐험가에게 이 인증서를 줘.</p>
        <div class="cert-tools">${STAGES.map(st=>toolArt(st,56)).join('')}</div>
+       <div class="cert-stamp"></div>
        <strong class="cert-issuer">리버와 함께한 지오밸리 탐험대</strong>
        <p class="cert-date">${doneDate}</p>
        <p class="cert-credit">기획·제작: 옐샘 &amp; ⓒ 아이스크림미디어</p>
@@ -84,6 +87,7 @@ export function renderFinal(mode='assembly'){
     <p class="cert-note">인쇄한 뒤 학교·반·번호·이름을 직접 적어요.</p>
     <div class="certificate-tools">${btn('인증서 인쇄 / PDF 저장','print','primary')}${btn('PNG 저장','cert-png')}${btn('탐험 기록으로','ending-back')}</div>
    </main>`,'final');
+  mountCertificateWax($('.certificate'),{label:'지오밸리\n탐험 인증',onImpact:()=>playCue('hit-heavy')});
   $('#print').onclick=()=>window.print();
   $('#cert-png').onclick=async()=>{
    const button=$('#cert-png');button.disabled=true;

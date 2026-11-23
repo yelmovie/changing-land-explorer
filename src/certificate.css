@@ -36,3 +36,8 @@
  #app.final .certificate {display:block!important;width:297mm!important;height:210mm!important;max-width:none!important;min-height:0!important;margin:0!important;padding:0!important;animation:none!important;break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact;}
  #app.final .certificate-tools,#app.final .cert-note,#app.final .certificate-preview,#overlay {display:none!important;}
 }
+
+/* 2026-11-23: the wax seal occupies the final signature row without shifting the title. */
+#app.final .certificate .cert-content{gap:.35cqw;padding-bottom:8.5%}
+#app.final .certificate .cert-stamp{--cert-wax-size:8.7cqw;--cert-wax-font:1cqw}
+#app.final .certificate .cert-tools{margin:.1cqw 0}
