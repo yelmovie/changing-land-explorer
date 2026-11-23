@@ -70,12 +70,12 @@ export function renderFinal(mode='assembly'){
       <div class="cert-content">
        <span class="eyebrow certificate-overline">관찰 · 비교 · 설명 · 실천</span>
        <h1 class="cert-title">지오밸리 탐험 인증서</h1>
-       ${isAdmin()?'<p class="certificate-preview">관리자 미리보기 · 실제 완료 인증서가 아니야</p>':''}
+       ${isAdmin()?'<p class="certificate-preview">관리자 미리보기 · 실제 완료 인증서가 아님</p>':''}
        <div class="cert-recipient" aria-label="인쇄한 뒤 손으로 적는 받는 사람 빈칸">
         <div class="cert-ident-row"><span class="cert-blank cert-school" data-cert-blank="school"></span><span>학교</span><span class="cert-blank" data-cert-blank="grade"></span><span>학년</span><span class="cert-blank" data-cert-blank="class"></span><span>반</span><span class="cert-blank" data-cert-blank="number"></span><span>번</span></div>
         <div class="cert-ident-row"><span>이름</span><span class="cert-blank cert-name" data-cert-blank="name"></span></div>
        </div>
-       <p class="cert-award">강의 변화와 화산, 암석을 관찰하고<br>생활과 안전을 연결한 탐험가에게 이 인증서를 줘.</p>
+       <p class="cert-award">강의 변화와 화산, 암석을 관찰하고<br>생활과 안전을 연결한 탐험가에게 이 인증서를 수여함.</p>
        <div class="cert-tools">${STAGES.map(st=>toolArt(st,56)).join('')}</div>
        <div class="cert-stamp"></div>
        <strong class="cert-issuer">리버와 함께한 지오밸리 탐험대</strong>
