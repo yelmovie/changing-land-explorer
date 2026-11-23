@@ -39,5 +39,5 @@
 
 /* 2026-11-23: the wax seal occupies the final signature row without shifting the title. */
 #app.final .certificate .cert-content{gap:.35cqw;padding-bottom:8.5%}
-#app.final .certificate .cert-stamp{--cert-wax-size:8.7cqw;--cert-wax-font:1cqw}
+#app.final .certificate .cert-stamp{--cert-wax-size:8.7cqw;--cert-wax-font:.9cqw}
 #app.final .certificate .cert-tools{margin:.1cqw 0}
