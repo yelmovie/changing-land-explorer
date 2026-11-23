@@ -94,6 +94,8 @@ button.tower-frame {cursor:pointer;}
 @keyframes tower-ready {to{box-shadow:0 4px 0 #133d32,0 0 0 8px #ffd27a66}}
 .tower-review {display:grid;gap:12px;max-width:640px;margin:auto;color:var(--tower-ink,#203e36);--tower-bar:clamp(10px,1.6vw,16px)}
 .tower-review>.tower-mat {height:clamp(110px,26dvh,260px);aspect-ratio:auto}
+.tower-review[data-stage="rocks"]>.tower-mat {width:auto;max-width:100%;aspect-ratio:4/3;justify-self:center}
+.tower-review[data-stage="rocks"] .tower-photo {object-fit:contain}
 .tower-points {display:grid;gap:6px;margin:0;padding:0;list-style:none}
 .tower-points li {display:flex;align-items:baseline;gap:10px;padding:8px 12px;border-radius:12px;background:#f6efd9;border:1px solid #e0cfa2;animation:tower-point .45s cubic-bezier(.2,1.2,.4,1) both;animation-delay:calc(var(--i) * .18s + .1s)}
 .tower-points b {flex:none;min-width:5.5em;color:#246b58;font-size:clamp(18px,2vw,20px)}
