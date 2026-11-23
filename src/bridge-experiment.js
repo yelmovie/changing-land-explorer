@@ -172,15 +172,16 @@ export function bindBridgeCrossing(board,{say,arrive,reduced}){
   raf=0;const dt=last?Math.min(80,now-last):16;last=now;
   if(arrived)return;
   if(pause>0){pause-=dt;draw(false);raf=requestAnimationFrame(tick);return;}
-  if(Math.abs(target-t)<1e-4){draw(false);last=0;return;}
+  if(target===t){draw(false);last=0;return;}
   const dir=Math.sign(target-t);facing=dir;
-  let next=t+dir*Math.min(Math.abs(target-t),speed*dt/1000);
+  const advance=speed*dt/1000;
+  let next=Math.abs(target-t)<=advance?target:t+dir*advance;
   // River always stops at the next unseen trace before walking on.
   const stop=stopT.findIndex((st,i)=>!reached.has(i)&&dir>0&&t<st&&next>=st);
   stride+=Math.abs(next-t)*pathLength;
   if(stop>=0){next=stopT[stop];t=next;draw(true);reach(stop);}
   else t=next;
-  if(t>=1&&reached.size===CROSSING_STOPS.length){arrived=true;river.classList.add('is-arrived');river.classList.remove('is-walking');if(step)step.disabled=true;board.querySelector('.crossing-goal')?.classList.add('is-reached');arrive();return;}
+  if(t>=1&&reached.size===CROSSING_STOPS.length){arrived=true;draw(false);river.classList.add('is-arrived');if(step)step.disabled=true;board.querySelector('.crossing-goal')?.classList.add('is-reached');arrive();return;}
   draw(true);raf=requestAnimationFrame(tick);
  }
  function go(value){
