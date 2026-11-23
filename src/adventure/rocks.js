@@ -186,13 +186,24 @@ export function setup(scene,api){
 
  function sortKnown(){
   w.sorted??=[];let finished=!!api.completed;
-  const orders=['granite','basalt'],names={basalt:'현무암',granite:'화강암'},stones=[],glow=scene.add.graphics();
+  const orders=['granite','basalt'],names={basalt:'현무암',granite:'화강암'},stones=[];
   tray(TRAY.basalt,TRAY_Y,'현무암');tray(TRAY.granite,TRAY_Y,'화강암');
+  const glow=scene.add.graphics().fillStyle(0xffd567,.12).fillEllipse(0,12,176,64).fillStyle(0xffefb4,.2).fillEllipse(0,12,126,40);
+  const stars=[[0,-8,25],[-88,22,12],[82,-35,15]].map(([x,y,size],i)=>{
+   const star=scene.add.graphics({x,y});
+   const points=[{x:0,y:-size*1.4},{x:size*.24,y:-size*.24},{x:size,y:0},{x:size*.24,y:size*.24},{x:0,y:size*1.4},{x:-size*.24,y:size*.24},{x:-size,y:0},{x:-size*.24,y:-size*.24}];
+   star.fillStyle(0xfff8d7).fillPoints(points,true).lineStyle(2,0xd29432,.95).strokePoints(points,true);
+   star.fillStyle(0xffffff,.9).fillCircle(0,0,size*.17);
+   if(!reduced)scene.tweens.add({targets:star,alpha:.5,scaleX:.76,scaleY:.76,duration:760+i*130,delay:i*220,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+   return star;
+  });
+  const target=scene.add.container(0,0,[glow,...stars]).setName('rocks-order-target');
   const orderText=api.text('',600,38,26).setBackgroundColor('#fff8e8').setPadding(18,8);
   const current=()=>orders.find(type=>!w.sorted.some(id=>ROCKS[id].type===type));
   function progress(){
-   const type=current();glow.clear();orderText.setText(type?'전시관 주문 · '+names[type]:'두 주문을 모두 보냈어');
-   if(type)glow.lineStyle(4,0xe5b94e,.95).strokeRoundedRect(TRAY[type]-112,TRAY_Y-72,224,150,28);
+   const type=current();orderText.setText(type?'전시관 주문 · '+names[type]:'두 주문을 모두 보냈어');
+   target.setVisible(!!type);
+   if(type)target.setPosition(TRAY[type],TRAY_Y);
    api.counter(w.sorted.length,2,'처리한 주문');
    if(w.sorted.length===2&&!finished){finished=true;api.finish('관찰 기록으로 두 주문을 해결했어. 이제 처음 보는 돌에도 적용해 보자!');}
   }
