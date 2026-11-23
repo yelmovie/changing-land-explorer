@@ -13,6 +13,10 @@ const state=p=>p.evaluate(k=>JSON.parse(localStorage.getItem(k)),SAVE_KEY);
 // A defeated villain hands over its achievement card; the map holds still until the card is put away (the fifth card also shows the full set).
 const takeCard=async(p,last=false)=>{await p.locator('.rc-layer .rc-take.is-ready').click({force:true});if(last){await p.waitForFunction(()=>document.activeElement?.textContent==='멋져요!');await p.getByRole('button',{name:'멋져요!'}).click({force:true});}await p.locator('.rc-layer').waitFor({state:'detached'});};
 const showFoe=async(p,foe)=>{await p.keyboard.press('Tab');await foe.focus();await p.waitForTimeout(450);};
+const visibleActor=async foe=>{
+ const view=await foe.evaluate(e=>({hidden:e.hidden,obscured:e.classList.contains('map-target-obscured'),opacity:Number(getComputedStyle(e).opacity),visibility:getComputedStyle(e).visibility}));
+ assert.deepEqual(view,{hidden:false,obscured:false,opacity:1,visibility:'visible'},'a living villain stays visible when focus moves to Attack');
+};
 try{
  const first=await setup(1024,768,{stages:[]});
  assert.equal(await first.p.locator('.map-villain').count(),0,'optional enemies appear only after the relevant observations');
@@ -25,6 +29,8 @@ try{
   assert.equal(await p.locator('#map-attack').isVisible(),false,'out-of-range attack control stays hidden');
   await p.keyboard.press('KeyJ');assert.equal((await state(p)).mapVillains.hits.river,0,'attack out of range does not hit');
   const foe=p.locator('[data-villain="river"]');await showFoe(p,foe);const r=await foe.boundingBox();
+  await visibleActor(foe);
+  assert.equal(await p.locator('.map-resident').evaluateAll(nodes=>nodes.every(e=>(e.style.translate||'0px').split(/\s+/).every(value=>parseFloat(value)===0))),true,'residents stay at their map coordinates');
   assert.ok(r.width>=48&&r.height>=48&&r.x>=0&&r.y>=0&&r.x+r.width<=width&&r.y+r.height<=height,'first enemy is visible');
   await p.mouse.move(r.x+r.width/2,r.y+r.height/2);await p.mouse.down();await p.mouse.move(r.x+r.width/2+45,r.y+r.height/2,{steps:8});await p.mouse.up();assert.equal((await state(p)).mapNode,0,'drag does not trigger enemy approach');
   await showFoe(p,foe);await foe.tap();
@@ -34,8 +40,9 @@ try{
   assert.equal(await p.locator('#map-villain-focus,#resident-directory').count(),0,'corner shortcuts are gone');
   const attack=await p.locator('#map-attack').boundingBox();assert.ok(attack.width>=48&&attack.height>=48&&attack.x>=0&&attack.y>=0&&attack.x+attack.width<=width&&attack.y+attack.height<=height);
   await p.locator('#map-attack').focus();await p.keyboard.press('KeyJ');await p.waitForTimeout(60);assert.equal((await state(p)).mapVillains.hits.river,1);assert.equal(await p.locator('.map-combat-river').isVisible(),true);assert.equal(await foe.getAttribute('data-frame'),'4');
+  await visibleActor(foe);
   await p.keyboard.press('KeyJ');assert.equal((await state(p)).mapVillains.hits.river,1,'cooldown rejects repeat');await p.screenshot({path:out+'/'+width+'-attack.png'});
-  for(let n=2;n<=3;n++){await p.waitForTimeout(610);if(n===2)await p.locator('#map-attack').tap();else{await p.evaluate(()=>document.activeElement?.blur());await p.keyboard.press('Space');}assert.equal((await state(p)).mapVillains.hits.river,n);}
+  for(let n=2;n<=3;n++){await p.waitForTimeout(610);if(n===2)await p.locator('#map-attack').tap();else{await p.evaluate(()=>document.activeElement?.blur());await p.keyboard.press('Space');}assert.equal((await state(p)).mapVillains.hits.river,n);if(n<3)await visibleActor(foe);}
   await foe.waitFor({state:'hidden'});await takeCard(p);assert.equal(await p.locator('.topbar .rc-slot.is-filled').count(),1,'the defeated villain fills one card slot');assert.equal(await p.evaluate(()=>window.__audioPlays),0);assert.deepEqual((await state(p)).completed,completed);
   await p.reload();await p.waitForSelector('.map-ready');assert.equal(await p.locator('[data-villain="river"]').isVisible(),false);assert.equal((await state(p)).mapVillains.hits.river,3);
   // Every foe can be approached with a native button and defeated through attack, not click removal.
