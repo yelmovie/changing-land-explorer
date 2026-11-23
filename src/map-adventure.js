@@ -1,6 +1,7 @@
 import {bindDirectionPad} from './map-controls.js';
 import {syncMapHitLayout} from './map-hit-layout.js';
 import {mountMapVillains} from './map-villains.js';
+import {COMBAT} from './map-combat-engine.js';
 import {RIVER_WALK,createRiverWalker} from './river-walk.js';
 import {STAGES,canEnter} from './model.js';
 import {guideRecordings} from './guide-recordings.js';
@@ -106,6 +107,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
     if(savedView){({follow,panEnabled,zoom}=savedView);fitMap();place(...cameraFor(savedView.fx,savedView.fy));savedView=null;syncViewControls();}
   }
   $('#map-hand').onclick=()=>{
+    if(combat?.blocked())return;
     cancelAnimationFrame(glide);glide=0;grab=null;world.classList.remove('grabbing');
     cancelGuided();if(overview){leaveOverview();panEnabled=true;follow=false;}
     else if(follow||!panEnabled){panEnabled=true;follow=false;}
@@ -113,6 +115,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
     syncViewControls();
   };
   $('#map-overview').onclick=()=>{
+    if(combat?.blocked())return;
     cancelAnimationFrame(glide);glide=0;grab=null;world.classList.remove('grabbing');
     cancelGuided();if(overview){leaveOverview();return;}
     savedView={fx:(view.pw/2-view.x)/view.w,fy:((safe.top+safe.bottom)/2-view.y)/view.h,follow,panEnabled,zoom};
@@ -133,7 +136,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
   }
   const resumeCamera=()=>{const p=hero?{x:hero.x/1200,y:hero.y/675}:{x:XY[current][0],y:XY[current][1]};panTo(cameraFor(p.x,p.y));};
   page.style.touchAction='none';
-  bindMapZoom(page,{signal:inputEvents.signal,enabled:()=>!closed&&!document.hidden&&!overview&&!document.querySelector('dialog[open]'),
+  bindMapZoom(page,{signal:inputEvents.signal,enabled:()=>!closed&&!document.hidden&&!overview&&!combat?.blocked()&&!document.querySelector('dialog[open]'),
     onStart:()=>{grab=null;world.classList.remove('grabbing');cancelAnimationFrame(glide);glide=0;cancelGuided();stopTravel();clearDirections();follow=false;panEnabled=true;syncViewControls();},
     onZoom:(start,end,ratio)=>{const fx=(start.x-view.x)/view.w,fy=(start.y-view.y)/view.h;
       zoom=Math.min(1.7,Math.max(.84,zoom*ratio));fitMap();place(end.x-fx*view.w,end.y-fy*view.h);}
@@ -193,7 +196,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
     else if(Number.isInteger(target)&&canEnter(target,s,isAdmin()))missionCard(target);
   }
   function go(node,target,auto=false){
-    if(closed||moving||pendingTravel||!auto&&combat?.blocked())return;
+    if(closed||moving||pendingTravel||combat?.blocked())return;
     leaveOverview();follow=true;syncViewControls();cancelAnimationFrame(glide);glide=0;
     setGuided(auto);
     if(fallback){current=node;place(...cameraFor(...XY[node]));const river=$('.atlas-fallback-river');river.style.left=`${XY[node][0]*100}%`;river.style.top=`${XY[node][1]*100}%`;destination=target;arrive();return;}
@@ -228,7 +231,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
     plaza.classList.add('festival-visit');
     $('#map-speech').textContent=finished?'친구 도장 다섯 개가 모였어. 기록탑 광장에서 주민들의 축제를 즐겨 봐!':'친구들의 도장 다섯 개가 모였어! 축제 광장 위쪽에 있는 기록탑을 눌러 마지막 도전을 시작해 봐.';
   }
-  const openResidents=id=>showResidents(modal,residents,{initial:id,onGreet:greeted,preview:isAdmin(),stamps:s.residentStamps,collect:collectStamp,visitPlaza});
+  const openResidents=id=>{if(!combat?.blocked())showResidents(modal,residents,{initial:id,onGreet:greeted,preview:isAdmin(),stamps:s.residentStamps,collect:collectStamp,visitPlaza});};
   function syncResidents(pos){
     residentButtons.forEach(b=>{const [x,y]=RESIDENTS[b.dataset.resident].feet;b.classList.toggle('is-near',Math.hypot(pos.x-x*1200,pos.y-y*675)<145);});
   }
@@ -301,7 +304,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
   // 방향키·WASD·화면 방향키 패드가 같은 걸음을 쓴다: 그 방향에 가장 가까운 이웃 길목으로 한 칸.
   const DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
   const KEY_DIRS={arrowup:'up',keyw:'up',w:'up',arrowdown:'down',keys:'down',s:'down',arrowleft:'left',keya:'left',a:'left',arrowright:'right',keyd:'right',d:'right'};
-  function stepToward(v,quiet=false){if(document.querySelector('dialog[open]'))return;leaveOverview();follow=true;syncViewControls();cancelAnimationFrame(glide);glide=0;if(moving)return;const neighbors=LINKS.flatMap(([a,b])=>a===current?[b]:b===current?[a]:[]);const score=n=>{const p=POINTS[n],a=POINTS[current];return((p.x-a.x)*v[0]+(p.y-a.y)*v[1])/Math.hypot(p.x-a.x,p.y-a.y);};neighbors.sort((a,b)=>score(b)-score(a));if(score(neighbors[0])>0)go(neighbors[0],null);else if(!quiet)toast('그쪽으로는 길이 없어. 다른 방향을 눌러 봐.');}
+  function stepToward(v,quiet=false){if(document.querySelector('dialog[open]')||combat?.blocked())return;leaveOverview();follow=true;syncViewControls();cancelAnimationFrame(glide);glide=0;if(moving)return;const neighbors=LINKS.flatMap(([a,b])=>a===current?[b]:b===current?[a]:[]);const score=n=>{const p=POINTS[n],a=POINTS[current];return((p.x-a.x)*v[0]+(p.y-a.y)*v[1])/Math.hypot(p.x-a.x,p.y-a.y);};neighbors.sort((a,b)=>score(b)-score(a));if(score(neighbors[0])>0)go(neighbors[0],null);else if(!quiet)toast('그쪽으로는 길이 없어. 다른 방향을 눌러 봐.');}
   const heldDirections=new Map();
   const clearDirections=()=>heldDirections.clear();
   const inputBlocked=()=>closed||document.hidden||!!document.querySelector('dialog[open]')||cardOpen()||!!combat?.blocked();
@@ -327,7 +330,7 @@ export function renderMap({arrival,engine,loadEngine}={}){
   window.addEventListener('blur',clearDirections,{signal:inputEvents.signal});document.addEventListener('visibilitychange',clearDirections,{signal:inputEvents.signal});
   bindDirectionPad(page,'[data-dir]',b=>b.dataset.dir,{signal:inputEvents.signal,blocked:inputBlocked,press:d=>{cancelGuided();heldDirections.set('pad',d);stepToward(DIRS[d]);},release:()=>heldDirections.delete('pad'),tap:d=>{cancelGuided();stepToward(DIRS[d]);}});
   // 가운데 버튼: 장소 입구에 서 있으면 들어가기, 아니면 리버가 있는 곳으로 지도를 옮긴다.
-  $('#dpad-center').onclick=()=>{if(moving)return;leaveOverview();const stage=doorHere();if(stage==='core'){navigate('final');return;}if(stage!==null){missionCard(stage);return;}follow=true;syncViewControls();panTo(cameraFor(...XY[current]));};
+  $('#dpad-center').onclick=()=>{if(moving||combat?.blocked())return;leaveOverview();const stage=doorHere();if(stage==='core'){navigate('final');return;}if(stage!==null){missionCard(stage);return;}follow=true;syncViewControls();panTo(cameraFor(...XY[current]));};
   updateDpad();
   if(isAdmin())$('#preview-nav').onclick=()=>modal('관리자 · 모든 활동 살펴보기',`<div class="preview-links">${STAGES.map((st,i)=>`<strong>${st.place}</strong>${st.steps.map((name,j)=>`<button class="secondary" data-preview="${i},${j}">${icon('unlock',18)} ${name}</button>`).join('')}`).join('')}<strong>마지막 기록탑</strong><button class="secondary" data-final="assembly">기록탑 장면 다시 보기</button><button class="secondary" data-final="ending">엔딩</button><button class="secondary" data-final="certificate">인증서</button></div>`,(dialog,close)=>{$$('[data-preview]',dialog).forEach(button=>button.onclick=()=>{const [index,step]=button.dataset.preview.split(',').map(Number);close();enter(index,step);});$$('[data-final]',dialog).forEach(button=>button.onclick=()=>{close();const target=button.dataset.final;
         if(target==='assembly'){s.final.lit={};s.final.relight=true;}
@@ -335,13 +338,20 @@ export function renderMap({arrival,engine,loadEngine}={}){
         if(round>=0){s.final.assembled=true;s.final.round=round;}
         navigate('final',round>=0?'assembly':target==='ending'?'celebration':target);});});
   if(!isAdmin()&&s.completed.length)combat=mountMapVillains({world,page,hand:$('#map-hand',page),state:s,save,reduced,
-    eligible:s.completed,clearStage:arrival,paused:()=>closed||guided||destination!==null,
+    eligible:s.completed,clearStage:arrival,paused:()=>closed||guided||moving||destination!==null,
     getHero:()=>hero?{x:hero.x,y:hero.y}:fallback?POINTS[current]:null,
     heroPose:pose=>{hero?.setVisible(pose<0);if(fallback)$('.atlas-fallback-river').style.visibility=pose<0?'':'hidden';},
     stopTravel,
     go:(x,y)=>{
       const distance=p=>Math.hypot(p.x-x,p.y-y);
-      const nearest=POINTS.reduce((best,p,i)=>distance(p)<distance(POINTS[best])?i:best,0);
+      // Stop on the first reachable stretch inside attack range, with room between
+      // the two characters, instead of walking onto the villain's own feet.
+      const bounds=world.getBoundingClientRect(),sx=1200/bounds.width,sy=675/bounds.height;
+      const clear=p=>residentButtons.every(button=>{const r=button.querySelector('img').getBoundingClientRect();return p.x+40<(r.left-bounds.left)*sx||p.x-40>(r.right-bounds.left)*sx||p.y+12<(r.top-bounds.top)*sy||p.y-86>(r.bottom-bounds.top)*sy;});
+      const options=POINTS.map((p,node)=>({node,gap:distance(p)})).filter(p=>p.gap>=COMBAT.collisionRadius+28&&p.gap<=COMBAT.attackRange-8&&clear(POINTS[p.node]));
+      const travel=node=>{let last=hero||POINTS[current],length=0;for(const i of findRoute(current,node)){length+=Math.hypot(POINTS[i].x-last.x,POINTS[i].y-last.y);last=POINTS[i];}return length;};
+      options.sort((a,b)=>travel(a.node)-travel(b.node)||Math.abs(a.gap-84)-Math.abs(b.gap-84));
+      const nearest=options[0]?.node??POINTS.reduce((best,p,i)=>distance(p)<distance(POINTS[best])?i:best,0);
       go(nearest,null);
     },say:text=>$('#map-speech').textContent=text,
     reveal:(x,y)=>{leaveOverview();follow=false;panTo(cameraFor(x,y));}
