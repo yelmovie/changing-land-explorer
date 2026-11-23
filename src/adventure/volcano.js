@@ -75,12 +75,22 @@ function assemble(scene,api){
   const art=model(scene,api);
   const order=['tray','mountain','water'];
   const spots={tray:{x:580,y:492},mountain:{x:580,y:351},water:{x:957,y:350}};
-  const target=scene.add.graphics();
+  const glow=scene.add.graphics().fillStyle(0xffd567,.12).fillEllipse(0,12,146,50).fillStyle(0xffefb4,.2).fillEllipse(0,12,104,30);
+  const stars=[[0,0,29],[-47,17,12],[42,-27,15]].map(([x,y,size],i)=>{
+    const star=scene.add.graphics({x,y});
+    const points=[{x:0,y:-size*1.4},{x:size*.24,y:-size*.24},{x:size,y:0},{x:size*.24,y:size*.24},{x:0,y:size*1.4},{x:-size*.24,y:size*.24},{x:-size,y:0},{x:-size*.24,y:-size*.24}];
+    star.fillStyle(0xfff8d7).fillPoints(points,true).lineStyle(2,0xd29432,.95).strokePoints(points,true);
+    star.fillStyle(0xffffff,.9).fillCircle(0,0,size*.17);
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)scene.tweens.add({targets:star,alpha:.5,scaleX:.76,scaleY:.76,duration:760+i*130,delay:i*220,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+    return star;
+  });
+  const target=scene.add.container(0,0,[glow,...stars]).setName('volcano-assembly-target');
   const objects={};
   function show(){
-    art.draw(parts);target.clear();
+    art.draw(parts);
     const next=order[parts.length];
-    if(next){const p=spots[next];target.lineStyle(4,0xffd567).strokeCircle(p.x,p.y,70);}
+    target.setVisible(!!next);
+    if(next){const p=spots[next];target.setPosition(p.x,p.y);}
     const title=['쟁반을 작업대에 놓아 줘','쟁반 위에 산 모형을 올려 줘','붉은 물 주사기를 관에 연결해 줘'][parts.length];
     api.task(title||'모형을 조립했어','반짝이는 자리에 재료를 끌어 놓아 줘.');
     api.counter(parts.length,3,'모형 조립');
