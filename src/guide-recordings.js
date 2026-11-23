@@ -1321,10 +1321,10 @@ export const guideRecordings={
     "duration": 2.56
   },
   "guide-op-028": {
-    "file": "el/guide-op-028.mp3",
-    "text": "작전 성공! 곧 도구를 받으러 가자.",
+    "file": "el/guide-op-028-success.mp3",
+    "text": "작전 성공!",
     "voice": "elevenlabs-hun",
-    "duration": 3.11
+    "duration": 1.1
   },
   "guide-op-029": {
     "file": "el/guide-op-029.mp3",
