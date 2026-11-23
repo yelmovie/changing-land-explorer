@@ -67,3 +67,22 @@ test('map encounter contact is visual and legacy knockout never blocks movement'
  assert.deepEqual(stepCombat(g,h,33,1300),[]);
  assert.equal(attackCombat(g,h,2000).remaining,1);
 });
+
+test('an approaching villain leaves room for River to attack instead of walking into her',()=>{
+ const g=createCombat(null,0),e=g.enemies[0],h={x:e.x+90,y:e.y};
+ const events=[];for(let now=0;now<5000;now+=40)events.push(...stepCombat(g,h,40,now));
+ const distance=Math.hypot(e.x-h.x,e.y-h.y);
+ assert.ok(distance>=COMBAT.approachDistance&&distance<=COMBAT.approachDistance+2);
+ assert.equal(events.filter(event=>event.id===e.id).length,0);
+ assert.equal(g.progress.health,3);
+});
+
+test('a hit at the edge of reach keeps its next hit in reach through the cooldown',()=>{
+ for(const distance of [COMBAT.attackRange-1,COMBAT.attackRange]){
+  const g=createCombat(null,0),e=g.enemies[0],h={x:e.x-distance,y:e.y};
+  assert.equal(attackCombat(g,h,2000,e.id).remaining,2);
+  assert.ok(Math.hypot(e.x-h.x,e.y-h.y)<=COMBAT.attackRange);
+  stepCombat(g,h,40,2000+COMBAT.attackCooldown);
+  assert.equal(attackCombat(g,h,2000+COMBAT.attackCooldown,e.id).remaining,1);
+ }
+});

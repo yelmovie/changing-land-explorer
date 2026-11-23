@@ -1,6 +1,6 @@
 import {MAP_VILLAINS,HERO_HEALTH,VILLAIN_HITS,normalizeVillains,hitVillain} from './map-villain-rules.js';
 const REST_POINTS=[[.18,.75],[.16,.38],[.29,.205],[.65,.205],[.77,.46],[.70,.70]].map(([x,y])=>({x:x*1200,y:y*675}));
-export const COMBAT={attackRange:128,collisionRadius:31,attackCooldown:560,invulnerable:1800,speed:38};
+export const COMBAT={attackRange:128,approachDistance:64,collisionRadius:31,attackCooldown:560,invulnerable:1800,speed:38};
 // Visuals are exactly half the previous size; touch targets remain at least 48 px.
 export const villainCellSize=scale=>Math.max(64,Math.min(190,112*scale))/2;
 export function riverCombatFrame(pose,elapsed,reduced=false){
@@ -21,7 +21,8 @@ export function stepCombat(game,hero,delta,now,{reduced=false,clear=p=>p}={}){
   const sightseeing=t<1460||t>=2110&&t<3400;
   const part=t<1460?t/1460:t<2110?1:t<3400?1-(t-2110)/1290:0;
   const offset=reduced?0:32*((1-Math.cos(part*Math.PI))-1);
-  const target=clear(chase?hero:{x:e.home.x+offset,y:e.home.y+(reduced?0:(t<2110?1:-1)*10*Math.sin(Math.PI*part))});
+  const gap=Math.hypot(e.x-hero.x,e.y-hero.y),stand=gap>COMBAT.approachDistance?{x:hero.x+(e.x-hero.x)/gap*COMBAT.approachDistance,y:hero.y+(e.y-hero.y)/gap*COMBAT.approachDistance}:e;
+  const target=clear(chase?stand:{x:e.home.x+offset,y:e.home.y+(reduced?0:(t<2110?1:-1)*10*Math.sin(Math.PI*part))});
   const dx=target.x-e.x,dy=target.y-e.y,d=Math.hypot(dx,dy),step=Math.min(d,COMBAT.speed*(reduced?0:chase?1:1.4)*dt);
   if(now>=e.poseUntil){if(d>2&&!reduced){Object.assign(e,clear({x:e.x+dx/d*step,y:e.y+dy/d*step}));e.frame=1+Math.floor(now/230)%2;}else e.frame=reduced||chase||sightseeing?0:2;
    if(!chase&&!reduced&&Math.abs(dx)>2)e.facing=dx<0?-1:1;else if(Math.abs(hero.x-e.x)>4)e.facing=hero.x<e.x?-1:1;}
@@ -42,11 +43,11 @@ export function attackCombat(game,hero,now,targetId=null,{reduced=false,clear=p=
  if(!enemy)return {type:'miss'};
  game.heroFacing=enemy.x<hero.x?-1:1;
  enemy.facing=-game.heroFacing;
- const hit=hitVillain(game.progress,enemy.id);game.progress=hit.progress;enemy.frame=hit.defeated?5:4;enemy.poseUntil=now+430;if(hit.defeated)enemy.deadAt=now;
+ const hit=hitVillain(game.progress,enemy.id);game.progress=hit.progress;enemy.frame=hit.defeated?5:4;enemy.poseUntil=now+COMBAT.attackCooldown+120;if(hit.defeated)enemy.deadAt=now;
  // A successful pulse gives feedback and room to breathe, never a contact hit on the same frame.
  game.invulnerableUntil=Math.max(game.invulnerableUntil,now+650);
- if(!reduced){const distance=Math.hypot(enemy.x-hero.x,enemy.y-hero.y)||1;
-  enemy.x+=((enemy.x-hero.x)||game.heroFacing)/distance*12;enemy.y+=(enemy.y-hero.y)/distance*12;Object.assign(enemy,clear(enemy));}
+ if(!reduced){const distance=Math.hypot(enemy.x-hero.x,enemy.y-hero.y)||1,push=Math.min(12,Math.max(0,COMBAT.attackRange-distance-8));
+  enemy.x+=((enemy.x-hero.x)||game.heroFacing)/distance*push;enemy.y+=(enemy.y-hero.y)/distance*push;Object.assign(enemy,clear(enemy));}
  if(hit.defeated){game.celebrateAt=now+430;game.celebrateUntil=now+1130;}
  return {type:hit.defeated?'defeat':'hit',id:enemy.id,remaining:hit.remaining};
 }
