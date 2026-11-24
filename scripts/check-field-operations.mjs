@@ -68,7 +68,11 @@ try{
    },{index,id});
    await page.waitForSelector('#operation-board');await page.evaluate(()=>document.fonts.ready);
    assert.equal(await page.locator('.operation-model-note').count(),0);
-   if(id==='river')assert.equal(await page.locator('#operation-back,#operation-retry').count(),0);
+   if(id==='river'){
+    assert.equal(await page.locator('#operation-back,#operation-retry,.operation-sites').count(),0);
+    assert.equal(await page.locator('.river-clue-photo .river-clue[aria-pressed="false"]').count(),3);
+    assert.equal(await page.locator('#operation-auto').isVisible(),false);
+   }
    await inspect(page,`${width}x${height}-${id}-start`);
    for(const [n,action]of actions.entries()){
     if(id==='river'&&action.startsWith('bridge:')){
@@ -81,6 +85,10 @@ try{
      }
      if(width===1024&&site==='checked'){
       const grip=page.locator('.bridge-grip');await grip.press('ArrowDown');await grip.press('Enter');
+     }else if(site==='sand'){
+      await page.locator('.bridge-grip').tap();
+      const target=page.locator('[data-bridge-place="sand"]');
+      await target.waitFor();await inspect(page,`${width}x${height}-bridge-selected`);await target.tap();
      }else await bridgeDrag(page,site,touch);
      if(site==='bank'){
       await bridgeDrag(page,'sand',touch);
@@ -96,8 +104,15 @@ try{
       if(await page.locator('[data-crossing-step]:not(:disabled)').count())await page.locator('[data-crossing-step]').click();
       await page.waitForTimeout(2600);
      }
+    }else if(action.startsWith('observe:')){
+     const marker=page.locator(`[data-operation="${action}"]`);
+     const center=await marker.boundingBox();
+     if(touch)await marker.tap();else await marker.click();
+     await marker.and(page.locator('[aria-pressed="true"]')).waitFor();
+     assert.deepEqual(await marker.boundingBox(),center);
+     assert.equal(await page.locator('.river-clue[aria-pressed="true"]').count(),n+1);
+     if(action==='observe:deposit')assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
     }else await page.locator(`[data-operation="${action}"]`).click();
-    if(id==='river'&&action==='observe:deposit')assert.equal(await page.locator('[data-operation="test"]').isDisabled(),true);
     if(id==='river'&&action==='test'){
      const success=actions[n-1]==='bridge:checked';
      await page.locator('.bridge-map[data-bridge-phase="'+(success?'held':'washed')+'"]').waitFor();
@@ -118,6 +133,7 @@ try{
    assert.equal(await page.locator('#operation-finish').isVisible(),false);
    if(id==='river'){
     assert.equal(await page.locator('#operation-speed').count(),0);
+    await page.locator('#settings').tap();await page.locator('#autoplay-setting').check();await page.locator('#settings-close').tap();
     await page.locator('#operation-auto').click();
     await page.locator('#operation-auto').click();
     await page.waitForTimeout(700);
@@ -129,6 +145,8 @@ try{
     assert.equal(saved.step,1,'autoplay stops before choosing an answer');
     assert.equal(saved.choice,null);
     assert.equal(saved.done,false);
+    await page.locator('.bridge-grip').waitFor();
+    await page.locator('#settings').tap();await page.locator('#autoplay-setting').uncheck();await page.locator('#settings-close').tap();
     await inspect(page,`${width}x${height}-${id}-auto-handoff`);
    }
   }

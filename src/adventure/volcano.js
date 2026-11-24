@@ -121,7 +121,7 @@ function inject(scene,api){
   const d=api.data,w=api.work;w.push=clamp(w.push||0);w.flow=clamp(w.flow||0);
   let finished=!!api.completed,active=false,replay=null,flowClock=0;
   const art=model(scene,api),stem=scene.add.graphics();
-  api.task('주사기 손잡이를 천천히 아래로 밀어 봐','손잡이를 밀거나 자동 재생으로 꼭대기와 경사면을 살펴봐.');
+  api.task('주사기 손잡이를 천천히 아래로 밀어 봐','주사기 손잡이를 밀면 붉은 물이 관을 따라 올라가.');
   // Flat fallback until the painted push knob loads; the arrow stays as the drag cue.
   const cap=scene.add.graphics().fillStyle(0x284f44,.22).fillRoundedRect(-49,-15,102,38,16)
     .fillStyle(0x3a8975).fillRoundedRect(-52,-22,104,35,15).lineStyle(2,0x245b50,.9).strokeRoundedRect(-52,-22,104,35,15)

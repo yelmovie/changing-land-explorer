@@ -11,7 +11,7 @@ import {HINTS,recordHint} from './hints.js';
 import {createGame,destroyGame} from '../phaser-lifecycle.js';
 import {backgroundForAsset,STAGE_BACKGROUNDS,STAGE_ASSETS,SHARED_STAGE_ASSETS} from '../stage-art.js';
 import {STAGES} from '../model.js';
-import {enter,navigate} from '../main.js';
+import {enter,isAutoplayEnabled,navigate} from '../main.js';
 import {createPlayback} from './playback.js';
 import {voiceBusy} from '../sound.js';
 import {playGuideText} from '../guide-voice.js';
@@ -19,8 +19,8 @@ import {playGuideText} from '../guide-voice.js';
 const SETUP={river,volcano,rocks,city,safety};
 const ACTION_CUES={
  river:[['물뿌리개를 누르면 물이 나와. 다시 누르면 멈춰.','물의 양을 바꿔 같은 언덕을 관찰해 봐.','이름표를 골라 빈 원에 놓아 봐.'],['숫자를 눌러 상류를 관찰해 봐.','숫자를 눌러 하류를 관찰해 봐.','관찰 카드를 상류와 하류의 빈 점선 칸에 놓아 줘.']],
- volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','손잡이를 밀거나 자동 재생으로 물을 흘려 봐.','그림에서 물이 나온 곳을 누르고, 물길의 점을 이어 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.']],
- rocks:[['문지르거나 자동 재생으로 먼지를 털어 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문에 맞는 표본을 반짝이는 상자로 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.']],
+ volcano:[['빛나는 자리에 재료를 차례로 놓아 봐.','주사기 손잡이를 아래로 천천히 밀어 줘.','그림에서 물이 나온 곳을 누르고, 물길의 점을 이어 봐.'],['숫자를 눌러 네 분출물을 기록해 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.','비교 카드를 고른 뒤 놓을 칸을 눌러 봐.']],
+ rocks:[['붓 끝으로 먼지를 문질러 줘. 돌을 직접 문질러도 돼.','세 곳을 확대하고 색과 알갱이를 골라 봐.','세 곳을 확대하고 색과 알갱이를 골라 봐.'],['주문에 맞는 표본을 반짝이는 상자로 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.','기준 기록과 새 표본을 비교해 알맞은 표본함에 끌어 줘.']],
  city:[['두 사진을 차례로 눌러 봐.','사진 위 손잡이를 좌우로 움직여 봐.','두 사진을 차례로 눌러 봐.'],['맞는 포스터를 안내판에 붙여 줘.','맞는 포스터를 안내판에 붙여 줘.','맞는 포스터를 안내판에 붙여 줘.']],
  safety:[['위험 표시를 위험한 곳에 붙여 줘.','리버를 책상 아래로 옮기거나, 책상 아래를 눌러 줘.','책상 다리를 잡고 기다려 줘.'],['가까운 통로를 눌러 리버를 출구와 운동장으로 안내해.','이번엔 다른 교실이야. 위험 구역을 피해 운동장까지 걸어 봐.','건물·담장·전신주를 피해 공터까지 걸어 봐.']]
 };
@@ -68,16 +68,17 @@ export function mount(ctx) {
   playbackBar.append(autoButton);ctx.controls.before(playbackBar);
   let auto=null;
   const playback=createPlayback({onChange:paintAuto});
+  const showAuto=()=>isAutoplayEnabled()&&auto&&(!phaseDone||auto.allowWhenComplete)&&playback.ready;
   function guideAction(){
     // Direction pads are free choices; never highlight one direction as the next step.
     const candidates=[...ctx.controls.querySelectorAll('.action-buttons button:not(:disabled):not([id^="route-"])')].filter(b=>!FALLBACK_ACTIONS.has(b.id));
-    const suggested=phaseDone?next:auto&&playback.ready&&!auto.observed?autoButton:candidates.length===1?candidates[0]:candidates.find(b=>b.classList.contains('primary'));
+    const suggested=phaseDone?next:showAuto()&&!auto.observed?autoButton:candidates.length===1?candidates[0]:candidates.find(b=>b.classList.contains('primary'));
     for(const button of [autoButton,next,...ctx.controls.querySelectorAll('.action-buttons button')]){
       const on=button===suggested; if(button.classList.contains('suggested')!==on)button.classList.toggle('suggested',on);
     }
   }
   function paintAuto(){
-    if(!auto||(phaseDone&&!auto.allowWhenComplete)||!playback.ready){
+    if(!showAuto()){
       if(playback.playing)stopAuto();
       playbackBar.hidden=true;
       if(!autoButton.hidden)autoButton.hidden=true;
@@ -98,7 +99,7 @@ export function mount(ctx) {
   }
   function stopAuto(){playback.stop();}
   function startAuto(){
-    if(!auto||(phaseDone&&!auto.allowWhenComplete)||!auto.ready()||document.hidden||document.querySelector('dialog[open]'))return;
+    if(!showAuto()||document.hidden||document.querySelector('dialog[open]'))return;
     const work=chapter.work[chapter.phase];
     if(!phaseDone){work.operationHelp=true;ctx.save();}
     toolMenu.open=false;playback.start();paintAuto();

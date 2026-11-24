@@ -13,6 +13,7 @@ try{
   const data=()=>p.evaluate(()=>window.qaMain.state().drafts.river.data);
   await p.goto(process.env.CHECK_URL||'http://localhost:5197');await p.evaluate(async()=>{window.qaMain=await import('/src/main.js');});
   await p.evaluate(async()=>{const m=await import('/src/main.js');m.state().started=true;m.state().sound=false;m.state().drafts.river={step:0,passed:[],data:{}};m.enter(0);});await ready();
+  await p.locator('#settings').tap();await p.locator('#autoplay-setting').check();await p.locator('#settings-close').tap();
   await p.locator('#observation-auto').tap();
   for(const water of [1,2]){
    await p.waitForFunction(phase=>window.qaMain.state().drafts.river.data.adventure.chapters[0].work[phase].pour>.65,water-1);

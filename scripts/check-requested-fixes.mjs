@@ -36,6 +36,9 @@ async function layout(label){
 try{
  for(const [width,height,mode,touch]of (process.env.CHECK_PART&&process.env.CHECK_PART!=='water'?[]:[[1280,800,'drag',false],[1024,768,'tap',true],[768,1024,'tap',true],[1280,800,'keyboard',false]])){
   await fresh(width,height,touch);await page.evaluate(async()=>{(await import('/src/main.js')).enter(0);});await ready();
+  assert.equal(await page.locator('#observation-auto').isVisible(),false,'playback is hidden before teacher opt-in');
+  await page.locator('#settings').click();await page.locator('#autoplay-setting').check();await page.locator('#settings-close').click();
+  await page.locator('#observation-auto').waitFor();
   assert.equal(await page.locator('#observation-auto').isVisible(),true,'water observation offers playback');
   assert.equal(await page.locator('#next').isDisabled(),true,'observation must finish before continuing');
   await click(1100,80);assert.equal((await data('river')).adventure.chapters[0].work[0].pour,0,'only the watering can starts flow');

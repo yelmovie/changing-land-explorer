@@ -42,6 +42,17 @@ function readStudent(){
 }
 readStudent();
 let admin=false,preview=null,dispose=()=>{},screen={type:'home'},navRevision=0;
+const AUTOPLAY_SETTING_KEY='geovalley-observation-autoplay';
+function readAutoplaySetting(){
+ try{return localStorage.getItem(AUTOPLAY_SETTING_KEY)==='true';}catch{return false;}
+}
+let autoplayEnabled=readAutoplaySetting();
+export const isAutoplayEnabled=()=>autoplayEnabled;
+function setAutoplayEnabled(enabled){
+ autoplayEnabled=enabled;
+ const input=$('#autoplay-setting');if(input)input.checked=enabled;
+ window.dispatchEvent(new Event('observation-autoplay-change'));
+}
 const app=$('#app');
 setSoundEnabled(student.sound);
 document.addEventListener('click',e=>{if(e.target.closest('button:not(:disabled)'))playSound('click');},true);
@@ -59,7 +70,10 @@ function showConflict(){
  conflict=true;
  modal('다른 창에서 기록이 바뀌었어요','<p>다른 창이나 탭에서 탐험 기록이 새로 저장됐어요. 그 기록을 지키기 위해 이 창에서 바꾼 내용은 저장하지 않아요.</p><p>최신 기록을 불러와 이어서 탐험해 주세요.</p><div class="dialog-footer"><button class="primary" id="conflict-reload">최신 기록 불러오기</button></div>',(d,close)=>{$('#conflict-reload',d).onclick=()=>{close();readStudent();conflict=false;storageWarning='';admin=false;preview=null;setSoundEnabled(student.sound);const to=student.location||{type:'map'};navigate(to.type,to.arg,true);};});
 }
-window.addEventListener('storage',e=>{if(!conflict&&(e.key===SAVE_KEY||e.key===null)&&storageChanged())showConflict();});
+window.addEventListener('storage',e=>{
+ if(e.key===AUTOPLAY_SETTING_KEY||e.key===null)setAutoplayEnabled(readAutoplaySetting());
+ if(!conflict&&(e.key===SAVE_KEY||e.key===null)&&storageChanged())showConflict();
+});
 export function save(){if(!admin)return persistStudent();return false;}
 export function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),4000);}
 export function chime(success=true){playSound(success?'complete':'retry',{force:true});}
@@ -136,6 +150,7 @@ function settings(){
   <section class="science-settings-teacher" aria-label="교사 시연">
    <label class="setting-row">교사용 전체 해금 <input id="admin-setting" type="checkbox" role="switch" ${admin?'checked':''}></label>
    <p class="settings-note">모든 활동·엔딩·인증서를 살펴보는 수업 시연 기능이에요. 시연 중 답과 보상은 학생 기록에 저장되지 않아요. 끄면 원래 진행으로 돌아와요.</p>
+   <label class="setting-row">자동 재생 버튼 표시 <input id="autoplay-setting" type="checkbox" role="switch" ${autoplayEnabled?'checked':''}></label>
   </section>
   ${storageProblem?`<p class="settings-status danger-note" role="status">${escapeHTML(storageProblem)}</p>`:''}
   ${recoveryNotice?`<p class="settings-note" role="status">${escapeHTML(recoveryNotice)}</p>`:''}
@@ -148,6 +163,11 @@ function settings(){
   $('#music-volume',d).oninput=e=>{setMusicVolume(e.target.value);$('output[for="music-volume"]',d).textContent=musicVolume()+'%';e.target.setAttribute('aria-valuetext',musicVolume()+'%');};
   $('#sound-setting',d).onchange=e=>{student.sound=e.target.checked;saveSound();};
   $('#admin-setting',d).onchange=e=>{const enabled=e.target.checked;close();setPreview(enabled);};
+  $('#autoplay-setting',d).onchange=e=>{
+   const enabled=e.target.checked;setAutoplayEnabled(enabled);
+   try{localStorage.setItem(AUTOPLAY_SETTING_KEY,String(enabled));}
+   catch{toast('자동 재생 설정은 이 창에서만 적용돼요.');}
+  };
   const open=(id,action)=>{$(id,d).onclick=()=>{close();action();};};
   open('#intro-replay',()=>showFilm('intro',{replay:true}));
   open('#operations-open',operationList);open('#concept-list',conceptList);open('#bag-open',bag);
@@ -218,7 +238,7 @@ export async function navigate(type,arg,fromHistory=false){
    if(alreadyDone&&!progress.drafts[s.id])progress.drafts[s.id]={step:1,passed:[],data:structuredClone(progress.records[s.id]?.data||{})};
    const draft=progress.drafts[s.id];
    if(!draft||(!admin&&!alreadyDone&&!activityComplete(s.id,1,draft.data))){navigate('map');return;}
-   dispose=mountOperation({id:s.id,data:draft.data,save,shell,sound:playSound,onBack:()=>navigate('stage',{index,step:1}),onComplete:()=>complete(index,true)});
+   dispose=mountOperation({id:s.id,data:draft.data,save,shell,sound:playSound,isAutoplayEnabled,onBack:()=>navigate('stage',{index,step:1}),onComplete:()=>complete(index,true)});
   }
   else if(type==='stage'){
    const index=arg?.index,s=STAGES[index],draft=s&&state().drafts[s.id];

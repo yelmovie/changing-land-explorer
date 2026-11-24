@@ -3,9 +3,14 @@ import {$,escapeHTML,icon} from './ui.js';
 import {OPERATIONS,operationState,operate,freshOperation} from './field-operation-model.js';
 import {createPlayback} from './adventure/playback.js';
 import {BRIDGE_SITES,bridgeExperiment,bindBridgePlacement,bridgeCrossing,bindBridgeCrossing} from './bridge-experiment.js';
-export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
+const RIVER_CLUES=[
+ ['erosion','깎인 물가',16,34],
+ ['transport','움직이는 흙',49,61],
+ ['deposit','쌓인 모래',81,39]
+];
+export function mountOperation({id,data,save,shell,sound,isAutoplayEnabled,onComplete,onBack}){
  const spec=OPERATIONS[id];let model=operationState(data.fieldOperation,id),message=spec.goal,closed=false;
- let bridgePhase=null,bridgeTested=null,bridgeTimer=0,finishTimer=0,crossingCleanup=()=>{},crossTimer=0;
+ let bridgePhase=null,bridgeTested=null,bridgeTimer=0,finishTimer=0,crossingCleanup=()=>{},crossTimer=0,clueTimer=0;
  shell(spec.title,`<main class="field-operation" style="--operation-bg:url('/assets/art/${spec.background}.webp')"><section class="operation-scene" aria-label="직접 조작하는 현장 모형"><div class="operation-progress"></div><div id="operation-board"></div><img class="operation-hero" src="/assets/river-hero.webp" alt="함께 작전하는 리버"></section><footer class="operation-footer"><p id="operation-message" role="status"></p><div class="operation-playback" hidden><button id="operation-auto" class="primary">자동 관찰</button></div><div class="operation-navigation">${id==='river'?'':'<button class="secondary" id="operation-back">관찰로</button><button class="secondary" id="operation-retry">다시 도전</button>'}<button class="primary" id="operation-finish" hidden>스테이지 완료 ${icon('arrow')}</button></div></footer></main>`,'operation-app');
  const board=$('#operation-board'),hero=$('.operation-hero');
  const button=(key,label,cls='')=>`<button class="operation-action ${cls}" data-operation="${key}">${label}</button>`;
@@ -16,6 +21,10 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   return `<div class="operation-choice">${pair.map(([key,label])=>button(key,label)).join('')}</div>`;
  };
  const sceneLabel=text=>`<h2 class="operation-task" tabindex="-1">${text}</h2>`;
+ function riverClues(){
+  const markers=RIVER_CLUES.map(([key,label,x,y])=>`<button type="button" class="river-clue" data-operation="observe:${key}" aria-pressed="${model.observed.includes(key)}" style="--clue-x:${x}%;--clue-y:${y}%">${icon('lens')}${icon('check')}<span>${label}</span></button>`).join('');
+  return `<div class="river-clue-map"><figure class="river-clue-photo"><img src="/assets/art/river-field-clues-v3.webp" alt="왼쪽은 깎인 흙 물가, 가운데는 흙을 옮기는 물, 오른쪽은 쌓인 모래">${markers}</figure></div>`;
+ }
  function render(){
   crossingCleanup();crossingCleanup=()=>{};
   const background=id==='safety'&&model.step<2?'safety-island-classroom-v2':spec.background;
@@ -29,7 +38,7 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   hero.style.left=(model.done?82:8+model.step*18)+'%';hero.src=model.done?'/assets/hero-cheer.webp':'/assets/river-hero.webp';
   if(model.done){board.innerHTML=`<div class="operation-win"><span>${icon('flag',54)}</span><h2>내 관찰로 작전 성공!</h2><p>${escapeHTML({river:'물길의 흔적을 읽고 점검된 다리로 건넜어.',volcano:'용암과 화산재를 피해 대피하고 모형과 실제의 차이를 전했어.',city:'화산재 관측 소식에 맞춰 주민을 도왔어.',safety:'몸 보호부터 안전한 집합까지 순서대로 해냈어.'}[id])}</p><strong>${model.attempts?'다시 살펴보고 해결했어':'관찰한 단서로 해결했어'}</strong></div>`;return;}
   if(id==='river'){
-   board.innerHTML=sceneLabel(['세 흔적을 눌러 물길을 읽어 봐','다리를 끌어 점선 자리에 놓아 봐','리버를 끌어서 다리를 건너게 해 줘'][model.step])+(model.step===0?illustration('art/river-field-clues-v3','왼쪽은 깎인 흙 물가, 가운데는 흙을 옮기는 물, 오른쪽은 쌓인 모래'):'')+(model.step===0?`<div class="operation-sites">${button('observe:erosion',(model.observed.includes('erosion')?'✓ ':'')+'깎인 물가','site-bank')}${button('observe:transport',(model.observed.includes('transport')?'✓ ':'')+'움직이는 흙','site-flow')}${button('observe:deposit',(model.observed.includes('deposit')?'✓ ':'')+'쌓인 모래','site-sand')}</div>`:model.step===1?bridgeExperiment(model.choice,bridgePhase,bridgeTested,`<div class="operation-center">${button('test',bridgePhase==='running'?'물이 흐르는 중…':bridgePhase==='held'?'다리가 버텼어':'물 흘려 시험하기','primary')}</div>`):bridgeCrossing());
+   board.innerHTML=sceneLabel(['사진 속 동그라미 세 곳을 눌러 봐','다리를 누른 뒤, 놓을 자리를 눌러 봐','리버를 끌어서 다리를 건너게 해 줘'][model.step])+(model.step===0?riverClues():model.step===1?bridgeExperiment(model.choice,bridgePhase,bridgeTested,`<div class="operation-center">${button('test',bridgePhase==='running'?'물이 흐르는 중…':bridgePhase==='held'?'다리가 버텼어':'물 흘려 시험하기','primary')}</div>`):bridgeCrossing());
   }else if(id==='volcano'){
    const options=[['signed','용암을 피해 안내된 통로로','crater','용암 가까이로'],['shelter','화산재를 피해 지정 대피소로','ash','화산재 구역으로'],['station','실제 화산은 뜨거운 물질도 나와','crater','실제 화산도 붉은 물만 나와']][model.step];
    const tasks=['뜨거운 용암이 경사면을 따라 흘러. 어디로 갈까?','작은 고체 알갱이인 화산재가 날려. 어디로 갈까?','대피소에 도착했어. 모형과 실제의 차이를 알려 줘'];
@@ -75,7 +84,7 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   },reduced?200:920);
  }
  function act(action,manual){
-  if(closed)return;
+  if(closed||clueTimer)return;
   if(manual)playback.stop();
   if(id==='river'&&model.step===1){
    if(bridgePhase==='running'||bridgePhase==='held')return;
@@ -86,28 +95,39 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
  }
  function applyResult(action,result,manual){
   const focusedAuto=document.activeElement===$('#operation-auto'),wasDone=model.done;
+  const marker=id==='river'&&model.step===0?board.querySelector(`[data-operation="${action}"]`):null;
   model=result.state;message=result.message;
   // The win screen shows briefly, then the reward opens by itself; the finish button skips the wait.
   if(model.done&&!wasDone){clearTimeout(finishTimer);finishTimer=setTimeout(finish,2400);}
   if(result.changed){data.fieldOperation=model;save();}
-  sound(model.done&&!wasDone?'complete':result.ok?'good':'retry',{force:true});
+  sound(model.done&&!wasDone?'complete':marker||result.ok?'good':'retry',{force:true});
+  if(marker){
+   marker.setAttribute('aria-pressed','true');
+   $('#operation-message').innerHTML=scienceText(message,id);
+   syncPlayback();
+   if(model.step===1)clueTimer=setTimeout(()=>{
+    const focusNext=board.contains(document.activeElement)||focusedAuto&&document.activeElement===document.body;
+    clueTimer=0;render();
+    if(focusNext)board.querySelector('.operation-task')?.focus({preventScroll:true});
+   },1200);
+   return;
+  }
   render();
   if(manual){
    const target=model.done?$('#operation-finish'):board.querySelector(`[data-operation="${action.startsWith('bridge:')?'test':action}"]`)||board.querySelector('.operation-task');
    target?.focus({preventScroll:true});
-  }else if(focusedAuto&&!pendingObservations().length){
-   board.querySelector('.operation-task')?.focus({preventScroll:true});
   }
  }
  const pendingObservations=()=>{
   if(model.done)return [];
-  if(id==='river'&&model.step===0)return ['erosion','transport','deposit'].filter(item=>!model.observed.includes(item)).map(item=>'observe:'+item);
+  if(id==='river'&&model.step===0)return RIVER_CLUES.filter(([key])=>!model.observed.includes(key)).map(([key])=>'observe:'+key);
   return [];
  };
  let frame=0,lastFrame=0;
  const playback=createPlayback({onChange:syncPlayback});
+ const canAutoObserve=()=>!closed&&isAutoplayEnabled()&&pendingObservations().length>0;
  function syncPlayback(){
-  const available=pendingObservations().length>0;
+  const available=canAutoObserve();
   $('.operation-playback').hidden=!available;
   $('#operation-auto').textContent=playback.playing?'관찰 멈춤':'자동 관찰';
   $('#operation-auto').setAttribute('aria-pressed',String(playback.playing));
@@ -118,7 +138,7 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
   playback.update(lastFrame?now-lastFrame:0);lastFrame=now;
   if(playback.playing)frame=requestAnimationFrame(tick);
  }
- playback.configure({ready:()=>!closed&&pendingObservations().length>0,interval:1800,advance:()=>act(pendingObservations()[0],false)});
+ playback.configure({ready:canAutoObserve,interval:1800,advance:()=>act(pendingObservations()[0],false)});
  $('#operation-auto').onclick=()=>{
   if(playback.playing){playback.stop();return;}
   cancelAnimationFrame(frame);lastFrame=0;
@@ -134,5 +154,6 @@ export function mountOperation({id,data,save,shell,sound,onComplete,onBack}){
  $('#operation-finish').onclick=finish;
  const stopPlayback=()=>{if(document.hidden)playback.stop();};
  document.addEventListener('visibilitychange',stopPlayback);
- render();return()=>{closed=true;crossingCleanup();clearTimeout(crossTimer);clearTimeout(bridgeTimer);clearTimeout(finishTimer);playback.stop();cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',stopPlayback);};
+ window.addEventListener('observation-autoplay-change',syncPlayback);
+ render();return()=>{closed=true;crossingCleanup();clearTimeout(clueTimer);clearTimeout(crossTimer);clearTimeout(bridgeTimer);clearTimeout(finishTimer);playback.stop();cancelAnimationFrame(frame);document.removeEventListener('visibilitychange',stopPlayback);window.removeEventListener('observation-autoplay-change',syncPlayback);};
 }

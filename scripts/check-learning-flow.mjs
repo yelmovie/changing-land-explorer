@@ -171,6 +171,7 @@ try{
  await page.goto(process.env.CHECK_URL||'http://localhost:5177');await page.waitForSelector('#settings');
  if(!resumedStageState){
  await page.waitForSelector('#start');await page.locator('#start').click();await page.locator('#story-skip').click();await enter(0);
+ await page.locator('#settings').click();await page.locator('#autoplay-setting').check();await page.locator('#settings-close').click();
  await page.locator('#observation-auto').click();
  // The second run follows without a navigation click; a reload keeps its phase.
  await page.waitForSelector('#activity[data-phase="1"]');await settle();
